@@ -1,0 +1,4 @@
+[
+  {"sku": "whey-vanilla", "name": "Whey Protein Vanilla", "price": 29.99, "stock": 50, "image": "assets/demo/store/whey.png"},
+  {"sku": "omega3", "name": "Omega-3 Capsules", "price": 19.99, "stock": 100, "image": "assets/demo/store/omega3.png"}
+]

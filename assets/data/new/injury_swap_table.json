@@ -1,0 +1,84 @@
+{
+  "shoulder_pain": {
+    "description": "Shoulder Pain",
+    "avoid_keywords": [
+      "overhead",
+      "press",
+      "shoulder",
+      "lateral_raise"
+    ],
+    "substitute_exercises": [
+      "push_up",
+      "incline_push_up",
+      "band_row",
+      "face_pull",
+      "bird_dog"
+    ]
+  },
+  "knee_pain": {
+    "description": "Knee Pain",
+    "avoid_keywords": [
+      "squat",
+      "lunge",
+      "step_up",
+      "leg_press",
+      "leg_extension"
+    ],
+    "substitute_exercises": [
+      "glute_bridge",
+      "hip_thrust",
+      "romanian_deadlift",
+      "hamstring_curl",
+      "superman"
+    ]
+  },
+  "lower_back_pain": {
+    "description": "Lower Back Pain",
+    "avoid_keywords": [
+      "deadlift",
+      "row",
+      "superman",
+      "good_morning",
+      "barbell_back_squat"
+    ],
+    "substitute_exercises": [
+      "glute_bridge",
+      "bird_dog",
+      "plank",
+      "hip_thrust",
+      "leg_extension"
+    ]
+  },
+  "neck_pain": {
+    "description": "Neck Pain",
+    "avoid_keywords": [
+      "shrug",
+      "neck",
+      "upright_row",
+      "overhead_press"
+    ],
+    "substitute_exercises": [
+      "push_up",
+      "lat_pulldown",
+      "band_row",
+      "seated_cable_row"
+    ]
+  },
+  "ankle_pain": {
+    "description": "Ankle Pain",
+    "avoid_keywords": [
+      "calf",
+      "jump",
+      "step_up",
+      "lunge",
+      "box_jump",
+      "high_knees"
+    ],
+    "substitute_exercises": [
+      "glute_bridge",
+      "hip_thrust",
+      "seated_leg_curl",
+      "plank"
+    ]
+  }
+}

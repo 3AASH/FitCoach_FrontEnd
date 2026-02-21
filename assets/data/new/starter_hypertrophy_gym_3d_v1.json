@@ -1,0 +1,200 @@
+{
+  "plan_id": "starter_hypertrophy_gym_3d_v1",
+  "type": "starter",
+  "goal": "muscle_gain",
+  "location": "gym",
+  "training_days": 3,
+  "weeks": 12,
+  "blocks": [
+    { "block": 1, "weeks": [1,2], "focus": "technique + form", "progression": "RPE 6→7" },
+    { "block": 2, "weeks": [3,4], "focus": "double progression", "progression": "+reps then +2.5–5% load" },
+    { "block": 3, "weeks": [5,6], "focus": "volume increase", "progression": "+1 set for back/chest/quads" },
+    { "block": 4, "weeks": [7,8], "focus": "intensity push", "progression": "top set RPE8 + backoff −10%" },
+    { "block": 5, "weeks": [9,10], "focus": "density", "progression": "−15s rest" },
+    { "block": 6, "weeks": [11,12], "focus": "deload", "progression": "−35% volume, RPE 6" }
+  ],
+  "sessions": [
+    {
+      "day": 1,
+      "name": "Push Day",
+      "work": [
+        {
+          "ex_id": "bench_press",
+          "name_en": "Bench Press",
+          "name_tr": "Bench Press",
+          "video_id": "vid_bench_press",
+          "equip": ["barbell"],
+          "muscles": ["chest","triceps","front_delts"],
+          "sets": 4, "reps": "6–10", "rest_s": 120, "rpe": 7
+        },
+        {
+          "ex_id": "incline_db_press",
+          "name_en": "Incline Dumbbell Press",
+          "name_tr": "Eğimli DB Press",
+          "video_id": "vid_incline_db_press",
+          "equip": ["dumbbell"],
+          "muscles": ["chest","front_delts"],
+          "sets": 3, "reps": "8–12", "rest_s": 90, "rpe": 7
+        },
+        {
+          "ex_id": "machine_shoulder_press",
+          "name_en": "Shoulder Press Machine",
+          "name_tr": "Omuz Press Makinesi",
+          "video_id": "vid_machine_shoulder_press",
+          "equip": ["machine"],
+          "muscles": ["shoulders"],
+          "sets": 3, "reps": "8–12", "rest_s": 90
+        },
+        {
+          "ex_id": "db_lateral_raise",
+          "name_en": "Lateral Raise",
+          "name_tr": "Lateral Raise",
+          "video_id": "vid_lateral_raise",
+          "equip": ["dumbbell"],
+          "muscles": ["side_delts"],
+          "sets": 3, "reps": "12–15", "rest_s": 60
+        },
+        {
+          "ex_id": "tricep_pushdown",
+          "name_en": "Tricep Pushdown",
+          "name_tr": "Triceps İtişi",
+          "video_id": "vid_tricep_pushdown",
+          "equip": ["cable"],
+          "muscles": ["triceps"],
+          "sets": 3, "reps": "10–15", "rest_s": 60
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "name": "Pull Day",
+      "work": [
+        {
+          "ex_id": "lat_pulldown",
+          "name_en": "Lat Pulldown",
+          "name_tr": "Lat Pulldown",
+          "video_id": "vid_lat_pulldown",
+          "equip": ["machine"],
+          "muscles": ["lats","mid_back"],
+          "sets": 4, "reps": "8–12", "rest_s": 90
+        },
+        {
+          "ex_id": "seated_row",
+          "name_en": "Seated Row",
+          "name_tr": "Oturur Çekiş",
+          "video_id": "vid_seated_row",
+          "equip": ["machine"],
+          "muscles": ["back","biceps"],
+          "sets": 3, "reps": "8–12", "rest_s": 90
+        },
+        {
+          "ex_id": "db_bicep_curl",
+          "name_en": "DB Bicep Curl",
+          "name_tr": "DB Biseps Curl",
+          "video_id": "vid_db_bicep_curl",
+          "equip": ["dumbbell"],
+          "muscles": ["biceps"],
+          "sets": 3, "reps": "10–15", "rest_s": 60
+        },
+        {
+          "ex_id": "face_pull",
+          "name_en": "Face Pull",
+          "name_tr": "Face Pull",
+          "video_id": "vid_face_pull",
+          "equip": ["cable"],
+          "muscles": ["rear_delts","mid_back"],
+          "sets": 3, "reps": "12–15", "rest_s": 60
+        },
+        {
+          "ex_id": "back_extension",
+          "name_en": "Back Extension",
+          "name_tr": "Bel Uzatma",
+          "video_id": "vid_back_extension",
+          "equip": ["machine","bench"],
+          "muscles": ["erectors","glutes"],
+          "sets": 3, "reps": "10–15", "rest_s": 60
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "name": "Leg Day",
+      "work": [
+        {
+          "ex_id": "back_squat",
+          "name_en": "Back Squat",
+          "name_tr": "Arka Squat",
+          "video_id": "vid_back_squat",
+          "equip": ["barbell"],
+          "muscles": ["quads","glutes","core"],
+          "sets": 4, "reps": "6–10", "rest_s": 120, "rpe": 7
+        },
+        {
+          "ex_id": "leg_press",
+          "name_en": "Leg Press",
+          "name_tr": "Bacak Press",
+          "video_id": "vid_leg_press",
+          "equip": ["machine"],
+          "muscles": ["quads"],
+          "sets": 3, "reps": "10–15", "rest_s": 90
+        },
+        {
+          "ex_id": "leg_curl",
+          "name_en": "Leg Curl",
+          "name_tr": "Bacak Curl",
+          "video_id": "vid_leg_curl",
+          "equip": ["machine"],
+          "muscles": ["hamstrings"],
+          "sets": 3, "reps": "10–15", "rest_s": 75
+        },
+        {
+          "ex_id": "calf_raise_machine",
+          "name_en": "Calf Raise (Machine)",
+          "name_tr": "Baldır Makinesi",
+          "video_id": "vid_calf_raise_machine",
+          "equip": ["machine"],
+          "muscles": ["calves"],
+          "sets": 3, "reps": "12–20", "rest_s": 60
+        }
+      ],
+      "conditioning": {
+        "type": "optional",
+        "protocol": "Bike 20 min",
+        "intensity": "Zone 2 (conversational)"
+      }
+    }
+  ],
+  "routing": {
+    "injury_swaps": true,
+    "equipment_swaps": true,
+    "volume_guards": { "target_sets_per_muscle_week": [12, 16] }
+  },
+  "fitness_score": {
+    "method": "weekly_projection",
+    "components": { "adherence": 0.45, "strength": 0.45, "cardio": 0.10 },
+    "assumptions": {
+      "target_sessions": 36,
+      "avg_adherence_pct": 85,
+      "strength_gain_index": "moderate+",
+      "cardio_gain_index": "light"
+    },
+    "weekly_expected": [
+      { "week": 1, "score": 70 },
+      { "week": 2, "score": 71 },
+      { "week": 3, "score": 73 },
+      { "week": 4, "score": 74 },
+      { "week": 5, "score": 76 },
+      { "week": 6, "score": 77 },
+      { "week": 7, "score": 79 },
+      { "week": 8, "score": 80 },
+      { "week": 9, "score": 82 },
+      { "week": 10, "score": 83 },
+      { "week": 11, "score": 82 },
+      { "week": 12, "score": 84 }
+    ]
+  },
+  "notes": [
+    "Barbell lifts: slow eccentric 2–3 sec, full ROM",
+    "Prioritize stable machines if technique confidence is low"
+  ]
+}

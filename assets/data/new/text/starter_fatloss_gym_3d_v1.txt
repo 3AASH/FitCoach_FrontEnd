@@ -1,0 +1,204 @@
+{
+  "plan_id": "starter_fatloss_gym_3d_v1",
+  "type": "starter",
+  "goal": "fat_loss",
+  "location": "gym",
+  "training_days": 3,
+  "weeks": 12,
+  "blocks": [
+    {"block":1, "weeks":[1,2], "focus":"technique + base", "progression":"RPE 6 → 7"},
+    {"block":2, "weeks":[3,4], "focus":"double progression", "progression":"increase reps within range then +2.5–5% load"},
+    {"block":3, "weeks":[5,6], "focus":"volume boost", "progression":"+1 set on squat + hip hinge"},
+    {"block":4, "weeks":[7,8], "focus":"intensity spike", "progression":"Top set @RPE8 + backoff"},
+    {"block":5, "weeks":[9,10], "focus":"density", "progression":"reduce rest by ~15s"},
+    {"block":6, "weeks":[11,12], "focus":"deload", "progression":"–35% volume, RPE 6"}
+  ],
+  "sessions": [
+    {
+      "day": 1,
+      "name": "Full Body A",
+      "work": [
+        {
+          "ex_id": "back_squat",
+          "name_en": "Back Squat",
+          "name_tr": "Arka Squat",
+          "video_id": "vid_back_squat",
+          "equip": ["barbell"],
+          "muscles": ["quads","glutes","core"],
+          "sets": 3,"reps": "6–10","rest_s": 120,"rpe": 6.5
+        },
+        {
+          "ex_id": "bench_press",
+          "name_en": "Bench Press",
+          "name_tr": "Bench Press",
+          "video_id": "vid_bench_press",
+          "equip": ["barbell"],
+          "muscles": ["chest","triceps"],
+          "sets": 3,"reps": "6–10","rest_s": 120,"rpe": 6.5
+        },
+        {
+          "ex_id": "lat_pulldown",
+          "name_en": "Lat Pulldown",
+          "name_tr": "Lat Pulldown",
+          "video_id": "vid_lat_pulldown",
+          "equip": ["machine"],
+          "muscles": ["lats","mid_back"],
+          "sets": 3,"reps": "8–12","rest_s": 90,"rpe": 6.5
+        },
+        {
+          "ex_id": "romanian_deadlift",
+          "name_en": "Romanian Deadlift",
+          "name_tr": "Romen Deadlift",
+          "video_id": "vid_rdl",
+          "equip": ["barbell"],
+          "muscles": ["hamstrings","glutes"],
+          "sets": 3,"reps": "8–12","rest_s": 120,"rpe": 6.5
+        },
+        {
+          "ex_id": "plank",
+          "name_en": "Plank",
+          "name_tr": "Plank",
+          "video_id": "vid_plank",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 3,"reps":"30–45s","rest_s":60
+        }
+      ],
+      "conditioning": {
+        "type": "intervals",
+        "machine_options": ["rower","bike","treadmill_walk"],
+        "protocol": "30s ON / 30s OFF × 12",
+        "target_heart_rate": "75–85% max"
+      }
+    },
+    {
+      "day": 3,
+      "name": "Full Body B",
+      "work": [
+        {
+          "ex_id": "leg_press",
+          "name_en": "Leg Press",
+          "name_tr": "Bacak Press",
+          "video_id": "vid_leg_press",
+          "equip": ["machine"],
+          "muscles": ["quads","glutes"],
+          "sets": 3,"reps": "10–15","rest_s": 120,"rpe": 7
+        },
+        {
+          "ex_id": "incline_db_press",
+          "name_en": "Incline Dumbbell Press",
+          "name_tr": "Eğimli DB Press",
+          "video_id": "vid_incline_db_press",
+          "equip": ["dumbbell"],
+          "muscles": ["chest","front_delts"],
+          "sets": 3,"reps": "8–12","rest_s": 90,"rpe": 7
+        },
+        {
+          "ex_id": "seated_row",
+          "name_en": "Seated Row",
+          "name_tr": "Oturur Çekiş",
+          "video_id": "vid_seated_row",
+          "equip": ["machine"],
+          "muscles": ["back","biceps"],
+          "sets": 3,"reps": "8–12","rest_s": 90
+        },
+        {
+          "ex_id": "db_lateral_raise",
+          "name_en": "Lateral Raise",
+          "name_tr": "Lateral Raise",
+          "video_id": "vid_lateral_raise",
+          "equip": ["dumbbell"],
+          "muscles": ["side_delts"],
+          "sets": 3,"reps": "10–15","rest_s": 60
+        },
+        {
+          "ex_id": "cable_crunch",
+          "name_en": "Cable Crunch",
+          "name_tr": "Kablo Crunch",
+          "video_id": "vid_cable_crunch",
+          "equip": ["cable"],
+          "muscles": ["core"],
+          "sets": 3,"reps": "12–15","rest_s": 60
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "name": "Full Body C",
+      "work": [
+        {
+          "ex_id": "deadlift",
+          "name_en": "Deadlift",
+          "name_tr": "Deadlift",
+          "video_id": "vid_deadlift",
+          "equip": ["barbell"],
+          "muscles": ["glutes","back"],
+          "sets": 3,"reps":"5–8","rest_s":150,"rpe":7
+        },
+        {
+          "ex_id": "chest_press_machine",
+          "name_en": "Chest Press Machine",
+          "name_tr": "Chest Press Makinesi",
+          "video_id": "vid_chest_press_machine",
+          "equip": ["machine"],
+          "muscles": ["chest"],
+          "sets": 3,"reps":"10–15","rest_s":90
+        },
+        {
+          "ex_id": "wide_lat_pulldown",
+          "name_en": "Wide Grip Lat Pulldown",
+          "name_tr": "Geniş Tutuş Lat Pulldown",
+          "video_id": "vid_wide_lat_pulldown",
+          "equip": ["machine"],
+          "muscles": ["lats"],
+          "sets": 3,"reps":"8–12","rest_s":90
+        },
+        {
+          "ex_id": "leg_extension",
+          "name_en": "Leg Extension",
+          "name_tr": "Bacak Uzatma",
+          "video_id": "vid_leg_extension",
+          "equip": ["machine"],
+          "muscles": ["quads"],
+          "sets": 3,"reps":"10–15","rest_s":90
+        },
+        {
+          "ex_id": "hanging_knee_raise",
+          "name_en": "Hanging Knee Raise",
+          "name_tr": "Barfiks Dizi Çekiş",
+          "video_id": "vid_hanging_knee_raise",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 3,"reps":"8–12","rest_s":60
+        }
+      ],
+      "conditioning":{
+        "type":"steady",
+        "protocol": "Bike 25 minutes",
+        "intensity": "Zone 2"
+      }
+    }
+  ],
+  "fitness_score": {
+    "method": "weekly_projection",
+    "components": {"adherence": 0.5, "strength": 0.3, "cardio": 0.2},
+    "weekly_expected": [
+      {"week": 1, "score": 69},
+      {"week": 2, "score": 70},
+      {"week": 3, "score": 72},
+      {"week": 4, "score": 73},
+      {"week": 5, "score": 75},
+      {"week": 6, "score": 76},
+      {"week": 7, "score": 78},
+      {"week": 8, "score": 79},
+      {"week": 9, "score": 81},
+      {"week": 10, "score": 82},
+      {"week": 11, "score": 81},
+      {"week": 12, "score": 83}
+    ]
+  },
+  "routing": {
+    "injury_swaps": true,
+    "equipment_swaps": true
+  }
+}

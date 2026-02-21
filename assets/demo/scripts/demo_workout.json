@@ -1,0 +1,16 @@
+{
+  "templateId": "gym_intermediate_4d_v1",
+  "weeks": [
+    {
+      "days": [
+        {
+          "day": "Monday",
+          "exercises": [
+            {"id": "squat", "name": "Barbell Squat", "sets": 4, "reps": 8, "video": "assets/demo/videos/squat.mp4"},
+            {"id": "bench", "name": "Bench Press", "sets": 4, "reps": 10, "video": "assets/demo/videos/bench.mp4"}
+          ]
+        }
+      ]
+    }
+  ]
+}

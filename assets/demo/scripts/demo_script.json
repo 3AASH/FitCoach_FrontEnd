@@ -1,0 +1,17 @@
+{
+  "persona": "user_mina",
+  "subscription": "smart_premium_trial",
+  "preloggedWorkouts": 3,
+  "bookings": [
+    {"state": "approved", "start": "2025-09-30T16:00:00Z"},
+    {"state": "pending", "start": "2025-10-02T16:00:00Z"}
+  ],
+  "cart": [
+    {"sku": "whey-vanilla", "qty": 1},
+    {"sku": "omega3", "qty": 1}
+  ],
+  "chatSeedMessages": [
+    {"from": "coach", "text": "Welcome Mina! How are your squats feeling this week?"},
+    {"from": "user", "text": "Great! Depth feels better with the tempo cues."}
+  ]
+}

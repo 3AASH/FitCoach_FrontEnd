@@ -1,0 +1,1329 @@
+{
+  "generated_at": "2026-02-02T20:41:01.558Z",
+  "source": "mobile/assets/data/new",
+  "total": 58,
+  "equip_ar_map": {
+    "barbell": "بار",
+    "bench": "مقعد",
+    "bike": "دراجة",
+    "bodyweight": "وزن الجسم",
+    "band": "مطاط مقاومة",
+    "cable": "كابل",
+    "dumbbell": "دمبل",
+    "household": "أدوات منزلية",
+    "machine": "آلة",
+    "treadmill": "سير كهربائي"
+  },
+  "muscles_ar_map": {
+    "back": "الظهر",
+    "biceps": "البايسبس",
+    "calves": "السمانة",
+    "cardio": "لياقة قلبية",
+    "chest": "الصدر",
+    "core": "العضلات الأساسية",
+    "erectors": "ناصبات العمود الفقري",
+    "front_delts": "الدالية الأمامية",
+    "glutes": "الألوية",
+    "hamstrings": "أوتار الركبة",
+    "lats": "اللاتس",
+    "lower_back": "أسفل الظهر",
+    "mid_back": "منتصف الظهر",
+    "quads": "الأماميات (الفخذ)",
+    "rear_delts": "الدالية الخلفية",
+    "shoulders": "الأكتاف",
+    "side_delts": "الدالية الجانبية",
+    "triceps": "الترايسبس"
+  },
+  "exercises": [
+    {
+      "ex_id": "back_extension",
+      "name_en": "Back Extension",
+      "name_ar": "تمديد الظهر",
+      "equip": [
+        "bench",
+        "machine"
+      ],
+      "muscles": [
+        "lower_back",
+        "glutes",
+        "erectors"
+      ],
+      "video_id": "vid_back_extension",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "back_squat",
+      "name_en": "Back Squat",
+      "name_ar": "سكوات خلفي",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "quads",
+        "glutes",
+        "core"
+      ],
+      "video_id": "vid_back_squat",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "band_row",
+      "name_en": "Banded Row",
+      "name_ar": "سحب بالمطاط",
+      "equip": [
+        "band"
+      ],
+      "muscles": [
+        "lats",
+        "mid_back",
+        "biceps",
+        "back"
+      ],
+      "video_id": "vid_band_row",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "barbell_row",
+      "name_en": "Barbell Row",
+      "name_ar": "سحب بار بالانحناء",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "lats",
+        "mid_back",
+        "biceps",
+        "back"
+      ],
+      "video_id": null,
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "bench_press",
+      "name_en": "Bench Press",
+      "name_ar": "ضغط بنش",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "chest",
+        "triceps",
+        "front_delts"
+      ],
+      "video_id": "vid_bench_press",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "bench_press_machine",
+      "name_en": "Chest Press Machine",
+      "name_ar": "ضغط صدر بالآلة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "chest",
+        "triceps"
+      ],
+      "video_id": "vid_chest_press_machine",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "bike_cardio",
+      "name_en": "Bike Cycling",
+      "name_ar": "دراجة ثابتة",
+      "equip": [
+        "bike"
+      ],
+      "muscles": [
+        "cardio"
+      ],
+      "video_id": "vid_bike",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "cable_crunch",
+      "name_en": "Cable Crunch",
+      "name_ar": "كرنش بالكابل",
+      "equip": [
+        "cable"
+      ],
+      "muscles": [
+        "core"
+      ],
+      "video_id": "vid_cable_crunch",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "calf_raise",
+      "name_en": "Calf Raise",
+      "name_ar": "رفع السمانة",
+      "equip": [
+        "bodyweight",
+        "dumbbell"
+      ],
+      "muscles": [
+        "calves"
+      ],
+      "video_id": "vid_calf_raise",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "calf_raise_machine",
+      "name_en": "Calf Raise (Machine)",
+      "name_ar": "رفع السمانة بالآلة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "calves"
+      ],
+      "video_id": "vid_calf_raise_machine",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "chair_dip",
+      "name_en": "Chair Dip",
+      "name_ar": "غطس على الكرسي",
+      "equip": [
+        "household"
+      ],
+      "muscles": [
+        "triceps",
+        "chest"
+      ],
+      "video_id": "vid_chair_dip",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "chest_press_machine",
+      "name_en": "Chest Press Machine",
+      "name_ar": "ضغط صدر بالآلة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "chest"
+      ],
+      "video_id": "vid_chest_press_machine",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "db_bicep_curl",
+      "name_en": "DB Bicep Curl",
+      "name_ar": "بايسبس بالدمبل",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "biceps"
+      ],
+      "video_id": "vid_db_bicep_curl",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "db_deadlift",
+      "name_en": "DB Deadlift",
+      "name_ar": "ديدلفت بالدمبل",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "video_id": "vid_db_deadlift",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "db_floor_press",
+      "name_en": "DB Floor Press",
+      "name_ar": "ضغط أرضي بالدمبل",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "chest",
+        "triceps"
+      ],
+      "video_id": "vid_db_floor_press",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "db_front_raise",
+      "name_en": "DB Front Raise",
+      "name_ar": "رفع أمامي بالدمبل",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "front_delts"
+      ],
+      "video_id": "vid_db_front_raise",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "db_lateral_raise",
+      "name_en": "DB Lateral Raise",
+      "name_ar": "رفع جانبي بالدمبل",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "side_delts"
+      ],
+      "video_id": "vid_lateral_raise",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "dead_bug",
+      "name_en": "Dead Bug",
+      "name_ar": "تمرين الحشرة الميتة",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "core"
+      ],
+      "video_id": "vid_dead_bug",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "deadlift",
+      "name_en": "Deadlift",
+      "name_ar": "ديدلفت",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "glutes",
+        "back"
+      ],
+      "video_id": "vid_deadlift",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "face_pull",
+      "name_en": "Face Pull",
+      "name_ar": "سحب للوجه",
+      "equip": [
+        "cable"
+      ],
+      "muscles": [
+        "rear_delts",
+        "mid_back"
+      ],
+      "video_id": "vid_face_pull",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "front_squat",
+      "name_en": "Front Squat",
+      "name_ar": "سكوات أمامي",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "quads",
+        "glutes",
+        "core"
+      ],
+      "video_id": "vid_front_squat",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "glute_bridge",
+      "name_en": "Glute Bridge",
+      "name_ar": "جسر الألوية",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "video_id": "vid_glute_bridge",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "goblet_squat",
+      "name_en": "Goblet Squat",
+      "name_ar": "سكوات الغوبلت",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "quads",
+        "glutes",
+        "core"
+      ],
+      "video_id": "vid_goblet_squat",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "good_morning_banded",
+      "name_en": "Banded Good Morning",
+      "name_ar": "جود مورنينغ بالمطاط",
+      "equip": [
+        "band"
+      ],
+      "muscles": [
+        "hamstrings",
+        "glutes",
+        "erectors"
+      ],
+      "video_id": "vid_banded_good_morning",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "hanging_knee_raise",
+      "name_en": "Hanging Knee Raise",
+      "name_ar": "رفع الركبتين معلّقًا",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "core"
+      ],
+      "video_id": "vid_hanging_knee_raise",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "hip_hinge_banded",
+      "name_en": "Banded Hip Hinge",
+      "name_ar": "ثني الورك بالمطاط",
+      "equip": [
+        "band"
+      ],
+      "muscles": [
+        "glutes",
+        "hamstrings",
+        "erectors"
+      ],
+      "video_id": "vid_hip_hinge_banded",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "hip_thrust",
+      "name_en": "Hip Thrust",
+      "name_ar": "دفع الورك",
+      "equip": [
+        "barbell",
+        "bench"
+      ],
+      "muscles": [
+        "glutes",
+        "hamstrings"
+      ],
+      "video_id": "vid_hip_thrust",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "incline_db_press",
+      "name_en": "Incline DB Press",
+      "name_ar": "ضغط مائل بالدمبل",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "chest",
+        "front_delts",
+        "shoulders"
+      ],
+      "video_id": "vid_incline_db_press",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "incline_push_up",
+      "name_en": "Incline Push-up",
+      "name_ar": "ضغط مائل",
+      "equip": [
+        "bodyweight",
+        "household"
+      ],
+      "muscles": [
+        "chest",
+        "triceps",
+        "front_delts"
+      ],
+      "video_id": "vid_incline_push_up",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "inverted_row_table",
+      "name_en": "Table Inverted Row",
+      "name_ar": "سحب معكوس على الطاولة",
+      "equip": [
+        "household"
+      ],
+      "muscles": [
+        "back",
+        "biceps"
+      ],
+      "video_id": "vid_inverted_row_table",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "jumping_jacks",
+      "name_en": "Jumping Jacks",
+      "name_ar": "قفزات جاك",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "cardio"
+      ],
+      "video_id": "vid_jumping_jacks",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "lat_pulldown",
+      "name_en": "Lat Pulldown",
+      "name_ar": "سحب أمامي",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "lats",
+        "mid_back"
+      ],
+      "video_id": "vid_lat_pulldown",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "leg_curl",
+      "name_en": "Leg Curl",
+      "name_ar": "ثني الساق بالآلة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "hamstrings"
+      ],
+      "video_id": "vid_leg_curl",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "leg_extension",
+      "name_en": "Leg Extension",
+      "name_ar": "تمديد الساق بالآلة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "quads"
+      ],
+      "video_id": "vid_leg_extension",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "leg_press",
+      "name_en": "Leg Press",
+      "name_ar": "ضغط الأرجل",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "quads",
+        "glutes"
+      ],
+      "video_id": "vid_leg_press",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "machine_shoulder_press",
+      "name_en": "Shoulder Press Machine",
+      "name_ar": "ضغط كتف بالآلة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "shoulders"
+      ],
+      "video_id": "vid_machine_shoulder_press",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "mountain_climber",
+      "name_en": "Mountain Climber",
+      "name_ar": "متسلق الجبال",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "cardio",
+        "core"
+      ],
+      "video_id": "vid_mountain_climber",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "ohp",
+      "name_en": "Overhead Press",
+      "name_ar": "ضغط علوي",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "shoulders",
+        "triceps",
+        "front_delts",
+        "core"
+      ],
+      "video_id": "vid_ohp",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "one_arm_db_row",
+      "name_en": "One-arm DB Row",
+      "name_ar": "سحب دمبل بذراع واحدة",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "lats",
+        "mid_back",
+        "biceps"
+      ],
+      "video_id": "vid_one_arm_db_row",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "overhead_press",
+      "name_en": "Overhead Press",
+      "name_ar": "ضغط علوي",
+      "equip": [
+        "barbell"
+      ],
+      "muscles": [
+        "shoulders",
+        "triceps",
+        "front_delts",
+        "core"
+      ],
+      "video_id": "vid_ohp",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "pike_push_up",
+      "name_en": "Pike Push-up",
+      "name_ar": "ضغط بايك",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "shoulders",
+        "triceps"
+      ],
+      "video_id": "vid_pike_push_up",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "plank",
+      "name_en": "Plank",
+      "name_ar": "بلانك",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "core"
+      ],
+      "video_id": "vid_plank",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "push_up",
+      "name_en": "Push-up",
+      "name_ar": "تمرين الضغط",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "chest",
+        "triceps",
+        "front_delts"
+      ],
+      "video_id": "vid_push_up",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "rdl_suitcase",
+      "name_en": "Suitcase Romanian Deadlift",
+      "name_ar": "ديدلفت روماني بحقيبة",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "hamstrings",
+        "glutes"
+      ],
+      "video_id": "vid_rdl_suitcase",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "reverse_fly_band",
+      "name_en": "Band Reverse Fly",
+      "name_ar": "رفرفة عكسية بالمطاط",
+      "equip": [
+        "band"
+      ],
+      "muscles": [
+        "rear_delts",
+        "mid_back"
+      ],
+      "video_id": "vid_reverse_fly_band",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "reverse_lunge",
+      "name_en": "Reverse Lunge",
+      "name_ar": "اندفاع خلفي",
+      "equip": [
+        "bodyweight",
+        "dumbbell"
+      ],
+      "muscles": [
+        "quads",
+        "glutes"
+      ],
+      "video_id": "vid_reverse_lunge",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "romanian_deadlift",
+      "name_en": "Romanian Deadlift",
+      "name_ar": "ديدلفت روماني",
+      "equip": [
+        "barbell",
+        "dumbbell"
+      ],
+      "muscles": [
+        "hamstrings",
+        "glutes"
+      ],
+      "video_id": "vid_rdl",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "seated_row",
+      "name_en": "Seated Row",
+      "name_ar": "سحب جالس",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "back",
+        "biceps"
+      ],
+      "video_id": "vid_seated_row",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "side_plank",
+      "name_en": "Side Plank",
+      "name_ar": "بلانك جانبي",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "core"
+      ],
+      "video_id": "vid_side_plank",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "split_squat",
+      "name_en": "Split Squat",
+      "name_ar": "سكوات منقسم",
+      "equip": [
+        "bodyweight",
+        "dumbbell"
+      ],
+      "muscles": [
+        "quads",
+        "glutes"
+      ],
+      "video_id": "vid_split_squat",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "squat_bw",
+      "name_en": "Bodyweight Squat",
+      "name_ar": "سكوات بوزن الجسم",
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "quads",
+        "glutes",
+        "core"
+      ],
+      "video_id": "vid_bw_squat",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "treadmill_walk",
+      "name_en": "Treadmill Walk",
+      "name_ar": "مشي على السير",
+      "equip": [
+        "treadmill"
+      ],
+      "muscles": [
+        "cardio"
+      ],
+      "video_id": "vid_treadmill_walk",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "tricep_pushdown",
+      "name_en": "Tricep Pushdown",
+      "name_ar": "ضغط ترايسبس بالكابل",
+      "equip": [
+        "cable"
+      ],
+      "muscles": [
+        "triceps"
+      ],
+      "video_id": "vid_tricep_pushdown",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "walking_lunge",
+      "name_en": "Walking Lunge",
+      "name_ar": "اندفاع مشي",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "quads",
+        "glutes",
+        "hamstrings",
+        "core"
+      ],
+      "video_id": null,
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "wide_lat_pulldown",
+      "name_en": "Wide Grip Lat Pulldown",
+      "name_ar": "سحب أمامي قبضة واسعة",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "lats"
+      ],
+      "video_id": "vid_wide_lat_pulldown",
+      "video_url": null,
+      "thumbnail_url": null,
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "kneeling_push_up",
+      "name_en": "Kneeling Push Up",
+      "name_ar": "ضغط على الركبتين",
+      "video_id": null,
+      "video_url": null,
+      "thumbnail_url": null,
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "chest",
+        "triceps",
+        "front_delts"
+      ],
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "bodyweight_squat",
+      "name_en": "Bodyweight Squat",
+      "name_ar": "سكوات بوزن الجسم",
+      "video_id": null,
+      "video_url": null,
+      "thumbnail_url": null,
+      "equip": [
+        "bodyweight"
+      ],
+      "muscles": [
+        "quads",
+        "glutes",
+        "core"
+      ],
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    },
+    {
+      "ex_id": "db_overhead_press_seated",
+      "name_en": "Db Overhead Press Seated",
+      "name_ar": "ضغط علوي بالدمبل جلوسًا",
+      "video_id": null,
+      "video_url": null,
+      "thumbnail_url": null,
+      "equip": [
+        "dumbbell",
+        "bench"
+      ],
+      "muscles": [
+        "shoulders",
+        "triceps",
+        "front_delts"
+      ],
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان المحاذاة، وتسريع الإيقاع بشكل مفرط.",
+      "default_sets": null,
+      "default_reps": null,
+      "default_rest_seconds": null
+    }
+  ]
+}

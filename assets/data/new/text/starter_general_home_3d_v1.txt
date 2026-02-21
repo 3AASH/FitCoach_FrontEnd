@@ -1,0 +1,207 @@
+{
+  "plan_id": "starter_general_home_3d_v1",
+  "type": "starter",
+  "goal": "general_fitness",
+  "location": "home",
+  "training_days": 3,
+  "weeks": 12,
+  "blocks": [
+    { "block": 1, "weeks": [1,2], "focus": "movement patterns + base", "progression": "RPE 6→7" },
+    { "block": 2, "weeks": [3,4], "focus": "double progression", "progression": "add reps to top of range then small load (DB/backpack)" },
+    { "block": 3, "weeks": [5,6], "focus": "volume bump", "progression": "+1 set on squat/row/hinge" },
+    { "block": 4, "weeks": [7,8], "focus": "intensity touch", "progression": "top set RPE8 + backoff −10%" },
+    { "block": 5, "weeks": [9,10], "focus": "density + cardio", "progression": "reduce rest by ~10–15s where recovered" },
+    { "block": 6, "weeks": [11,12], "focus": "deload", "progression": "−30–35% volume, RPE 6" }
+  ],
+  "sessions": [
+    {
+      "day": 1,
+      "name": "Full Body A",
+      "work": [
+        {
+          "ex_id": "squat_bw",
+          "name_en": "Bodyweight Squat",
+          "name_tr": "Vücut Ağırlığı Çömelme",
+          "video_id": "vid_bw_squat",
+          "equip": ["bodyweight"],
+          "muscles": ["quads","glutes","core"],
+          "sets": 3, "reps": "10–15", "rest_s": 75, "rpe": 6.5,
+          "substitutes": [
+            { "ex_id": "goblet_squat", "name_en": "Goblet Squat", "name_tr": "Goblet Çömelme", "video_id": "vid_goblet_squat" }
+          ]
+        },
+        {
+          "ex_id": "incline_push_up",
+          "name_en": "Incline Push-up",
+          "name_tr": "Eğimli Şınav",
+          "video_id": "vid_incline_push_up",
+          "equip": ["bodyweight","household"],
+          "muscles": ["chest","triceps","front_delts"],
+          "sets": 3, "reps": "8–12", "rest_s": 90, "rpe": 6.5,
+          "substitutes": [
+            { "ex_id": "push_up", "name_en": "Push-up", "name_tr": "Şınav", "video_id": "vid_push_up" }
+          ]
+        },
+        {
+          "ex_id": "band_row",
+          "name_en": "Banded Row",
+          "name_tr": "Bantlı Çekiş",
+          "video_id": "vid_band_row",
+          "equip": ["band"],
+          "muscles": ["lats","mid_back","biceps"],
+          "sets": 3, "reps": "12–15", "rest_s": 75, "rpe": 6.5,
+          "substitutes": [
+            { "ex_id": "one_arm_db_row", "name_en": "One-arm DB Row", "name_tr": "Tek Kol DB Sıra", "video_id": "vid_one_arm_db_row" }
+          ]
+        },
+        {
+          "ex_id": "hip_hinge_banded",
+          "name_en": "Banded Hip Hinge",
+          "name_tr": "Bantlı Kalça Eğme",
+          "video_id": "vid_hip_hinge_banded",
+          "equip": ["band"],
+          "muscles": ["glutes","hamstrings","erectors"],
+          "sets": 3, "reps": "10–15", "rest_s": 75, "rpe": 6.5
+        },
+        {
+          "ex_id": "plank",
+          "name_en": "Plank",
+          "name_tr": "Plank",
+          "video_id": "vid_plank",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 3, "reps": "25–40s", "rest_s": 60, "rpe": 6
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "name": "Full Body B",
+      "work": [
+        {
+          "ex_id": "reverse_lunge",
+          "name_en": "Reverse Lunge",
+          "name_tr": "Geri Adım Lunge",
+          "video_id": "vid_reverse_lunge",
+          "equip": ["bodyweight","dumbbell"],
+          "muscles": ["quads","glutes"],
+          "sets": 3, "reps": "8–12/leg", "rest_s": 90, "rpe": 6.5
+        },
+        {
+          "ex_id": "db_floor_press",
+          "name_en": "DB Floor Press",
+          "name_tr": "DB Zemin Press",
+          "video_id": "vid_db_floor_press",
+          "equip": ["dumbbell"],
+          "muscles": ["chest","triceps"],
+          "sets": 3, "reps": "8–12", "rest_s": 90, "rpe": 6.5,
+          "substitutes": [
+            { "ex_id": "push_up", "name_en": "Push-up", "name_tr": "Şınav", "video_id": "vid_push_up" }
+          ]
+        },
+        {
+          "ex_id": "inverted_row_table",
+          "name_en": "Table Inverted Row",
+          "name_tr": "Masa Altı Çekiş",
+          "video_id": "vid_inverted_row_table",
+          "equip": ["household"],
+          "muscles": ["back","biceps"],
+          "sets": 3, "reps": "6–10", "rest_s": 90, "rpe": 6.5,
+          "substitutes": [
+            { "ex_id": "band_row", "name_en": "Banded Row", "name_tr": "Bantlı Çekiş", "video_id": "vid_band_row" }
+          ]
+        },
+        {
+          "ex_id": "good_morning_banded",
+          "name_en": "Banded Good Morning",
+          "name_tr": "Bantlı Good Morning",
+          "video_id": "vid_banded_good_morning",
+          "equip": ["band"],
+          "muscles": ["hamstrings","glutes","erectors"],
+          "sets": 3, "reps": "12–15", "rest_s": 75, "rpe": 6.5
+        },
+        {
+          "ex_id": "dead_bug",
+          "name_en": "Dead Bug",
+          "name_tr": "Dead Bug",
+          "video_id": "vid_dead_bug",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 3, "reps": "10/side", "rest_s": 60, "rpe": 6
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "name": "Cardio + Core",
+      "work": [
+        {
+          "ex_id": "jumping_jacks",
+          "name_en": "Jumping Jacks",
+          "name_tr": "Jumping Jacks",
+          "video_id": "vid_jumping_jacks",
+          "equip": ["bodyweight"],
+          "muscles": ["cardio"],
+          "sets": 3, "reps": "30–45s", "rest_s": 45
+        },
+        {
+          "ex_id": "mountain_climber",
+          "name_en": "Mountain Climber",
+          "name_tr": "Mountain Climber",
+          "video_id": "vid_mountain_climber",
+          "equip": ["bodyweight"],
+          "muscles": ["cardio","core"],
+          "sets": 3, "reps": "30–45s", "rest_s": 45
+        },
+        {
+          "ex_id": "side_plank",
+          "name_en": "Side Plank",
+          "name_tr": "Yan Plank",
+          "video_id": "vid_side_plank",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 2, "reps": "20–30s/side", "rest_s": 45
+        }
+      ],
+      "conditioning": {
+        "type": "steady",
+        "protocol": "Zone 2 walk/cycle",
+        "duration_min": 20,
+        "note": "conversational pace"
+      }
+    }
+  ],
+  "routing": {
+    "injury_swaps": true,
+    "equipment_swaps": true,
+    "volume_guards": { "target_sets_per_muscle_week": [8, 12] }
+  },
+  "fitness_score": {
+    "method": "weekly_projection",
+    "components": { "adherence": 0.5, "strength": 0.3, "cardio": 0.2 },
+    "assumptions": {
+      "target_sessions": 36,
+      "avg_adherence_pct": 85,
+      "strength_gain_index": "moderate",
+      "cardio_gain_index": "moderate"
+    },
+    "weekly_expected": [
+      { "week": 1, "score": 68 },
+      { "week": 2, "score": 69 },
+      { "week": 3, "score": 71 },
+      { "week": 4, "score": 72 },
+      { "week": 5, "score": 74 },
+      { "week": 6, "score": 75 },
+      { "week": 7, "score": 77 },
+      { "week": 8, "score": 78 },
+      { "week": 9, "score": 80 },
+      { "week": 10, "score": 81 },
+      { "week": 11, "score": 80 },
+      { "week": 12, "score": 82 }
+    ]
+  },
+  "notes": [
+    "Warm-up 5–8 minutes; ramp sets for first compound",
+    "Tempo guideline: 2-0-2 unless noted"
+  ]
+}

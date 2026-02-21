@@ -1,0 +1,12 @@
+{
+  "date": "2025-09-28",
+  "calories": 2400,
+  "protein": 150,
+  "carbs": 280,
+  "fats": 70,
+  "meals": [
+    {"name": "Breakfast", "items": ["Oats", "Eggs", "Banana"]},
+    {"name": "Lunch", "items": ["Chicken Breast", "Rice", "Salad"]},
+    {"name": "Dinner", "items": ["Salmon", "Sweet Potato", "Broccoli"]}
+  ]
+}

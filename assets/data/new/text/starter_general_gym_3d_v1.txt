@@ -1,0 +1,191 @@
+{
+  "plan_id": "starter_general_gym_3d_v1",
+  "type": "starter",
+  "goal": "general_fitness",
+  "location": "gym",
+  "training_days": 3,
+  "weeks": 12,
+  "blocks": [
+    { "block": 1, "weeks": [1,2], "focus": "general adaptation", "progression": "RPE 6→7" },
+    { "block": 2, "weeks": [3,4], "focus": "double progression", "progression": "hit rep cap then +2.5–5% load" },
+    { "block": 3, "weeks": [5,6], "focus": "volume bump", "progression": "+1 set on squat/row/press" },
+    { "block": 4, "weeks": [7,8], "focus": "strength endurance", "progression": "reduce rest ~15s" },
+    { "block": 5, "weeks": [9,10], "focus": "cardio integration", "progression": "+2–3 min Z2" },
+    { "block": 6, "weeks": [11,12], "focus": "deload", "progression": "−35% volume, RPE 6" }
+  ],
+  "sessions": [
+    {
+      "day": 1,
+      "name": "Full Body A",
+      "work": [
+        {
+          "ex_id": "leg_press",
+          "name_en": "Leg Press",
+          "name_tr": "Bacak Press",
+          "video_id": "vid_leg_press",
+          "equip": ["machine"],
+          "muscles": ["quads","glutes"],
+          "sets": 3, "reps": "10–15", "rest_s": 120, "rpe": 6.5
+        },
+        {
+          "ex_id": "bench_press_machine",
+          "name_en": "Chest Press Machine",
+          "name_tr": "Göğüs Press Makinesi",
+          "video_id": "vid_chest_press_machine",
+          "equip": ["machine"],
+          "muscles": ["chest","triceps"],
+          "sets": 3, "reps": "10–15", "rest_s": 90, "rpe": 6.5
+        },
+        {
+          "ex_id": "seated_row",
+          "name_en": "Seated Row",
+          "name_tr": "Oturur Çekiş",
+          "video_id": "vid_seated_row",
+          "equip": ["machine"],
+          "muscles": ["back","biceps"],
+          "sets": 3, "reps": "10–15", "rest_s": 90, "rpe": 6.5
+        },
+        {
+          "ex_id": "back_extension",
+          "name_en": "Back Extension",
+          "name_tr": "Bel Uzatma",
+          "video_id": "vid_back_extension",
+          "equip": ["bench","machine"],
+          "muscles": ["lower_back","glutes"],
+          "sets": 3, "reps": "10–15", "rest_s": 75
+        },
+        {
+          "ex_id": "plank",
+          "name_en": "Plank",
+          "name_tr": "Plank",
+          "video_id": "vid_plank",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 3, "reps": "25–45s", "rest_s": 60
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "name": "Full Body B",
+      "work": [
+        {
+          "ex_id": "goblet_squat",
+          "name_en": "Goblet Squat",
+          "name_tr": "Goblet Çömelme",
+          "video_id": "vid_goblet_squat",
+          "equip": ["dumbbell"],
+          "muscles": ["quads","glutes","core"],
+          "sets": 3, "reps": "8–12", "rest_s": 90, "rpe": 7
+        },
+        {
+          "ex_id": "incline_db_press",
+          "name_en": "Incline Dumbbell Press",
+          "name_tr": "Eğimli DB Press",
+          "video_id": "vid_incline_db_press",
+          "equip": ["dumbbell"],
+          "muscles": ["chest","shoulders"],
+          "sets": 3, "reps": "8–12", "rest_s": 90, "rpe": 7
+        },
+        {
+          "ex_id": "lat_pulldown",
+          "name_en": "Lat Pulldown",
+          "name_tr": "Lat Çekiş",
+          "video_id": "vid_lat_pulldown",
+          "equip": ["machine"],
+          "muscles": ["lats","mid_back"],
+          "sets": 3, "reps": "10–12", "rest_s": 90, "rpe": 7
+        },
+        {
+          "ex_id": "db_deadlift",
+          "name_en": "DB Deadlift",
+          "name_tr": "DB Deadlift",
+          "video_id": "vid_db_deadlift",
+          "equip": ["dumbbell"],
+          "muscles": ["glutes","hamstrings"],
+          "sets": 3, "reps": "10–12", "rest_s": 120, "rpe": 7
+        },
+        {
+          "ex_id": "dead_bug",
+          "name_en": "Dead Bug",
+          "name_tr": "Dead Bug",
+          "video_id": "vid_dead_bug",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 3, "reps": "8–12/side", "rest_s": 60
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "name": "Cardio + Strength Mix",
+      "work": [
+        {
+          "ex_id": "treadmill_walk",
+          "name_en": "Treadmill Walk",
+          "name_tr": "Yürüyüş Bandı",
+          "video_id": "vid_treadmill_walk",
+          "equip": ["treadmill"],
+          "muscles": ["cardio"],
+          "sets": 1, "reps": "10 min Zone 2"
+        },
+        {
+          "ex_id": "bike_cardio",
+          "name_en": "Bike Cycling",
+          "name_tr": "Bisiklet Kardiyo",
+          "video_id": "vid_bike",
+          "equip": ["bike"],
+          "muscles": ["cardio"],
+          "sets": 1, "reps": "10 min Zone 2"
+        },
+        {
+          "ex_id": "side_plank",
+          "name_en": "Side Plank",
+          "name_tr": "Yan Plank",
+          "video_id": "vid_side_plank",
+          "equip": ["bodyweight"],
+          "muscles": ["core"],
+          "sets": 2, "reps": "20–30s/side", "rest_s": 45
+        }
+      ],
+      "conditioning": {
+        "type": "steady",
+        "duration_min": 20,
+        "target_heart_rate": "65–75% max"
+      }
+    }
+  ],
+  "routing": {
+    "injury_swaps": true,
+    "equipment_swaps": true,
+    "volume_guards": { "target_sets_per_muscle_week": [8, 12] }
+  },
+  "fitness_score": {
+    "method": "weekly_projection",
+    "components": { "adherence": 0.45, "strength": 0.35, "cardio": 0.20 },
+    "assumptions": {
+      "target_sessions": 36,
+      "avg_adherence_pct": 85,
+      "strength_gain_index": "moderate",
+      "cardio_gain_index": "moderate+"
+    },
+    "weekly_expected": [
+      { "week": 1, "score": 69 },
+      { "week": 2, "score": 70 },
+      { "week": 3, "score": 72 },
+      { "week": 4, "score": 73 },
+      { "week": 5, "score": 75 },
+      { "week": 6, "score": 76 },
+      { "week": 7, "score": 78 },
+      { "week": 8, "score": 79 },
+      { "week": 9, "score": 81 },
+      { "week": 10, "score": 82 },
+      { "week": 11, "score": 81 },
+      { "week": 12, "score": 83 }
+    ]
+  },
+  "notes": [
+    "Keep cardio conversational pace",
+    "Machines reduce injury risk — ideal for beginners"
+  ]
+}

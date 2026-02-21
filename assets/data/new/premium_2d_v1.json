@@ -1,0 +1,342 @@
+{
+  "plan_id": "premium_2d_v1",
+  "plan_version": "1.0",
+  "training_days": 2,
+  "weeks": 12,
+  "blocks": [
+    {"block":1,"weeks":[1,2],"focus":"base technique","progression":"RPE 6→7"},
+    {"block":2,"weeks":[3,4],"focus":"double progression","progression":"+reps then +2.5–5% load"},
+    {"block":3,"weeks":[5,6],"focus":"volume bump","progression":"+1 set big lifts"},
+    {"block":4,"weeks":[7,8],"focus":"intensity touch","progression":"top set @RPE8 + backoff −10%"},
+    {"block":5,"weeks":[9,10],"focus":"density","progression":"rest −15s where recovered"},
+    {"block":6,"weeks":[11,12],"focus":"deload","progression":"−40% volume, RPE 6"}
+  ],
+  "experience_adjustments": {
+    "beginner": {"set_multiplier": 1.00, "intensity_bias": -0.25},
+    "intermediate": {"set_multiplier": 1.10, "intensity_bias": 0.00},
+    "advanced": {"set_multiplier": 1.20, "intensity_bias": 0.15}
+  },
+  "injury_swaps": {
+    "knee_pain": {
+      "patterns_blocked": ["deep_knee_flexion","running_impacts"],
+      "swap_map": {
+        "back_squat": ["box_squat_high","leg_press_partial","goblet_squat_high_box"],
+        "walking_lunge": ["reverse_lunge_short_step","split_squat_vertical_shin"],
+        "treadmill_run": ["bike_zone2","rower_zone2","incline_walk"]
+      }
+    },
+    "lower_back_pain": {
+      "patterns_blocked": ["heavy_hip_hinge","axial_loading"],
+      "swap_map": {
+        "deadlift": ["trap_bar_deadlift_light","hip_thrust","45deg_back_extension_bw"],
+        "barbell_row": ["chest_supported_row","seated_cable_row"],
+        "back_squat": ["goblet_squat","leg_press","hack_squat_light"]
+      }
+    },
+    "shoulder_pain": {
+      "swap_map": {
+        "bench_press": ["chest_press_machine","incline_db_press_neutral"],
+        "overhead_press": ["machine_shoulder_press","landmine_press"]
+      }
+    }
+  },
+  "exercises": [
+    {"ex_id":"back_squat","name_en":"Back Squat","name_tr":"Arka Squat","video_id":"vid_back_squat","equip":["barbell"]},
+    {"ex_id":"leg_press","name_en":"Leg Press","name_tr":"Bacak Press","video_id":"vid_leg_press","equip":["machine"]},
+    {"ex_id":"goblet_squat","name_en":"Goblet Squat","name_tr":"Goblet Çömelme","video_id":"vid_goblet_squat","equip":["dumbbell"]},
+    {"ex_id":"deadlift","name_en":"Deadlift","name_tr":"Deadlift","video_id":"vid_deadlift","equip":["barbell"]},
+    {"ex_id":"romanian_deadlift","name_en":"Romanian Deadlift","name_tr":"Romen Deadlift","video_id":"vid_rdl","equip":["barbell","dumbbell"]},
+    {"ex_id":"hip_thrust","name_en":"Hip Thrust","name_tr":"Kalça İtişi","video_id":"vid_hip_thrust","equip":["barbell","bench"]},
+    {"ex_id":"bench_press","name_en":"Bench Press","name_tr":"Bench Press","video_id":"vid_bench_press","equip":["barbell"]},
+    {"ex_id":"incline_db_press","name_en":"Incline DB Press","name_tr":"Eğimli DB Press","video_id":"vid_incline_db_press","equip":["dumbbell"]},
+    {"ex_id":"chest_press_machine","name_en":"Chest Press Machine","name_tr":"Göğüs Press Makinesi","video_id":"vid_chest_press_machine","equip":["machine"]},
+    {"ex_id":"lat_pulldown","name_en":"Lat Pulldown","name_tr":"Lat Çekiş","video_id":"vid_lat_pulldown","equip":["machine"]},
+    {"ex_id":"seated_row","name_en":"Seated Row","name_tr":"Oturur Çekiş","video_id":"vid_seated_row","equip":["machine"]},
+    {"ex_id":"one_arm_db_row","name_en":"One-arm DB Row","name_tr":"Tek Kol DB Sıra","video_id":"vid_one_arm_db_row","equip":["dumbbell"]},
+    {"ex_id":"overhead_press","name_en":"Overhead Press","name_tr":"Omuz Press","video_id":"vid_ohp","equip":["barbell"]},
+    {"ex_id":"machine_shoulder_press","name_en":"Shoulder Press Machine","name_tr":"Omuz Press Makinesi","video_id":"vid_machine_shoulder_press","equip":["machine"]},
+    {"ex_id":"db_lateral_raise","name_en":"DB Lateral Raise","name_tr":"DB Yana Açış","video_id":"vid_lateral_raise","equip":["dumbbell"]},
+    {"ex_id":"plank","name_en":"Plank","name_tr":"Plank","video_id":"vid_plank","equip":["bodyweight"]},
+    {"ex_id":"dead_bug","name_en":"Dead Bug","name_tr":"Dead Bug","video_id":"vid_dead_bug","equip":["bodyweight"]}
+  ],
+  "programs": {
+    "home": {
+      "fat_loss": {
+        "beginner": [
+          {
+            "day": 1,
+            "name": "FB Strength + Intervals",
+            "work": [
+              {"ex_id":"goblet_squat","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+              {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+              {"ex_id":"one_arm_db_row","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+              {"ex_id":"db_lateral_raise","sets":2,"reps":"12–15","rpe":6.5,"rest_s":60},
+              {"ex_id":"plank","sets":3,"reps":"30–45s","rest_s":60}
+            ],
+            "conditioning":{"type":"intervals","protocol":"30/30 × 10","target_zone":"75–85% HRmax"}
+          },
+          {
+            "day": 2,
+            "name": "Lower-Hinge + Push-Pull",
+            "work": [
+              {"ex_id":"romanian_deadlift","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+              {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+              {"ex_id":"one_arm_db_row","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+              {"ex_id":"dead_bug","sets":3,"reps":"10/side","rest_s":60}
+            ],
+            "conditioning":{"type":"steady","protocol":"Zone 2 20–25m","note":"conversational pace"}
+          }
+        ],
+        "intermediate": [
+          {
+            "day": 1,
+            "name": "FB Strength + Intervals",
+            "work": [
+              {"ex_id":"goblet_squat","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+              {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+              {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+              {"ex_id":"db_lateral_raise","sets":3,"reps":"12–15","rpe":7,"rest_s":60}
+            ],
+            "conditioning":{"type":"intervals","protocol":"30/30 × 12","target_zone":"80–85% HRmax"}
+          },
+          {
+            "day": 2,
+            "name": "Lower-Hinge + Push-Pull",
+            "work": [
+              {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+              {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90},
+              {"ex_id":"one_arm_db_row","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90},
+              {"ex_id":"dead_bug","sets":3,"reps":"10–12/side","rest_s":60}
+            ],
+            "conditioning":{"type":"steady","protocol":"Zone 2 25–30m"}
+          }
+        ],
+        "advanced": [
+          {
+            "day": 1,
+            "name": "FB Strength + Intervals",
+            "work": [
+              {"ex_id":"goblet_squat","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+              {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+              {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+              {"ex_id":"db_lateral_raise","sets":3,"reps":"12–15","rpe":7.5,"rest_s":60},
+              {"ex_id":"plank","sets":3,"reps":"35–50s","rest_s":60}
+            ],
+            "conditioning":{"type":"intervals","protocol":"30/30 × 14","target_zone":"82–88% HRmax"}
+          },
+          {
+            "day": 2,
+            "name": "Lower-Hinge + Push-Pull",
+            "work": [
+              {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+              {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+              {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+              {"ex_id":"dead_bug","sets":3,"reps":"12/side","rest_s":60}
+            ],
+            "conditioning":{"type":"steady","protocol":"Zone 2 30–35m"}
+          }
+        ]
+      },
+      "muscle_gain": {
+        "beginner": [
+          { "day":1,"name":"Upper Emphasis","work":[
+            {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"db_lateral_raise","sets":3,"reps":"12–15","rpe":7,"rest_s":60},
+            {"ex_id":"plank","sets":3,"reps":"30–45s","rest_s":60}]},
+          { "day":2,"name":"Lower Emphasis","work":[
+            {"ex_id":"goblet_squat","sets":4,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"romanian_deadlift","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"dead_bug","sets":3,"reps":"10/side","rest_s":60}]}
+        ],
+        "intermediate": [
+          { "day":1,"name":"Upper Emphasis","work":[
+            {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"db_lateral_raise","sets":3,"reps":"12–15","rpe":7.5,"rest_s":60}]},
+          { "day":2,"name":"Lower Emphasis","work":[
+            {"ex_id":"goblet_squat","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"dead_bug","sets":3,"reps":"10–12/side","rest_s":60}]}
+        ],
+        "advanced": [
+          { "day":1,"name":"Upper Emphasis","work":[
+            {"ex_id":"incline_db_press","sets":5,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":5,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"db_lateral_raise","sets":4,"reps":"12–15","rpe":8,"rest_s":60}]},
+          { "day":2,"name":"Lower Emphasis","work":[
+            {"ex_id":"goblet_squat","sets":5,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"dead_bug","sets":3,"reps":"12/side","rest_s":60}]}
+        ]
+      },
+      "general_fitness": {
+        "beginner": [
+          { "day":1,"name":"FB A","work":[
+            {"ex_id":"goblet_squat","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":3,"reps":"8–12","rpe":7,"rest_s":90}]},
+          { "day":2,"name":"FB B + Zone2","work":[
+            {"ex_id":"romanian_deadlift","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"incline_db_press","sets":2,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":2,"reps":"10–12","rpe":7,"rest_s":90},
+            {"ex_id":"plank","sets":3,"reps":"25–40s","rest_s":60}],
+            "conditioning":{"type":"steady","protocol":"Zone 2 20–25m"}}
+        ],
+        "intermediate": [
+          { "day":1,"name":"FB A","work":[
+            {"ex_id":"goblet_squat","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90}]},
+          { "day":2,"name":"FB B + Zone2","work":[
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"plank","sets":3,"reps":"30–45s","rest_s":60}],
+            "conditioning":{"type":"steady","protocol":"Zone 2 25–30m"}}
+        ],
+        "advanced": [
+          { "day":1,"name":"FB A","work":[
+            {"ex_id":"goblet_squat","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":4,"reps":"8–12","rpe":8,"rest_s":90}]},
+          { "day":2,"name":"FB B + Zone2","work":[
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"one_arm_db_row","sets":3,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"plank","sets":3,"reps":"35–50s","rest_s":60}],
+            "conditioning":{"type":"steady","protocol":"Zone 2 30–35m"}}
+        ]
+      }
+    },
+    "gym": {
+      "fat_loss": {
+        "beginner": [
+          {"day":1,"name":"FB Strength + Intervals","work":[
+            {"ex_id":"back_squat","sets":3,"reps":"6–10","rpe":7,"rest_s":120},
+            {"ex_id":"bench_press","sets":3,"reps":"6–10","rpe":7,"rest_s":120},
+            {"ex_id":"lat_pulldown","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"plank","sets":3,"reps":"30–45s","rest_s":60}],
+            "conditioning":{"type":"intervals","protocol":"row 30/30 × 10"}},
+          {"day":2,"name":"Lower Hinge + Upper","work":[
+            {"ex_id":"romanian_deadlift","sets":3,"reps":"8–12","rpe":7,"rest_s":120},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"seated_row","sets":3,"reps":"8–12","rpe":7,"rest_s":90}],
+            "conditioning":{"type":"steady","protocol":"bike 20–25m"}}
+        ],
+        "intermediate": [
+          {"day":1,"name":"FB Strength + Intervals","work":[
+            {"ex_id":"back_squat","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"bench_press","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"lat_pulldown","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90}],
+            "conditioning":{"type":"intervals","protocol":"row 30/30 × 12"}},
+          {"day":2,"name":"Lower Hinge + Upper","work":[
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":7.5,"rest_s":120},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"seated_row","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90}],
+            "conditioning":{"type":"steady","protocol":"bike 25–30m"}}
+        ],
+        "advanced": [
+          {"day":1,"name":"FB Strength + Intervals","work":[
+            {"ex_id":"back_squat","sets":4,"reps":"6–10","rpe":8,"rest_s":120},
+            {"ex_id":"bench_press","sets":4,"reps":"6–10","rpe":8,"rest_s":120},
+            {"ex_id":"lat_pulldown","sets":4,"reps":"8–12","rpe":8,"rest_s":90}],
+            "conditioning":{"type":"intervals","protocol":"row 30/30 × 14"}},
+          {"day":2,"name":"Lower Hinge + Upper","work":[
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":8,"rest_s":120},
+            {"ex_id":"incline_db_press","sets":4,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"seated_row","sets":4,"reps":"8–12","rpe":8,"rest_s":90}],
+            "conditioning":{"type":"steady","protocol":"bike 30–35m"}}
+        ]
+      },
+      "muscle_gain": {
+        "beginner": [
+          {"day":1,"name":"Upper","work":[
+            {"ex_id":"bench_press","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"seated_row","sets":4,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"db_lateral_raise","sets":3,"reps":"12–15","rpe":7,"rest_s":60}]},
+          {"day":2,"name":"Lower","work":[
+            {"ex_id":"back_squat","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"romanian_deadlift","sets":3,"reps":"8–12","rpe":7.5,"rest_s":120},
+            {"ex_id":"plank","sets":3,"reps":"30–45s","rest_s":60}]}
+        ],
+        "intermediate": [
+          {"day":1,"name":"Upper","work":[
+            {"ex_id":"bench_press","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"seated_row","sets":4,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"db_lateral_raise","sets":3,"reps":"12–15","rpe":7.5,"rest_s":60}]},
+          {"day":2,"name":"Lower","work":[
+            {"ex_id":"back_squat","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":7.5,"rest_s":120},
+            {"ex_id":"plank","sets":3,"reps":"30–45s","rest_s":60}]}
+        ],
+        "advanced": [
+          {"day":1,"name":"Upper","work":[
+            {"ex_id":"bench_press","sets":5,"reps":"6–10","rpe":8,"rest_s":120},
+            {"ex_id":"seated_row","sets":5,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"db_lateral_raise","sets":4,"reps":"12–15","rpe":8,"rest_s":60}]},
+          {"day":2,"name":"Lower","work":[
+            {"ex_id":"back_squat","sets":5,"reps":"6–10","rpe":8,"rest_s":120},
+            {"ex_id":"romanian_deadlift","sets":4,"reps":"8–12","rpe":8,"rest_s":120},
+            {"ex_id":"plank","sets":3,"reps":"35–50s","rest_s":60}]}
+        ]
+      },
+      "general_fitness": {
+        "beginner": [
+          {"day":1,"name":"FB A","work":[
+            {"ex_id":"leg_press","sets":3,"reps":"10–15","rpe":7,"rest_s":90},
+            {"ex_id":"chest_press_machine","sets":3,"reps":"10–15","rpe":7,"rest_s":90},
+            {"ex_id":"lat_pulldown","sets":3,"reps":"8–12","rpe":7,"rest_s":90}]},
+          {"day":2,"name":"FB B + Zone2","work":[
+            {"ex_id":"back_squat","sets":3,"reps":"6–10","rpe":7,"rest_s":120},
+            {"ex_id":"incline_db_press","sets":2,"reps":"8–12","rpe":7,"rest_s":90},
+            {"ex_id":"seated_row","sets":2,"reps":"8–12","rpe":7,"rest_s":90}],
+            "conditioning":{"type":"steady","protocol":"treadmill walk 20–25m Zone2"}}
+        ],
+        "intermediate": [
+          {"day":1,"name":"FB A","work":[
+            {"ex_id":"leg_press","sets":4,"reps":"10–15","rpe":7.5,"rest_s":90},
+            {"ex_id":"chest_press_machine","sets":4,"reps":"10–15","rpe":7.5,"rest_s":90},
+            {"ex_id":"lat_pulldown","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90}]},
+          {"day":2,"name":"FB B + Zone2","work":[
+            {"ex_id":"back_squat","sets":4,"reps":"6–10","rpe":7.5,"rest_s":120},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90},
+            {"ex_id":"seated_row","sets":3,"reps":"8–12","rpe":7.5,"rest_s":90}],
+            "conditioning":{"type":"steady","protocol":"treadmill walk 25–30m Zone2"}}
+        ],
+        "advanced": [
+          {"day":1,"name":"FB A","work":[
+            {"ex_id":"leg_press","sets":4,"reps":"10–15","rpe":8,"rest_s":90},
+            {"ex_id":"chest_press_machine","sets":4,"reps":"10–15","rpe":8,"rest_s":90},
+            {"ex_id":"lat_pulldown","sets":4,"reps":"8–12","rpe":8,"rest_s":90}]},
+          {"day":2,"name":"FB B + Zone2","work":[
+            {"ex_id":"back_squat","sets":4,"reps":"6–10","rpe":8,"rest_s":120},
+            {"ex_id":"incline_db_press","sets":3,"reps":"8–12","rpe":8,"rest_s":90},
+            {"ex_id":"seated_row","sets":3,"reps":"8–12","rpe":8,"rest_s":90}],
+            "conditioning":{"type":"steady","protocol":"treadmill walk 30–35m Zone2"}}
+        ]
+      }
+    }
+  },
+  "fitness_score": {
+    "method": "weekly_projection",
+    "by_experience": {
+      "beginner": [
+        {"week":1,"score":66},{"week":2,"score":67},{"week":3,"score":69},{"week":4,"score":70},
+        {"week":5,"score":72},{"week":6,"score":73},{"week":7,"score":75},{"week":8,"score":76},
+        {"week":9,"score":78},{"week":10,"score":79},{"week":11,"score":78},{"week":12,"score":80}
+      ],
+      "intermediate": [
+        {"week":1,"score":68},{"week":2,"score":69},{"week":3,"score":71},{"week":4,"score":72},
+        {"week":5,"score":74},{"week":6,"score":75},{"week":7,"score":77},{"week":8,"score":78},
+        {"week":9,"score":80},{"week":10,"score":81},{"week":11,"score":80},{"week":12,"score":82}
+      ],
+      "advanced": [
+        {"week":1,"score":69},{"week":2,"score":70},{"week":3,"score":72},{"week":4,"score":73},
+        {"week":5,"score":75},{"week":6,"score":76},{"week":7,"score":78},{"week":8,"score":79},
+        {"week":9,"score":81},{"week":10,"score":82},{"week":11,"score":81},{"week":12,"score":83}
+      ]
+    },
+    "weights": {"adherence":0.5,"strength":0.3,"cardio":0.2}
+  }
+}
