@@ -32,7 +32,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   bool _wasActive = true;
   bool _showIntro = false;
   bool _introLoaded = false;
-  final ExerciseCatalogService _catalogService = ExerciseCatalogService.instance;
+  final ExerciseCatalogService _catalogService =
+      ExerciseCatalogService.instance;
 
   @override
   void initState() {
@@ -123,7 +124,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               title: lang.t('intake_prompt_option2_title'),
               description: lang.t('intake_prompt_option2_desc'),
               color: AppColors.secondary,
-              badgeText: tier == 'Freemium' ? lang.t('intake_prompt_free_call') : null,
+              badgeText:
+                  tier == 'Freemium' ? lang.t('intake_prompt_free_call') : null,
             ),
           ],
         ),
@@ -195,7 +197,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 if (badgeText != null) ...[
                   const SizedBox(height: 8),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.success.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12),
@@ -254,7 +257,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         onGetStarted: _completeIntro,
       );
     }
-    
+
     if (workoutProvider.isLoading) {
       return const Scaffold(
         body: Center(
@@ -262,7 +265,48 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         ),
       );
     }
-    
+
+    if (workoutProvider.error != null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(languageProvider.t('workout')),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: AppColors.error.withValues(alpha: 0.85),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  workoutProvider.error!,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    workoutProvider.clearError();
+                    workoutProvider.loadActivePlan();
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: Text(languageProvider.t('retry')),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     if (workoutProvider.activePlan == null) {
       return Scaffold(
         appBar: AppBar(
@@ -294,12 +338,18 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: workoutProvider.loadActivePlan,
+                icon: const Icon(Icons.refresh),
+                label: Text(languageProvider.t('retry')),
+              ),
             ],
           ),
         ),
       );
     }
-    
+
     final plan = workoutProvider.activePlan!;
     final currentDay = workoutProvider.currentDay ??
         (plan.days != null && plan.days!.isNotEmpty ? plan.days!.first : null);
@@ -419,12 +469,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   children: [
                     Text(
                       planTitle,
-                      style: AppTextStyles.h3.copyWith(color: AppColors.textWhite),
+                      style:
+                          AppTextStyles.h3.copyWith(color: AppColors.textWhite),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${lang.t('workout_week', args: {'number': '1'})}, '
-                      '${lang.t('workout_day_label', args: {'number': '$dayNumber'})}'
+                      '${lang.t('workout_day_label', args: {
+                            'number': '$dayNumber'
+                          })}'
                       '${durationLabel.isEmpty ? '' : ' \u2022 $durationLabel'}',
                       style: AppTextStyles.small.copyWith(
                         color: AppColors.textWhite.withValues(alpha: 0.7),
@@ -434,18 +487,21 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.textWhite.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today, size: 14, color: AppColors.textWhite),
+                    const Icon(Icons.calendar_today,
+                        size: 14, color: AppColors.textWhite),
                     const SizedBox(width: 6),
                     Text(
                       lang.t('today'),
-                      style: AppTextStyles.small.copyWith(color: AppColors.textWhite),
+                      style: AppTextStyles.small
+                          .copyWith(color: AppColors.textWhite),
                     ),
                   ],
                 ),
@@ -564,7 +620,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               value: progress,
               minHeight: 6,
               backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
             ),
           ),
           const SizedBox(height: 6),
@@ -633,14 +690,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 ),
               ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   border: Border.all(color: AppColors.border),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
                   difficultyLabel,
-                  style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                      fontSize: 11, color: AppColors.textSecondary),
                 ),
               ),
             ],
@@ -764,7 +823,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             onPressed: isCompleted
                 ? null
                 : () {
-                    final nextIdx = firstIncompleteIndex() ?? lastCompletedIndex() ?? 0;
+                    final nextIdx =
+                        firstIncompleteIndex() ?? lastCompletedIndex() ?? 0;
                     openExerciseAt(nextIdx);
                   },
             child: Text(
@@ -778,7 +838,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
-  String _estimateWorkoutDuration(WorkoutDay? currentDay, LanguageProvider lang) {
+  String _estimateWorkoutDuration(
+      WorkoutDay? currentDay, LanguageProvider lang) {
     if (currentDay == null) {
       return '';
     }
@@ -790,7 +851,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return '${minutes.toInt()} ${lang.t('minute_short')}';
   }
 
-  String _localizedPlanName(WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
+  String _localizedPlanName(
+      WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
     final fallback = lang.t('workout');
     if (isArabic) {
       if (plan.nameAr?.isNotEmpty == true) {
@@ -804,8 +866,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return plan.name ?? fallback;
   }
 
-  String _localizedPlanDifficulty(WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
-    final englishDescription = plan.description ?? lang.t('workout_difficulty_intermediate');
+  String _localizedPlanDifficulty(
+      WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
+    final englishDescription =
+        plan.description ?? lang.t('workout_difficulty_intermediate');
     if (isArabic) {
       if (plan.descriptionAr?.isNotEmpty == true) {
         return plan.descriptionAr!;
@@ -838,7 +902,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       },
     );
   }
-  
+
   Widget _buildExerciseCard(
     WorkoutDay currentDay,
     Exercise exercise,
@@ -852,7 +916,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     final hasConflict = exercise.hasInjuryConflict(userInjuries);
     final isCompleted = provider.isExerciseCompleted(exercise.id);
     final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
-    
+
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: EdgeInsets.zero,
@@ -884,7 +948,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                         ),
                       ),
                       if (isCompleted)
-                        const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                        const Icon(Icons.check_circle,
+                            color: AppColors.success, size: 18),
                     ],
                   ),
                   const SizedBox(height: 4),
@@ -899,7 +964,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   if (hasConflict) ...[
                     const SizedBox(height: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.warning.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(12),
@@ -949,7 +1015,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     if (muscles == null || muscles.trim().isEmpty) {
       return '';
     }
-    final parts = muscles.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+    final parts =
+        muscles.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
     final labels = parts.map((part) {
       return _catalogService.getMuscleLabel(part, isArabic: isArabic) ?? part;
     }).toList();
@@ -983,7 +1050,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       ),
     );
   }
-  
+
   Future<void> _showSubstituteDialog(
     Exercise exercise,
     WorkoutProvider provider,
@@ -992,8 +1059,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
     final userInjuries = authProvider.user?.injuries ?? [];
-    
-      showDialog(
+
+    showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(lang.t('substitute_exercise')),
@@ -1003,15 +1070,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());
             }
-            
-            if (snapshot.hasError || !snapshot.hasData || snapshot.data!.isEmpty) {
+
+            if (snapshot.hasError ||
+                !snapshot.hasData ||
+                snapshot.data!.isEmpty) {
               return Text(
                 lang.t('no_alternatives_available'),
               );
             }
-            
+
             final alternatives = snapshot.data!;
-            
+
             return SizedBox(
               width: double.maxFinite,
               child: ListView.builder(
@@ -1022,14 +1091,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   return ListTile(
                     title: Text(isArabic ? alt.nameAr : alt.nameEn),
                     subtitle: Text(alt.muscleGroup ?? ''),
-                    trailing: Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                    trailing: Icon(
+                        isArabic ? Icons.chevron_left : Icons.chevron_right),
                     onTap: () async {
                       Navigator.pop(context);
                       final success = await provider.substituteExercise(
                         exercise.id,
                         alt.id,
                       );
-                      
+
                       if (success && mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
