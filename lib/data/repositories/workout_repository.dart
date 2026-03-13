@@ -122,6 +122,12 @@ class WorkoutRepository {
     final daysSource =
         source['days'] ?? source['workoutDays'] ?? source['plan_days'];
     final normalizedDays = _normalizeWorkoutDays(daysSource);
+    final isActive =
+        _asBool(source['is_active'] ?? source['isActive'], fallback: true);
+    final customizedByCoach = _asBool(
+      source['customized_by_coach'] ?? source['customizedByCoach'],
+      fallback: false,
+    );
 
     return {
       ...source,
@@ -129,6 +135,8 @@ class WorkoutRepository {
       'user_id': userId,
       'coach_id': coachId,
       'days': normalizedDays,
+      'is_active': isActive,
+      'customized_by_coach': customizedByCoach,
       if (source['name'] == null && source['title'] != null)
         'name': source['title'],
       if (source['description'] == null && source['goal'] != null)
@@ -266,6 +274,25 @@ class WorkoutRepository {
     }
     if (value is String) {
       return int.tryParse(value) ?? fallback;
+    }
+    return fallback;
+  }
+
+  bool _asBool(dynamic value, {required bool fallback}) {
+    if (value is bool) {
+      return value;
+    }
+    if (value is num) {
+      return value != 0;
+    }
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      if (normalized == 'true' || normalized == '1' || normalized == 'yes') {
+        return true;
+      }
+      if (normalized == 'false' || normalized == '0' || normalized == 'no') {
+        return false;
+      }
     }
     return fallback;
   }

@@ -15,7 +15,7 @@ class WorkoutPlan {
   final bool? customizedByCoach;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  
+
   WorkoutPlan({
     required this.id,
     required this.userId,
@@ -34,7 +34,7 @@ class WorkoutPlan {
     required this.createdAt,
     this.updatedAt,
   });
-  
+
   factory WorkoutPlan.fromJson(Map<String, dynamic> json) {
     final createdAtValue = json['created_at'] ?? json['createdAt'];
     return WorkoutPlan(
@@ -45,7 +45,8 @@ class WorkoutPlan {
       nameAr: json['nameAr'] as String?,
       description: json['description'] as String?,
       descriptionAr: json['descriptionAr'] as String?,
-      planData: json['plan_data'] as Map<String, dynamic>? ?? json['planData'] as Map<String, dynamic>?,
+      planData: json['plan_data'] as Map<String, dynamic>? ??
+          json['planData'] as Map<String, dynamic>?,
       notes: json['notes'] as String?,
       days: json['days'] != null
           ? (json['days'] as List)
@@ -58,8 +59,9 @@ class WorkoutPlan {
       endDate: json['end_date'] != null || json['endDate'] != null
           ? DateTime.parse(json['end_date'] ?? json['endDate'] as String)
           : null,
-      isActive: json['is_active'] as bool? ?? true,
-      customizedByCoach: json['customized_by_coach'] as bool?,
+      isActive: _asBool(json['is_active'] ?? json['isActive'], fallback: true),
+      customizedByCoach: _asNullableBool(
+          json['customized_by_coach'] ?? json['customizedByCoach']),
       createdAt: createdAtValue != null
           ? DateTime.parse(createdAtValue as String)
           : DateTime.now(),
@@ -68,7 +70,7 @@ class WorkoutPlan {
           : null,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -105,7 +107,7 @@ class WorkoutDay {
   final int dayNumber;
   final List<Exercise> exercises;
   final String? notes;
-  
+
   WorkoutDay({
     required this.id,
     required this.dayName,
@@ -114,20 +116,20 @@ class WorkoutDay {
     required this.exercises,
     this.notes,
   });
-  
+
   factory WorkoutDay.fromJson(Map<String, dynamic> json) {
     return WorkoutDay(
-      id: json['id'] as String,
-      dayName: json['dayName'] as String,
+      id: (json['id'] ?? '').toString(),
+      dayName: (json['dayName'] ?? json['day_name'] ?? '').toString(),
       dayNameAr: json['dayNameAr'] as String?,
-      dayNumber: json['dayNumber'] as int,
+      dayNumber: _asInt(json['dayNumber'] ?? json['day_number'], fallback: 1),
       exercises: (json['exercises'] as List)
           .map((ex) => Exercise.fromJson(ex as Map<String, dynamic>))
           .toList(),
       notes: json['notes'] as String?,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -163,7 +165,7 @@ class Exercise {
   final List<String> alternatives;
   final bool isCompleted;
   final int order;
-  
+
   Exercise({
     required this.id,
     required this.name,
@@ -188,13 +190,17 @@ class Exercise {
     this.isCompleted = false,
     this.order = 0,
   });
-  
+
   factory Exercise.fromJson(Map<String, dynamic> json) {
+    final nameEn =
+        (json['nameEn'] ?? json['name_en'] ?? json['name'] ?? '').toString();
+    final nameAr =
+        (json['nameAr'] ?? json['name_ar'] ?? json['name'] ?? '').toString();
     return Exercise(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      nameAr: json['nameAr'] as String,
-      nameEn: json['nameEn'] as String,
+      id: (json['id'] ?? '').toString(),
+      name: (json['name'] ?? nameEn).toString(),
+      nameAr: nameAr,
+      nameEn: nameEn,
       category: json['category'] as String?,
       muscleGroup: json['muscleGroup'] as String?,
       equipment: json['equipment'] as String?,
@@ -204,8 +210,8 @@ class Exercise {
       instructions: json['instructions'] as String?,
       instructionsAr: json['instructionsAr'] as String?,
       instructionsEn: json['instructionsEn'] as String?,
-      sets: json['sets'] as int,
-      reps: json['reps'] as String,
+      sets: _asInt(json['sets'], fallback: 0),
+      reps: (json['reps'] ?? '').toString(),
       restTime: json['restTime'] as String?,
       tempo: json['tempo'] as String?,
       notes: json['notes'] as String?,
@@ -215,11 +221,11 @@ class Exercise {
       alternatives: json['alternatives'] != null
           ? List<String>.from(json['alternatives'] as List)
           : [],
-      isCompleted: json['isCompleted'] as bool? ?? false,
-      order: json['order'] as int? ?? 0,
+      isCompleted: _asBool(json['isCompleted'], fallback: false),
+      order: _asInt(json['order'], fallback: 0),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -246,7 +252,7 @@ class Exercise {
       'order': order,
     };
   }
-  
+
   Exercise copyWith({
     String? name,
     String? nameAr,
@@ -288,7 +294,7 @@ class Exercise {
       order: order,
     );
   }
-  
+
   bool hasInjuryConflict(List<String> userInjuries) {
     String normalize(String input) {
       return input.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
@@ -301,4 +307,43 @@ class Exercise {
       });
     });
   }
+}
+
+int _asInt(dynamic value, {required int fallback}) {
+  if (value is int) {
+    return value;
+  }
+  if (value is num) {
+    return value.toInt();
+  }
+  if (value is String) {
+    return int.tryParse(value) ?? fallback;
+  }
+  return fallback;
+}
+
+bool _asBool(dynamic value, {required bool fallback}) {
+  if (value is bool) {
+    return value;
+  }
+  if (value is num) {
+    return value != 0;
+  }
+  if (value is String) {
+    final normalized = value.trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1' || normalized == 'yes') {
+      return true;
+    }
+    if (normalized == 'false' || normalized == '0' || normalized == 'no') {
+      return false;
+    }
+  }
+  return fallback;
+}
+
+bool? _asNullableBool(dynamic value) {
+  if (value == null) {
+    return null;
+  }
+  return _asBool(value, fallback: false);
 }
