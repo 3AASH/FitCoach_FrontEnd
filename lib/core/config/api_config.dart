@@ -1,5 +1,5 @@
-/// API Configuration
-/// Centralized API endpoint configuration for different environments
+// API configuration.
+// Centralized API endpoint configuration for different environments.
 
 import 'package:flutter/foundation.dart';
 
@@ -8,6 +8,16 @@ class ApiConfig {
   static const String environment = String.fromEnvironment(
     'ENV',
     defaultValue: 'development',
+  );
+
+  static const String _overrideBaseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: '',
+  );
+
+  static const String _overrideSocketUrl = String.fromEnvironment(
+    'SOCKET_URL',
+    defaultValue: '',
   );
 
   // Base URLs for different environments
@@ -25,10 +35,58 @@ class ApiConfig {
   };
 
   /// Get current API base URL
-  static String get baseUrl => _baseUrls[environment] ?? _baseUrls['development']!;
+  static String get baseUrl {
+    if (_overrideBaseUrl.isNotEmpty) {
+      return _overrideBaseUrl;
+    }
+    if (environment == 'development') {
+      return _developmentApiBaseUrl;
+    }
+    return _baseUrls[environment] ?? _developmentApiBaseUrl;
+  }
 
   /// Get current Socket URL
-  static String get socketUrl => _socketUrls[environment] ?? _socketUrls['development']!;
+  static String get socketUrl {
+    if (_overrideSocketUrl.isNotEmpty) {
+      return _overrideSocketUrl;
+    }
+    if (environment == 'development') {
+      return _developmentSocketUrl;
+    }
+    return _socketUrls[environment] ?? _developmentSocketUrl;
+  }
+
+  static String get _developmentApiBaseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:3000/v2';
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'http://localhost:3000/v2';
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+      case TargetPlatform.fuchsia:
+        return 'http://localhost:3000/v2';
+    }
+  }
+
+  static String get _developmentSocketUrl {
+    if (kIsWeb) {
+      return 'http://localhost:3000';
+    }
+    switch (defaultTargetPlatform) {
+      case TargetPlatform.android:
+        return 'http://localhost:3000';
+      case TargetPlatform.iOS:
+      case TargetPlatform.macOS:
+      case TargetPlatform.windows:
+      case TargetPlatform.linux:
+      case TargetPlatform.fuchsia:
+        return 'http://localhost:3000';
+    }
+  }
 
   /// API Version
   static const String apiVersion = 'v2';
@@ -78,6 +136,12 @@ class ApiConfig {
     debugPrint('Environment: $environment');
     debugPrint('Base URL: $baseUrl');
     debugPrint('Socket URL: $socketUrl');
+    if (_overrideBaseUrl.isNotEmpty) {
+      debugPrint('API override enabled');
+    }
+    if (_overrideSocketUrl.isNotEmpty) {
+      debugPrint('Socket override enabled');
+    }
     debugPrint('========================');
   }
 }

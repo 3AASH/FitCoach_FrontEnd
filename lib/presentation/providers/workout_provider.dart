@@ -10,7 +10,8 @@ class WorkoutProvider extends ChangeNotifier {
   final WorkoutRepository _repository;
   final DemoWorkoutRepository _demoRepository;
   final DemoModeConfig _demoConfig;
-  final ExerciseCatalogService _catalogService = ExerciseCatalogService.instance;
+  final ExerciseCatalogService _catalogService =
+      ExerciseCatalogService.instance;
 
   WorkoutPlan? _activePlan;
   List<Exercise> _exerciseLibrary = [];
@@ -33,8 +34,13 @@ class WorkoutProvider extends ChangeNotifier {
   int? get currentDayIndex => _currentDayIndex;
 
   WorkoutDay? get currentDay {
-    if (_activePlan == null || _currentDayIndex == null) return null;
-    if (_activePlan!.days == null || _currentDayIndex! >= _activePlan!.days!.length) return null;
+    if (_activePlan == null || _currentDayIndex == null) {
+      return null;
+    }
+    if (_activePlan!.days == null ||
+        _currentDayIndex! >= _activePlan!.days!.length) {
+      return null;
+    }
     return _activePlan!.days![_currentDayIndex!];
   }
 
@@ -61,6 +67,11 @@ class WorkoutProvider extends ChangeNotifier {
       final plan = await _repository.getActivePlan();
       await _ensureCatalogLoaded();
       _activePlan = plan == null ? null : _applyCatalogToPlan(plan);
+      if (_activePlan?.days != null && _activePlan!.days!.isNotEmpty) {
+        _currentDayIndex = 0;
+      } else {
+        _currentDayIndex = null;
+      }
     } catch (e) {
       _error = e.toString();
       _activePlan = null;
@@ -87,7 +98,8 @@ class WorkoutProvider extends ChangeNotifier {
 
     try {
       final exercisesData = await _repository.getExerciseLibrary();
-      _exerciseLibrary = exercisesData.map<Exercise>((e) => Exercise.fromJson(e)).toList();
+      _exerciseLibrary =
+          exercisesData.map<Exercise>((e) => Exercise.fromJson(e)).toList();
       await _ensureCatalogLoaded();
       _exerciseLibrary = _exerciseLibrary.map(_applyCatalogToExercise).toList();
     } catch (e) {
@@ -125,7 +137,8 @@ class WorkoutProvider extends ChangeNotifier {
     List<String> userInjuries,
   ) async {
     if (_demoConfig.isDemo) {
-      final alternatives = await _demoRepository.getExerciseAlternatives(exerciseId);
+      final alternatives =
+          await _demoRepository.getExerciseAlternatives(exerciseId);
       await _ensureCatalogLoaded();
       return alternatives.map(_applyCatalogToExercise).toList();
     }
@@ -161,7 +174,8 @@ class WorkoutProvider extends ChangeNotifier {
     final days = plan.days;
     if (days == null) return plan;
     final updatedDays = days.map((day) {
-      final updatedExercises = day.exercises.map(_applyCatalogToExercise).toList();
+      final updatedExercises =
+          day.exercises.map(_applyCatalogToExercise).toList();
       return WorkoutDay(
         id: day.id,
         dayName: day.dayName,
@@ -200,12 +214,14 @@ class WorkoutProvider extends ChangeNotifier {
     item ??= _findCatalogByName(catalog, exercise.nameEn, exercise.nameAr);
     if (item == null) return exercise;
 
-    final equipment = (exercise.equipment == null || exercise.equipment!.trim().isEmpty)
-        ? item.equip.join(', ')
-        : exercise.equipment;
-    final muscleGroup = (exercise.muscleGroup == null || exercise.muscleGroup!.trim().isEmpty)
-        ? item.muscles.join(', ')
-        : exercise.muscleGroup;
+    final equipment =
+        (exercise.equipment == null || exercise.equipment!.trim().isEmpty)
+            ? item.equip.join(', ')
+            : exercise.equipment;
+    final muscleGroup =
+        (exercise.muscleGroup == null || exercise.muscleGroup!.trim().isEmpty)
+            ? item.muscles.join(', ')
+            : exercise.muscleGroup;
 
     return exercise.copyWith(
       name: exercise.name.isNotEmpty ? exercise.name : item.nameEn,
@@ -232,7 +248,8 @@ class WorkoutProvider extends ChangeNotifier {
     String nameEn,
     String nameAr,
   ) {
-    String normalize(String input) => input.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06FF]'), '');
+    String normalize(String input) =>
+        input.toLowerCase().replaceAll(RegExp(r'[^a-z0-9\u0600-\u06FF]'), '');
     final en = normalize(nameEn);
     final ar = normalize(nameAr);
     for (final ex in catalog.exercises) {
