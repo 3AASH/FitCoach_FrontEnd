@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../data/repositories/admin_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
@@ -45,17 +47,16 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           lang: lang,
           onSubmit: (payload) async {
             final adminProvider = context.read<AdminProvider>();
-            final success = await adminProvider.createCoach(
+            final result = await adminProvider.createCoach(
               fullName: payload.fullName,
               email: payload.email,
               phoneNumber: payload.phoneNumber,
               specializations: payload.specializations,
-              sendInvitation: payload.sendInvite,
             );
 
-            if (!mounted) return false;
+            if (!mounted) return null;
 
-            if (success) {
+            if (result != null) {
               Navigator.of(sheetContext).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -66,21 +67,69 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                 ),
               );
               _loadCoaches();
+              if (result.credentials != null) {
+                _showCredentialsDialog(lang, result.credentials!);
+              }
             } else {
+              final error =
+                  adminProvider.error ?? lang.t('admin_create_coach_failed');
+              final normalized = error.toLowerCase();
+              final message = normalized.contains('409') ||
+                      normalized.contains('email already exists')
+                  ? lang.t('admin_email_exists')
+                  : error;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(
-                    adminProvider.error ??
-                        (lang.t('admin_create_coach_failed')),
-                  ),
+                  content: Text(message),
                   backgroundColor: AppColors.error,
                 ),
               );
             }
-            return success;
+            return result;
           },
         );
       },
+    );
+  }
+
+  void _showCredentialsDialog(
+    LanguageProvider lang,
+    CoachCredentials credentials,
+  ) {
+    final textToCopy =
+        'Email: ${credentials.email}\nPassword: ${credentials.defaultPassword}';
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(lang.t('admin_coach_credentials_title')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('${lang.t('email')}: ${credentials.email}'),
+            const SizedBox(height: 8),
+            Text('${lang.t('auth_password')}: ${credentials.defaultPassword}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(lang.t('close')),
+          ),
+          ElevatedButton.icon(
+            onPressed: () async {
+              await Clipboard.setData(ClipboardData(text: textToCopy));
+              if (!mounted) return;
+              Navigator.of(dialogContext).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text(lang.t('admin_credentials_copied'))),
+              );
+            },
+            icon: const Icon(Icons.copy),
+            label: Text(lang.t('admin_copy_credentials')),
+          ),
+        ],
+      ),
     );
   }
 
@@ -239,7 +288,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                            const Icon(Icons.error_outline,
+                                size: 64, color: AppColors.error),
                             const SizedBox(height: 16),
                             Text(
                               adminProvider.error!,
@@ -278,7 +328,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         : RefreshIndicator(
                             onRefresh: () async => _loadCoaches(),
                             child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               itemCount: adminProvider.coaches.length,
                               itemBuilder: (context, index) {
                                 final coach = adminProvider.coaches[index];
@@ -422,7 +473,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                           value: 'approve',
                           child: Row(
                             children: [
-                              const Icon(Icons.check_circle, size: 18, color: AppColors.success),
+                              const Icon(Icons.check_circle,
+                                  size: 18, color: AppColors.success),
                               const SizedBox(width: 8),
                               Text(lang.t('admin_approve')),
                             ],
@@ -432,7 +484,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         value: 'suspend',
                         child: Row(
                           children: [
-                            const Icon(Icons.block, size: 18, color: AppColors.error),
+                            const Icon(Icons.block,
+                                size: 18, color: AppColors.error),
                             const SizedBox(width: 8),
                             Text(lang.t('admin_action_suspend')),
                           ],
@@ -442,7 +495,6 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                   ),
                 ],
               ),
-
               if (coach.specializations.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
@@ -450,7 +502,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                   runSpacing: 8,
                   children: coach.specializations.map((spec) {
                     return Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
                         color: AppColors.primary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
@@ -515,10 +568,14 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDetailRow(lang.t('email'), coach.email ?? lang.t('not_available')),
-              _buildDetailRow(lang.t('admin_phone_label'), coach.phoneNumber ?? lang.t('not_available')),
-              _buildDetailRow(lang.t('admin_clients_label'), '${coach.clientCount}'),
-              _buildDetailRow(lang.t('admin_earnings_label'), '\$${coach.totalEarnings.toStringAsFixed(2)}'),
+              _buildDetailRow(
+                  lang.t('email'), coach.email ?? lang.t('not_available')),
+              _buildDetailRow(lang.t('admin_phone_label'),
+                  coach.phoneNumber ?? lang.t('not_available')),
+              _buildDetailRow(
+                  lang.t('admin_clients_label'), '${coach.clientCount}'),
+              _buildDetailRow(lang.t('admin_earnings_label'),
+                  '\$${coach.totalEarnings.toStringAsFixed(2)}'),
               if (coach.averageRating != null)
                 _buildDetailRow(
                   lang.t('admin_rating_label'),
@@ -530,9 +587,11 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                     ? (lang.t('admin_status_approved'))
                     : (lang.t('admin_status_pending')),
               ),
-              _buildDetailRow(lang.t('admin_created_label'), _formatDate(coach.createdAt)),
+              _buildDetailRow(
+                  lang.t('admin_created_label'), _formatDate(coach.createdAt)),
               if (coach.approvedAt != null)
-                _buildDetailRow(lang.t('admin_status_approved'), _formatDate(coach.approvedAt!)),
+                _buildDetailRow(lang.t('admin_status_approved'),
+                    _formatDate(coach.approvedAt!)),
               if (coach.specializations.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
@@ -640,7 +699,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              lang.t('admin_suspend_coach_prompt', args: {'name': coach.fullName}),
+              lang.t('admin_suspend_coach_prompt',
+                  args: {'name': coach.fullName}),
             ),
             const SizedBox(height: 16),
             TextField(
@@ -673,7 +733,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               Navigator.pop(context);
 
               final adminProvider = context.read<AdminProvider>();
-              final success = await adminProvider.suspendCoach(coach.id, reasonController.text);
+              final success = await adminProvider.suspendCoach(
+                  coach.id, reasonController.text);
 
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -700,7 +761,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
 
 class _CreateCoachSheet extends StatefulWidget {
   final LanguageProvider lang;
-  final Future<bool> Function(_CoachInvitePayload payload) onSubmit;
+  final Future<CoachCreationResult?> Function(_CoachCreatePayload payload)
+      onSubmit;
 
   const _CreateCoachSheet({
     required this.lang,
@@ -718,7 +780,6 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
   final _phoneController = TextEditingController();
   final _specializationController = TextEditingController();
   final List<String> _specializations = [];
-  bool _sendInvite = true;
   bool _isSubmitting = false;
 
   @override
@@ -779,7 +840,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 controller: _fullNameController,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_full_name_label'),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -794,7 +856,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 keyboardType: TextInputType.emailAddress,
                 decoration: InputDecoration(
                   labelText: lang.t('email'),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -812,7 +875,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_phone_optional'),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -831,7 +895,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                       controller: _specializationController,
                       decoration: InputDecoration(
                         hintText: lang.t('admin_add_specialty_hint'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       onSubmitted: (_) => _addSpecialization(),
                     ),
@@ -842,7 +907,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
                       foregroundColor: AppColors.textWhite,
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
                     ),
                     child: Text(lang.t('admin_add')),
                   ),
@@ -864,30 +930,18 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
               else
                 Text(
                   lang.t('admin_no_specializations'),
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  style: const TextStyle(
+                      color: AppColors.textSecondary, fontSize: 12),
                 ),
-              const SizedBox(height: 16),
-              SwitchListTile.adaptive(
-                contentPadding: EdgeInsets.zero,
-                value: _sendInvite,
-                onChanged: (value) {
-                  setState(() => _sendInvite = value);
-                },
-                title: Text(lang.t('admin_send_invite_title')),
-                subtitle: Text(
-                  lang.t('admin_send_invite_subtitle'),
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
-                ),
-              ),
               const SizedBox(height: 24),
               CustomButton(
                 text: _isSubmitting
                     ? (lang.t('admin_sending'))
-                    : (lang.t('admin_send_invite')),
+                    : (lang.t('admin_create_coach_action')),
                 onPressed: _isSubmitting ? null : _handleSubmit,
                 fullWidth: true,
                 size: ButtonSize.large,
-                icon: Icons.send,
+                icon: Icons.person_add_alt_1,
               ),
             ],
           ),
@@ -920,19 +974,18 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
       _isSubmitting = true;
     });
 
-    final payload = _CoachInvitePayload(
+    final payload = _CoachCreatePayload(
       fullName: _fullNameController.text.trim(),
       email: _emailController.text.trim(),
       phoneNumber: _phoneController.text.trim().isEmpty
           ? null
           : _phoneController.text.trim(),
       specializations: List<String>.from(_specializations),
-      sendInvite: _sendInvite,
     );
 
-    final success = await widget.onSubmit(payload);
+    final result = await widget.onSubmit(payload);
 
-    if (mounted && !success) {
+    if (mounted && result == null) {
       setState(() {
         _isSubmitting = false;
       });
@@ -940,18 +993,16 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
   }
 }
 
-class _CoachInvitePayload {
+class _CoachCreatePayload {
   final String fullName;
   final String email;
   final String? phoneNumber;
   final List<String> specializations;
-  final bool sendInvite;
 
-  const _CoachInvitePayload({
+  const _CoachCreatePayload({
     required this.fullName,
     required this.email,
     this.phoneNumber,
     this.specializations = const [],
-    this.sendInvite = true,
   });
 }

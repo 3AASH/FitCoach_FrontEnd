@@ -6,19 +6,19 @@ import '../../data/models/user_profile.dart';
 
 class UserProvider extends ChangeNotifier {
   final UserRepository _repository;
-  
+
   UserProfile? _profile;
   bool _isLoading = false;
   String? _error;
-  
+
   UserProvider(this._repository);
-  
+
   // Getters
   UserProfile? get profile => _profile;
   UserProfile? get user => _profile;
   bool get isLoading => _isLoading;
   String? get error => _error;
-  
+
   // Load user profile
   Future<void> loadProfile() async {
     if (DemoConfig.isDemo) {
@@ -31,7 +31,7 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final profile = await _repository.getUserProfile();
       _profile = profile;
@@ -43,7 +43,7 @@ class UserProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   // Update profile
   Future<bool> updateProfile(Map<String, dynamic> updates) async {
     if (DemoConfig.isDemo) {
@@ -63,7 +63,8 @@ class UserProvider extends ChangeNotifier {
           subscriptionTier: updates['subscriptionTier'] as String?,
           coachId: updates['coachId'] as String?,
           hasCompletedFirstIntake: updates['hasCompletedFirstIntake'] as bool?,
-          hasCompletedSecondIntake: updates['hasCompletedSecondIntake'] as bool?,
+          hasCompletedSecondIntake:
+              updates['hasCompletedSecondIntake'] as bool?,
           fitnessScore: updates['fitnessScore'] as int?,
         );
         notifyListeners();
@@ -73,10 +74,11 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       // Replace 'userId' with the actual user ID or required argument
-      final updatedProfileMap = await _repository.updateProfile(_profile?.id ?? '', updates);
+      final updatedProfileMap =
+          await _repository.updateProfile(_profile?.id ?? '', updates);
       _profile = UserProfile.fromJson(updatedProfileMap);
       _isLoading = false;
       notifyListeners();
@@ -88,7 +90,7 @@ class UserProvider extends ChangeNotifier {
       return false;
     }
   }
-  
+
   // Submit first intake
   Future<bool> submitFirstIntake(Map<String, dynamic> data) async {
     if (DemoConfig.isDemo) {
@@ -106,7 +108,7 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final updatedProfile = await _repository.submitFirstIntake(data);
       _profile = updatedProfile;
@@ -120,7 +122,7 @@ class UserProvider extends ChangeNotifier {
       return false;
     }
   }
-  
+
   // Submit second intake
   Future<bool> submitSecondIntake(Map<String, dynamic> data) async {
     if (DemoConfig.isDemo) {
@@ -141,10 +143,21 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
-      final updatedProfile = await _repository.submitSecondIntake(data);
-      _profile = updatedProfile;
+      final response = await _repository.submitSecondIntake(data);
+
+      final candidateProfile = _extractProfileMap(response);
+      if (candidateProfile != null) {
+        _profile = UserProfile.fromJson(candidateProfile);
+      } else {
+        final freshProfile = await _repository.getUserProfile();
+        _profile = freshProfile;
+      }
+
+      if (_profile != null && !_profile!.hasCompletedSecondIntake) {
+        _profile = _profile!.copyWith(hasCompletedSecondIntake: true);
+      }
       _isLoading = false;
       notifyListeners();
       return true;
@@ -155,7 +168,25 @@ class UserProvider extends ChangeNotifier {
       return false;
     }
   }
-  
+
+  Map<String, dynamic>? _extractProfileMap(Map<String, dynamic> response) {
+    final direct = _asMap(response['user']) ??
+        _asMap(response['profile']) ??
+        _asMap(response['data']) ??
+        (response.containsKey('id') ? response : null);
+    return direct;
+  }
+
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+    return null;
+  }
+
   // Update subscription tier
   Future<bool> updateSubscription(String tier) async {
     if (DemoConfig.isDemo) {
@@ -168,7 +199,7 @@ class UserProvider extends ChangeNotifier {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final updatedProfile = await _repository.updateSubscription(tier);
       _profile = updatedProfile;
@@ -182,13 +213,13 @@ class UserProvider extends ChangeNotifier {
       return false;
     }
   }
-  
+
   // Clear error
   void clearError() {
     _error = null;
     notifyListeners();
   }
-  
+
   // Set profile (for initial load)
   void setProfile(UserProfile profile) {
     _profile = profile;

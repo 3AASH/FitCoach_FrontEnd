@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/config/demo_config.dart';
 import '../../core/config/demo_mode.dart';
 import '../../data/demo/repositories/demo_workout_repository.dart';
+import '../../data/models/workout_calendar.dart';
 import '../../data/repositories/workout_repository.dart';
 import '../../data/models/workout_plan.dart';
 import '../../data/services/exercise_catalog_service.dart';
@@ -14,9 +15,13 @@ class WorkoutProvider extends ChangeNotifier {
       ExerciseCatalogService.instance;
 
   WorkoutPlan? _activePlan;
+  WorkoutCalendarResponse? _calendar;
   List<Exercise> _exerciseLibrary = [];
   bool _isLoading = false;
+  bool _isCalendarLoading = false;
+  bool _hasLoadedCalendar = false;
   String? _error;
+  String? _calendarError;
   int? _currentDayIndex;
   final Map<String, bool> _completedExercises = {};
 
@@ -28,6 +33,16 @@ class WorkoutProvider extends ChangeNotifier {
         _demoConfig = demoConfig ?? const DemoModeConfig();
 
   WorkoutPlan? get activePlan => _activePlan;
+  WorkoutCalendarResponse? get calendar => _calendar;
+  WorkoutCalendarPlan? get calendarPlan => _calendar?.plan;
+  List<WorkoutCalendarDayEntry> get previousDays =>
+      _calendar?.previous ?? const [];
+  WorkoutCalendarDayEntry? get todayDay => _calendar?.today;
+  List<WorkoutCalendarDayEntry> get upcomingDays =>
+      _calendar?.upcoming ?? const [];
+  bool get isCalendarLoading => _isCalendarLoading;
+  bool get hasLoadedCalendar => _hasLoadedCalendar;
+  String? get calendarError => _calendarError;
   List<Exercise> get exerciseLibrary => _exerciseLibrary;
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -68,7 +83,14 @@ class WorkoutProvider extends ChangeNotifier {
       await _ensureCatalogLoaded();
       _activePlan = plan == null ? null : _applyCatalogToPlan(plan);
       if (_activePlan?.days != null && _activePlan!.days!.isNotEmpty) {
-        _currentDayIndex = 0;
+        final currentDayNumber = _activePlan!.currentDayNumber;
+        if (currentDayNumber != null) {
+          final index = _activePlan!.days!
+              .indexWhere((d) => d.dayNumber == currentDayNumber);
+          _currentDayIndex = index >= 0 ? index : 0;
+        } else {
+          _currentDayIndex = 0;
+        }
       } else {
         _currentDayIndex = null;
       }
@@ -79,6 +101,48 @@ class WorkoutProvider extends ChangeNotifier {
     }
 
     _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> loadWorkoutCalendar({bool silent = false}) async {
+    if (_demoConfig.isDemo) {
+      _calendar = WorkoutCalendarResponse(
+        plan: _activePlan == null
+            ? null
+            : WorkoutCalendarPlan(
+                id: _activePlan!.id,
+                name: _activePlan!.name ?? 'Workout Plan',
+                startDate: _activePlan!.startDate,
+                endDate: _activePlan!.endDate,
+                daysPerWeek: _activePlan!.days?.length ?? 0,
+              ),
+        previous: const [],
+        today: null,
+        upcoming: const [],
+        allDays: const [],
+      );
+      _hasLoadedCalendar = true;
+      _calendarError = null;
+      notifyListeners();
+      return;
+    }
+
+    if (!silent) {
+      _isCalendarLoading = true;
+      _calendarError = null;
+      notifyListeners();
+    }
+
+    try {
+      _calendar = await _repository.getWorkoutCalendar();
+      _calendarError = null;
+      _hasLoadedCalendar = true;
+    } catch (e) {
+      _calendarError = e.toString();
+      _hasLoadedCalendar = true;
+    }
+
+    _isCalendarLoading = false;
     notifyListeners();
   }
 
@@ -123,13 +187,21 @@ class WorkoutProvider extends ChangeNotifier {
       return true;
     }
     try {
-      await _repository.markExerciseComplete(exerciseId);
+      final result = await _repository.markExerciseComplete(exerciseId);
+      _completedExercises[exerciseId] = true;
+
+      await loadActivePlan();
+      await loadWorkoutCalendar(silent: true);
+      if (result.dayCompleted && result.nextDayNumber != null) {
+        _setCurrentDayByNumber(result.nextDayNumber!);
+      }
+      notifyListeners();
+      return true;
     } catch (e) {
       _error = e.toString();
+      notifyListeners();
+      return false;
     }
-    _completedExercises[exerciseId] = true;
-    notifyListeners();
-    return true;
   }
 
   Future<List<Exercise>> getExerciseAlternatives(
@@ -183,6 +255,9 @@ class WorkoutProvider extends ChangeNotifier {
         dayNumber: day.dayNumber,
         exercises: updatedExercises,
         notes: day.notes,
+        isCompleted: day.isCompleted,
+        completedExercises: day.completedExercises,
+        totalExercises: day.totalExercises,
       );
     }).toList();
 
@@ -203,6 +278,11 @@ class WorkoutProvider extends ChangeNotifier {
       customizedByCoach: plan.customizedByCoach,
       createdAt: plan.createdAt,
       updatedAt: plan.updatedAt,
+      currentDayNumber: plan.currentDayNumber,
+      currentDayId: plan.currentDayId,
+      completedDays: plan.completedDays,
+      totalDays: plan.totalDays,
+      dayProgressPercent: plan.dayProgressPercent,
     );
   }
 
@@ -291,6 +371,7 @@ class WorkoutProvider extends ChangeNotifier {
     }
     try {
       await _repository.logWorkout(workoutData);
+      await loadWorkoutCalendar(silent: true);
       return true;
     } catch (e) {
       _error = e.toString();
@@ -301,6 +382,33 @@ class WorkoutProvider extends ChangeNotifier {
 
   bool isExerciseCompleted(String exerciseId) {
     return _completedExercises[exerciseId] ?? false;
+  }
+
+  void _setCurrentDayByNumber(int dayNumber) {
+    final days = _activePlan?.days;
+    if (days == null || days.isEmpty) return;
+    final index = days.indexWhere((d) => d.dayNumber == dayNumber);
+    if (index >= 0) {
+      _currentDayIndex = index;
+    }
+  }
+
+  void selectDayByWorkoutDayId(String? workoutDayId, {int? fallbackDayNumber}) {
+    if (workoutDayId != null && workoutDayId.trim().isNotEmpty) {
+      final days = _activePlan?.days;
+      if (days != null && days.isNotEmpty) {
+        final byId = days.indexWhere((d) => d.id == workoutDayId);
+        if (byId >= 0) {
+          _currentDayIndex = byId;
+          notifyListeners();
+          return;
+        }
+      }
+    }
+    if (fallbackDayNumber != null) {
+      _setCurrentDayByNumber(fallbackDayNumber);
+      notifyListeners();
+    }
   }
 
   void clearError() {

@@ -50,7 +50,7 @@ class MealDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            isArabic ? meal.nameAr : meal.nameEn,
+                            meal.name,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -59,7 +59,8 @@ class MealDetailScreen extends StatelessWidget {
                           const SizedBox(height: 4),
                           Text(
                             '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
-                            style: const TextStyle(color: AppColors.textSecondary),
+                            style:
+                                const TextStyle(color: AppColors.textSecondary),
                           ),
                         ],
                       ),
@@ -87,8 +88,10 @@ class MealDetailScreen extends StatelessWidget {
             (food) => CustomCard(
               margin: const EdgeInsets.only(bottom: 8),
               child: ListTile(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                leading: const Icon(Icons.restaurant_menu, color: AppColors.primary),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                leading:
+                    const Icon(Icons.restaurant_menu, color: AppColors.primary),
                 title: Text(isArabic ? food.nameAr : food.nameEn),
                 subtitle: Text(
                   '${food.quantity}${food.unit} • ${food.calories} ${lang.t('cal_unit')}',
@@ -97,27 +100,44 @@ class MealDetailScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('${food.macros.protein.round()}P'),
-                    Text('${food.macros.carbs.round()}C', style: const TextStyle(color: AppColors.textSecondary)),
-                    Text('${food.macros.fats.round()}F', style: const TextStyle(color: AppColors.textSecondary)),
+                    Text('${food.macros.carbs.round()}C',
+                        style: const TextStyle(color: AppColors.textSecondary)),
+                    Text('${food.macros.fats.round()}F',
+                        style: const TextStyle(color: AppColors.textSecondary)),
                   ],
                 ),
               ),
             ),
           ),
-          if ((meal.instructions?.isNotEmpty ?? false) || (meal.instructionsAr?.isNotEmpty ?? false)) ...[
-            const SizedBox(height: 12),
-            Text(
-              lang.t('meal_detail_notes'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          const SizedBox(height: 12),
+          Text(
+            lang.t('meal_detail_notes'),
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 8),
+          CustomCard(
+            child: Text(
+              (isArabic
+                              ? (meal.instructionsAr ??
+                                  meal.instructions ??
+                                  meal.instructionsEn)
+                              : (meal.instructionsEn ??
+                                  meal.instructions ??
+                                  meal.instructionsAr))
+                          ?.trim()
+                          .isNotEmpty ==
+                      true
+                  ? (isArabic
+                      ? (meal.instructionsAr ??
+                          meal.instructions ??
+                          meal.instructionsEn)
+                      : (meal.instructionsEn ??
+                          meal.instructions ??
+                          meal.instructionsAr))!
+                  : 'No ingredients/details available',
+              style: const TextStyle(height: 1.5),
             ),
-            const SizedBox(height: 8),
-            CustomCard(
-              child: Text(
-                isArabic ? (meal.instructionsAr ?? meal.instructions ?? '') : (meal.instructionsEn ?? meal.instructions ?? ''),
-                style: const TextStyle(height: 1.5),
-              ),
-            ),
-          ],
+          ),
           const SizedBox(height: 24),
           CustomButton(
             text: lang.t('meal_detail_swap'),

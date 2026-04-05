@@ -20,7 +20,8 @@ class MockAuthRepository implements AuthRepositoryBase {
   Future<AuthResponse> verifyOTP(String phoneNumber, String otp) async {
     return AuthResponse(
       token: 'mock_token',
-      user: UserProfile(id: 'mock_id', phoneNumber: phoneNumber, name: 'Test User', age: 30),
+      user: UserProfile(
+          id: 'mock_id', phoneNumber: phoneNumber, name: 'Test User', age: 30),
       isNewUser: false,
     );
   }
@@ -38,7 +39,11 @@ class MockAuthRepository implements AuthRepositoryBase {
   }) async {
     return AuthResponse(
       token: 'mock_token',
-      user: UserProfile(id: 'mock_id', phoneNumber: '+966501234567', name: 'Test User', age: 30),
+      user: UserProfile(
+          id: 'mock_id',
+          phoneNumber: '+966501234567',
+          name: 'Test User',
+          age: 30),
       isNewUser: false,
     );
   }
@@ -61,7 +66,11 @@ class MockAuthRepository implements AuthRepositoryBase {
   Future<AuthResponse> socialLogin(String provider) async {
     return AuthResponse(
       token: 'mock_token',
-      user: UserProfile(id: 'mock_id', phoneNumber: '+966501234567', name: 'Test User', age: 30),
+      user: UserProfile(
+          id: 'mock_id',
+          phoneNumber: '+966501234567',
+          name: 'Test User',
+          age: 30),
       isNewUser: false,
     );
   }
@@ -87,7 +96,21 @@ class MockNutritionRepository extends NutritionRepository {
   Future<Map<String, dynamic>> getTrialStatus() async => {'startDate': null};
 
   @override
-  Future<void> logMeal(String mealId, Map<String, dynamic> data) async {}
+  Future<Map<String, dynamic>> logMeal(
+      String mealId, Map<String, dynamic> data) async {
+    return {
+      'success': true,
+      'todayProgress': {
+        'targetCalories': 2000,
+        'consumedCalories': 0,
+        'remainingCalories': 2000,
+        'progressPercent': 0,
+        'consumedProtein': 0,
+        'consumedCarbs': 0,
+        'consumedFats': 0,
+      },
+    };
+  }
 
   @override
   Future<List<Map<String, dynamic>>> getNutritionHistory() async => [];
@@ -95,7 +118,8 @@ class MockNutritionRepository extends NutritionRepository {
 
 void main() {
   group('Nutrition Screens', () {
-    testWidgets('NutritionPreferencesIntakeScreen renders correctly', (tester) async {
+    testWidgets('NutritionPreferencesIntakeScreen renders correctly',
+        (tester) async {
       SharedPreferences.setMockInitialValues({'fitcoach_language': 'en'});
       final languageProvider = LanguageProvider();
       await languageProvider.setLanguage('en');
@@ -113,10 +137,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(NutritionPreferencesIntakeScreen), findsOneWidget);
-      expect(find.text(languageProvider.t('nutrition_intake_title')), findsOneWidget);
+      expect(find.text(languageProvider.t('nutrition_intake_title')),
+          findsOneWidget);
     });
 
-    testWidgets('NutritionScreen shows locked view for freemium', (tester) async {
+    testWidgets('NutritionScreen shows locked view for freemium',
+        (tester) async {
       SharedPreferences.setMockInitialValues({
         'fitcoach_language': 'en',
         'nutrition_intro_seen': true,
@@ -141,7 +167,8 @@ void main() {
           providers: [
             ChangeNotifierProvider.value(value: languageProvider),
             ChangeNotifierProvider(create: (_) => authProvider),
-            ChangeNotifierProvider(create: (_) => NutritionProvider(MockNutritionRepository())),
+            ChangeNotifierProvider(
+                create: (_) => NutritionProvider(MockNutritionRepository())),
           ],
           child: const MaterialApp(
             home: NutritionScreen(),
@@ -151,7 +178,8 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text(languageProvider.t('nutrition_locked_title')), findsOneWidget);
+      expect(find.text(languageProvider.t('nutrition_locked_title')),
+          findsOneWidget);
     });
   });
 }

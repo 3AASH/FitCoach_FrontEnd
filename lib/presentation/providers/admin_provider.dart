@@ -16,7 +16,7 @@ class AdminProvider extends ChangeNotifier {
   // State
   bool _isLoading = false;
   String? _error;
-  
+
   AdminAnalytics? _analytics;
   List<AdminUser> _users = [];
   AdminUser? _selectedUser;
@@ -31,7 +31,8 @@ class AdminProvider extends ChangeNotifier {
   List<AdminUser> get users => _users;
   AdminUser? get selectedUser => _selectedUser;
   List<AdminCoach> get coaches => _coaches;
-  List<AdminCoach> get pendingCoaches => _coaches.where((c) => c.isPending).toList();
+  List<AdminCoach> get pendingCoaches =>
+      _coaches.where((c) => c.isPending).toList();
   RevenueAnalytics? get revenueAnalytics => _revenueAnalytics;
   List<AuditLog> get auditLogs => _auditLogs;
 
@@ -96,8 +97,8 @@ class AdminProvider extends ChangeNotifier {
   /// Load user by ID
   Future<void> loadUserById(String id) async {
     if (DemoConfig.isDemo) {
-      _selectedUser = DemoData.adminUsers()
-          .firstWhere((user) => user.id == id, orElse: () => DemoData.adminUsers().first);
+      _selectedUser = DemoData.adminUsers().firstWhere((user) => user.id == id,
+          orElse: () => DemoData.adminUsers().first);
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -162,7 +163,7 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final updatedUser = await _repository.updateUser(
+      await _repository.updateUser(
         id,
         fullName: fullName,
         email: email,
@@ -171,16 +172,11 @@ class AdminProvider extends ChangeNotifier {
         coachId: coachId,
       );
 
-      // Update in list
-      final index = _users.indexWhere((u) => u.id == id);
-      if (index != -1) {
-        _users[index] = updatedUser;
-      }
-
-      // Update selected user
-      if (_selectedUser?.id == id) {
-        _selectedUser = updatedUser;
-      }
+      // Ensure UI reflects backend source of truth after subscription/coach update.
+      await Future.wait([
+        loadUsers(),
+        loadCoaches(),
+      ]);
 
       _isLoading = false;
       notifyListeners();
@@ -280,13 +276,12 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  /// Create a coach invitation
-  Future<bool> createCoach({
+  /// Create coach account directly and return login credentials
+  Future<CoachCreationResult?> createCoach({
     required String fullName,
     required String email,
     String? phoneNumber,
     List<String> specializations = const [],
-    bool sendInvitation = true,
   }) async {
     if (DemoConfig.isDemo) {
       final now = DateTime.now();
@@ -302,14 +297,20 @@ class AdminProvider extends ChangeNotifier {
         clientCount: 0,
         totalEarnings: 0,
         averageRating: null,
-        isApproved: false,
+        isApproved: true,
         isActive: true,
         createdAt: now,
-        approvedAt: null,
+        approvedAt: now,
       );
       _coaches = [newCoach, ..._coaches];
       notifyListeners();
-      return true;
+      return CoachCreationResult(
+        coach: newCoach,
+        credentials: CoachCredentials(
+          email: email,
+          defaultPassword: '123456',
+        ),
+      );
     }
 
     _isLoading = true;
@@ -317,22 +318,40 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final createdCoach = await _repository.createCoach(
+      final created = await _repository.createCoach(
         fullName: fullName,
         email: email,
         phoneNumber: phoneNumber,
         specializations: specializations,
-        sendInvitation: sendInvitation,
       );
-      _coaches = [createdCoach, ..._coaches];
+      final coach = AdminCoach(
+        id: created.coach.id,
+        userId: created.coach.userId,
+        fullName: created.coach.fullName,
+        email: created.coach.email,
+        phoneNumber: created.coach.phoneNumber,
+        profilePhotoUrl: created.coach.profilePhotoUrl,
+        specializations: created.coach.specializations,
+        clientCount: created.coach.clientCount,
+        totalEarnings: created.coach.totalEarnings,
+        averageRating: created.coach.averageRating,
+        isApproved: true,
+        isActive: true,
+        createdAt: created.coach.createdAt,
+        approvedAt: created.coach.approvedAt ?? DateTime.now(),
+      );
+      _coaches = [coach, ..._coaches];
       _isLoading = false;
       notifyListeners();
-      return true;
+      return CoachCreationResult(
+        coach: coach,
+        credentials: created.credentials,
+      );
     } catch (e) {
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
-      return false;
+      return null;
     }
   }
 
@@ -376,8 +395,10 @@ class AdminProvider extends ChangeNotifier {
     try {
       await _repository.suspendCoach(id, reason);
 
-      // Reload coaches
-      await loadCoaches();
+      await Future.wait([
+        loadCoaches(),
+        loadUsers(),
+      ]);
 
       _isLoading = false;
       notifyListeners();

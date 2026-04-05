@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/nutrition_provider.dart';
 
 class SecondIntakeScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -41,17 +42,19 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
   }
 
   Future<void> _submitIntake() async {
+    final lang = context.read<LanguageProvider>();
     if (_ageController.text.isEmpty ||
         _weightController.text.isEmpty ||
         _heightController.text.isEmpty ||
         _selectedExperience == null ||
         _selectedFrequency == null) {
-      _showError(context.read<LanguageProvider>().t('intake_incomplete'));
+      _showError(lang.t('intake_incomplete'));
       return;
     }
 
     final userProvider = context.read<UserProvider>();
     final authProvider = context.read<AuthProvider>();
+    final nutritionProvider = context.read<NutritionProvider>();
 
     final success = await userProvider.submitSecondIntake({
       'age': int.parse(_ageController.text),
@@ -63,10 +66,11 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
     });
 
     if (success && mounted) {
+      await nutritionProvider.loadActivePlan();
       if (userProvider.profile != null) {
         authProvider.updateUser(userProvider.profile!);
       }
-      await _showGeneratingPlan(context.read<LanguageProvider>());
+      await _showGeneratingPlan(lang);
       if (mounted) {
         widget.onComplete();
       }
@@ -98,7 +102,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
       case 0:
         return _ageController.text.isNotEmpty;
       case 1:
-        return _weightController.text.isNotEmpty && _heightController.text.isNotEmpty;
+        return _weightController.text.isNotEmpty &&
+            _heightController.text.isNotEmpty;
       case 2:
         return _selectedExperience != null;
       case 3:
@@ -162,7 +167,9 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  const Icon(Icons.auto_awesome, color: AppColors.secondaryForeground, size: 20),
+                                  const Icon(Icons.auto_awesome,
+                                      color: AppColors.secondaryForeground,
+                                      size: 20),
                                   const SizedBox(width: 8),
                                   Text(
                                     languageProvider.t('intake_second_title'),
@@ -176,20 +183,23 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                             ),
                             Text(
                               '${_currentStep + 1}/5',
-                              style: const TextStyle(color: AppColors.textSecondary),
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           languageProvider.t('intake_second_subtitle'),
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
                           value: (_currentStep + 1) / 5,
                           backgroundColor: AppColors.surface,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.secondaryForeground),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.secondaryForeground),
                         ),
                         const SizedBox(height: 24),
                         _buildCurrentStep(languageProvider),
@@ -216,13 +226,15 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                             Expanded(
                               child: ElevatedButton(
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.secondaryForeground,
+                                  backgroundColor:
+                                      AppColors.secondaryForeground,
                                 ),
                                 onPressed: userProvider.isLoading
                                     ? null
                                     : () {
                                         if (!_canProceedToNext()) {
-                                          _showError(languageProvider.t('intake_incomplete'));
+                                          _showError(languageProvider
+                                              .t('intake_incomplete'));
                                           return;
                                         }
                                         if (_currentStep < 4) {
@@ -237,20 +249,27 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                         ),
                                       )
                                     : Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             _currentStep == 4
-                                                ? languageProvider.t('intake_second_complete')
-                                                : languageProvider.t('continue'),
+                                                ? languageProvider
+                                                    .t('intake_second_complete')
+                                                : languageProvider
+                                                    .t('continue'),
                                           ),
                                           const SizedBox(width: 6),
                                           Icon(
-                                            isArabic ? Icons.arrow_back : Icons.arrow_forward,
+                                            isArabic
+                                                ? Icons.arrow_back
+                                                : Icons.arrow_forward,
                                             size: 18,
                                           ),
                                         ],
@@ -303,7 +322,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
           children: [
             TextField(
               controller: _weightController,
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
               ],
@@ -400,11 +420,13 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                 decoration: BoxDecoration(
                   color: AppColors.success.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.success.withValues(alpha: 0.2)),
+                  border: Border.all(
+                      color: AppColors.success.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                    const Icon(Icons.check_circle,
+                        color: AppColors.success, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
@@ -439,7 +461,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                 : Colors.white,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
-              color: isSelected ? AppColors.secondaryForeground : AppColors.border,
+              color:
+                  isSelected ? AppColors.secondaryForeground : AppColors.border,
               width: 1.2,
             ),
             boxShadow: [
@@ -463,7 +486,9 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                 child: Text(
                   label,
                   style: TextStyle(
-                    color: isSelected ? AppColors.secondaryForeground : Colors.black,
+                    color: isSelected
+                        ? AppColors.secondaryForeground
+                        : Colors.black,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -487,10 +512,13 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.secondaryForeground.withValues(alpha: 0.08) : Colors.white,
+          color: isSelected
+              ? AppColors.secondaryForeground.withValues(alpha: 0.08)
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.secondaryForeground : AppColors.border,
+            color:
+                isSelected ? AppColors.secondaryForeground : AppColors.border,
             width: 1.5,
           ),
         ),
@@ -634,7 +662,8 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
                 const SizedBox(height: 16),
                 Text(
                   widget.lang.t('intake_generating_title'),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 8),
                 Text(
@@ -646,7 +675,8 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
                 const LinearProgressIndicator(
                   value: 0.75,
                   backgroundColor: AppColors.surface,
-                  valueColor: AlwaysStoppedAnimation<Color>(AppColors.secondaryForeground),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                      AppColors.secondaryForeground),
                 ),
               ],
             ),

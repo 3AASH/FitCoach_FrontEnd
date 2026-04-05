@@ -13,6 +13,7 @@ class NutritionProvider extends ChangeNotifier {
   DateTime? _trialStartDate;
   int _trialDaysRemaining = 0;
   bool _hasTrialExpired = false;
+  NutritionTodayProgress? _todayProgress;
 
   static const int freemiumTrialDays = 14;
 
@@ -24,11 +25,15 @@ class NutritionProvider extends ChangeNotifier {
   DateTime? get trialStartDate => _trialStartDate;
   int get trialDaysRemaining => _trialDaysRemaining;
   bool get hasTrialExpired => _hasTrialExpired;
+  NutritionTodayProgress? get todayProgress => _todayProgress;
 
   Map<String, dynamic> get macroTargets {
     final targets = _activePlan?.macroTargets;
+    final progressTarget = _todayProgress?.targetCalories ?? 0;
     return {
-      'calories': targets?['calories'] ?? 2000,
+      'calories': (progressTarget > 0
+          ? progressTarget
+          : (targets?['calories'] ?? 2000)),
       'protein': targets?['protein'] ?? 150,
       'carbs': targets?['carbs'] ?? 250,
       'fat': targets?['fat'] ?? 70,
@@ -47,7 +52,9 @@ class NutritionProvider extends ChangeNotifier {
       return days.first.dayNumber;
     }
 
-    final diff = DateTime.now().difference(DateTime(start.year, start.month, start.day)).inDays;
+    final diff = DateTime.now()
+        .difference(DateTime(start.year, start.month, start.day))
+        .inDays;
     final normalized = (diff % days.length) + 1;
     return normalized;
   }
@@ -83,6 +90,14 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic> getCurrentMacros() {
+    if (_todayProgress != null) {
+      return {
+        'calories': _todayProgress!.consumedCalories,
+        'protein': _todayProgress!.consumedProtein,
+        'carbs': _todayProgress!.consumedCarbs,
+        'fat': _todayProgress!.consumedFats,
+      };
+    }
     final meals = _activePlan?.meals ?? [];
     double calories = 0;
     double protein = 0;
@@ -120,6 +135,7 @@ class NutritionProvider extends ChangeNotifier {
   Future<void> loadActivePlan() async {
     if (DemoConfig.isDemo) {
       _activePlan = DemoData.nutritionPlan(userId: DemoConfig.demoUserId);
+      _todayProgress = _activePlan?.todayProgress;
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -132,9 +148,11 @@ class NutritionProvider extends ChangeNotifier {
     try {
       final plan = await _repository.getActivePlan();
       _activePlan = plan;
+      _todayProgress = plan?.todayProgress;
     } catch (e) {
       _error = e.toString();
       _activePlan = null;
+      _todayProgress = null;
     }
 
     _isLoading = false;
@@ -156,7 +174,8 @@ class NutritionProvider extends ChangeNotifier {
           : null;
 
       if (_trialStartDate != null) {
-        final daysSinceStart = DateTime.now().difference(_trialStartDate!).inDays;
+        final daysSinceStart =
+            DateTime.now().difference(_trialStartDate!).inDays;
         _trialDaysRemaining = freemiumTrialDays - daysSinceStart;
         _hasTrialExpired = _trialDaysRemaining <= 0;
       }
@@ -189,7 +208,14 @@ class NutritionProvider extends ChangeNotifier {
       return true;
     }
     try {
-      await _repository.logMeal(mealId, data);
+      final response = await _repository.logMeal(mealId, data);
+      final progressMap =
+          _asMap(response['todayProgress'] ?? response['today_progress']);
+      if (progressMap != null) {
+        _todayProgress = NutritionTodayProgress.fromJson(progressMap);
+      }
+      _markMealCompletedLocal(mealId);
+      notifyListeners();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -202,14 +228,18 @@ class NutritionProvider extends ChangeNotifier {
     if (DemoConfig.isDemo) {
       return [
         {
-          'date': DateTime.now().subtract(const Duration(days: 1)).toIso8601String(),
+          'date': DateTime.now()
+              .subtract(const Duration(days: 1))
+              .toIso8601String(),
           'calories': 2150,
           'protein': 140,
           'carbs': 240,
           'fat': 65,
         },
         {
-          'date': DateTime.now().subtract(const Duration(days: 2)).toIso8601String(),
+          'date': DateTime.now()
+              .subtract(const Duration(days: 2))
+              .toIso8601String(),
           'calories': 2300,
           'protein': 155,
           'carbs': 255,
@@ -234,20 +264,18 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   Future<void> markMealComplete(String mealId) async {
-    if (_activePlan == null || _activePlan!.meals == null) return;
-    try {
-      final meal = _activePlan!.meals!.firstWhere((m) => m.id == mealId);
-      meal.completed = true;
-      notifyListeners();
-    } catch (_) {
-      // Meal not found, ignore.
-    }
+    await logMeal(mealId, {'completed': true});
   }
 
   int getMealProgress() {
-    if (_activePlan == null || _activePlan!.meals == null || _activePlan!.meals!.isEmpty) return 0;
+    if (_activePlan == null ||
+        _activePlan!.meals == null ||
+        _activePlan!.meals!.isEmpty) {
+      return 0;
+    }
     final total = _activePlan!.meals!.length;
-    final completed = _activePlan!.meals!.where((m) => m.completed == true).length;
+    final completed =
+        _activePlan!.meals!.where((m) => m.completed == true).length;
     return ((completed / total) * 100).round();
   }
 
@@ -272,16 +300,14 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   int getCalorieProgress() {
-    if (_activePlan == null || _activePlan!.meals == null) return 0;
-    double totalCalories = 0;
-    for (final meal in _activePlan!.meals!) {
-      for (final food in meal.foods) {
-        totalCalories += food.calories;
-      }
+    if (_todayProgress != null) {
+      return _todayProgress!.progressPercent.clamp(0, 100).round();
     }
-    final target = macroTargets['calories'] ?? 0;
+    if (_activePlan == null || _activePlan!.meals == null) return 0;
+    final current = getCurrentMacros()['calories'] as num? ?? 0;
+    final target = macroTargets['calories'] as num? ?? 0;
     if (target == 0) return 0;
-    final percent = (totalCalories / target) * 100;
+    final percent = (current / target) * 100;
     return percent.clamp(0, 100).round();
   }
 
@@ -316,5 +342,21 @@ class NutritionProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  void _markMealCompletedLocal(String mealId) {
+    if (_activePlan == null || _activePlan!.meals == null) return;
+    try {
+      final meal = _activePlan!.meals!.firstWhere((m) => m.id == mealId);
+      meal.completed = true;
+    } catch (_) {
+      // Ignore.
+    }
   }
 }

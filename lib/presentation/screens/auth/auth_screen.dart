@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -30,13 +29,13 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _signupPhoneController = TextEditingController();
   final List<TextEditingController> _otpControllers =
       List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _otpFocusNodes =
-      List.generate(6, (_) => FocusNode());
+  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
 
   @override
   void dispose() {
@@ -66,6 +65,7 @@ class _AuthScreenState extends State<AuthScreen> {
       _isPhoneValid = _isValidSaudiPhone(value);
     });
   }
+
   void _startResendCountdown() {
     setState(() {
       _resendEnabled = false;
@@ -135,6 +135,7 @@ class _AuthScreenState extends State<AuthScreen> {
       });
     }
   }
+
   Future<void> _handleEmailLogin() async {
     final authProvider = context.read<AuthProvider>();
     final languageProvider = context.read<LanguageProvider>();
@@ -285,6 +286,7 @@ class _AuthScreenState extends State<AuthScreen> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
@@ -380,7 +382,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               _step == AuthStep.otp
                                   ? languageProvider.t('auth_enter_otp')
                                   : _step == AuthStep.emailSignup
-                                      ? languageProvider.t('auth_create_account')
+                                      ? languageProvider
+                                          .t('auth_create_account')
                                       : languageProvider.t('auth_welcome'),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
@@ -394,12 +397,16 @@ class _AuthScreenState extends State<AuthScreen> {
                               _step == AuthStep.otp
                                   ? '${languageProvider.t('auth_otp_sent')} ${_phoneController.text}'
                                   : _step == AuthStep.choose
-                                      ? languageProvider.t('auth_welcome_subtitle')
+                                      ? languageProvider
+                                          .t('auth_welcome_subtitle')
                                       : _step == AuthStep.phone
-                                          ? languageProvider.t('auth_phone_will_receive_otp')
+                                          ? languageProvider
+                                              .t('auth_phone_will_receive_otp')
                                           : _step == AuthStep.emailSignup
-                                              ? languageProvider.t('auth_create_account_subtitle')
-                                              : languageProvider.t('auth_welcome_subtitle'),
+                                              ? languageProvider.t(
+                                                  'auth_create_account_subtitle')
+                                              : languageProvider
+                                                  .t('auth_welcome_subtitle'),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 13,
@@ -411,12 +418,15 @@ class _AuthScreenState extends State<AuthScreen> {
                               OutlinedButton.icon(
                                 onPressed: authProvider.isLoading
                                     ? null
-                                    : () => setState(() => _step = AuthStep.email),
+                                    : () =>
+                                        setState(() => _step = AuthStep.email),
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                   alignment: Alignment.centerLeft,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(AppRadius.medium),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.medium),
                                   ),
                                 ),
                                 icon: const Icon(
@@ -424,20 +434,25 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: AppColors.textPrimary,
                                 ),
                                 label: Text(
-                                  languageProvider.t('auth_continue_with_email'),
-                                  style: const TextStyle(color: AppColors.textPrimary),
+                                  languageProvider
+                                      .t('auth_continue_with_email'),
+                                  style: const TextStyle(
+                                      color: AppColors.textPrimary),
                                 ),
                               ),
                               const SizedBox(height: 12),
                               OutlinedButton.icon(
                                 onPressed: authProvider.isLoading
                                     ? null
-                                    : () => setState(() => _step = AuthStep.phone),
+                                    : () =>
+                                        setState(() => _step = AuthStep.phone),
                                 style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                   alignment: Alignment.centerLeft,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(AppRadius.medium),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.medium),
                                   ),
                                 ),
                                 icon: const Icon(
@@ -445,8 +460,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                   color: AppColors.textPrimary,
                                 ),
                                 label: Text(
-                                  languageProvider.t('auth_continue_with_phone'),
-                                  style: const TextStyle(color: AppColors.textPrimary),
+                                  languageProvider
+                                      .t('auth_continue_with_phone'),
+                                  style: const TextStyle(
+                                      color: AppColors.textPrimary),
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -454,7 +471,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 children: [
                                   const Expanded(child: Divider()),
                                   Padding(
-                                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12),
                                     child: Text(
                                       languageProvider.t('auth_or_divider'),
                                       style: const TextStyle(
@@ -498,38 +516,58 @@ class _AuthScreenState extends State<AuthScreen> {
                               const SizedBox(height: 16),
                               Center(
                                 child: OutlinedButton(
-                                  onPressed: authProvider.isLoading ? null : _tryDemo,
-                                  child: Text(languageProvider.t('auth_try_demo')),
+                                  onPressed:
+                                      authProvider.isLoading ? null : _tryDemo,
+                                  child:
+                                      Text(languageProvider.t('auth_try_demo')),
                                 ),
                               ),
                             ],
                             if (_step == AuthStep.email) ...[
                               _buildLabeledInput(
-                                label: languageProvider.t('auth_email_or_phone'),
-                                hint: languageProvider.t('auth_email_or_phone_placeholder'),
+                                label:
+                                    languageProvider.t('auth_email_or_phone'),
+                                hint: languageProvider
+                                    .t('auth_email_or_phone_placeholder'),
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                               ),
                               const SizedBox(height: 12),
                               _buildLabeledInput(
                                 label: languageProvider.t('auth_password'),
-                                hint: languageProvider.t('auth_password_placeholder'),
+                                hint: languageProvider
+                                    .t('auth_password_placeholder'),
                                 controller: _passwordController,
                                 obscureText: true,
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                languageProvider
+                                    .t('auth_coach_default_password_help'),
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
                               ),
                               const SizedBox(height: 8),
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: TextButton(
-                                  onPressed: authProvider.isLoading ? null : _showForgotPasswordDialog,
-                                  child: Text(languageProvider.t('auth_forgot_password')),
+                                  onPressed: authProvider.isLoading
+                                      ? null
+                                      : _showForgotPasswordDialog,
+                                  child: Text(languageProvider
+                                      .t('auth_forgot_password')),
                                 ),
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: authProvider.isLoading ? null : _handleEmailLogin,
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _handleEmailLogin,
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                 ),
                                 child: authProvider.isLoading
                                     ? const SizedBox(
@@ -537,7 +575,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                         width: 18,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                         ),
                                       )
                                     : Text(languageProvider.t('auth_sign_in')),
@@ -546,7 +586,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               OutlinedButton(
                                 onPressed: authProvider.isLoading
                                     ? null
-                                    : () => setState(() => _step = AuthStep.choose),
+                                    : () =>
+                                        setState(() => _step = AuthStep.choose),
                                 child: Text(languageProvider.t('auth_back')),
                               ),
                               const SizedBox(height: 8),
@@ -554,7 +595,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 child: TextButton(
                                   onPressed: authProvider.isLoading
                                       ? null
-                                      : () => setState(() => _step = AuthStep.emailSignup),
+                                      : () => setState(
+                                          () => _step = AuthStep.emailSignup),
                                   child: Text(
                                     '${languageProvider.t('auth_no_account')} ${languageProvider.t('auth_sign_up')}',
                                   ),
@@ -570,36 +612,44 @@ class _AuthScreenState extends State<AuthScreen> {
                               const SizedBox(height: 12),
                               _buildLabeledInput(
                                 label: languageProvider.t('auth_email'),
-                                hint: languageProvider.t('auth_email_placeholder'),
+                                hint: languageProvider
+                                    .t('auth_email_placeholder'),
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
                               ),
                               const SizedBox(height: 12),
                               _buildLabeledInput(
                                 label: languageProvider.t('auth_phone'),
-                                hint: languageProvider.t('auth_phone_placeholder'),
+                                hint: languageProvider
+                                    .t('auth_phone_placeholder'),
                                 controller: _signupPhoneController,
                                 keyboardType: TextInputType.phone,
                               ),
                               const SizedBox(height: 12),
                               _buildLabeledInput(
                                 label: languageProvider.t('auth_password'),
-                                hint: languageProvider.t('auth_password_placeholder'),
+                                hint: languageProvider
+                                    .t('auth_password_placeholder'),
                                 controller: _passwordController,
                                 obscureText: true,
                               ),
                               const SizedBox(height: 12),
                               _buildLabeledInput(
-                                label: languageProvider.t('auth_confirm_password'),
-                                hint: languageProvider.t('auth_confirm_password_placeholder'),
+                                label:
+                                    languageProvider.t('auth_confirm_password'),
+                                hint: languageProvider
+                                    .t('auth_confirm_password_placeholder'),
                                 controller: _confirmPasswordController,
                                 obscureText: true,
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: authProvider.isLoading ? null : _handleEmailSignup,
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _handleEmailSignup,
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                 ),
                                 child: authProvider.isLoading
                                     ? const SizedBox(
@@ -607,16 +657,20 @@ class _AuthScreenState extends State<AuthScreen> {
                                         width: 18,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                         ),
                                       )
-                                    : Text(languageProvider.t('auth_create_account')),
+                                    : Text(languageProvider
+                                        .t('auth_create_account')),
                               ),
                               const SizedBox(height: 12),
                               OutlinedButton(
                                 onPressed: authProvider.isLoading
                                     ? null
-                                    : () => setState(() => _step = AuthStep.email),
+                                    : () =>
+                                        setState(() => _step = AuthStep.email),
                                 child: Text(languageProvider.t('auth_back')),
                               ),
                               const SizedBox(height: 8),
@@ -624,7 +678,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 child: TextButton(
                                   onPressed: authProvider.isLoading
                                       ? null
-                                      : () => setState(() => _step = AuthStep.email),
+                                      : () => setState(
+                                          () => _step = AuthStep.email),
                                   child: Text(
                                     '${languageProvider.t('auth_have_account')} ${languageProvider.t('auth_sign_in')}',
                                   ),
@@ -634,18 +689,21 @@ class _AuthScreenState extends State<AuthScreen> {
                             if (_step == AuthStep.phone) ...[
                               _buildLabeledInput(
                                 label: languageProvider.t('auth_phone'),
-                                hint: languageProvider.t('auth_phone_placeholder'),
+                                hint: languageProvider
+                                    .t('auth_phone_placeholder'),
                                 controller: _phoneController,
                                 keyboardType: TextInputType.phone,
                                 onChanged: _updatePhoneValidity,
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: authProvider.isLoading || !_isPhoneValid
-                                    ? null
-                                    : _requestOTP,
+                                onPressed:
+                                    authProvider.isLoading || !_isPhoneValid
+                                        ? null
+                                        : _requestOTP,
                                 style: ElevatedButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(vertical: 14),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                 ),
                                 child: authProvider.isLoading
                                     ? const SizedBox(
@@ -653,7 +711,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                         width: 18,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                         ),
                                       )
                                     : Text(languageProvider.t('auth_sign_in')),
@@ -662,13 +722,15 @@ class _AuthScreenState extends State<AuthScreen> {
                               OutlinedButton(
                                 onPressed: authProvider.isLoading
                                     ? null
-                                    : () => setState(() => _step = AuthStep.choose),
+                                    : () =>
+                                        setState(() => _step = AuthStep.choose),
                                 child: Text(languageProvider.t('auth_back')),
                               ),
                             ],
                             if (_step == AuthStep.otp) ...[
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: List.generate(6, (index) {
                                   return SizedBox(
                                     width: 42,
@@ -684,9 +746,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ),
                                       decoration: InputDecoration(
                                         counterText: '',
-                                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 10),
                                         border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                       ),
                                       inputFormatters: [
@@ -694,9 +759,11 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ],
                                       onChanged: (value) {
                                         if (value.isNotEmpty && index < 5) {
-                                          _otpFocusNodes[index + 1].requestFocus();
+                                          _otpFocusNodes[index + 1]
+                                              .requestFocus();
                                         } else if (value.isEmpty && index > 0) {
-                                          _otpFocusNodes[index - 1].requestFocus();
+                                          _otpFocusNodes[index - 1]
+                                              .requestFocus();
                                         }
                                         if (index == 5 && value.isNotEmpty) {
                                           _verifyOTP();
@@ -708,14 +775,17 @@ class _AuthScreenState extends State<AuthScreen> {
                               ),
                               const SizedBox(height: 16),
                               ElevatedButton(
-                                onPressed: authProvider.isLoading ? null : _verifyOTP,
+                                onPressed:
+                                    authProvider.isLoading ? null : _verifyOTP,
                                 child: authProvider.isLoading
                                     ? const SizedBox(
                                         height: 18,
                                         width: 18,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                         ),
                                       )
                                     : Text(languageProvider.t('auth_verify')),
@@ -750,7 +820,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     }
                                   });
                                 },
-                                child: Text(languageProvider.t('auth_change_phone')),
+                                child: Text(
+                                    languageProvider.t('auth_change_phone')),
                               ),
                             ],
                           ],
@@ -770,7 +841,8 @@ class _AuthScreenState extends State<AuthScreen> {
                     Text(
                       languageProvider.t('auth_demo_user'),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -778,17 +850,20 @@ class _AuthScreenState extends State<AuthScreen> {
                         'auth_demo_credentials_detail',
                         args: {
                           'email': 'user@fitcoach.com',
-                          'password': languageProvider.t('auth_demo_password_any'),
+                          'password':
+                              languageProvider.t('auth_demo_password_any'),
                         },
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       languageProvider.t('auth_demo_coach'),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -796,17 +871,20 @@ class _AuthScreenState extends State<AuthScreen> {
                         'auth_demo_credentials_detail',
                         args: {
                           'email': 'coach@fitcoach.com',
-                          'password': languageProvider.t('auth_demo_password_any'),
+                          'password':
+                              languageProvider.t('auth_demo_password_any'),
                         },
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       languageProvider.t('auth_demo_admin'),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     const SizedBox(height: 2),
                     Text(
@@ -814,11 +892,13 @@ class _AuthScreenState extends State<AuthScreen> {
                         'auth_demo_credentials_detail',
                         args: {
                           'email': 'admin@fitcoach.com',
-                          'password': languageProvider.t('auth_demo_password_any'),
+                          'password':
+                              languageProvider.t('auth_demo_password_any'),
                         },
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(fontSize: 12, color: Colors.white70),
+                      style:
+                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     if (isRTL) const SizedBox(height: 8),
                   ],
@@ -877,7 +957,8 @@ class _AuthScreenState extends State<AuthScreen> {
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium),
             ),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
           ),
         ),
       ],

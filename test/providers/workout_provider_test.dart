@@ -63,7 +63,14 @@ class FakeWorkoutRepository extends WorkoutRepository {
   }
 
   @override
-  Future<void> markExerciseComplete(String exerciseId) async {}
+  Future<WorkoutExerciseCompletionResult> markExerciseComplete(
+      String exerciseId) async {
+    return WorkoutExerciseCompletionResult(
+      dayCompleted: false,
+      nextDayNumber: null,
+      planProgressPercent: null,
+    );
+  }
 }
 
 void main() {

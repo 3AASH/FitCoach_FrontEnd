@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/colors.dart';
+import '../../../data/models/workout_calendar.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../../data/models/user_profile.dart';
 import '../../../data/services/exercise_catalog_service.dart';
@@ -41,7 +42,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     _wasActive = widget.isActive;
     _loadIntroFlag();
     Future.microtask(() {
-      context.read<WorkoutProvider>().loadActivePlan();
+      Future.wait([
+        context.read<WorkoutProvider>().loadActivePlan(),
+        context.read<WorkoutProvider>().loadWorkoutCalendar(),
+      ]);
     });
     if (widget.isActive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -82,6 +86,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     super.didUpdateWidget(oldWidget);
     if (widget.isActive && !_wasActive) {
       _promptedSecondIntake = false;
+      Future.wait([
+        context.read<WorkoutProvider>().loadActivePlan(),
+        context.read<WorkoutProvider>().loadWorkoutCalendar(silent: true),
+      ]);
       if (!_showIntro && _introLoaded) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _maybeShowSecondIntake();
@@ -256,7 +264,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       );
     }
 
-    if (workoutProvider.isLoading) {
+    final initialCalendarLoading =
+        workoutProvider.isCalendarLoading && !workoutProvider.hasLoadedCalendar;
+    if (workoutProvider.isLoading || initialCalendarLoading) {
       return const Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
@@ -300,6 +310,44 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 ),
               ],
             ),
+          ),
+        ),
+      );
+    }
+
+    if (workoutProvider.hasLoadedCalendar &&
+        workoutProvider.calendarPlan == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(languageProvider.t('workout')),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.fitness_center_outlined,
+                size: 80,
+                color: AppColors.textDisabled,
+              ),
+              const SizedBox(height: 24),
+              Text(
+                languageProvider.t('no_active_workout_plan'),
+                style: const TextStyle(
+                  fontSize: 18,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: () {
+                  workoutProvider.loadActivePlan();
+                  workoutProvider.loadWorkoutCalendar();
+                },
+                icon: const Icon(Icons.refresh),
+                label: Text(languageProvider.t('retry')),
+              ),
+            ],
           ),
         ),
       );
@@ -384,6 +432,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     completedExercises,
                     totalExercises,
                     workoutProgress,
+                    isArabic,
+                  ),
+                  const SizedBox(height: 14),
+                  _buildWorkoutCalendarSections(
+                    workoutProvider,
+                    languageProvider,
                     isArabic,
                   ),
                   const SizedBox(height: 14),
@@ -760,6 +814,190 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildWorkoutCalendarSections(
+    WorkoutProvider provider,
+    LanguageProvider lang,
+    bool isArabic,
+  ) {
+    final previous = provider.previousDays;
+    final upcoming = provider.upcomingDays;
+    final today = provider.todayDay;
+
+    if (previous.isEmpty && upcoming.isEmpty && today == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Column(
+      children: [
+        if (today != null) ...[
+          _buildCalendarDayCard(
+            day: today,
+            label: lang.t('today'),
+            isToday: true,
+            isArabic: isArabic,
+            onTap: () => _openCalendarDay(provider, today),
+          ),
+          const SizedBox(height: 10),
+        ],
+        if (previous.isNotEmpty)
+          _buildCalendarSection(
+            title: 'Previous',
+            days: previous,
+            isArabic: isArabic,
+            onTap: (day) => _openCalendarDay(provider, day),
+          ),
+        if (previous.isNotEmpty && upcoming.isNotEmpty)
+          const SizedBox(height: 10),
+        if (upcoming.isNotEmpty)
+          _buildCalendarSection(
+            title: 'Upcoming',
+            days: upcoming,
+            isArabic: isArabic,
+            onTap: (day) => _openCalendarDay(provider, day),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildCalendarSection({
+    required String title,
+    required List<WorkoutCalendarDayEntry> days,
+    required bool isArabic,
+    required void Function(WorkoutCalendarDayEntry day) onTap,
+  }) {
+    return CustomCard(
+      padding: const EdgeInsets.all(12),
+      color: Colors.white,
+      border: Border.all(color: const Color(0xFFDCDDE4)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF181A27),
+            ),
+          ),
+          const SizedBox(height: 8),
+          ...days.map(
+            (day) => Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildCalendarDayCard(
+                day: day,
+                isToday: false,
+                isArabic: isArabic,
+                onTap: () => onTap(day),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCalendarDayCard({
+    required WorkoutCalendarDayEntry day,
+    required bool isToday,
+    required bool isArabic,
+    required VoidCallback onTap,
+    String? label,
+  }) {
+    final title = isArabic && (day.dayNameAr?.isNotEmpty == true)
+        ? day.dayNameAr!
+        : day.dayName;
+    final subtitle =
+        '${day.completedExercises}/${day.totalExercises} exercises';
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: isToday ? const Color(0xFFEAF2FF) : const Color(0xFFF6F7FB),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isToday ? const Color(0xFF8AB4F8) : const Color(0xFFE2E4EC),
+          ),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          title,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF181A27),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (label != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFDBEAFE),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Text(
+                            label,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: Color(0xFF1D4ED8),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Color(0xFF6C6F83),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 56,
+              child: Text(
+                '${day.progressPercent.round()}%',
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF2A2C3A),
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _openCalendarDay(
+    WorkoutProvider provider,
+    WorkoutCalendarDayEntry day,
+  ) {
+    provider.selectDayByWorkoutDayId(
+      day.workoutDayId,
+      fallbackDayNumber: day.dayNumber,
     );
   }
 

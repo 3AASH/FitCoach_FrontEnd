@@ -9,6 +9,7 @@ import '../../../data/models/nutrition_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/workout_provider.dart';
 import '../../widgets/custom_card.dart';
 import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
@@ -73,7 +74,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Future<void> _loadPreferencesFlag() async {
     final prefs = await SharedPreferences.getInstance();
     final authUserId = context.read<AuthProvider>().user?.id;
-    final userId = authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
+    final userId =
+        authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
     if (userId == null) {
       if (mounted) {
         setState(() {
@@ -99,7 +101,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Future<void> _completePreferences(Map<String, dynamic> preferences) async {
     final prefs = await SharedPreferences.getInstance();
     final authUserId = context.read<AuthProvider>().user?.id;
-    final userId = authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
+    final userId =
+        authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
     if (userId == null) return;
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
@@ -139,7 +142,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     if (_showIntro) {
       return NutritionIntroScreen(onGetStarted: _completeIntro);
     }
-    
+
     // Check access
     final canAccess = nutritionProvider.canAccessNutrition(subscriptionTier);
 
@@ -150,7 +153,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         ),
       );
     }
-    
+
     // Locked for non-premium tiers
     if (!canAccess) {
       return _buildLockedAccess(languageProvider, isArabic);
@@ -162,15 +165,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
         onBack: () => setState(() => _showPreferencesIntake = false),
       );
     }
-    
+
     if (nutritionProvider.activePlan == null) {
       return _buildNoPlan(languageProvider, isArabic);
     }
-    
+
     final macroTargets = nutritionProvider.macroTargets;
     final currentMacros = nutritionProvider.getCurrentMacros();
     final calorieProgress = (currentMacros['calories'] as num) /
-        ((macroTargets['calories'] as num) == 0 ? 1 : (macroTargets['calories'] as num));
+        ((macroTargets['calories'] as num) == 0
+            ? 1
+            : (macroTargets['calories'] as num));
 
     return DefaultTabController(
       length: 3,
@@ -205,7 +210,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             IconButton(
                               onPressed: () => _handleBack(),
                               icon: Icon(
-                                isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                                isArabic
+                                    ? Icons.arrow_forward
+                                    : Icons.arrow_back,
                                 color: Colors.white,
                               ),
                             ),
@@ -232,9 +239,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.settings, color: Colors.white),
-                              onPressed: () => setState(() => _showPreferencesIntake = true),
-                              tooltip: languageProvider.t('nutrition_edit_preferences'),
+                              icon: const Icon(Icons.settings,
+                                  color: Colors.white),
+                              onPressed: () =>
+                                  setState(() => _showPreferencesIntake = true),
+                              tooltip: languageProvider
+                                  .t('nutrition_edit_preferences'),
                             ),
                           ],
                         ),
@@ -244,30 +254,36 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           decoration: BoxDecoration(
                             color: Colors.white.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.2)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    languageProvider.t('nutrition_todays_progress'),
+                                    languageProvider
+                                        .t('nutrition_todays_progress'),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color: Colors.white.withValues(alpha: 0.2),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       '${(calorieProgress * 100).clamp(0, 100).round()}%',
-                                      style: const TextStyle(color: Colors.white, fontSize: 12),
+                                      style: const TextStyle(
+                                          color: Colors.white, fontSize: 12),
                                     ),
                                   ),
                                 ],
@@ -275,7 +291,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               const SizedBox(height: 12),
                               Text(
                                 '${currentMacros['calories']?.toInt() ?? 0} / ${macroTargets['calories']}',
-                                style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                style: const TextStyle(
+                                    color: Colors.white70, fontSize: 12),
                               ),
                               const SizedBox(height: 8),
                               ClipRRect(
@@ -283,8 +300,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                 child: LinearProgressIndicator(
                                   value: calorieProgress.clamp(0, 1).toDouble(),
                                   minHeight: 6,
-                                  backgroundColor: Colors.white.withValues(alpha: 0.2),
-                                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                                  backgroundColor:
+                                      Colors.white.withValues(alpha: 0.2),
+                                  valueColor:
+                                      const AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
                                 ),
                               ),
                             ],
@@ -306,8 +326,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       child: TabBar(
                         labelColor: AppColors.textPrimary,
                         unselectedLabelColor: AppColors.textSecondary,
-                        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                        unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                        labelStyle: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w600),
+                        unselectedLabelStyle: const TextStyle(
+                            fontSize: 13, fontWeight: FontWeight.w500),
                         indicator: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -316,7 +338,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         tabs: [
                           Tab(text: languageProvider.t('nutrition_tab_today')),
                           Tab(text: languageProvider.t('nutrition_tab_meals')),
-                          Tab(text: languageProvider.t('nutrition_tab_tracking')),
+                          Tab(
+                              text:
+                                  languageProvider.t('nutrition_tab_tracking')),
                         ],
                       ),
                     ),
@@ -325,9 +349,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        _buildTodayTab(languageProvider, nutritionProvider, isArabic),
-                        _buildMealsTab(languageProvider, nutritionProvider, isArabic),
-                        _buildTrackingTab(languageProvider, nutritionProvider, isArabic),
+                        _buildTodayTab(
+                            languageProvider, nutritionProvider, isArabic),
+                        _buildMealsTab(
+                            languageProvider, nutritionProvider, isArabic),
+                        _buildTrackingTab(
+                            languageProvider, nutritionProvider, isArabic),
                       ],
                     ),
                   ),
@@ -339,6 +366,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ),
     );
   }
+
   Widget _buildTodayTab(
     LanguageProvider lang,
     NutritionProvider provider,
@@ -387,7 +415,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            dayPlans.isNotEmpty ? lang.t('nutrition_week_plan') : lang.t('todays_meals'),
+            dayPlans.isNotEmpty
+                ? lang.t('nutrition_week_plan')
+                : lang.t('todays_meals'),
             style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
@@ -407,7 +437,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 margin: const EdgeInsets.only(bottom: 12),
                 padding: EdgeInsets.zero,
                 child: Theme(
-                  data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+                  data: Theme.of(context)
+                      .copyWith(dividerColor: Colors.transparent),
                   child: ExpansionTile(
                     initiallyExpanded: dayPlan.dayNumber == todayDayNumber,
                     title: Text(
@@ -453,20 +484,27 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
-  Widget _buildMacroBreakdownGrid(LanguageProvider lang, NutritionProvider provider) {
+  Widget _buildMacroBreakdownGrid(
+      LanguageProvider lang, NutritionProvider provider) {
     final targets = provider.macroTargets;
     final current = provider.getCurrentMacros();
 
-    Widget buildCard(IconData icon, Color color, String label, int value, int target) {
-      final progress = target == 0 ? 0.0 : (value / target).clamp(0, 1).toDouble();
+    Widget buildCard(
+        IconData icon, Color color, String label, int value, int target) {
+      final progress =
+          target == 0 ? 0.0 : (value / target).clamp(0, 1).toDouble();
       return CustomCard(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Icon(icon, color: color, size: 24),
             const SizedBox(height: 8),
-            Text('$value', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
-            Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 12)),
+            Text('$value',
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+            Text(label,
+                style: const TextStyle(
+                    color: AppColors.textSecondary, fontSize: 12)),
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: progress,
@@ -527,7 +565,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   ) {
     final daysRemaining = provider.trialDaysRemaining;
     final isExpiringSoon = daysRemaining <= 3;
-    
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -583,7 +621,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
-                foregroundColor: isExpiringSoon ? AppColors.warning : AppColors.primary,
+                foregroundColor:
+                    isExpiringSoon ? AppColors.warning : AppColors.primary,
               ),
               child: Text(lang.t('upgrade_to_premium')),
             ),
@@ -592,7 +631,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ),
     );
   }
-  
+
   // ignore: unused_element
   Widget _buildTrialExpired(LanguageProvider lang, bool isArabic) {
     return Scaffold(
@@ -645,7 +684,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ),
     );
   }
-  
+
   Widget _buildNoPlan(LanguageProvider lang, bool isArabic) {
     return Scaffold(
       appBar: AppBar(
@@ -676,6 +715,19 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 color: AppColors.textDisabled,
               ),
               textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton.icon(
+              onPressed: () =>
+                  context.read<NutritionProvider>().loadActivePlan(),
+              icon: const Icon(Icons.refresh),
+              label: Text(lang.t('retry')),
+            ),
+            const SizedBox(height: 10),
+            OutlinedButton.icon(
+              onPressed: () => setState(() => _showPreferencesIntake = true),
+              icon: const Icon(Icons.auto_awesome),
+              label: Text('Generate/Refresh plan'),
             ),
           ],
         ),
@@ -715,7 +767,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         ),
                         Text(
                           lang.t('nutrition_tracking'),
-                          style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          style: const TextStyle(
+                              color: Colors.white70, fontSize: 12),
                         ),
                       ],
                     ),
@@ -740,12 +793,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           color: const Color(0xFFFDE68A),
                           borderRadius: BorderRadius.circular(40),
                         ),
-                        child: const Icon(Icons.lock, size: 36, color: Color(0xFFB45309)),
+                        child: const Icon(Icons.lock,
+                            size: 36, color: Color(0xFFB45309)),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         lang.t('nutrition_locked_title'),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -757,11 +812,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       const SizedBox(height: 16),
                       Column(
                         children: [
-                          _buildLockedFeatureRow(Icons.track_changes, lang.t('nutrition_feature1'), isArabic),
+                          _buildLockedFeatureRow(Icons.track_changes,
+                              lang.t('nutrition_feature1'), isArabic),
                           const SizedBox(height: 8),
-                          _buildLockedFeatureRow(Icons.restaurant_menu, lang.t('nutrition_feature2'), isArabic),
+                          _buildLockedFeatureRow(Icons.restaurant_menu,
+                              lang.t('nutrition_feature2'), isArabic),
                           const SizedBox(height: 8),
-                          _buildLockedFeatureRow(Icons.trending_up, lang.t('nutrition_feature3'), isArabic),
+                          _buildLockedFeatureRow(Icons.trending_up,
+                              lang.t('nutrition_feature3'), isArabic),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -769,7 +827,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         width: double.infinity,
                         child: ElevatedButton.icon(
                           onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const SubscriptionManagerScreen()),
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const SubscriptionManagerScreen()),
                           ),
                           icon: const Icon(Icons.workspace_premium),
                           label: Text(lang.t('nutrition_unlock_button')),
@@ -794,14 +854,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style:
+                const TextStyle(fontSize: 12, color: AppColors.textSecondary),
             textAlign: isArabic ? TextAlign.right : TextAlign.left,
           ),
         ),
       ],
     );
   }
-  
+
   Widget _buildMacroProgress(
     NutritionPlan plan,
     LanguageProvider lang,
@@ -836,7 +897,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ],
     );
   }
-  
+
   Widget _buildMacroRing({
     required String label,
     required double value,
@@ -844,7 +905,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     required Color color,
   }) {
     final percentage = (value / target).clamp(0.0, 1.0);
-    
+
     return Column(
       children: [
         SizedBox(
@@ -895,17 +956,20 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ],
     );
   }
-  
+
   Widget _buildCalorieCounter(
     NutritionPlan plan,
     LanguageProvider lang,
     bool isArabic,
   ) {
-    final consumed = 1200; // Mock data
-    final target = plan.dailyCalories ?? 0;
-    final remaining = target - consumed;
+    final progress = plan.todayProgress;
+    final consumed = (progress?.consumedCalories ?? 0).round();
+    final target =
+        (progress?.targetCalories ?? plan.dailyCalories ?? 0).round();
+    final remaining =
+        (progress?.remainingCalories ?? (target - consumed)).round();
     final percentage = target > 0 ? (consumed / target).clamp(0.0, 1.0) : 0.0;
-    
+
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -969,7 +1033,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
             child: LinearProgressIndicator(
               value: percentage,
               backgroundColor: AppColors.surface,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor:
+                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 12,
             ),
           ),
@@ -977,7 +1042,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ),
     );
   }
-  
+
   // ignore: unused_element
   Widget _buildMealsList(
     NutritionPlan plan,
@@ -985,15 +1050,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
     bool isArabic,
   ) {
     // Get today's meals (simplified - use day index in real app)
-    final todayMeals = (plan.days != null && plan.days!.isNotEmpty) ? plan.days![0].meals : <Meal>[];
-    
+    final todayMeals = (plan.days != null && plan.days!.isNotEmpty)
+        ? plan.days![0].meals
+        : <Meal>[];
+
     return Column(
       children: todayMeals
           .map<Widget>((meal) => _buildMealCard(meal, lang, isArabic))
           .toList(),
     );
   }
-  
+
   Widget _buildMealCard(Meal meal, LanguageProvider lang, bool isArabic) {
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 16),
@@ -1021,7 +1088,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      isArabic ? meal.nameAr : meal.nameEn,
+                      meal.name,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1044,11 +1111,27 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   _showMealDetail(meal, lang, isArabic);
                 },
               ),
+              Checkbox(
+                value: meal.completed,
+                onChanged: meal.completed
+                    ? null
+                    : (value) async {
+                        if (value != true) return;
+                        final provider = context.read<NutritionProvider>();
+                        final success = await provider
+                            .logMeal(meal.id, {'completed': true});
+                        if (!success || !mounted) return;
+                        await Future.wait([
+                          context.read<NutritionProvider>().loadActivePlan(),
+                          context.read<WorkoutProvider>().loadActivePlan(),
+                        ]);
+                      },
+              ),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Food items
           ...meal.foods.take(3).map((food) {
             return Padding(
@@ -1075,7 +1158,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
               ),
             );
           }).toList(),
-          
+
           if (meal.foods.length > 3) ...[
             const SizedBox(height: 4),
             Padding(
@@ -1096,7 +1179,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       ),
     );
   }
-  
+
   Color _getMealColor(String type) {
     switch (type.toLowerCase()) {
       case 'breakfast':
@@ -1111,7 +1194,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         return AppColors.textDisabled;
     }
   }
-  
+
   IconData _getMealIcon(String type) {
     switch (type.toLowerCase()) {
       case 'breakfast':
@@ -1126,7 +1209,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         return Icons.restaurant;
     }
   }
-  
+
   void _showMealDetail(Meal meal, LanguageProvider lang, bool isArabic) {
     showModalBottomSheet(
       context: context,
@@ -1159,18 +1242,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                
+
                 // Meal name
                 Text(
-                  isArabic ? meal.nameAr : meal.nameEn,
+                  meal.name,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // All food items
                 ...meal.foods.map((food) {
                   return Padding(
@@ -1204,30 +1287,42 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     ),
                   );
                 }).toList(),
-                
+
                 const SizedBox(height: 24),
-                
-                // Instructions if available
-                if (meal.instructions != null) ...[
-                  Text(
-                    lang.t('instructions'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+
+                Text(
+                  lang.t('instructions'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                   ),
-                  const SizedBox(height: 12),
-                  Text(
-                    isArabic 
-                        ? (meal.instructionsAr ?? meal.instructions!)
-                        : (meal.instructionsEn ?? meal.instructions!),
-                    style: const TextStyle(
-                      fontSize: 14,
-                      color: AppColors.textSecondary,
-                      height: 1.5,
-                    ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  (isArabic
+                                  ? (meal.instructionsAr ??
+                                      meal.instructions ??
+                                      meal.instructionsEn)
+                                  : (meal.instructionsEn ??
+                                      meal.instructions ??
+                                      meal.instructionsAr))
+                              ?.trim()
+                              .isNotEmpty ==
+                          true
+                      ? (isArabic
+                          ? (meal.instructionsAr ??
+                              meal.instructions ??
+                              meal.instructionsEn)
+                          : (meal.instructionsEn ??
+                              meal.instructions ??
+                              meal.instructionsAr))!
+                      : 'No ingredients/details available',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                    height: 1.5,
                   ),
-                ],
+                ),
               ],
             ),
           ),
@@ -1241,7 +1336,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
 class _MacroRingPainter extends CustomPainter {
   final double percentage;
   final Color color;
-  
+
   _MacroRingPainter({
     required this.percentage,
     required this.color,
@@ -1252,22 +1347,22 @@ class _MacroRingPainter extends CustomPainter {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
     final strokeWidth = 8.0;
-    
+
     // Background circle
     final bgPaint = Paint()
       ..color = AppColors.surface
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
-    
+
     canvas.drawCircle(center, radius - strokeWidth / 2, bgPaint);
-    
+
     // Progress arc
     final progressPaint = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius - strokeWidth / 2),
       -math.pi / 2,

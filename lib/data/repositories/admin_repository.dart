@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/admin_analytics.dart';
 import '../models/admin_user.dart';
@@ -7,18 +10,38 @@ import '../models/revenue_analytics.dart';
 import '../models/audit_log.dart';
 import '../../core/config/api_config.dart';
 
+class CoachCredentials {
+  final String email;
+  final String defaultPassword;
+
+  const CoachCredentials({
+    required this.email,
+    required this.defaultPassword,
+  });
+}
+
+class CoachCreationResult {
+  final AdminCoach coach;
+  final CoachCredentials? credentials;
+
+  const CoachCreationResult({
+    required this.coach,
+    this.credentials,
+  });
+}
+
 class AdminRepository {
   final Dio _dio;
   final FlutterSecureStorage _secureStorage;
   final Future<String?> Function()? _tokenReader;
   static const String _tokenKey = 'fitcoach_auth_token';
+  static const bool _enableDebugLogs = true;
 
   AdminRepository({
     Dio? dio,
     FlutterSecureStorage? secureStorage,
     Future<String?> Function()? tokenReader,
-  })
-      : _dio = dio ??
+  })  : _dio = dio ??
             Dio(BaseOptions(
               baseUrl: ApiConfig.baseUrl,
               connectTimeout: const Duration(seconds: 30),
@@ -32,21 +55,33 @@ class AdminRepository {
         ? await _tokenReader()
         : await _secureStorage.read(key: _tokenKey);
     return Options(
-      headers: {'Authorization': 'Bearer $token'},
+      headers: {
+        'Authorization': 'Bearer $token',
+        'Content-Type': ApiConfig.contentType,
+      },
+      contentType: ApiConfig.contentType,
     );
   }
 
   /// Get dashboard analytics
   Future<AdminAnalytics> getDashboardAnalytics() async {
+    const endpoint = '/admin/analytics';
+    _debugLog('[AdminRepository] GET ${_dio.options.baseUrl}$endpoint');
     try {
       final response = await _dio.get(
-        '/admin/analytics',
+        endpoint,
         options: await _getAuthOptions(),
       );
-      final data = response.data as Map<String, dynamic>;
-      return AdminAnalytics.fromJson(data['analytics'] as Map<String, dynamic>);
+      _debugLog(
+          '[AdminRepository] $endpoint status=${response.statusCode ?? 'unknown'} body=${_toRawBody(response.data)}');
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final analyticsMap =
+          _asMap(data['analytics']) ?? _asMap(data['data']) ?? data;
+      return AdminAnalytics.fromJson(analyticsMap);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get analytics');
+      _debugLog(
+          '[AdminRepository] $endpoint status=${e.response?.statusCode ?? 'unknown'} body=${_toRawBody(e.response?.data)}');
+      throw Exception(_readableError(e, fallback: 'Failed to get analytics'));
     }
   }
 
@@ -59,6 +94,7 @@ class AdminRepository {
     int limit = 50,
     int offset = 0,
   }) async {
+    const endpoint = '/admin/users';
     try {
       final queryParams = {
         'limit': limit,
@@ -70,19 +106,29 @@ class AdminRepository {
       };
 
       final response = await _dio.get(
-        '/admin/users',
+        endpoint,
         queryParameters: queryParams,
         options: await _getAuthOptions(),
       );
+      _debugLog(
+          '[AdminRepository] GET ${_dio.options.baseUrl}$endpoint status=${response.statusCode ?? 'unknown'} body=${_toRawBody(response.data)}');
 
-      final data = response.data as Map<String, dynamic>;
-      final usersList = data['users'] as List;
-      
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final usersList = _asList(
+        data['users'] ??
+            (_asMap(data['data'])?['users']) ??
+            data['data'] ??
+            data['results'],
+      );
+
       return usersList
-          .map((json) => AdminUser.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              AdminUser.fromJson(_asMap(json) ?? const <String, dynamic>{}))
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get users');
+      _debugLog(
+          '[AdminRepository] $endpoint status=${e.response?.statusCode ?? 'unknown'} body=${_toRawBody(e.response?.data)}');
+      throw Exception(_readableError(e, fallback: 'Failed to get users'));
     }
   }
 
@@ -94,9 +140,10 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
       final data = response.data as Map<String, dynamic>;
-      return AdminUser.fromJson(data['user'] as Map<String, dynamic>);
+      final user = _asMap(data['user']) ?? _asMap(data['data']) ?? data;
+      return AdminUser.fromJson(user);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get user');
+      throw Exception(_readableError(e, fallback: 'Failed to get user'));
     }
   }
 
@@ -122,10 +169,11 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      return AdminUser.fromJson(data['user'] as Map<String, dynamic>);
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final user = _asMap(data['user']) ?? _asMap(data['data']) ?? data;
+      return AdminUser.fromJson(user);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update user');
+      throw Exception(_readableError(e, fallback: 'Failed to update user'));
     }
   }
 
@@ -138,7 +186,7 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to suspend user');
+      throw Exception(_readableError(e, fallback: 'Failed to suspend user'));
     }
   }
 
@@ -150,7 +198,7 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to delete user');
+      throw Exception(_readableError(e, fallback: 'Failed to delete user'));
     }
   }
 
@@ -162,6 +210,7 @@ class AdminRepository {
     int limit = 50,
     int offset = 0,
   }) async {
+    const endpoint = '/admin/coaches';
     try {
       final queryParams = {
         'limit': limit,
@@ -172,29 +221,34 @@ class AdminRepository {
       };
 
       final response = await _dio.get(
-        '/admin/coaches',
+        endpoint,
         queryParameters: queryParams,
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      final coachesList = data['coaches'] as List;
-      
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final coachesList = _asList(
+        data['coaches'] ??
+            (_asMap(data['data'])?['coaches']) ??
+            data['data'] ??
+            data['results'],
+      );
+
       return coachesList
-          .map((json) => AdminCoach.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              AdminCoach.fromJson(_asMap(json) ?? const <String, dynamic>{}))
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get coaches');
+      throw Exception(_readableError(e, fallback: 'Failed to get coaches'));
     }
   }
 
-  /// Create a new coach and optionally send invitation email
-  Future<AdminCoach> createCoach({
+  /// Create a new coach account directly (auto approved/active by backend)
+  Future<CoachCreationResult> createCoach({
     required String fullName,
     required String email,
     String? phoneNumber,
     List<String>? specializations,
-    bool sendInvitation = true,
   }) async {
     try {
       final response = await _dio.post(
@@ -202,17 +256,36 @@ class AdminRepository {
         data: {
           'fullName': fullName,
           'email': email,
-          if (phoneNumber != null && phoneNumber.isNotEmpty) 'phoneNumber': phoneNumber,
-          if (specializations != null && specializations.isNotEmpty) 'specializations': specializations,
-          'sendInvitation': sendInvitation,
+          if (phoneNumber != null && phoneNumber.isNotEmpty)
+            'phoneNumber': phoneNumber,
+          if (specializations != null && specializations.isNotEmpty)
+            'specializations': specializations,
         },
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      return AdminCoach.fromJson(data['coach'] as Map<String, dynamic>);
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final coach = _asMap(data['coach']) ?? _asMap(data['data']) ?? data;
+      final credentialsMap = _asMap(data['credentials']);
+
+      CoachCredentials? credentials;
+      if (credentialsMap != null) {
+        credentials = CoachCredentials(
+          email: (credentialsMap['email'] ?? email).toString(),
+          defaultPassword:
+              (credentialsMap['defaultPassword'] ?? '123456').toString(),
+        );
+      }
+
+      return CoachCreationResult(
+        coach: AdminCoach.fromJson(coach),
+        credentials: credentials,
+      );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to create coach');
+      if (e.response?.statusCode == 409) {
+        throw Exception('email already exists');
+      }
+      throw Exception(_readableError(e, fallback: 'Failed to create coach'));
     }
   }
 
@@ -224,7 +297,7 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to approve coach');
+      throw Exception(_readableError(e, fallback: 'Failed to approve coach'));
     }
   }
 
@@ -237,7 +310,7 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to suspend coach');
+      throw Exception(_readableError(e, fallback: 'Failed to suspend coach'));
     }
   }
 
@@ -260,10 +333,12 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      return RevenueAnalytics.fromJson(data['revenue'] as Map<String, dynamic>);
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final revenue = _asMap(data['revenue']) ?? _asMap(data['data']) ?? data;
+      return RevenueAnalytics.fromJson(revenue);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get revenue analytics');
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get revenue analytics'));
     }
   }
 
@@ -292,14 +367,63 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      final logsList = data['logs'] as List;
-      
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final logsList = _asList(
+        data['logs'] ?? (_asMap(data['data'])?['logs']) ?? data['data'],
+      );
+
       return logsList
-          .map((json) => AuditLog.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              AuditLog.fromJson(_asMap(json) ?? const <String, dynamic>{}))
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get audit logs');
+      throw Exception(_readableError(e, fallback: 'Failed to get audit logs'));
     }
+  }
+
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  List<dynamic> _asList(dynamic value) {
+    if (value is List) return value;
+    return const [];
+  }
+
+  String _toRawBody(dynamic body) {
+    if (body == null) return 'null';
+    if (body is String) return body;
+    try {
+      return jsonEncode(body);
+    } catch (_) {
+      return body.toString();
+    }
+  }
+
+  void _debugLog(String message) {
+    if (_enableDebugLogs && kDebugMode) {
+      debugPrint(message);
+    }
+  }
+
+  String _readableError(DioException error, {required String fallback}) {
+    final response = error.response;
+    if (response != null) {
+      final data = response.data;
+      final map = _asMap(data);
+      if (map != null) {
+        final message = map['message'] ?? map['error'] ?? map['details'];
+        if (message is String && message.trim().isNotEmpty) {
+          return message;
+        }
+      }
+      if (data is String && data.trim().isNotEmpty) {
+        return data;
+      }
+      return '$fallback (${response.statusCode ?? 'unknown status'})';
+    }
+    return fallback;
   }
 }

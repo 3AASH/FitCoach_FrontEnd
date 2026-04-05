@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import '../models/coach_profile.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/coach_client.dart';
 import '../models/appointment.dart';
@@ -10,7 +13,6 @@ import '../models/nutrition_plan.dart';
 import '../../core/config/api_config.dart';
 
 class CoachRepository {
-
   /// Get comprehensive coach profile
   Future<CoachProfile> getCoachProfile({required String coachId}) async {
     try {
@@ -20,9 +22,11 @@ class CoachRepository {
       );
       return CoachProfile.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get coach profile');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to get coach profile');
     }
   }
+
   final Dio _dio;
   final FlutterSecureStorage _secureStorage;
 
@@ -69,7 +73,7 @@ class CoachRepository {
 
       final data = response.data as Map<String, dynamic>;
       final clientsList = data['clients'] as List;
-      
+
       return clientsList
           .map((json) => CoachClient.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -117,12 +121,13 @@ class CoachRepository {
 
       final data = response.data as Map<String, dynamic>;
       final appointmentsList = data['appointments'] as List;
-      
+
       return appointmentsList
           .map((json) => Appointment.fromJson(json as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get appointments');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to get appointments');
     }
   }
 
@@ -151,7 +156,8 @@ class CoachRepository {
       final data = response.data as Map<String, dynamic>;
       return Appointment.fromJson(data['appointment'] as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to create appointment');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to create appointment');
     }
   }
 
@@ -181,7 +187,8 @@ class CoachRepository {
       final data = response.data as Map<String, dynamic>;
       return Appointment.fromJson(data['appointment'] as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update appointment');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update appointment');
     }
   }
 
@@ -229,7 +236,8 @@ class CoachRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to assign fitness score');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to assign fitness score');
     }
   }
 
@@ -261,13 +269,49 @@ class CoachRepository {
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      if (data['workoutPlan'] == null) {
+      final data = _asMap(response.data);
+      if (data == null) {
         return null;
       }
-      return WorkoutPlan.fromJson(data['workoutPlan'] as Map<String, dynamic>);
+      if (kDebugMode) {
+        debugPrint(
+          '[CoachRepository] workout-plan response top-level keys: ${data.keys.toList()}',
+        );
+      }
+
+      final planJson = _extractPlanPayload(
+        data: data,
+        preferredKeys: const ['workoutPlan', 'workout_plan', 'plan', 'data'],
+      );
+      if (planJson == null) {
+        return null;
+      }
+
+      if (kDebugMode) {
+        debugPrint(
+          '[CoachRepository] workout-plan payload keys: ${planJson.keys.toList()}',
+        );
+        final firstExercise = _findFirstRawWorkoutExercise(planJson);
+        if (firstExercise != null) {
+          debugPrint(
+            '[CoachRepository] first exercise raw keys=${firstExercise.keys.toList()} resolvedName=${resolveExerciseName(firstExercise)}',
+          );
+        }
+      }
+      final parsed = WorkoutPlan.fromJson(planJson);
+      if (kDebugMode) {
+        final dayCount = parsed.days?.length ?? 0;
+        final exerciseCount = parsed.days
+                ?.fold<int>(0, (sum, day) => sum + day.exercises.length) ??
+            0;
+        debugPrint(
+          '[CoachRepository] workout-plan parsed dayCount=$dayCount exerciseCount=$exerciseCount',
+        );
+      }
+      return parsed;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get workout plan');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to get workout plan');
     }
   }
 
@@ -279,16 +323,30 @@ class CoachRepository {
     required String notes,
   }) async {
     try {
-      await _dio.put(
+      final body = {
+        'planData': planData,
+        'notes': notes,
+      };
+      if (kDebugMode) {
+        debugPrint(
+          '[CoachRepository] PUT /coaches/$coachId/clients/$clientId/workout-plan body=${jsonEncode(body)}',
+        );
+      }
+
+      final response = await _dio.put(
         '/coaches/$coachId/clients/$clientId/workout-plan',
-        data: {
-          'planData': planData,
-          'notes': notes,
-        },
+        data: body,
         options: await _getAuthOptions(),
       );
+      if (kDebugMode) {
+        final keys = _asMap(response.data)?.keys.toList() ?? const [];
+        debugPrint(
+          '[CoachRepository] workout-plan PUT status=${response.statusCode} keys=$keys',
+        );
+      }
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update workout plan');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update workout plan');
     }
   }
 
@@ -303,14 +361,128 @@ class CoachRepository {
         options: await _getAuthOptions(),
       );
 
-      final data = response.data as Map<String, dynamic>;
-      if (data['nutritionPlan'] == null) {
+      final data = _asMap(response.data);
+      if (data == null) {
         return null;
       }
-      return NutritionPlan.fromJson(data['nutritionPlan'] as Map<String, dynamic>);
+      if (kDebugMode) {
+        debugPrint(
+          '[CoachRepository] nutrition-plan response top-level keys: ${data.keys.toList()}',
+        );
+      }
+
+      final planJson = _extractPlanPayload(
+        data: data,
+        preferredKeys: const [
+          'nutritionPlan',
+          'nutrition_plan',
+          'plan',
+          'data',
+        ],
+      );
+      if (planJson == null) {
+        return null;
+      }
+
+      if (kDebugMode) {
+        debugPrint(
+          '[CoachRepository] nutrition-plan payload keys: ${planJson.keys.toList()}',
+        );
+        final firstMeal = _findFirstRawMeal(planJson);
+        if (firstMeal != null) {
+          debugPrint(
+            '[CoachRepository] first meal raw keys=${firstMeal.keys.toList()} resolvedName=${resolveMealName(firstMeal)}',
+          );
+        }
+      }
+      final parsed = NutritionPlan.fromJson(planJson);
+      if (kDebugMode) {
+        final dayCount = parsed.days?.length ?? 0;
+        final mealCount =
+            parsed.days?.fold<int>(0, (sum, day) => sum + day.meals.length) ??
+                0;
+        debugPrint(
+          '[CoachRepository] nutrition-plan parsed dayCount=$dayCount mealCount=$mealCount',
+        );
+      }
+      return parsed;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get nutrition plan');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to get nutrition plan');
     }
+  }
+
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return Map<String, dynamic>.from(value);
+    }
+    return null;
+  }
+
+  List<dynamic>? _asList(dynamic value) {
+    if (value is List) {
+      return value;
+    }
+    return null;
+  }
+
+  Map<String, dynamic>? _findFirstRawWorkoutExercise(
+      Map<String, dynamic> plan) {
+    final days =
+        _asList(plan['days'] ?? plan['workoutDays'] ?? plan['workout_days']);
+    if (days == null || days.isEmpty) return null;
+    final firstDay = _asMap(days.first);
+    if (firstDay == null) return null;
+    final exercises = _asList(firstDay['exercises'] ?? firstDay['workouts']);
+    if (exercises == null || exercises.isEmpty) return null;
+    return _asMap(exercises.first);
+  }
+
+  Map<String, dynamic>? _findFirstRawMeal(Map<String, dynamic> plan) {
+    final mealPlan = _asMap(plan['mealPlan'] ?? plan['meal_plan']);
+    final days = _asList(plan['days']) ??
+        _asList(mealPlan?['days']) ??
+        _asList(mealPlan?['mealPlanDays']);
+    if (days != null && days.isNotEmpty) {
+      final firstDay = _asMap(days.first);
+      final dayMeals = _asList(firstDay?['meals']) ??
+          _asList(_asMap(firstDay?['mealPlan'])?['meals']);
+      if (dayMeals != null && dayMeals.isNotEmpty) {
+        return _asMap(dayMeals.first);
+      }
+    }
+    final flatMeals = _asList(mealPlan?['meals']) ?? _asList(plan['meals']);
+    if (flatMeals != null && flatMeals.isNotEmpty) {
+      return _asMap(flatMeals.first);
+    }
+    return null;
+  }
+
+  Map<String, dynamic>? _extractPlanPayload({
+    required Map<String, dynamic> data,
+    required List<String> preferredKeys,
+  }) {
+    for (final key in preferredKeys) {
+      final nested = _asMap(data[key]);
+      if (nested != null) {
+        return nested;
+      }
+    }
+    if (data['success'] == true) {
+      for (final value in data.values) {
+        final nested = _asMap(value);
+        if (nested != null) {
+          return nested;
+        }
+      }
+    }
+    if (data.containsKey('id') || data.containsKey('days')) {
+      return data;
+    }
+    return null;
   }
 
   /// Update client's nutrition plan
@@ -323,18 +495,32 @@ class CoachRepository {
     required String notes,
   }) async {
     try {
-      await _dio.put(
+      final body = {
+        'dailyCalories': dailyCalories,
+        'macros': macros,
+        'mealPlan': mealPlan,
+        'notes': notes,
+      };
+      if (kDebugMode) {
+        debugPrint(
+          '[CoachRepository] PUT /coaches/$coachId/clients/$clientId/nutrition-plan body=${jsonEncode(body)}',
+        );
+      }
+
+      final response = await _dio.put(
         '/coaches/$coachId/clients/$clientId/nutrition-plan',
-        data: {
-          'dailyCalories': dailyCalories,
-          'macros': macros,
-          'mealPlan': mealPlan,
-          'notes': notes,
-        },
+        data: body,
         options: await _getAuthOptions(),
       );
+      if (kDebugMode) {
+        final keys = _asMap(response.data)?.keys.toList() ?? const [];
+        debugPrint(
+          '[CoachRepository] nutrition-plan PUT status=${response.statusCode} keys=$keys',
+        );
+      }
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update nutrition plan');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update nutrition plan');
     }
   }
 }
