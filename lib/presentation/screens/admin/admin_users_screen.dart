@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/admin_user.dart';
+import '../../../data/models/admin_coach.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -179,7 +181,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                            const Icon(Icons.error_outline,
+                                size: 64, color: AppColors.error),
                             const SizedBox(height: 16),
                             Text(
                               adminProvider.error!,
@@ -218,7 +221,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         : RefreshIndicator(
                             onRefresh: () async => _loadUsers(),
                             child: ListView.builder(
-                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                               itemCount: adminProvider.users.length,
                               itemBuilder: (context, index) {
                                 final user = adminProvider.users[index];
@@ -315,7 +319,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: user.isActive ? AppColors.success : AppColors.error,
+                            color: user.isActive
+                                ? AppColors.success
+                                : AppColors.error,
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Text(
@@ -390,7 +396,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     value: 'delete',
                     child: Row(
                       children: [
-                        const Icon(Icons.delete, size: 18, color: AppColors.error),
+                        const Icon(Icons.delete,
+                            size: 18, color: AppColors.error),
                         const SizedBox(width: 8),
                         Text(
                           lang.t('admin_action_delete'),
@@ -418,17 +425,25 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildDetailRow(lang.t('email'), user.email ?? lang.t('not_available')),
-              _buildDetailRow(lang.t('admin_phone_label'), user.phoneNumber ?? lang.t('not_available')),
-              _buildDetailRow(lang.t('admin_users_filter_tier'), user.subscriptionTier),
+              _buildDetailRow(
+                  lang.t('email'), user.email ?? lang.t('not_available')),
+              _buildDetailRow(lang.t('admin_phone_label'),
+                  user.phoneNumber ?? lang.t('not_available')),
+              _buildDetailRow(
+                  lang.t('admin_users_filter_tier'), user.subscriptionTier),
               _buildDetailRow(
                 lang.t('admin_users_filter_status'),
-                user.isActive ? (lang.t('admin_status_active')) : (lang.t('admin_status_inactive')),
+                user.isActive
+                    ? (lang.t('admin_status_active'))
+                    : (lang.t('admin_status_inactive')),
               ),
-              _buildDetailRow(lang.t('admin_coach_label'), user.coachName ?? (lang.t('admin_not_assigned'))),
-              _buildDetailRow(lang.t('admin_created_label'), _formatDate(user.createdAt)),
+              _buildDetailRow(lang.t('admin_coach_label'),
+                  user.coachName ?? (lang.t('admin_not_assigned'))),
+              _buildDetailRow(
+                  lang.t('admin_created_label'), _formatDate(user.createdAt)),
               if (user.lastLogin != null)
-                _buildDetailRow(lang.t('admin_last_login_label'), _formatDate(user.lastLogin!)),
+                _buildDetailRow(lang.t('admin_last_login_label'),
+                    _formatDate(user.lastLogin!)),
             ],
           ),
         ),
@@ -480,124 +495,184 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
-          title: Text(lang.t('admin_edit_user_title')),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: InputDecoration(
-                    labelText: lang.t('admin_name_label'),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    labelText: lang.t('email'),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedTier,
-                  decoration: InputDecoration(
-                    labelText: lang.t('admin_users_filter_tier'),
-                    border: const OutlineInputBorder(),
-                  ),
-                  items: const ['Freemium', 'Premium', 'Smart Premium']
-                      .map(
-                        (tier) => DropdownMenuItem(
-                          value: tier,
-                          child: Text(_formatTierLabel(tier, lang)),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      selectedTier = value ?? selectedTier;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String?>(
-                  value: selectedCoachId,
-                  decoration: InputDecoration(
-                    labelText: lang.t('admin_coach_label'),
-                    border: const OutlineInputBorder(),
-                  ),
-                  items: [
-                    DropdownMenuItem(
-                      value: null,
-                      child: Text(lang.t('admin_not_assigned')),
+        builder: (context, setState) {
+          final coaches = context.watch<AdminProvider>().coaches;
+          final coachOptions = _buildCoachDropdownOptions(coaches);
+          final optionValues = coachOptions.map((o) => o.value).toSet();
+          if (selectedCoachId != null &&
+              !optionValues.contains(selectedCoachId)) {
+            selectedCoachId =
+                _resolveStableCoachValue(selectedCoachId!, coaches);
+          }
+          if (selectedCoachId != null &&
+              !optionValues.contains(selectedCoachId)) {
+            selectedCoachId = null;
+          }
+          if (kDebugMode) {
+            debugPrint(
+              '[AdminUsers] selectedCoachId=$selectedCoachId, dropdownItems=${coachOptions.length}',
+            );
+          }
+
+          return AlertDialog(
+            title: Text(lang.t('admin_edit_user_title')),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: InputDecoration(
+                      labelText: lang.t('admin_name_label'),
+                      border: const OutlineInputBorder(),
                     ),
-                    ...context
-                        .watch<AdminProvider>()
-                        .coaches
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      labelText: lang.t('email'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String>(
+                    value: selectedTier,
+                    decoration: InputDecoration(
+                      labelText: lang.t('admin_users_filter_tier'),
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: const ['Freemium', 'Premium', 'Smart Premium']
                         .map(
-                          (coach) => DropdownMenuItem(
-                            value: coach.id,
-                            child: Text(coach.fullName),
+                          (tier) => DropdownMenuItem(
+                            value: tier,
+                            child: Text(_formatTierLabel(tier, lang)),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        selectedTier = value ?? selectedTier;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<String?>(
+                    value: selectedCoachId,
+                    decoration: InputDecoration(
+                      labelText: lang.t('admin_coach_label'),
+                      border: const OutlineInputBorder(),
+                    ),
+                    items: <DropdownMenuItem<String?>>[
+                      DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text(lang.t('admin_not_assigned')),
+                      ),
+                      if (coachOptions.isNotEmpty)
+                        ...coachOptions.map(
+                          (option) => DropdownMenuItem<String?>(
+                            value: option.value,
+                            child: Text(option.label),
                           ),
                         ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      selectedCoachId = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
-                SwitchListTile(
-                  title: Text(lang.t('admin_status_active')),
-                  value: isActive,
-                  onChanged: (value) {
-                    setState(() {
-                      isActive = value;
-                    });
-                  },
-                ),
-              ],
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCoachId = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  SwitchListTile(
+                    title: Text(lang.t('admin_status_active')),
+                    value: isActive,
+                    onChanged: (value) {
+                      setState(() {
+                        isActive = value;
+                      });
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(lang.t('cancel')),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text(lang.t('cancel')),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  Navigator.pop(context);
 
-                final adminProvider = context.read<AdminProvider>();
-                final success = await adminProvider.updateUser(
-                  user.id,
-                  fullName: nameController.text,
-                  email: emailController.text,
-                  subscriptionTier: selectedTier,
-                  isActive: isActive,
-                  coachId: selectedCoachId,
-                );
-
-                if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(lang.t('admin_user_updated_success')),
-                      backgroundColor: AppColors.success,
-                    ),
+                  final adminProvider = context.read<AdminProvider>();
+                  final success = await adminProvider.updateUser(
+                    user.id,
+                    fullName: nameController.text,
+                    email: emailController.text,
+                    subscriptionTier: selectedTier,
+                    isActive: isActive,
+                    coachId: selectedCoachId,
                   );
-                  _loadUsers();
-                }
-              },
-              child: Text(lang.t('save')),
-            ),
-          ],
-        ),
+
+                  if (success && mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(lang.t('admin_user_updated_success')),
+                        backgroundColor: AppColors.success,
+                      ),
+                    );
+                    await context.read<AdminProvider>().loadCoaches();
+                    _loadUsers();
+                  }
+                },
+                child: Text(lang.t('save')),
+              ),
+            ],
+          );
+        },
       ),
     );
+  }
+
+  List<_CoachDropdownOption> _buildCoachDropdownOptions(
+      List<AdminCoach> rawCoaches) {
+    final options = <_CoachDropdownOption>[];
+    final seen = <String>{};
+    final duplicates = <String>{};
+
+    for (final coach in rawCoaches) {
+      final value =
+          (coach.userId.trim().isNotEmpty ? coach.userId : coach.id).trim();
+      if (value.isEmpty) {
+        continue;
+      }
+      if (!seen.add(value)) {
+        duplicates.add(value);
+        continue;
+      }
+      options.add(_CoachDropdownOption(
+        value: value,
+        label: coach.fullName,
+      ));
+    }
+
+    if (kDebugMode) {
+      debugPrint(
+        '[AdminUsers] coaches before=${rawCoaches.length}, after=${options.length}, duplicates=${duplicates.toList()}',
+      );
+    }
+
+    return options;
+  }
+
+  String? _resolveStableCoachValue(
+      String selectedId, List<AdminCoach> coaches) {
+    for (final coach in coaches) {
+      if (coach.id == selectedId || coach.userId == selectedId) {
+        return coach.userId.trim().isNotEmpty ? coach.userId : coach.id;
+      }
+    }
+    return null;
   }
 
   void _showSuspendUserDialog(AdminUser user, LanguageProvider lang) {
@@ -644,7 +719,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               Navigator.pop(context);
 
               final adminProvider = context.read<AdminProvider>();
-              final success = await adminProvider.suspendUser(user.id, reasonController.text);
+              final success = await adminProvider.suspendUser(
+                  user.id, reasonController.text);
 
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
@@ -741,4 +817,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         return lang.t('admin_tier_freemium');
     }
   }
+}
+
+class _CoachDropdownOption {
+  final String value;
+  final String label;
+
+  const _CoachDropdownOption({
+    required this.value,
+    required this.label,
+  });
 }

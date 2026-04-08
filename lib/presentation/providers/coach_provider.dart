@@ -19,7 +19,7 @@ class CoachProvider extends ChangeNotifier {
   bool _isAnalyticsLoading = false;
   bool _isAppointmentsLoading = false;
   String? _error;
-  
+
   List<CoachClient> _clients = [];
   List<Appointment> _appointments = [];
   CoachAnalytics? _analytics;
@@ -99,8 +99,9 @@ class CoachProvider extends ChangeNotifier {
     required String clientId,
   }) async {
     if (DemoConfig.isDemo) {
-      _selectedClient = DemoData.coachClients()
-          .firstWhere((client) => client.id == clientId, orElse: () => DemoData.coachClients().first);
+      _selectedClient = DemoData.coachClients().firstWhere(
+          (client) => client.id == clientId,
+          orElse: () => DemoData.coachClients().first);
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -204,7 +205,7 @@ class CoachProvider extends ChangeNotifier {
 
       _appointments.add(appointment);
       _appointments.sort((a, b) => a.scheduledAt.compareTo(b.scheduledAt));
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -260,7 +261,7 @@ class CoachProvider extends ChangeNotifier {
       if (index != -1) {
         _appointments[index] = updated;
       }
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -362,7 +363,7 @@ class CoachProvider extends ChangeNotifier {
       if (_selectedClient?.id == clientId) {
         await loadClientDetails(coachId: coachId, clientId: clientId);
       }
-      
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -422,6 +423,11 @@ class CoachProvider extends ChangeNotifier {
         notes: notes,
       );
 
+      await _repository.getClientWorkoutPlan(
+        coachId: coachId,
+        clientId: clientId,
+      );
+
       _isLoading = false;
       notifyListeners();
       return true;
@@ -477,6 +483,11 @@ class CoachProvider extends ChangeNotifier {
         macros: macros,
         mealPlan: mealPlan,
         notes: notes,
+      );
+
+      await _repository.getClientNutritionPlan(
+        coachId: coachId,
+        clientId: clientId,
       );
 
       _isLoading = false;

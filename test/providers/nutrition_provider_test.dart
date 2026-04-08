@@ -76,12 +76,27 @@ class FakeNutritionRepository extends NutritionRepository {
   @override
   Future<Map<String, dynamic>> getTrialStatus() async {
     return {
-      'startDate': DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
+      'startDate':
+          DateTime.now().subtract(const Duration(days: 3)).toIso8601String(),
     };
   }
 
   @override
-  Future<void> logMeal(String mealId, Map<String, dynamic> data) async {}
+  Future<Map<String, dynamic>> logMeal(
+      String mealId, Map<String, dynamic> data) async {
+    return {
+      'success': true,
+      'todayProgress': {
+        'targetCalories': 2000,
+        'consumedCalories': 0,
+        'remainingCalories': 2000,
+        'progressPercent': 0,
+        'consumedProtein': 0,
+        'consumedCarbs': 0,
+        'consumedFats': 0,
+      },
+    };
+  }
 
   @override
   Future<List<Map<String, dynamic>>> getNutritionHistory() async {
@@ -92,33 +107,33 @@ class FakeNutritionRepository extends NutritionRepository {
 // Extension to mock macroTargets for testing if not present in NutritionProvider
 extension NutritionProviderTestExt on NutritionProvider {
   Map<String, dynamic> get macroTargets => {
-    'calories': 2000,
-    'protein': 150,
-    'carbs': 250,
-    'fat': 70,
-  };
+        'calories': 2000,
+        'protein': 150,
+        'carbs': 250,
+        'fat': 70,
+      };
 
   // Mock dailyMealPlan for testing
   List<Map<String, dynamic>> get dailyMealPlan => [
-    {
-      'id': 'meal1',
-      'type': 'breakfast',
-      'completed': false,
-      'foods': [],
-    },
-    {
-      'id': 'meal2',
-      'type': 'lunch',
-      'completed': false,
-      'foods': [],
-    },
-    {
-      'id': 'meal3',
-      'type': 'dinner',
-      'completed': false,
-      'foods': [],
-    },
-  ];
+        {
+          'id': 'meal1',
+          'type': 'breakfast',
+          'completed': false,
+          'foods': [],
+        },
+        {
+          'id': 'meal2',
+          'type': 'lunch',
+          'completed': false,
+          'foods': [],
+        },
+        {
+          'id': 'meal3',
+          'type': 'dinner',
+          'completed': false,
+          'foods': [],
+        },
+      ];
 
   // Mock getCurrentMacros for testing
   Map<String, dynamic> getCurrentMacros() {
@@ -192,7 +207,8 @@ void main() {
       await nutritionProvider.loadActivePlan();
 
       final remaining = nutritionProvider.getRemainingMacros();
-      expect(remaining['calories'], lessThanOrEqualTo(nutritionProvider.macroTargets['calories']));
+      expect(remaining['calories'],
+          lessThanOrEqualTo(nutritionProvider.macroTargets['calories']));
     });
 
     test('markMealComplete should update meal status', () async {
@@ -201,7 +217,8 @@ void main() {
       final mealId = nutritionProvider.dailyMealPlan[0]['id'];
       await nutritionProvider.markMealComplete(mealId);
 
-      final meal = nutritionProvider.dailyMealPlan.firstWhere((m) => m['id'] == mealId);
+      final meal =
+          nutritionProvider.dailyMealPlan.firstWhere((m) => m['id'] == mealId);
       expect(meal['completed'], true);
     });
 
@@ -275,7 +292,10 @@ void main() {
       await nutritionProvider.addCustomFood('breakfast', customFood);
 
       final breakfast = nutritionProvider.getMealByType('breakfast');
-      expect(breakfast != null && breakfast.foods.any((f) => f.name == customFood.name), true);
+      expect(
+          breakfast != null &&
+              breakfast.foods.any((f) => f.name == customFood.name),
+          true);
     });
 
     test('getMealByType should return correct meal', () async {

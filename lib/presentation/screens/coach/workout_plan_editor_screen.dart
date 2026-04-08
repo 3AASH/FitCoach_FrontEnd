@@ -1,13 +1,14 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../../core/constants/colors.dart';
 import '../../../data/models/workout_plan.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
-import '../../../core/constants/colors.dart';
 
-/// Workout Plan Editor Screen
-/// Allows coach to edit client's workout plan
 class WorkoutPlanEditorScreen extends StatefulWidget {
   final String clientId;
   final String coachId;
@@ -25,11 +26,15 @@ class WorkoutPlanEditorScreen extends StatefulWidget {
 
 class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
   bool _isLoading = true;
-  WorkoutPlan? _currentPlan;
+  bool _isSaving = false;
+  bool _isEditable = false;
+
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _goalController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
-  // Plan data structure
-  Map<String, dynamic> _planData = {};
+  List<Map<String, dynamic>> _days = <Map<String, dynamic>>[];
 
   @override
   void initState() {
@@ -37,107 +42,219 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
     _loadCurrentPlan();
   }
 
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _descriptionController.dispose();
+    _goalController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
+
   Future<void> _loadCurrentPlan() async {
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
-    final provider = Provider.of<CoachProvider>(context, listen: false);
-    final plan = await provider.getClientWorkoutPlan(
-      widget.coachId,
-      widget.clientId,
-    );
+    final provider = context.read<CoachProvider>();
+    final plan =
+        await provider.getClientWorkoutPlan(widget.coachId, widget.clientId);
 
-    if (plan != null) {
+    if (!mounted) return;
+
+    if (plan == null) {
       setState(() {
-        _currentPlan = plan;
-        _planData = plan.planData ?? {};
-        _notesController.text = plan.notes ?? '';
+        _days = <Map<String, dynamic>>[];
+        _isEditable = _isEditorRole();
         _isLoading = false;
       });
-    } else {
-      setState(() {
-        _isLoading = false;
-      });
+      return;
     }
+
+    final planData = _asMap(plan.planData) ?? const <String, dynamic>{};
+    final parsedDays = _normalizeDays(plan, planData);
+
+    _nameController.text = _asString(plan.name) ??
+        _asString(planData['name']) ??
+        _asString(planData['title']) ??
+        '';
+    _descriptionController.text =
+        _asString(plan.description) ?? _asString(planData['description']) ?? '';
+    _goalController.text = _asString(planData['goal']) ?? '';
+    _notesController.text = plan.notes ?? '';
+
+    final editable = _isEditorRole() || _hasEditFlag(planData);
+
+    if (kDebugMode) {
+      final exerciseCount = parsedDays.fold<int>(0,
+          (sum, day) => sum + ((_asList(day['exercises']) ?? const []).length));
+      debugPrint(
+        '[WorkoutPlanEditor] parsed dayCount=${parsedDays.length} exerciseCount=$exerciseCount editable=$editable',
+      );
+    }
+
+    setState(() {
+      _days = parsedDays;
+      _isEditable = editable;
+      _isLoading = false;
+    });
+  }
+
+  bool _isEditorRole() {
+    final role = (context.read<AuthProvider>().user?.role ?? '').toLowerCase();
+    return role == 'coach' || role == 'admin';
+  }
+
+  bool _hasEditFlag(Map<String, dynamic> map) {
+    for (final key in const [
+      'editable',
+      'canEdit',
+      'isEditable',
+      'isCustomizable',
+      'builderEnabled',
+    ]) {
+      if (_asBool(map[key]) == true) return true;
+    }
+    return _asBool(map['customizedByCoach']) == true;
+  }
+
+  List<Map<String, dynamic>> _normalizeDays(
+      WorkoutPlan plan, Map<String, dynamic> planData) {
+    final source = _asList(planData['days']) ??
+        _asList(planData['workoutDays']) ??
+        plan.days?.map((d) => d.toJson()).toList() ??
+        const <dynamic>[];
+
+    if (source.isEmpty) {
+      return <Map<String, dynamic>>[
+        {
+          'dayNumber': 1,
+          'name': 'Day 1',
+          'exercises': <Map<String, dynamic>>[],
+        }
+      ];
+    }
+
+    return source.asMap().entries.map((entry) {
+      final index = entry.key;
+      final rawDay = _asMap(entry.value) ?? const <String, dynamic>{};
+      final rawExercises = _asList(rawDay['exercises']) ?? const <dynamic>[];
+      return {
+        'dayNumber':
+            _asInt(rawDay['dayNumber'] ?? rawDay['day_number']) ?? (index + 1),
+        'name': _asString(
+                rawDay['name'] ?? rawDay['dayName'] ?? rawDay['day_name']) ??
+            'Day ${index + 1}',
+        'exercises': rawExercises.asMap().entries.map((exEntry) {
+          final exIndex = exEntry.key;
+          final exMap = _asMap(exEntry.value) ?? const <String, dynamic>{};
+          return <String, dynamic>{
+            'name': _asString(
+                  exMap['name'] ??
+                      exMap['exerciseName'] ??
+                      exMap['exercise_name'] ??
+                      exMap['title'],
+                ) ??
+                'Exercise ${exIndex + 1}',
+            'sets': _asInt(exMap['sets']) ?? 3,
+            'reps': _asString(exMap['reps']) ?? '10',
+          };
+        }).toList(),
+      };
+    }).toList();
   }
 
   Future<void> _savePlan() async {
-    final languageProvider =
-        Provider.of<LanguageProvider>(context, listen: false);
+    final lang = context.read<LanguageProvider>();
+    if (_isSaving) return;
 
-    // Validate
-    if (_planData.isEmpty) {
+    if (!_isEditable) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(lang.t('coach_workout_editor_update_failed'))),
+      );
+      return;
+    }
+
+    if (_days.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            languageProvider.t('coach_workout_editor_add_exercises_required'),
-          ),
+          content: Text(lang.t('coach_workout_editor_add_exercises_required')),
         ),
       );
       return;
     }
 
-    // Show loading
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
-    );
+    final normalizedDays = _days.asMap().entries.map((entry) {
+      final index = entry.key;
+      final day = entry.value;
+      final dayExercises =
+          (_asList(day['exercises']) ?? const <dynamic>[]).map((raw) {
+        final map = _asMap(raw) ?? const <String, dynamic>{};
+        return <String, dynamic>{
+          'name': _asString(map['name']) ?? 'Exercise',
+          'sets': _asInt(map['sets']) ?? 3,
+          'reps': _asString(map['reps']) ?? '10',
+        };
+      }).toList();
 
-    final provider = Provider.of<CoachProvider>(context, listen: false);
+      return <String, dynamic>{
+        'dayNumber': _asInt(day['dayNumber']) ?? (index + 1),
+        'name': _asString(day['name']) ?? 'Day ${index + 1}',
+        'exercises': dayExercises,
+      };
+    }).toList();
+
+    final payload = <String, dynamic>{
+      'name': _nameController.text.trim(),
+      'description': _descriptionController.text.trim(),
+      'goal': _goalController.text.trim(),
+      'days': normalizedDays,
+    };
+
+    setState(() => _isSaving = true);
+    final provider = context.read<CoachProvider>();
     final success = await provider.updateClientWorkoutPlan(
       widget.coachId,
       widget.clientId,
-      _planData,
-      _notesController.text,
+      payload,
+      _notesController.text.trim(),
     );
 
-    // ignore: use_build_context_synchronously
-    Navigator.of(context).pop(); // Close loading
+    if (!mounted) return;
 
     if (success) {
-      // ignore: use_build_context_synchronously
+      await _loadCurrentPlan();
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            languageProvider.t('coach_workout_editor_updated_success'),
-          ),
+          content: Text(lang.t('coach_workout_editor_updated_success')),
           backgroundColor: AppColors.success,
         ),
       );
-      Navigator.of(context).pop(true); // Go back with success
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            languageProvider.t('coach_workout_editor_update_failed'),
-          ),
+              provider.error ?? lang.t('coach_workout_editor_update_failed')),
           backgroundColor: AppColors.error,
         ),
       );
     }
-  }
 
-  @override
-  void dispose() {
-    _notesController.dispose();
-    super.dispose();
+    if (mounted) {
+      setState(() => _isSaving = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(languageProvider.t('coach_workout_editor_title')),
+        title: Text(lang.t('coach_workout_editor_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
-            onPressed: _savePlan,
+            onPressed: _isSaving ? null : _savePlan,
           ),
         ],
       ),
@@ -148,87 +265,200 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Current plan info
-                  if (_currentPlan != null)
+                  if (!_isEditable)
                     Card(
-                      color: AppColors.primary.withValues(alpha: 0.1),
+                      color: AppColors.warning.withValues(alpha: 0.12),
+                      child: const Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Text('Plan is not editable for this account.'),
+                      ),
+                    ),
+                  TextField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Plan Name',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _descriptionController,
+                    maxLines: 2,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: _goalController,
+                    decoration: const InputDecoration(
+                      labelText: 'Goal',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        lang.t('coach_workout_builder_workout_days_label'),
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w700),
+                      ),
+                      TextButton.icon(
+                        onPressed: _isEditable ? _addDay : null,
+                        icon: const Icon(Icons.add),
+                        label: const Text('Add Day'),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ..._days.asMap().entries.map((entry) {
+                    final dayIndex = entry.key;
+                    final day = entry.value;
+                    final exercises =
+                        (_asList(day['exercises']) ?? const <dynamic>[])
+                            .map((e) => _asMap(e) ?? <String, dynamic>{})
+                            .toList();
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
                       child: Padding(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(12),
                         child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Row(
                               children: [
-                                const Icon(Icons.info_outline,
-                                    color: AppColors.primary),
-                                const SizedBox(width: 8),
-                                Text(
-                                  languageProvider.t('coach_workout_editor_current_plan'),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.primary,
+                                Expanded(
+                                  child: TextFormField(
+                                    initialValue: _asString(day['name']) ??
+                                        'Day ${dayIndex + 1}',
+                                    enabled: _isEditable,
+                                    decoration: InputDecoration(
+                                      labelText: 'Day ${dayIndex + 1} Name',
+                                    ),
+                                    onChanged: (value) =>
+                                        _days[dayIndex]['name'] = value,
                                   ),
+                                ),
+                                IconButton(
+                                  onPressed: _isEditable
+                                      ? () => _removeDay(dayIndex)
+                                      : null,
+                                  icon: const Icon(Icons.delete,
+                                      color: AppColors.error),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 8),
-                            if (_currentPlan!.customizedByCoach == true)
-                              Text(
-                                languageProvider.t('coach_workout_editor_customized_by_coach'),
-                                style: const TextStyle(
-                                  color: AppColors.success,
-                                  fontSize: 12,
+                            ...exercises.asMap().entries.map((exEntry) {
+                              final exIndex = exEntry.key;
+                              final ex = exEntry.value;
+                              return Card(
+                                color: AppColors.surface,
+                                margin: const EdgeInsets.only(bottom: 8),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(10),
+                                  child: Column(
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextFormField(
+                                              initialValue:
+                                                  _asString(ex['name']) ?? '',
+                                              enabled: _isEditable,
+                                              decoration: const InputDecoration(
+                                                  labelText: 'Exercise name'),
+                                              onChanged: (value) =>
+                                                  _updateExercise(dayIndex,
+                                                      exIndex, 'name', value),
+                                            ),
+                                          ),
+                                          IconButton(
+                                            onPressed: _isEditable
+                                                ? () => _removeExercise(
+                                                    dayIndex, exIndex)
+                                                : null,
+                                            icon: const Icon(
+                                                Icons.remove_circle_outline,
+                                                color: AppColors.error),
+                                          ),
+                                        ],
+                                      ),
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextFormField(
+                                              initialValue:
+                                                  (_asInt(ex['sets']) ?? 3)
+                                                      .toString(),
+                                              enabled: _isEditable,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              decoration: const InputDecoration(
+                                                  labelText: 'Sets'),
+                                              onChanged: (value) =>
+                                                  _updateExercise(
+                                                dayIndex,
+                                                exIndex,
+                                                'sets',
+                                                int.tryParse(value) ?? 0,
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(width: 10),
+                                          Expanded(
+                                            child: TextFormField(
+                                              initialValue:
+                                                  _asString(ex['reps']) ?? '10',
+                                              enabled: _isEditable,
+                                              decoration: const InputDecoration(
+                                                  labelText: 'Reps'),
+                                              onChanged: (value) =>
+                                                  _updateExercise(dayIndex,
+                                                      exIndex, 'reps', value),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
+                              );
+                            }),
+                            Align(
+                              alignment: Alignment.centerLeft,
+                              child: TextButton.icon(
+                                onPressed: _isEditable
+                                    ? () => _addExercise(dayIndex)
+                                    : null,
+                                icon: const Icon(Icons.add),
+                                label: const Text('Add Exercise'),
                               ),
+                            )
                           ],
                         ),
                       ),
-                    ),
-
-                  const SizedBox(height: 24),
-
-                  // Plan editor
-                  Text(
-                    languageProvider.t('coach_workout_editor_plan_details'),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Weeks/Days structure
-                  _buildWeeksList(),
-
-                  const SizedBox(height: 24),
-
-                  // Notes
+                    );
+                  }),
+                  const SizedBox(height: 8),
                   TextField(
                     controller: _notesController,
                     maxLines: 3,
                     decoration: InputDecoration(
-                      labelText: languageProvider.t('coach_workout_editor_notes_label'),
-                      hintText: languageProvider.t('coach_workout_editor_notes_hint'),
+                      labelText: lang.t('coach_workout_editor_notes_label'),
+                      hintText: lang.t('coach_workout_editor_notes_hint'),
                       border: const OutlineInputBorder(),
                     ),
                   ),
-
-                  const SizedBox(height: 24),
-
-                  // Save button
-                  CustomButton(
-                    text: languageProvider.t('coach_workout_editor_save_changes'),
-                    onPressed: _savePlan,
-                    icon: Icons.save,
-                  ),
-
                   const SizedBox(height: 16),
-
-                  // Cancel button
                   CustomButton(
-                    text: languageProvider.t('cancel'),
-                    onPressed: () => Navigator.of(context).pop(),
-                    variant: ButtonVariant.secondary,
+                    text: _isSaving
+                        ? '${lang.t('save')}...'
+                        : lang.t('coach_workout_editor_save_changes'),
+                    onPressed: _isSaving ? null : _savePlan,
+                    icon: Icons.save,
                   ),
                 ],
               ),
@@ -236,158 +466,90 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
     );
   }
 
-  Widget _buildWeeksList() {
-    final languageProvider = context.read<LanguageProvider>();
-
-    if (_planData['weeks'] == null) {
-      _planData['weeks'] = [];
-    }
-
-    List<dynamic> weeks = _planData['weeks'];
-
-    return Column(
-      children: [
-        // Add week button
-        OutlinedButton.icon(
-          onPressed: _addWeek,
-          icon: const Icon(Icons.add),
-          label: Text(languageProvider.t('coach_workout_editor_add_week')),
-        ),
-        const SizedBox(height: 16),
-
-        // Weeks list
-        ...List.generate(weeks.length, (weekIndex) {
-          return Card(
-            margin: const EdgeInsets.only(bottom: 16),
-            child: ExpansionTile(
-              title: Text(
-                languageProvider.t('coach_workout_editor_week_label', args: {'week': '${weekIndex + 1}'}),
-                style: const TextStyle(fontWeight: FontWeight.bold),
-              ),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete, color: AppColors.error),
-                onPressed: () => _removeWeek(weekIndex),
-              ),
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        languageProvider.t('coach_workout_editor_days_label'),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildDaysList(weekIndex),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-      ],
-    );
-  }
-
-  Widget _buildDaysList(int weekIndex) {
-    final languageProvider = context.read<LanguageProvider>();
-
-    List<dynamic> weeks = _planData['weeks'];
-    if (weeks[weekIndex]['days'] == null) {
-      weeks[weekIndex]['days'] = [];
-    }
-
-    List<dynamic> days = weeks[weekIndex]['days'];
-
-    return Column(
-      children: [
-        // Add day button
-        TextButton.icon(
-          onPressed: () => _addDay(weekIndex),
-          icon: const Icon(Icons.add),
-          label: Text(languageProvider.t('coach_workout_editor_add_day')),
-        ),
-
-        // Days list
-        ...List.generate(days.length, (dayIndex) {
-          return ListTile(
-            title: Text(
-              languageProvider.t('coach_workout_editor_day_label', args: {'day': '${dayIndex + 1}'}),
-            ),
-            subtitle: Text(
-              languageProvider.t('coach_workout_editor_exercise_count', args: {'count': '${days[dayIndex]['exercises']?.length ?? 0}'}),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.delete, color: AppColors.error),
-              onPressed: () => _removeDay(weekIndex, dayIndex),
-            ),
-            onTap: () => _editDay(weekIndex, dayIndex),
-          );
-        }),
-      ],
-    );
-  }
-
-  void _addWeek() {
+  void _addDay() {
     setState(() {
-      List<dynamic> weeks = _planData['weeks'] ?? [];
-      weeks.add({
-        'weekNumber': weeks.length + 1,
-        'days': [],
+      _days.add({
+        'dayNumber': _days.length + 1,
+        'name': 'Day ${_days.length + 1}',
+        'exercises': <Map<String, dynamic>>[],
       });
-      _planData['weeks'] = weeks;
     });
   }
 
-  void _removeWeek(int weekIndex) {
+  void _removeDay(int dayIndex) {
     setState(() {
-      List<dynamic> weeks = _planData['weeks'];
-      weeks.removeAt(weekIndex);
+      _days.removeAt(dayIndex);
+      for (var i = 0; i < _days.length; i++) {
+        _days[i]['dayNumber'] = i + 1;
+      }
     });
   }
 
-  void _addDay(int weekIndex) {
+  void _addExercise(int dayIndex) {
     setState(() {
-      List<dynamic> weeks = _planData['weeks'];
-      List<dynamic> days = weeks[weekIndex]['days'] ?? [];
-      days.add({
-        'dayNumber': days.length + 1,
-        'exercises': [],
-      });
-      weeks[weekIndex]['days'] = days;
+      final exercises = (_asList(_days[dayIndex]['exercises']) ?? <dynamic>[])
+          .map((e) => _asMap(e) ?? <String, dynamic>{})
+          .toList();
+      exercises.add({'name': '', 'sets': 3, 'reps': '10'});
+      _days[dayIndex]['exercises'] = exercises;
     });
   }
 
-  void _removeDay(int weekIndex, int dayIndex) {
+  void _removeExercise(int dayIndex, int exIndex) {
     setState(() {
-      List<dynamic> weeks = _planData['weeks'];
-      List<dynamic> days = weeks[weekIndex]['days'];
-      days.removeAt(dayIndex);
+      final exercises = (_asList(_days[dayIndex]['exercises']) ?? <dynamic>[])
+          .map((e) => _asMap(e) ?? <String, dynamic>{})
+          .toList();
+      if (exIndex >= 0 && exIndex < exercises.length) {
+        exercises.removeAt(exIndex);
+      }
+      _days[dayIndex]['exercises'] = exercises;
     });
   }
 
-  void _editDay(int weekIndex, int dayIndex) {
-    final languageProvider = context.read<LanguageProvider>();
+  void _updateExercise(int dayIndex, int exIndex, String key, dynamic value) {
+    final exercises = (_asList(_days[dayIndex]['exercises']) ?? <dynamic>[])
+        .map((e) => _asMap(e) ?? <String, dynamic>{})
+        .toList();
+    if (exIndex >= 0 && exIndex < exercises.length) {
+      exercises[exIndex][key] = value;
+      _days[dayIndex]['exercises'] = exercises;
+    }
+  }
 
-    // Show dialog to edit exercises
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(
-          languageProvider.t('coach_workout_editor_day_exercises'),
-        ),
-        content: Text(
-          languageProvider.t('coach_workout_editor_edit_exercises_hint'),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(languageProvider.t('coach_workout_editor_ok')),
-          ),
-        ],
-      ),
-    );
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  List<dynamic>? _asList(dynamic value) {
+    if (value is List) return value;
+    return null;
+  }
+
+  String? _asString(dynamic value) {
+    if (value == null) return null;
+    if (value is String) return value;
+    if (value is num || value is bool) return value.toString();
+    return value.toString();
+  }
+
+  int? _asInt(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  bool? _asBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is num) return value != 0;
+    if (value is String) {
+      final n = value.trim().toLowerCase();
+      if (n == 'true' || n == '1' || n == 'yes') return true;
+      if (n == 'false' || n == '0' || n == 'no') return false;
+    }
+    return null;
   }
 }

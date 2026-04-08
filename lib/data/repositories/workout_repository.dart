@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/workout_plan.dart';
+import '../models/workout_calendar.dart';
 import '../models/inbody_model.dart';
 import '../../core/config/api_config.dart';
 
@@ -80,6 +81,35 @@ class WorkoutRepository {
     return null;
   }
 
+  Future<WorkoutCalendarResponse> getWorkoutCalendar() async {
+    final endpoint = '/workouts/calendar';
+    final requestUrl = '${_dio.options.baseUrl}$endpoint';
+    _debugLog('[WorkoutRepository] GET $requestUrl');
+    try {
+      final response = await _dio.get(
+        endpoint,
+        options: await _getAuthOptions(),
+      );
+      _debugLog(
+        '[WorkoutRepository] status=${response.statusCode ?? 'unknown'} body=${_toRawBody(response.data)}',
+      );
+      final dataMap = _asMap(response.data) ?? const <String, dynamic>{};
+      final payloadMap = _asMap(dataMap['data']) ?? dataMap;
+      final parsed = WorkoutCalendarResponse.fromJson(payloadMap);
+      _debugLog(
+        '[WorkoutRepository] calendar parseResult previous=${parsed.previous.length} today=${parsed.today != null} upcoming=${parsed.upcoming.length} allDays=${parsed.allDays.length}',
+      );
+      return parsed;
+    } on DioException catch (e) {
+      _debugLog(
+        '[WorkoutRepository] status=${e.response?.statusCode ?? 'unknown'} body=${_toRawBody(e.response?.data)}',
+      );
+      throw Exception(
+        _readableError(e, fallback: 'Failed to load workout calendar'),
+      );
+    }
+  }
+
   WorkoutPlan? _parseActivePlanResponse(dynamic data) {
     if (data == null) {
       return null;
@@ -89,19 +119,61 @@ class WorkoutRepository {
     if (payloadMap == null) {
       return null;
     }
+    _debugLog(
+        '[WorkoutRepository] response top-level keys=${payloadMap.keys.toList()}');
+
+    if (payloadMap['data'] is Map) {
+      payloadMap = _asMap(payloadMap['data']);
+    }
+    if (payloadMap == null) {
+      return null;
+    }
 
     if (payloadMap['plan'] is Map) {
       payloadMap = _asMap(payloadMap['plan']);
     } else if (payloadMap['workoutPlan'] is Map) {
       payloadMap = _asMap(payloadMap['workoutPlan']);
+    } else if (payloadMap['workout_plan'] is Map) {
+      payloadMap = _asMap(payloadMap['workout_plan']);
     }
 
     if (payloadMap == null) {
       return null;
     }
 
+    final looksLikePlan = payloadMap.containsKey('id') ||
+        payloadMap.containsKey('_id') ||
+        payloadMap.containsKey('days') ||
+        payloadMap.containsKey('workoutDays') ||
+        payloadMap.containsKey('plan_data') ||
+        payloadMap.containsKey('planData');
+    if (!looksLikePlan) {
+      return null;
+    }
+
+    final firstRawExercise = _findFirstRawWorkoutExercise(payloadMap);
+    if (firstRawExercise != null) {
+      _debugLog(
+        '[WorkoutRepository] first exercise raw keys=${firstRawExercise.keys.toList()} resolvedName=${resolveExerciseName(firstRawExercise)}',
+      );
+    }
+
     final normalized = _normalizeWorkoutPlan(payloadMap);
     return WorkoutPlan.fromJson(normalized);
+  }
+
+  Map<String, dynamic>? _findFirstRawWorkoutExercise(
+      Map<String, dynamic> plan) {
+    final days =
+        _asList(plan['days'] ?? plan['workoutDays'] ?? plan['plan_days']);
+    if (days == null || days.isEmpty) return null;
+    final firstDay = _asMap(days.first);
+    if (firstDay == null) return null;
+    final exercises = _asList(
+      firstDay['exercises'] ?? firstDay['workouts'] ?? firstDay['activities'],
+    );
+    if (exercises == null || exercises.isEmpty) return null;
+    return _asMap(exercises.first);
   }
 
   Map<String, dynamic> _normalizeWorkoutPlan(Map<String, dynamic> source) {
@@ -122,6 +194,18 @@ class WorkoutRepository {
     final daysSource =
         source['days'] ?? source['workoutDays'] ?? source['plan_days'];
     final normalizedDays = _normalizeWorkoutDays(daysSource);
+    final isActive =
+        _asBool(source['is_active'] ?? source['isActive'], fallback: true);
+    final customizedByCoach = _asBool(
+      source['customized_by_coach'] ?? source['customizedByCoach'],
+      fallback: false,
+    );
+    final totalDays = _asInt(
+      source['totalDays'] ??
+          source['total_days'] ??
+          (normalizedDays.isNotEmpty ? normalizedDays.length : 0),
+      fallback: normalizedDays.length,
+    );
 
     return {
       ...source,
@@ -129,6 +213,18 @@ class WorkoutRepository {
       'user_id': userId,
       'coach_id': coachId,
       'days': normalizedDays,
+      'is_active': isActive,
+      'customized_by_coach': customizedByCoach,
+      'currentDayNumber': _asInt(
+          source['currentDayNumber'] ?? source['current_day_number'],
+          fallback: 0),
+      'currentDayId': source['currentDayId'] ?? source['current_day_id'],
+      'completedDays': _asInt(
+          source['completedDays'] ?? source['completed_days'],
+          fallback: 0),
+      'totalDays': totalDays,
+      'dayProgressPercent':
+          source['dayProgressPercent'] ?? source['day_progress_percent'],
       if (source['name'] == null && source['title'] != null)
         'name': source['title'],
       if (source['description'] == null && source['goal'] != null)
@@ -150,6 +246,10 @@ class WorkoutRepository {
       final exercisesSource =
           day['exercises'] ?? day['workouts'] ?? day['activities'];
       final exercises = _normalizeExercises(exercisesSource, dayIndex + 1);
+      final totalExercises = _asInt(
+        day['totalExercises'] ?? day['total_exercises'],
+        fallback: exercises.length,
+      );
       days.add({
         ...day,
         'id':
@@ -164,6 +264,12 @@ class WorkoutRepository {
             fallback: dayIndex + 1),
         'exercises': exercises,
         'notes': _nullableString(day['notes']),
+        'isCompleted':
+            _asBool(day['isCompleted'] ?? day['is_completed'], fallback: false),
+        'completedExercises': _asInt(
+            day['completedExercises'] ?? day['completed_exercises'],
+            fallback: 0),
+        'totalExercises': totalExercises,
       });
     }
     return days;
@@ -257,6 +363,13 @@ class WorkoutRepository {
     return null;
   }
 
+  List<dynamic>? _asList(dynamic value) {
+    if (value is List) {
+      return value;
+    }
+    return null;
+  }
+
   int _asInt(dynamic value, {required int fallback}) {
     if (value is int) {
       return value;
@@ -266,6 +379,25 @@ class WorkoutRepository {
     }
     if (value is String) {
       return int.tryParse(value) ?? fallback;
+    }
+    return fallback;
+  }
+
+  bool _asBool(dynamic value, {required bool fallback}) {
+    if (value is bool) {
+      return value;
+    }
+    if (value is num) {
+      return value != 0;
+    }
+    if (value is String) {
+      final normalized = value.trim().toLowerCase();
+      if (normalized == 'true' || normalized == '1' || normalized == 'yes') {
+        return true;
+      }
+      if (normalized == 'false' || normalized == '0' || normalized == 'no') {
+        return false;
+      }
     }
     return fallback;
   }
@@ -438,16 +570,57 @@ class WorkoutRepository {
   }
 
   // Mark exercise as completed
-  Future<void> markExerciseComplete(String exerciseId) async {
+  Future<WorkoutExerciseCompletionResult> markExerciseComplete(
+      String exerciseId) async {
     try {
-      await _dio.post(
+      final response = await _dio.post(
         '/workouts/exercises/$exerciseId/complete',
         options: await _getAuthOptions(),
+      );
+      final map = _asMap(response.data) ?? const <String, dynamic>{};
+      final dayProgress = _asMap(map['dayProgress'] ?? map['day_progress']) ??
+          const <String, dynamic>{};
+      final nextDay = _asMap(map['nextDay'] ?? map['next_day']) ??
+          const <String, dynamic>{};
+      final planProgress =
+          _asMap(map['planProgress'] ?? map['plan_progress']) ??
+              const <String, dynamic>{};
+
+      return WorkoutExerciseCompletionResult(
+        dayCompleted: _asBool(
+            dayProgress['dayCompleted'] ?? dayProgress['day_completed'],
+            fallback: false),
+        nextDayNumber: _asNullableInt(
+          map['nextDayNumber'] ??
+              map['next_day_number'] ??
+              nextDay['dayNumber'] ??
+              nextDay['day_number'],
+        ),
+        planProgressPercent: _asNullableDouble(
+          planProgress['progressPercent'] ?? planProgress['progress_percent'],
+        ),
       );
     } on DioException catch (e) {
       throw Exception(
           e.response?.data['message'] ?? 'Failed to mark exercise complete');
     }
+  }
+
+  int? _asNullableInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  double? _asNullableDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is num) return value.toDouble();
+    if (value is String) return double.tryParse(value);
+    return null;
   }
 
   // Get exercise alternatives (injury-safe substitutions)
@@ -735,4 +908,16 @@ class WorkoutRepository {
       throw Exception(e.response?.data['message'] ?? 'Failed to upload image');
     }
   }
+}
+
+class WorkoutExerciseCompletionResult {
+  final bool dayCompleted;
+  final int? nextDayNumber;
+  final double? planProgressPercent;
+
+  WorkoutExerciseCompletionResult({
+    required this.dayCompleted,
+    required this.nextDayNumber,
+    required this.planProgressPercent,
+  });
 }

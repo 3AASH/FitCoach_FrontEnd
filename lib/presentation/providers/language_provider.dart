@@ -50,11 +50,17 @@ class LanguageProvider with ChangeNotifier {
   }
 
   String translate(String key, {Map<String, String>? args}) {
-    final String? rawCurrent = isArabic ? _arabicTranslations[key] : _englishTranslations[key];
-    final String? current = (rawCurrent != null && !_looksCorrupted(rawCurrent)) ? rawCurrent : null;
+    final String? rawCurrent =
+        isArabic ? _arabicTranslations[key] : _englishTranslations[key];
+    final String? current = (rawCurrent != null && !_looksCorrupted(rawCurrent))
+        ? rawCurrent
+        : null;
 
     final String? rawFallback = _englishTranslations[key];
-    final String? fallback = (rawFallback != null && !_looksCorrupted(rawFallback)) ? rawFallback : null;
+    final String? fallback =
+        (rawFallback != null && !_looksCorrupted(rawFallback))
+            ? rawFallback
+            : null;
 
     String text = current ?? fallback ?? key;
 
@@ -67,9 +73,10 @@ class LanguageProvider with ChangeNotifier {
     return text;
   }
 
-  String t(String key, {Map<String, String>? args}) => translate(key, args: args);
+  String t(String key, {Map<String, String>? args}) =>
+      translate(key, args: args);
 
-static final Map<String, String> _englishTranslations = {
+  static final Map<String, String> _englishTranslations = {
     'app_name': 'FitCoach+',
     'welcome': 'Welcome to FitCoach+',
     'select_language': 'Select your language',
@@ -103,24 +110,26 @@ static final Map<String, String> _englishTranslations = {
     'splash_headline_en': 'Your Fitness Journey Starts Now',
     'splash_headline_ar': 'رحلتك الرياضية تبدأ الآن',
     'splash_start': 'Start / ابدأ',
-  // --- Added for workout timer screen ---
-  'reps': 'Reps',
-  'workouts_rest_paused': 'Rest Paused',
-  'workouts_rest_motivation': 'Take a rest, you\'re doing great!',
-  'workouts_complete_reps': 'Complete {reps} reps then tap complete',
-  'workouts_adjust_rest': 'Adjust Rest',
-  'workouts_adjust_rest_time': 'Adjust Rest Time',
-  'workouts_seconds_label': '{seconds} seconds',
-  'workouts_skip_exercise': 'Skip Exercise',
-  'workouts_skip_exercise_confirm_title': 'Skip Exercise?',
-  'workouts_skip_exercise_confirm_body': 'Are you sure you want to skip this exercise?',
-  'workouts_end_workout_confirm_title': 'End Workout?',
-  'workouts_end_workout_confirm_body': 'Your progress will be lost. Are you sure?',
-  'workouts_end': 'End',
-  'workouts_great_job': 'Great Job!',
-  'workouts_completed_all_sets': 'You\'ve completed all sets!',
-  'done': 'Done',
-    
+    // --- Added for workout timer screen ---
+    'reps': 'Reps',
+    'workouts_rest_paused': 'Rest Paused',
+    'workouts_rest_motivation': 'Take a rest, you\'re doing great!',
+    'workouts_complete_reps': 'Complete {reps} reps then tap complete',
+    'workouts_adjust_rest': 'Adjust Rest',
+    'workouts_adjust_rest_time': 'Adjust Rest Time',
+    'workouts_seconds_label': '{seconds} seconds',
+    'workouts_skip_exercise': 'Skip Exercise',
+    'workouts_skip_exercise_confirm_title': 'Skip Exercise?',
+    'workouts_skip_exercise_confirm_body':
+        'Are you sure you want to skip this exercise?',
+    'workouts_end_workout_confirm_title': 'End Workout?',
+    'workouts_end_workout_confirm_body':
+        'Your progress will be lost. Are you sure?',
+    'workouts_end': 'End',
+    'workouts_great_job': 'Great Job!',
+    'workouts_completed_all_sets': 'You\'ve completed all sets!',
+    'done': 'Done',
+
     // Auth
     'auth_app_name': 'FitCoach',
     'auth_tagline': 'Your Fitness Journey Starts Here',
@@ -131,7 +140,8 @@ static final Map<String, String> _englishTranslations = {
     'auth_email_or_phone': 'Email or Phone',
     'auth_email_or_phone_placeholder': 'name@example.com or +966...',
     'auth_or_divider': 'OR',
-    'auth_phone_will_receive_otp': 'We will send a verification code to this number',
+    'auth_phone_will_receive_otp':
+        'We will send a verification code to this number',
     'auth_enter_otp': 'Enter verification code',
     'auth_otp_sent': 'We sent a code to',
     'admin_date_range': 'Date range',
@@ -177,7 +187,8 @@ static final Map<String, String> _englishTranslations = {
     'admin_suspend_coach_prompt': 'Suspend coach {name}?',
     'admin_coach_suspended_success': 'Coach suspended',
     'admin_create_coach_title': 'Create coach',
-    'admin_create_coach_subtitle': 'Create a new coach account and send an invite to complete setup.',
+    'admin_create_coach_subtitle':
+        'Create a new coach account with immediate access.',
     'admin_full_name_label': 'Full name',
     'admin_full_name_required': 'Full name is required',
     'admin_email_required': 'Email is required',
@@ -187,10 +198,16 @@ static final Map<String, String> _englishTranslations = {
     'admin_add': 'Add',
     'admin_no_specializations': 'No specializations added',
     'admin_send_invite_title': 'Send invite',
-    'admin_send_invite_subtitle': 'We\'ll email the coach to complete account setup.',
+    'admin_send_invite_subtitle':
+        'We\'ll email the coach to complete account setup.',
     'admin_sending': 'Sending...',
     'admin_send_invite': 'Send invite',
+    'admin_create_coach_action': 'Create coach',
     'admin_coach_created_success': 'Coach created successfully',
+    'admin_email_exists': 'email already exists',
+    'admin_coach_credentials_title': 'Coach login credentials',
+    'admin_copy_credentials': 'Copy credentials',
+    'admin_credentials_copied': 'Credentials copied',
     'admin_create_coach_failed': 'Failed to create coach',
     'admin_users_search_hint': 'Search...',
     'admin_users_filter_tier': 'Tier',
@@ -314,9 +331,12 @@ static final Map<String, String> _englishTranslations = {
     'coach_workout_template_beginner_full': 'Beginner - 3 days',
     'coach_workout_template_intermediate_full': 'Intermediate - 4 days',
     'coach_workout_template_advanced_full': 'Advanced - 5 days',
-    'coach_workout_template_beginner_desc': 'A plan for beginners with no prior experience.',
-    'coach_workout_template_intermediate_desc': 'A plan for those with some experience.',
-    'coach_workout_template_advanced_desc': 'An advanced plan for experienced athletes.',
+    'coach_workout_template_beginner_desc':
+        'A plan for beginners with no prior experience.',
+    'coach_workout_template_intermediate_desc':
+        'A plan for those with some experience.',
+    'coach_workout_template_advanced_desc':
+        'An advanced plan for experienced athletes.',
     'coach_workout_editor_title': 'Workout Plan Editor',
     'coach_workout_editor_add_exercises_required': 'Please add exercises',
     'coach_workout_editor_updated_success': 'Plan updated successfully',
@@ -344,10 +364,13 @@ static final Map<String, String> _englishTranslations = {
     'auth_email': 'Email',
     'auth_email_placeholder': 'name@example.com',
     'auth_password': 'Password',
+    'auth_coach_default_password_help':
+        'Coach accounts use default password 123456 on first login. Change it from Settings after login.',
     'auth_password_placeholder': 'Enter your password',
     'auth_forgot_password': 'Forgot Password?',
     'auth_forgot_password_title': 'Forgot Password',
-    'auth_forgot_password_desc': 'Enter your email or phone and we will send a reset link',
+    'auth_forgot_password_desc':
+        'Enter your email or phone and we will send a reset link',
     'auth_reset_link_sent': 'Reset link sent',
     'auth_send': 'Send',
     'auth_cancel': 'Cancel',
@@ -363,7 +386,8 @@ static final Map<String, String> _englishTranslations = {
     'auth_missing_fields': 'Please fill in all required fields',
     'auth_password_mismatch': 'Passwords do not match',
     'auth_try_demo': 'Try Demo',
-    'auth_demo_unavailable': 'Demo mode is only available when built with DEMO_MODE',
+    'auth_demo_unavailable':
+        'Demo mode is only available when built with DEMO_MODE',
     'auth_demo_credentials': 'Demo credentials',
     'auth_demo_user': 'Demo User',
     'auth_demo_coach': 'Demo Coach',
@@ -383,7 +407,7 @@ static final Map<String, String> _englishTranslations = {
     'enter_otp': 'Enter verification code',
     'verify': 'Verify',
     'resend': 'Resend code',
-    
+
     // Intake
     'lets_know_you': 'Let\'s get to know you',
     'gender': 'Gender',
@@ -429,18 +453,22 @@ static final Map<String, String> _englishTranslations = {
     'injury_neck': 'Neck',
     'injury_ankle': 'Ankle',
     'intake_prompt_title': 'Complete your workout intake',
-    'intake_prompt_description': 'Finish a short questionnaire to unlock a personalized plan or book a free call with your coach.',
+    'intake_prompt_description':
+        'Finish a short questionnaire to unlock a personalized plan or book a free call with your coach.',
     'intake_prompt_option1_title': 'Customized workout plan',
-    'intake_prompt_option1_desc': 'Answer a few questions to tailor your training.',
+    'intake_prompt_option1_desc':
+        'Answer a few questions to tailor your training.',
     'intake_prompt_option2_title': 'Free coach video call',
-    'intake_prompt_option2_desc': 'Get guidance and accountability from a coach.',
+    'intake_prompt_option2_desc':
+        'Get guidance and accountability from a coach.',
     'intake_prompt_free_call': 'Free for you',
     'intake_prompt_book_call': 'Book call',
     'intake_prompt_complete': 'Complete intake',
     'intake_prompt_later': 'Later',
     'intake_generating_title': 'Generating your plan',
-    'intake_generating_desc': 'We\'re building your specialized workout plan now.',
-    
+    'intake_generating_desc':
+        'We\'re building your specialized workout plan now.',
+
     // Home
     'workout': 'Workout',
     'nutrition': 'Nutrition',
@@ -468,18 +496,21 @@ static final Map<String, String> _englishTranslations = {
     'account_progress_subtitle': 'Track your progress',
     'account_section_subscription': 'Subscription',
     'account_manage_subscription': 'Manage Subscription',
-    'account_manage_subscription_subtitle': 'Upgrade or cancel your subscription',
+    'account_manage_subscription_subtitle':
+        'Upgrade or cancel your subscription',
     'account_payment_history': 'Payment History',
     'account_payment_history_subtitle': 'View past payments',
     'payment_management_title': 'Payment Management',
-    'payment_management_subtitle': 'Securely manage saved cards and billing info',
+    'payment_management_subtitle':
+        'Securely manage saved cards and billing info',
     'payment_add_method': 'Add payment method',
     'payment_methods': 'Saved payment methods',
     'payment_billing_info': 'Billing Information',
     'payment_primary_address': 'Primary Address',
     'payment_secondary_address': 'Secondary Address',
     'payment_auto_pay': 'Auto-pay for subscriptions',
-    'payment_auto_pay_desc': 'Automatically charge your default method on renewal',
+    'payment_auto_pay_desc':
+        'Automatically charge your default method on renewal',
     'account_section_notifications': 'Notifications',
     'account_notification_workout_reminders': 'Workout Reminders',
     'account_notification_coach_messages': 'Coach Messages',
@@ -497,7 +528,8 @@ static final Map<String, String> _englishTranslations = {
     'account_contact_us_subtitle': 'Get in touch with support',
     'account_about': 'About',
     'account_about_legalese': 'Copyright 2024 FitCoach. All rights reserved.',
-    'account_about_description': 'Comprehensive fitness app with personal coaching.',
+    'account_about_description':
+        'Comprehensive fitness app with personal coaching.',
     'account_terms': 'Terms & Conditions',
     'account_privacy': 'Privacy Policy',
     'account_logout': 'Logout',
@@ -554,21 +586,24 @@ static final Map<String, String> _englishTranslations = {
     'subscription_switch_cta': 'Switch to this plan',
     'subscription_upgrade_confirm_title': 'Confirm upgrade',
     'subscription_switch_confirm_title': 'Confirm switch',
-    'subscription_upgrade_confirm_body': 'Upgrade to {plan} will take effect immediately.',
+    'subscription_upgrade_confirm_body':
+        'Upgrade to {plan} will take effect immediately.',
     'subscription_switch_confirm_body': 'Switch your plan to {plan}?',
     'subscription_update_success': 'Subscription updated successfully',
     'subscription_feature_requires_plan': '{feature} requires {plan} tier',
     'subscription_upgrade_title': 'Upgrade Subscription',
     'subscription_upgrade_subtitle': 'Upgrade to unlock exclusive features',
     'subscription_payment_method': 'Payment method',
-    'subscription_payment_disclaimer': 'By continuing, you agree to our Terms of Service and Privacy Policy',
+    'subscription_payment_disclaimer':
+        'By continuing, you agree to our Terms of Service and Privacy Policy',
     'subscription_billing_monthly': 'Monthly',
     'subscription_billing_yearly': 'Yearly',
     'subscription_yearly_badge': 'Save 17%',
     'subscription_best_value_badge': 'Best value',
     'subscription_status_current': 'Current',
     'subscription_more_perks': '+ more premium perks',
-    'subscription_demo_activation_success': 'Demo subscription activated successfully',
+    'subscription_demo_activation_success':
+        'Demo subscription activated successfully',
     'subscription_payment_redirect': 'Redirecting to payment page',
     'subscription_payment_failed': 'Payment failed: {error}',
     'subscription_continue_to_payment': 'Continue to payment',
@@ -580,21 +615,26 @@ static final Map<String, String> _englishTranslations = {
     'subscription_yearly_price_label': 'or {price} {currency}/{unit}',
     'subscription_yearly_equivalent': '{price} {currency}/{unit} ({note})',
     'subscription_admin_new_plan': 'New plan',
-    'subscription_admin_header_description': 'Edit plan tiers, adjust their feature stacks, and preview the user-facing comparison.',
+    'subscription_admin_header_description':
+        'Edit plan tiers, adjust their feature stacks, and preview the user-facing comparison.',
     'subscription_admin_comparison_preview': 'Comparison preview',
     'subscription_admin_key_features': 'Key comparison features',
-    'subscription_admin_add_features_hint': 'Add plan features so they appear in the comparison.',
+    'subscription_admin_add_features_hint':
+        'Add plan features so they appear in the comparison.',
     'subscription_admin_edit_plan': 'Edit plan',
     'subscription_admin_save_success': 'Plan saved successfully',
     'subscription_admin_save_error': 'Unable to save plan',
     'subscription_admin_delete_title': 'Delete plan',
-    'subscription_admin_delete_body': 'Are you sure you want to delete {plan}? It disappears from comparisons immediately.',
+    'subscription_admin_delete_body':
+        'Are you sure you want to delete {plan}? It disappears from comparisons immediately.',
     'subscription_admin_delete_success': 'Plan deleted',
     'subscription_admin_delete_failure': 'Failed to delete plan',
     'subscription_admin_empty_title': 'No plans yet',
-    'subscription_admin_empty_subtitle': 'Create your first plan to power comparisons.',
+    'subscription_admin_empty_subtitle':
+        'Create your first plan to power comparisons.',
     'subscription_empty_title': 'Plans coming soon',
-    'subscription_empty_subtitle': 'Your admin is still configuring paid plans. Try again later.',
+    'subscription_empty_subtitle':
+        'Your admin is still configuring paid plans. Try again later.',
     'user': 'User',
     'greeting': 'Hello, {name}',
     'todays_workout': 'Today\'s Workout',
@@ -629,15 +669,20 @@ static final Map<String, String> _englishTranslations = {
     'workouts_intro_title': 'Workout Center',
     'workouts_intro_subtitle': 'Your personalized fitness journey starts here',
     'workouts_intro_feature1_title': 'Personalized Plans',
-    'workouts_intro_feature1_desc': 'Custom workout plans tailored to your goals and experience level.',
+    'workouts_intro_feature1_desc':
+        'Custom workout plans tailored to your goals and experience level.',
     'workouts_intro_feature2_title': 'Exercise Library',
-    'workouts_intro_feature2_desc': 'Access exercises with video guides and detailed instructions.',
+    'workouts_intro_feature2_desc':
+        'Access exercises with video guides and detailed instructions.',
     'workouts_intro_feature3_title': 'Track Progress',
-    'workouts_intro_feature3_desc': 'Log your workouts and monitor your strength gains.',
+    'workouts_intro_feature3_desc':
+        'Log your workouts and monitor your strength gains.',
     'workouts_intro_feature4_title': 'Injury-Safe Alternatives',
-    'workouts_intro_feature4_desc': 'Get safe substitutions if you have injuries or limitations.',
+    'workouts_intro_feature4_desc':
+        'Get safe substitutions if you have injuries or limitations.',
     'workouts_get_started': 'Get Started',
-    'workouts_intro_note': 'You can always access help from the workout screen.',
+    'workouts_intro_note':
+        'You can always access help from the workout screen.',
     'workouts_set_of': 'Set {current} of {total}',
     'workouts_exercise_demo': 'Exercise demo',
     'workouts_rest_time': 'Rest time',
@@ -685,7 +730,8 @@ static final Map<String, String> _englishTranslations = {
     'home_weekly_progress_updated': 'Weekly progress updated',
     'home_days_ago': '3 days ago',
     'home_unlock_premium': 'Unlock Premium',
-    'home_premium_desc': 'Upgrade to access nutrition plans, unlimited coaching, and advanced analytics.',
+    'home_premium_desc':
+        'Upgrade to access nutrition plans, unlimited coaching, and advanced analytics.',
     'home_upgrade_now': 'Upgrade now',
     'home_book_video_session': 'Book video session',
     'home_view_progress': 'View detailed progress',
@@ -695,7 +741,8 @@ static final Map<String, String> _englishTranslations = {
     'home_tap_to_upgrade': 'Tap to upgrade',
     'home_loading_sessions': 'Loading your upcoming sessions...',
     'home_next_session': 'Your next session',
-    'home_join_available_hint': 'Join becomes available 10 minutes before start',
+    'home_join_available_hint':
+        'Join becomes available 10 minutes before start',
     'home_starting_now': 'Starting now',
     'home_starts_in_minutes': 'Starts in {minutes} min',
     'home_starts_in_hours': 'Starts in {hours}h',
@@ -714,19 +761,20 @@ static final Map<String, String> _englishTranslations = {
     'tier_premium': 'Premium',
     'tier_smart_premium': 'Smart Premium',
     'inbody_title': 'InBody scan',
-    
+
     // Workout
     'no_plan': 'No workout plan yet',
     'ask_coach': 'Ask your coach for a plan',
     'start_workout': 'Start Workout',
     'complete_set': 'Complete Set',
-    
+
     // Nutrition
     'trial_period': 'Trial Period',
     'trial_expiring': 'You have {days} days of free access remaining',
     'trial_expired': 'Trial Period Ended',
     'upgrade_to_premium': 'Upgrade to Premium',
-    'upgrade_prompt': 'Upgrade to Premium for unlimited access to nutrition plans',
+    'upgrade_prompt':
+        'Upgrade to Premium for unlimited access to nutrition plans',
     'macros': 'Macros',
     'protein': 'Protein',
     'carbs': 'Carbs',
@@ -758,7 +806,7 @@ static final Map<String, String> _englishTranslations = {
     'meal_detail_ingredients': 'Ingredients',
     'meal_detail_notes': 'Coach Notes',
     'meal_detail_swap': 'Swap Meal',
-    
+
     // Messaging
     'messages': 'Messages',
     'sessions': 'Sessions',
@@ -774,7 +822,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_assigned_plans_title': 'Assigned plans',
     'coach_nutrition_plan_title': 'Nutrition plan',
     'coach_nutrition_plan_missing': 'No nutrition plan assigned',
-    'coach_no_nutrition_plan_client': 'No nutrition plan assigned for this client.',
+    'coach_no_nutrition_plan_client':
+        'No nutrition plan assigned for this client.',
     'coach_adherence': 'Adherence',
     'coach_no_meal_days': 'No meal days yet.',
     'fat': 'Fat',
@@ -814,12 +863,16 @@ static final Map<String, String> _englishTranslations = {
     'coach_workout_log': 'Workout log',
     'coach_nutrition_log': 'Nutrition log',
     'coach_no_entries_captured': 'No entries captured yet',
-    'coach_start_conversation_prompt': 'Start the conversation with your client.',
-    'coach_clients_load_first': 'Please load your clients first from the Clients tab',
+    'coach_start_conversation_prompt':
+        'Start the conversation with your client.',
+    'coach_clients_load_first':
+        'Please load your clients first from the Clients tab',
     'coach_quick_action_message_clients_title': 'Message clients',
-    'coach_quick_action_message_clients_subtitle': 'Reply to conversations and prioritize follow-ups',
+    'coach_quick_action_message_clients_subtitle':
+        'Reply to conversations and prioritize follow-ups',
     'coach_quick_action_quick_schedule_title': 'Schedule quick check-in',
-    'coach_quick_action_quick_schedule_subtitle': 'Book a video call with your most recent client',
+    'coach_quick_action_quick_schedule_subtitle':
+        'Book a video call with your most recent client',
     'coach_upcoming_video_calls': 'Upcoming video calls',
     'coach_upcoming_all_sessions': 'All upcoming sessions',
     'coach_client_spotlight': 'Client spotlight',
@@ -841,7 +894,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_schedule_notes_label': 'Additional notes',
     'coach_schedule_confirm': 'Confirm session',
     'coach_schedule_success': 'Session scheduled with {client}',
-    'coach_schedule_failure': 'Could not schedule the session. Please try again.',
+    'coach_schedule_failure':
+        'Could not schedule the session. Please try again.',
     'coach_earnings_title': 'Earnings',
     'coach_earnings_failed': 'Failed to load earnings',
     'coach_earnings_total': 'Total earnings',
@@ -932,7 +986,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_calendar_update_failed': 'Failed to update appointment',
     'coach_calendar_update_action': 'Update',
     'coach_calendar_cancel_title': 'Cancel appointment',
-    'coach_calendar_cancel_confirm': 'Cancel this appointment? This action cannot be undone.',
+    'coach_calendar_cancel_confirm':
+        'Cancel this appointment? This action cannot be undone.',
     'coach_calendar_cancel_success': 'Appointment cancelled',
     'coach_calendar_cancel_failed': 'Failed to cancel appointment',
     'coach_calendar_cancel_action': 'Cancel appointment',
@@ -944,7 +999,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_search_hint': 'Search client or message',
     'coach_refresh_inbox': 'Refresh inbox',
     'coach_no_conversations_title': 'No conversations yet',
-    'coach_no_conversations_desc': 'Send your first check-in to kick off the relationship.',
+    'coach_no_conversations_desc':
+        'Send your first check-in to kick off the relationship.',
     'coach_client_fallback': 'Client',
     'coach_awaiting_activity': 'Awaiting activity',
     'coach_kickoff_prompt': 'Kick off a tailored check-in.',
@@ -957,7 +1013,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_starts_in_minutes': 'Starts in {minutes} min',
     'coach_starts_in_hours': 'Starts in {hours}h',
     'coach_starts_in_hours_minutes': 'Starts in {hours}h {minutes}m',
-    'coach_file_unsupported_web': 'File attachments are not supported on web yet.',
+    'coach_file_unsupported_web':
+        'File attachments are not supported on web yet.',
     'coach_demo_name': 'Coach Sara',
     'coach_demo_initials': 'SA',
     'coach_assigned_title': 'Your Assigned Coach',
@@ -976,7 +1033,8 @@ static final Map<String, String> _englishTranslations = {
     'file': 'File',
     'request': 'Request',
     'request_video_call': 'Request Video Call',
-    'do_you_want_video_call_with_coach': 'Do you want to request a video call with your coach?',
+    'do_you_want_video_call_with_coach':
+        'Do you want to request a video call with your coach?',
     'video_call_request_message': 'Video call request',
     'video_call_request_sent': 'Video call request sent',
     'type_message': 'Type a message...',
@@ -1041,7 +1099,7 @@ static final Map<String, String> _englishTranslations = {
     'rating_label_4': 'Good',
     'rating_label_5': 'Excellent',
     'upgrade': 'Upgrade',
-    
+
     // Store
     'categories': 'Categories',
     'featured': 'Featured Products',
@@ -1131,22 +1189,27 @@ static final Map<String, String> _englishTranslations = {
     'nutrition_intro_title': 'Nutrition Tracking',
     'nutrition_intro_subtitle': 'Personalized meal plans and macro tracking',
     'nutrition_intro_feature1_title': 'Smart Meal Plans',
-    'nutrition_intro_feature1_desc': 'Custom plans based on your goals and preferences',
+    'nutrition_intro_feature1_desc':
+        'Custom plans based on your goals and preferences',
     'nutrition_intro_feature2_title': 'Macro Tracking',
     'nutrition_intro_feature2_desc': 'Track protein, carbs, and fats daily',
     'nutrition_intro_feature3_title': 'Recipe Library',
-    'nutrition_intro_feature3_desc': 'Hundreds of healthy recipes to choose from',
+    'nutrition_intro_feature3_desc':
+        'Hundreds of healthy recipes to choose from',
     'nutrition_intro_feature4_title': 'Progress Analytics',
     'nutrition_intro_feature4_desc': 'Monitor your nutrition journey over time',
     'nutrition_intro_get_started': 'Get Started',
     'nutrition_intro_note': 'Complete setup to unlock your personalized plan',
     'nutrition_locked_title': 'Nutrition is locked',
-    'nutrition_locked_desc': 'Upgrade to Premium to unlock nutrition plans and InBody analysis.',
+    'nutrition_locked_desc':
+        'Upgrade to Premium to unlock nutrition plans and InBody analysis.',
     'nutrition_unlock_button': 'Upgrade to Premium',
     'nutrition_intake_title': 'Nutrition Preferences',
-    'nutrition_intake_subtitle': 'Tell us what you like so we can personalize your plan.',
+    'nutrition_intake_subtitle':
+        'Tell us what you like so we can personalize your plan.',
     'nutrition_intake_step1_title': 'Protein Preferences',
-    'nutrition_intake_step1_desc': 'Choose the foods you enjoy and any allergies.',
+    'nutrition_intake_step1_desc':
+        'Choose the foods you enjoy and any allergies.',
     'nutrition_intake_protein_sources': 'Preferred protein sources',
     'nutrition_intake_allergies': 'Allergies / restrictions',
     'nutrition_intake_step2_title': 'Dinner Preferences',
@@ -1158,7 +1221,8 @@ static final Map<String, String> _englishTranslations = {
     'nutrition_intake_cuisines': 'Preferred cuisines',
     'nutrition_intake_avoid': 'Foods to avoid',
     'nutrition_intake_step3_title': 'Anything else?',
-    'nutrition_intake_step3_desc': 'Share any extra notes for your nutrition coach.',
+    'nutrition_intake_step3_desc':
+        'Share any extra notes for your nutrition coach.',
     'nutrition_intake_notes_placeholder': 'Add notes, dislikes, or goals...',
     'nutrition_intake_back': 'Back',
     'nutrition_intake_next': 'Next',
@@ -1193,17 +1257,22 @@ static final Map<String, String> _englishTranslations = {
     'nutrition_option_sugary': 'Sugary',
     'nutrition_option_none': 'None',
     'coach_intro_title': 'Expert Coaches',
-    'coach_intro_subtitle': 'Get personalized guidance from certified fitness experts',
+    'coach_intro_subtitle':
+        'Get personalized guidance from certified fitness experts',
     'coach_intro_feature1_title': 'Direct Messaging',
-    'coach_intro_feature1_desc': 'Chat with certified coaches for instant support and advice',
+    'coach_intro_feature1_desc':
+        'Chat with certified coaches for instant support and advice',
     'coach_intro_feature2_title': 'Video Consultations',
-    'coach_intro_feature2_desc': 'Book personalized video sessions for form checks and guidance',
+    'coach_intro_feature2_desc':
+        'Book personalized video sessions for form checks and guidance',
     'coach_intro_feature3_title': 'Custom Plans',
-    'coach_intro_feature3_desc': 'Receive personalized workout and nutrition plans from experts',
+    'coach_intro_feature3_desc':
+        'Receive personalized workout and nutrition plans from experts',
     'coach_intro_feature4_title': 'Expert Guidance',
-    'coach_intro_feature4_desc': 'Get professional advice tailored to your fitness goals',
+    'coach_intro_feature4_desc':
+        'Get professional advice tailored to your fitness goals',
     'coach_intro_get_started': 'Get Started',
-    
+
     // Account
     'profile': 'Profile',
     'subscription': 'Subscription',
@@ -1228,19 +1297,26 @@ static final Map<String, String> _englishTranslations = {
     'otp_incomplete': 'Please enter the complete OTP code',
     'change_phone': 'Change phone number',
     'onboarding_slide1_title': 'Welcome to FitCoach+',
-    'onboarding_slide1_desc': 'Your fitness journey starts here with professional coaches',
+    'onboarding_slide1_desc':
+        'Your fitness journey starts here with professional coaches',
     'onboarding_slide2_title': 'Personalized Workout Plans',
-    'onboarding_slide2_desc': 'Get workout plans tailored to your goals and condition',
+    'onboarding_slide2_desc':
+        'Get workout plans tailored to your goals and condition',
     'onboarding_slide3_title': 'Connect with Your Coach',
-    'onboarding_slide3_desc': 'Direct communication with your coach for guidance and support',
+    'onboarding_slide3_desc':
+        'Direct communication with your coach for guidance and support',
     'onboarding_coaching_title': 'Your Personal Coach Awaits',
-    'onboarding_coaching_desc': 'Connect with certified fitness professionals who understand your goals. Get real-time guidance, motivation, and accountability through personalized coaching.',
+    'onboarding_coaching_desc':
+        'Connect with certified fitness professionals who understand your goals. Get real-time guidance, motivation, and accountability through personalized coaching.',
     'onboarding_nutrition_title': 'Fuel Your Transformation',
-    'onboarding_nutrition_desc': 'Discover customized meal plans designed for your body and goals. Track macros effortlessly and learn sustainable nutrition habits that last a lifetime.',
+    'onboarding_nutrition_desc':
+        'Discover customized meal plans designed for your body and goals. Track macros effortlessly and learn sustainable nutrition habits that last a lifetime.',
     'onboarding_workouts_title': 'Train Smarter, Not Harder',
-    'onboarding_workouts_desc': 'Access scientifically-designed workout programs that adapt to your fitness level. Every exercise is demonstrated with proper form to maximize results and prevent injury.',
+    'onboarding_workouts_desc':
+        'Access scientifically-designed workout programs that adapt to your fitness level. Every exercise is demonstrated with proper form to maximize results and prevent injury.',
     'onboarding_store_title': 'Everything You Need, One Place',
-    'onboarding_store_desc': 'Shop premium supplements, training gear, and wellness products curated by fitness experts. Quality nutrition and equipment to support your journey.',
+    'onboarding_store_desc':
+        'Shop premium supplements, training gear, and wellness products curated by fitness experts. Quality nutrition and equipment to support your journey.',
     'onboarding_go_to_slide': 'Go to slide {index}',
     'get_started': 'Get Started',
     'sign_in': 'Sign In',
@@ -1268,7 +1344,8 @@ static final Map<String, String> _englishTranslations = {
     'intake_second_subtitle': 'Tell us more for a personalized plan',
     'intake_second_complete': 'Complete intake',
     'intake_second_progress_title': 'Second intake progress',
-    'intake_second_progress_desc': 'Finish your answers to unlock a personalized workout plan.',
+    'intake_second_progress_desc':
+        'Finish your answers to unlock a personalized workout plan.',
     'intake_second_progress_label': '{completed} of {total} steps completed',
     'intake_second_progress_cta': 'Complete intake',
     'intake_banner_title': 'Finish your workout profile',
@@ -1339,7 +1416,8 @@ static final Map<String, String> _englishTranslations = {
     'workouts_seconds_label': '{seconds} ثانية',
     'workouts_skip_exercise': 'تخطي التمرين',
     'workouts_skip_exercise_confirm_title': 'تخطي التمرين؟',
-    'workouts_skip_exercise_confirm_body': 'هل أنت متأكد أنك تريد تخطي هذا التمرين؟',
+    'workouts_skip_exercise_confirm_body':
+        'هل أنت متأكد أنك تريد تخطي هذا التمرين؟',
     'workouts_end_workout_confirm_title': 'إنهاء التمرين؟',
     'workouts_end_workout_confirm_body': 'سيتم فقدان تقدمك. هل أنت متأكد؟',
     'workouts_end': 'إنهاء',
@@ -1348,7 +1426,8 @@ static final Map<String, String> _englishTranslations = {
     'done': 'تم',
 
     'nutrition_locked_title': 'التغذية مقفلة',
-    'nutrition_locked_desc': 'قم بالترقية إلى بريميوم لفتح خطط التغذية وتحليل InBody.',
+    'nutrition_locked_desc':
+        'قم بالترقية إلى بريميوم لفتح خطط التغذية وتحليل InBody.',
     'nutrition_unlock_button': 'الترقية إلى بريميوم',
     'nutrition_intake_title': 'تفضيلات التغذية',
     'nutrition_intake_subtitle': 'أخبرنا بما تفضله لنخصص خطتك.',
@@ -1366,7 +1445,8 @@ static final Map<String, String> _englishTranslations = {
     'nutrition_intake_avoid': 'أطعمة يجب تجنبها',
     'nutrition_intake_step3_title': 'أي شيء آخر؟',
     'nutrition_intake_step3_desc': 'شارك أي ملاحظات إضافية لمدرب التغذية.',
-    'nutrition_intake_notes_placeholder': 'أضف ملاحظات أو أطعمة غير مرغوبة أو أهداف...',
+    'nutrition_intake_notes_placeholder':
+        'أضف ملاحظات أو أطعمة غير مرغوبة أو أهداف...',
     'nutrition_intake_back': 'رجوع',
     'nutrition_intake_next': 'التالي',
     'nutrition_intake_complete': 'حفظ التفضيلات',
@@ -1551,7 +1631,8 @@ static final Map<String, String> _englishTranslations = {
     'admin_suspend_coach_prompt': 'هل تريد تعليق المدرب {name}؟',
     'admin_coach_suspended_success': 'تم تعليق المدرب',
     'admin_create_coach_title': 'إنشاء مدرب جديد',
-    'admin_create_coach_subtitle': 'أدخل بيانات المدرب لإنشاء حساب وإرسال دعوة.',
+    'admin_create_coach_subtitle':
+        'أدخل بيانات المدرب لإنشاء حساب وتفعيل الوصول مباشرة.',
     'admin_full_name_label': 'الاسم الكامل',
     'admin_full_name_required': 'الاسم الكامل مطلوب',
     'admin_email_required': 'البريد الإلكتروني مطلوب',
@@ -1561,10 +1642,16 @@ static final Map<String, String> _englishTranslations = {
     'admin_add': 'إضافة',
     'admin_no_specializations': 'لا توجد تخصصات بعد',
     'admin_send_invite_title': 'إرسال دعوة للمدرب',
-    'admin_send_invite_subtitle': 'سنرسل رابط الدعوة إلى بريد المدرب الإلكتروني.',
+    'admin_send_invite_subtitle':
+        'سنرسل رابط الدعوة إلى بريد المدرب الإلكتروني.',
     'admin_sending': 'جارٍ الإرسال...',
     'admin_send_invite': 'إرسال الدعوة',
+    'admin_create_coach_action': 'إنشاء المدرب',
     'admin_coach_created_success': 'تم إنشاء حساب المدرب بنجاح',
+    'admin_email_exists': 'البريد الإلكتروني موجود بالفعل',
+    'admin_coach_credentials_title': 'بيانات دخول المدرب',
+    'admin_copy_credentials': 'نسخ بيانات الدخول',
+    'admin_credentials_copied': 'تم نسخ بيانات الدخول',
     'admin_create_coach_failed': 'فشل إنشاء حساب المدرب',
     'admin_users_search_hint': 'بحث...',
     'admin_users_filter_tier': 'الباقة',
@@ -1592,7 +1679,8 @@ static final Map<String, String> _englishTranslations = {
     'admin_suspend_user_title': 'تعليق المستخدم',
     'admin_delete_user_title': 'حذف المستخدم',
     'admin_suspend_prompt': 'هل تريد تعليق المستخدم {name}؟',
-    'admin_delete_prompt': 'هل تريد حذف المستخدم {name}؟ لا يمكن التراجع عن هذا الإجراء.',
+    'admin_delete_prompt':
+        'هل تريد حذف المستخدم {name}؟ لا يمكن التراجع عن هذا الإجراء.',
     'admin_suspend_reason_required': 'السبب مطلوب',
     'admin_user_suspended_success': 'تم تعليق المستخدم',
     'admin_user_deleted_success': 'تم حذف المستخدم',
@@ -1667,7 +1755,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_workout_template_intermediate_full': 'متوسط - 4 أيام',
     'coach_workout_template_advanced_full': 'متقدم - 5 أيام',
     'coach_workout_template_beginner_desc': 'خطة مناسبة للمبتدئين بدون خبرة.',
-    'coach_workout_template_intermediate_desc': 'خطة متوسطة لمن لديهم بعض الخبرة.',
+    'coach_workout_template_intermediate_desc':
+        'خطة متوسطة لمن لديهم بعض الخبرة.',
     'coach_workout_template_advanced_desc': 'خطة متقدمة للرياضيين المحترفين.',
     'coach_workout_editor_title': 'محرر خطة التمرين',
     'coach_workout_editor_add_exercises_required': 'يجب إضافة تمارين',
@@ -1696,10 +1785,13 @@ static final Map<String, String> _englishTranslations = {
     'auth_email': 'البريد الإلكتروني',
     'auth_email_placeholder': 'name@example.com',
     'auth_password': 'كلمة المرور',
+    'auth_coach_default_password_help':
+        'حسابات المدربين تستخدم كلمة المرور الافتراضية 123456 عند أول تسجيل دخول. يمكن تغييرها من الإعدادات بعد الدخول.',
     'auth_password_placeholder': 'أدخل كلمة المرور',
     'auth_forgot_password': 'نسيت كلمة المرور؟',
     'auth_forgot_password_title': 'نسيت كلمة المرور',
-    'auth_forgot_password_desc': 'أدخل البريد الإلكتروني أو رقم الهاتف لإرسال رابط إعادة التعيين',
+    'auth_forgot_password_desc':
+        'أدخل البريد الإلكتروني أو رقم الهاتف لإرسال رابط إعادة التعيين',
     'auth_reset_link_sent': 'تم إرسال رابط إعادة التعيين',
     'auth_send': 'إرسال',
     'auth_cancel': 'إلغاء',
@@ -1713,7 +1805,8 @@ static final Map<String, String> _englishTranslations = {
     'auth_demo_user': 'مستخدم تجريبي',
     'auth_demo_coach': 'مدرب تجريبي',
     'auth_demo_admin': 'مدير تجريبي',
-    'auth_demo_credentials_detail': 'البريد الإلكتروني: {email} / كلمة المرور: {password}',
+    'auth_demo_credentials_detail':
+        'البريد الإلكتروني: {email} / كلمة المرور: {password}',
     'auth_demo_password_any': 'أي',
     'auth_phone': 'رقم الهاتف',
     'auth_phone_placeholder': '+966 5X XXX XXXX',
@@ -1757,7 +1850,8 @@ static final Map<String, String> _englishTranslations = {
     'payment_primary_address': 'العنوان الرئيسي',
     'payment_secondary_address': 'العنوان الثانوي',
     'payment_auto_pay': 'الدفع التلقائي للاشتراكات',
-    'payment_auto_pay_desc': 'سيتم الخصم تلقائياً من الطريقة الافتراضية عند التجديد',
+    'payment_auto_pay_desc':
+        'سيتم الخصم تلقائياً من الطريقة الافتراضية عند التجديد',
     'account_section_notifications': 'الإشعارات',
     'account_notification_workout_reminders': 'تذكيرات التمرين',
     'account_notification_coach_messages': 'رسائل المدرب',
@@ -1838,7 +1932,8 @@ static final Map<String, String> _englishTranslations = {
     'subscription_upgrade_title': 'ترقية الاشتراك',
     'subscription_upgrade_subtitle': 'قم بالترقية للحصول على ميزات حصرية',
     'subscription_payment_method': 'طريقة الدفع',
-    'subscription_payment_disclaimer': 'بالمتابعة، أنت توافق على شروط الخدمة وسياسة الخصوصية',
+    'subscription_payment_disclaimer':
+        'بالمتابعة، أنت توافق على شروط الخدمة وسياسة الخصوصية',
     'subscription_billing_monthly': 'شهري',
     'subscription_billing_yearly': 'سنوي',
     'subscription_yearly_badge': 'وفّر 17%',
@@ -1857,21 +1952,25 @@ static final Map<String, String> _englishTranslations = {
     'subscription_yearly_price_label': 'أو {price} {currency}/{unit}',
     'subscription_yearly_equivalent': '{price} {currency}/{unit} ({note})',
     'subscription_admin_new_plan': 'خطة جديدة',
-    'subscription_admin_header_description': 'حرر طبقات الاشتراك، عدّل المزايا، وشاهد المعاينة التي يراها المستخدم.',
+    'subscription_admin_header_description':
+        'حرر طبقات الاشتراك، عدّل المزايا، وشاهد المعاينة التي يراها المستخدم.',
     'subscription_admin_comparison_preview': 'معاينة المقارنة',
     'subscription_admin_key_features': 'أهم المميزات',
-    'subscription_admin_add_features_hint': 'أضف مميزات للخطة لتظهر في شاشة المقارنة.',
+    'subscription_admin_add_features_hint':
+        'أضف مميزات للخطة لتظهر في شاشة المقارنة.',
     'subscription_admin_edit_plan': 'تعديل الخطة',
     'subscription_admin_save_success': 'تم حفظ الخطة بنجاح',
     'subscription_admin_save_error': 'تعذر حفظ الخطة',
     'subscription_admin_delete_title': 'حذف الخطة',
-    'subscription_admin_delete_body': 'هل تريد حذف {plan}؟ سيختفي من المقارنات فوراً.',
+    'subscription_admin_delete_body':
+        'هل تريد حذف {plan}؟ سيختفي من المقارنات فوراً.',
     'subscription_admin_delete_success': 'تم حذف الخطة',
     'subscription_admin_delete_failure': 'فشل حذف الخطة',
     'subscription_admin_empty_title': 'لا توجد خطط بعد',
     'subscription_admin_empty_subtitle': 'أنشئ أول خطة لبدء المقارنات.',
     'subscription_empty_title': 'الخطط قيد الإعداد',
-    'subscription_empty_subtitle': 'لا تزال الإدارة تضبط الخطط المدفوعة. حاول مرة أخرى لاحقاً.',
+    'subscription_empty_subtitle':
+        'لا تزال الإدارة تضبط الخطط المدفوعة. حاول مرة أخرى لاحقاً.',
     'additional_info': 'معلومات إضافية',
     'app_name': 'عاش',
     'appointment_details': 'تفاصيل الموعد',
@@ -1913,9 +2012,11 @@ static final Map<String, String> _englishTranslations = {
     'coach_start_conversation_prompt': 'ابدأ المحادثة مع العميل.',
     'coach_clients_load_first': 'يرجى تحميل العملاء أولاً من تبويب العملاء',
     'coach_quick_action_message_clients_title': 'مراسلة العملاء',
-    'coach_quick_action_message_clients_subtitle': 'رد على المحادثات وتحديد الأولويات',
+    'coach_quick_action_message_clients_subtitle':
+        'رد على المحادثات وتحديد الأولويات',
     'coach_quick_action_quick_schedule_title': 'جدولة جلسة سريعة',
-    'coach_quick_action_quick_schedule_subtitle': 'احجز مكالمة فيديو مع آخر عميل نشط',
+    'coach_quick_action_quick_schedule_subtitle':
+        'احجز مكالمة فيديو مع آخر عميل نشط',
     'coach_upcoming_video_calls': 'جلسات الفيديو القادمة',
     'coach_upcoming_all_sessions': 'كل الجلسات القادمة',
     'coach_client_spotlight': 'أبرز العملاء',
@@ -2028,7 +2129,8 @@ static final Map<String, String> _englishTranslations = {
     'coach_calendar_update_failed': 'فشل تحديث الموعد',
     'coach_calendar_update_action': 'تحديث',
     'coach_calendar_cancel_title': 'إلغاء الموعد',
-    'coach_calendar_cancel_confirm': 'هل تريد إلغاء هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.',
+    'coach_calendar_cancel_confirm':
+        'هل تريد إلغاء هذا الموعد؟ لا يمكن التراجع عن هذا الإجراء.',
     'coach_calendar_cancel_success': 'تم إلغاء الموعد',
     'coach_calendar_cancel_failed': 'فشل إلغاء الموعد',
     'coach_calendar_cancel_action': 'إلغاء الموعد',
@@ -2062,7 +2164,8 @@ static final Map<String, String> _englishTranslations = {
     'current_plan': 'الخطة الحالية',
     'date_time': 'التاريخ والوقت',
     'day_streak': 'سلسلة الأيام',
-    'do_you_want_video_call_with_coach': 'هل تريد إجراء مكالمة فيديو مع المدرب؟',
+    'do_you_want_video_call_with_coach':
+        'هل تريد إجراء مكالمة فيديو مع المدرب؟',
     'dont_have_account': 'ليس لديك حساب؟',
     'email': 'البريد الإلكتروني',
     'email_or_phone': 'البريد الإلكتروني أو الهاتف',
@@ -2123,7 +2226,8 @@ static final Map<String, String> _englishTranslations = {
     'home_weekly_progress_updated': 'تم تحديث تقدم الأسبوع',
     'home_days_ago': 'منذ ٣ أيام',
     'home_unlock_premium': 'فعّل الباقة المميزة',
-    'home_premium_desc': 'رقّ للوصول إلى خطط التغذية والتواصل غير المحدود والتحليلات المتقدمة.',
+    'home_premium_desc':
+        'رقّ للوصول إلى خطط التغذية والتواصل غير المحدود والتحليلات المتقدمة.',
     'home_upgrade_now': 'رقّ الآن',
     'home_book_video_session': 'احجز جلسة فيديو',
     'home_view_progress': 'عرض التقدم بالتفصيل',
@@ -2190,7 +2294,8 @@ static final Map<String, String> _englishTranslations = {
     'workouts_intro_feature3_title': 'تتبع تقدمك',
     'workouts_intro_feature3_desc': 'سجّل تمارينك وراقب تطور قوتك.',
     'workouts_intro_feature4_title': 'بدائل آمنة للإصابات',
-    'workouts_intro_feature4_desc': 'احصل على بدائل آمنة عند وجود إصابات أو قيود.',
+    'workouts_intro_feature4_desc':
+        'احصل على بدائل آمنة عند وجود إصابات أو قيود.',
     'workouts_get_started': 'ابدأ الآن',
     'workouts_intro_note': 'يمكنك دائماً الحصول على المساعدة من شاشة التمارين.',
     'workouts_set_of': 'المجموعة {current} من {total}',
@@ -2206,14 +2311,18 @@ static final Map<String, String> _englishTranslations = {
     'resume': 'استئناف',
     'reset': 'إعادة',
     'set': 'مجموعة',
-    'onboarding_coaching_desc': 'تواصل مع متخصصي اللياقة البدنية المعتمدين الذين يفهمون أهدافك. احصل على إرشادات فورية، تحفيز، ومتابعة من خلال التدريب الشخصي.',
+    'onboarding_coaching_desc':
+        'تواصل مع متخصصي اللياقة البدنية المعتمدين الذين يفهمون أهدافك. احصل على إرشادات فورية، تحفيز، ومتابعة من خلال التدريب الشخصي.',
     'onboarding_coaching_title': 'مدربك الشخصي في انتظارك',
     'onboarding_go_to_slide': 'الانتقال إلى الشريحة {index}',
-    'onboarding_nutrition_desc': 'اكتشف خطط وجبات مخصصة مصممة لجسمك وأهدافك. تتبع العناصر الغذائية بسهولة وتعلم عادات تغذية مستدامة تدوم مدى الحياة.',
+    'onboarding_nutrition_desc':
+        'اكتشف خطط وجبات مخصصة مصممة لجسمك وأهدافك. تتبع العناصر الغذائية بسهولة وتعلم عادات تغذية مستدامة تدوم مدى الحياة.',
     'onboarding_nutrition_title': 'غذِّ تحولك',
-    'onboarding_store_desc': 'تسوق المكملات الفاخرة، معدات التدريب، ومنتجات العافية المختارة من قبل خبراء اللياقة. تغذية ومعدات عالية الجودة لدعم رحلتك.',
+    'onboarding_store_desc':
+        'تسوق المكملات الفاخرة، معدات التدريب، ومنتجات العافية المختارة من قبل خبراء اللياقة. تغذية ومعدات عالية الجودة لدعم رحلتك.',
     'onboarding_store_title': 'كل ما تحتاجه، في مكان واحد',
-    'onboarding_workouts_desc': 'احصل على برامج تمارين مصممة علمياً تتكيف مع مستوى لياقتك. كل تمرين معروض مع الأداء الصحيح لتعظيم النتائج ومنع الإصابات.',
+    'onboarding_workouts_desc':
+        'احصل على برامج تمارين مصممة علمياً تتكيف مع مستوى لياقتك. كل تمرين معروض مع الأداء الصحيح لتعظيم النتائج ومنع الإصابات.',
     'onboarding_workouts_title': 'تدرب بذكاء، وليس بجهد أكبر',
     'or': 'أو',
     'or_continue_with': 'أو المتابعة عبر',
@@ -2226,7 +2335,8 @@ static final Map<String, String> _englishTranslations = {
     'trial_expiring': 'لديك {days} أيام متبقية من الوصول المجاني',
     'trial_expired': 'انتهت فترة التجربة',
     'upgrade_to_premium': 'ترقية إلى Premium',
-    'upgrade_prompt': 'قم بالترقية إلى Premium للوصول غير المحدود إلى خطط التغذية',
+    'upgrade_prompt':
+        'قم بالترقية إلى Premium للوصول غير المحدود إلى خطط التغذية',
     'protein': 'بروتين',
     'carbs': 'كربوهيدرات',
     'fats': 'دهون',
@@ -2256,7 +2366,8 @@ static final Map<String, String> _englishTranslations = {
     'video_calls_remaining_label': 'المكالمات المتبقية',
     'quota_exceeded': 'تم تجاوز حد الرسائل',
     'video_call_quota_exceeded': 'تم تجاوز حد مكالمات الفيديو',
-    'quota_upgrade_prompt': 'قم بالترقية إلى Premium للحصول على المزيد من الحصة',
+    'quota_upgrade_prompt':
+        'قم بالترقية إلى Premium للحصول على المزيد من الحصة',
     'notification_settings_title': 'إعدادات الإشعارات',
     'notification_channels_title': 'قنوات الإشعارات',
     'notification_channel_push': 'إشعارات الدفع',
@@ -2438,7 +2549,8 @@ static final Map<String, String> _englishTranslations = {
     'store_intro_title': 'متجر عاش',
     'store_intro_subtitle': 'معدات لياقة بدنية ومكملات غذائية فاخرة',
     'store_intro_feature1_title': 'منتجات مختارة',
-    'store_intro_feature1_desc': 'معدات لياقة بدنية ومكملات غذائية مختارة بعناية',
+    'store_intro_feature1_desc':
+        'معدات لياقة بدنية ومكملات غذائية مختارة بعناية',
     'store_intro_feature2_title': 'خصومات للأعضاء',
     'store_intro_feature2_desc': 'عروض حصرية لأعضاء الباقات المميزة',
     'store_intro_feature3_title': 'توصيل سريع',
@@ -2451,7 +2563,8 @@ static final Map<String, String> _englishTranslations = {
     'nutrition_intro_feature1_title': 'خطط وجبات ذكية',
     'nutrition_intro_feature1_desc': 'خطط مخصصة بناءً على أهدافك وتفضيلاتك',
     'nutrition_intro_feature2_title': 'تتبع العناصر الغذائية',
-    'nutrition_intro_feature2_desc': 'تتبع البروتين والكربوهيدرات والدهون يوميًا',
+    'nutrition_intro_feature2_desc':
+        'تتبع البروتين والكربوهيدرات والدهون يوميًا',
     'nutrition_intro_feature3_title': 'مكتبة الوصفات',
     'nutrition_intro_feature3_desc': 'مئات الوصفات الصحية للاختيار من بينها',
     'nutrition_intro_feature4_title': 'تحليلات التقدم',
@@ -2459,15 +2572,18 @@ static final Map<String, String> _englishTranslations = {
     'nutrition_intro_get_started': 'ابدأ الآن',
     'nutrition_intro_note': 'أكمل الإعداد لفتح خطتك الشخصية',
     'coach_intro_title': 'مدربون خبراء',
-    'coach_intro_subtitle': 'احصل على إرشادات شخصية من خبراء اللياقة البدنية المعتمدين',
+    'coach_intro_subtitle':
+        'احصل على إرشادات شخصية من خبراء اللياقة البدنية المعتمدين',
     'coach_intro_feature1_title': 'المراسلة المباشرة',
-    'coach_intro_feature1_desc': 'تحدث مع مدربين معتمدين للحصول على دعم ونصائح فورية',
+    'coach_intro_feature1_desc':
+        'تحدث مع مدربين معتمدين للحصول على دعم ونصائح فورية',
     'coach_intro_feature2_title': 'الاستشارات بالفيديو',
     'coach_intro_feature2_desc': 'احجز جلسات فيديو شخصية لفحص الشكل والإرشاد',
     'coach_intro_feature3_title': 'خطط مخصصة',
     'coach_intro_feature3_desc': 'احصل على خطط تمارين وتغذية شخصية من الخبراء',
     'coach_intro_feature4_title': 'إرشاد خبير',
-    'coach_intro_feature4_desc': 'احصل على نصائح احترافية مصممة لأهداف لياقتك البدنية',
+    'coach_intro_feature4_desc':
+        'احصل على نصائح احترافية مصممة لأهداف لياقتك البدنية',
     'coach_intro_get_started': 'ابدأ الآن',
     'language_title': 'اختر لغتك',
     'language_subtitle': 'يمكنك تغييرها لاحقًا في الإعدادات',
@@ -2533,7 +2649,8 @@ static final Map<String, String> _englishTranslations = {
     'injury_neck': 'الرقبة',
     'injury_ankle': 'الكاحل',
     'intake_prompt_title': 'أكمل استبيان التمرين',
-    'intake_prompt_description': 'أكمل بعض الأسئلة لفتح خطة مخصصة أو احجز مكالمة مجانية مع المدرب.',
+    'intake_prompt_description':
+        'أكمل بعض الأسئلة لفتح خطة مخصصة أو احجز مكالمة مجانية مع المدرب.',
     'intake_prompt_option1_title': 'خطة تمرين مخصصة',
     'intake_prompt_option1_desc': 'أجب عن أسئلة قصيرة لتخصيص تدريبك.',
     'intake_prompt_option2_title': 'مكالمة فيديو مجانية مع المدرب',

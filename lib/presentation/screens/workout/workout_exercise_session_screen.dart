@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/nutrition_provider.dart';
 import '../../providers/workout_provider.dart';
 
 class WorkoutExerciseSessionScreen extends StatefulWidget {
@@ -19,10 +20,12 @@ class WorkoutExerciseSessionScreen extends StatefulWidget {
   });
 
   @override
-  State<WorkoutExerciseSessionScreen> createState() => _WorkoutExerciseSessionScreenState();
+  State<WorkoutExerciseSessionScreen> createState() =>
+      _WorkoutExerciseSessionScreenState();
 }
 
-class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScreen> {
+class _WorkoutExerciseSessionScreenState
+    extends State<WorkoutExerciseSessionScreen> {
   late int _currentIndex;
   int _currentSet = 0;
   int _timerSeconds = 0;
@@ -116,10 +119,11 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
     });
   }
 
-  void _logSet() {
+  Future<void> _logSet() async {
     final provider = context.read<WorkoutProvider>();
     final exercise = currentExercise;
-    final reps = int.tryParse(_repsController.text) ?? _defaultReps(exercise.reps);
+    final reps =
+        int.tryParse(_repsController.text) ?? _defaultReps(exercise.reps);
     final weight = double.tryParse(_weightController.text);
 
     final logged = _loggedSets.putIfAbsent(exercise.id, () => []);
@@ -131,7 +135,13 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
     });
 
     if (logged.length >= exercise.sets) {
-      provider.completeExercise(exercise.id);
+      final completed = await provider.completeExercise(exercise.id);
+      if (completed && mounted) {
+        await Future.wait([
+          context.read<WorkoutProvider>().loadActivePlan(),
+          context.read<NutritionProvider>().loadActivePlan(),
+        ]);
+      }
     } else {
       _timerSeconds = _parseRestSeconds(exercise.restTime);
       _startRestTimer();
@@ -203,7 +213,9 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isArabic ? currentExercise.nameAr : currentExercise.nameEn,
+                                  isArabic
+                                      ? currentExercise.nameAr
+                                      : currentExercise.nameEn,
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 16,
@@ -216,7 +228,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                                     'current': '${_currentSet + 1}',
                                     'total': '${currentExercise.sets}',
                                   }),
-                                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                  style: const TextStyle(
+                                      color: Colors.white70, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -230,7 +243,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                           value: progress,
                           minHeight: 6,
                           backgroundColor: Colors.white.withValues(alpha: 0.2),
-                          valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                          valueColor:
+                              const AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
                       ),
                     ],
@@ -271,11 +285,13 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(Icons.play_circle, size: 48, color: AppColors.textSecondary),
+                                  const Icon(Icons.play_circle,
+                                      size: 48, color: AppColors.textSecondary),
                                   const SizedBox(height: 8),
                                   Text(
                                     lang.t('workouts_exercise_demo'),
-                                    style: const TextStyle(color: AppColors.textSecondary),
+                                    style: const TextStyle(
+                                        color: AppColors.textSecondary),
                                   ),
                                 ],
                               ),
@@ -288,7 +304,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                             color: const Color(0xFFEAF2FF),
                             child: Column(
                               children: [
-                                const Icon(Icons.timer, size: 32, color: Color(0xFF246BFD)),
+                                const Icon(Icons.timer,
+                                    size: 32, color: Color(0xFF246BFD)),
                                 const SizedBox(height: 8),
                                 Text(
                                   _formatTime(_timerSeconds),
@@ -301,7 +318,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                                 const SizedBox(height: 4),
                                 Text(
                                   lang.t('workouts_rest_time'),
-                                  style: const TextStyle(color: Color(0xFF246BFD)),
+                                  style:
+                                      const TextStyle(color: Color(0xFF246BFD)),
                                 ),
                                 const SizedBox(height: 12),
                                 Row(
@@ -309,8 +327,12 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                                   children: [
                                     OutlinedButton.icon(
                                       onPressed: _toggleTimer,
-                                      icon: Icon(_isTimerRunning ? Icons.pause : Icons.play_arrow),
-                                      label: Text(_isTimerRunning ? lang.t('pause') : lang.t('resume')),
+                                      icon: Icon(_isTimerRunning
+                                          ? Icons.pause
+                                          : Icons.play_arrow),
+                                      label: Text(_isTimerRunning
+                                          ? lang.t('pause')
+                                          : lang.t('resume')),
                                     ),
                                     const SizedBox(width: 12),
                                     OutlinedButton.icon(
@@ -328,8 +350,10 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                         SizedBox(
                           width: double.infinity,
                           child: OutlinedButton.icon(
-                            onPressed: () => widget.onShowSubstitute(currentExercise),
-                            icon: const Icon(Icons.warning_amber_rounded, color: Color(0xFFB91C1C)),
+                            onPressed: () =>
+                                widget.onShowSubstitute(currentExercise),
+                            icon: const Icon(Icons.warning_amber_rounded,
+                                color: Color(0xFFB91C1C)),
                             label: Text(lang.t('workouts_report_injury')),
                             style: OutlinedButton.styleFrom(
                               foregroundColor: const Color(0xFFB91C1C),
@@ -365,7 +389,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                                     const SizedBox(width: 12),
                                     Expanded(
                                       child: _NumberField(
-                                        label: '${lang.t('weight')} (${lang.t('kg')})',
+                                        label:
+                                            '${lang.t('weight')} (${lang.t('kg')})',
                                         controller: _weightController,
                                       ),
                                     ),
@@ -376,7 +401,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                                   width: double.infinity,
                                   child: ElevatedButton(
                                     onPressed: _logSet,
-                                    child: Text(lang.t('workouts_log_set_button')),
+                                    child:
+                                        Text(lang.t('workouts_log_set_button')),
                                   ),
                                 ),
                               ],
@@ -402,7 +428,8 @@ class _WorkoutExerciseSessionScreenState extends State<WorkoutExerciseSessionScr
                                   return Padding(
                                     padding: const EdgeInsets.only(bottom: 8),
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text('${lang.t('set')} $idx'),
                                         Text('${set.reps} ${lang.t('reps')}'
@@ -534,7 +561,9 @@ class _NumberFieldState extends State<_NumberField> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(widget.label, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+        Text(widget.label,
+            style:
+                const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -557,7 +586,8 @@ class _NumberFieldState extends State<_NumberField> {
                   textAlign: TextAlign.center,
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 8, vertical: 10),
                   ),
                 ),
               ),

@@ -7,6 +7,7 @@ class CoachClient {
   final String subscriptionTier;
   final String? goal;
   final bool isActive;
+  final bool? coachAssignmentActive;
   final DateTime? assignedDate;
   final DateTime? lastActivity;
   final int? fitnessScore;
@@ -25,6 +26,7 @@ class CoachClient {
     required this.subscriptionTier,
     this.goal,
     required this.isActive,
+    this.coachAssignmentActive,
     this.assignedDate,
     this.lastActivity,
     this.fitnessScore,
@@ -36,27 +38,39 @@ class CoachClient {
   });
 
   factory CoachClient.fromJson(Map<String, dynamic> json) {
+    final assignment = _asMap(json['coach_assignment']);
     return CoachClient(
-      id: json['id'] as String,
-      fullName: json['full_name'] as String,
-      email: json['email'] as String?,
-      phoneNumber: json['phone_number'] as String?,
-      profilePhotoUrl: json['profile_photo_url'] as String?,
-      subscriptionTier: json['subscription_tier'] as String? ?? 'freemium',
-      goal: json['goal'] as String?,
-      isActive: json['is_active'] as bool? ?? true,
-      assignedDate: json['assigned_date'] != null
-          ? DateTime.parse(json['assigned_date'] as String)
-          : null,
-      lastActivity: json['last_activity'] != null
-          ? DateTime.parse(json['last_activity'] as String)
-          : null,
-      fitnessScore: json['fitness_score'] as int?,
-      workoutPlanId: json['workout_plan_id'] as String?,
-      workoutPlanName: json['workout_plan_name'] as String?,
-      nutritionPlanId: json['nutrition_plan_id'] as String?,
-      nutritionPlanName: json['nutrition_plan_name'] as String?,
-      messageCount: json['message_count'] as int? ?? 0,
+      id: (json['id'] ?? json['_id'] ?? '').toString(),
+      fullName: (json['full_name'] ?? json['fullName'] ?? json['name'] ?? '')
+          .toString(),
+      email: _asNullableString(json['email']),
+      phoneNumber:
+          _asNullableString(json['phone_number'] ?? json['phoneNumber']),
+      profilePhotoUrl: _asNullableString(
+          json['profile_photo_url'] ?? json['profilePhotoUrl']),
+      subscriptionTier:
+          (json['subscription_tier'] ?? json['subscriptionTier'] ?? 'freemium')
+              .toString(),
+      goal: _asNullableString(json['goal']),
+      isActive: parseBool(json['is_active'] ?? json['isActive']) ?? true,
+      coachAssignmentActive: parseBool(
+        json['coach_assignment_active'] ??
+            json['coachAssignmentActive'] ??
+            assignment?['is_active'] ??
+            assignment?['isActive'],
+      ),
+      assignedDate: _asDateTime(json['assigned_date'] ?? json['assignedDate']),
+      lastActivity: _asDateTime(json['last_activity'] ?? json['lastActivity']),
+      fitnessScore: _asInt(json['fitness_score'] ?? json['fitnessScore']),
+      workoutPlanId:
+          _asNullableString(json['workout_plan_id'] ?? json['workoutPlanId']),
+      workoutPlanName: _asNullableString(
+          json['workout_plan_name'] ?? json['workoutPlanName']),
+      nutritionPlanId: _asNullableString(
+          json['nutrition_plan_id'] ?? json['nutritionPlanId']),
+      nutritionPlanName: _asNullableString(
+          json['nutrition_plan_name'] ?? json['nutritionPlanName']),
+      messageCount: _asInt(json['message_count'] ?? json['messageCount']) ?? 0,
     );
   }
 
@@ -70,6 +84,7 @@ class CoachClient {
       'subscription_tier': subscriptionTier,
       'goal': goal,
       'is_active': isActive,
+      'coach_assignment_active': coachAssignmentActive,
       'assigned_date': assignedDate?.toIso8601String(),
       'last_activity': lastActivity?.toIso8601String(),
       'fitness_score': fitnessScore,
@@ -92,10 +107,52 @@ class CoachClient {
   String get statusText {
     if (!isActive) return 'Inactive';
     if (lastActivity == null) return 'New';
-    
+
     final daysSinceActivity = DateTime.now().difference(lastActivity!).inDays;
     if (daysSinceActivity < 1) return 'Active';
     if (daysSinceActivity < 7) return 'Recent';
     return 'Inactive';
   }
+}
+
+bool? parseBool(dynamic v) {
+  if (v == null) return null;
+  if (v is bool) return v;
+  if (v is num) return v != 0;
+  if (v is String) {
+    final normalized = v.trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1' || normalized == 'yes') {
+      return true;
+    }
+    if (normalized == 'false' || normalized == '0' || normalized == 'no') {
+      return false;
+    }
+  }
+  return null;
+}
+
+Map<String, dynamic>? _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) return Map<String, dynamic>.from(value);
+  return null;
+}
+
+String? _asNullableString(dynamic value) {
+  if (value == null) return null;
+  final text = value.toString().trim();
+  return text.isEmpty ? null : text;
+}
+
+DateTime? _asDateTime(dynamic value) {
+  if (value == null) return null;
+  if (value is DateTime) return value;
+  if (value is String) return DateTime.tryParse(value);
+  return null;
+}
+
+int? _asInt(dynamic value) {
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  return null;
 }

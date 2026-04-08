@@ -1,9 +1,14 @@
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
+
 class NutritionPlan {
   /// Returns a flat list of all meals across all days, or null if days is null.
   List<Meal>? get meals {
     if (days == null) return null;
     return days!.expand((day) => day.meals).toList();
   }
+
   final String id;
   final String userId;
   final String? coachId;
@@ -21,6 +26,7 @@ class NutritionPlan {
   final DateTime createdAt;
   final DateTime? updatedAt;
   final Map<String, int>? macroTargets;
+  final NutritionTodayProgress? todayProgress;
 
   NutritionPlan({
     required this.id,
@@ -40,46 +46,76 @@ class NutritionPlan {
     required this.createdAt,
     this.updatedAt,
     this.macroTargets,
+    this.todayProgress,
   });
-  
-    factory NutritionPlan.fromJson(Map<String, dynamic> json) {
+
+  factory NutritionPlan.fromJson(Map<String, dynamic> json) {
     final createdAtValue = json['created_at'] ?? json['createdAt'];
+    final mealPlanMap = _asMap(json['meal_plan'] ?? json['mealPlan']);
+    final mealPlanDays =
+        _asList(mealPlanMap?['days']) ?? _asList(mealPlanMap?['mealPlanDays']);
+    final flatMeals = _asList(mealPlanMap?['meals']) ?? _asList(json['meals']);
+    final daysSource = _asList(json['days']) ??
+        mealPlanDays ??
+        _asList(json['meal_plan']) ??
+        _asList(json['mealPlan']);
+    final parsedDays = daysSource
+            ?.asMap()
+            .entries
+            .map((entry) => DayMealPlan.fromJson(
+                  _asMap(entry.value) ?? const {},
+                  index: entry.key,
+                ))
+            .toList() ??
+        (flatMeals != null
+            ? <DayMealPlan>[
+                DayMealPlan.fromJson(
+                  {
+                    'dayNumber': 1,
+                    'dayName': 'Day 1',
+                    'meals': flatMeals,
+                  },
+                  index: 0,
+                ),
+              ]
+            : null);
     return NutritionPlan(
       id: (json['id'] ?? '').toString(),
       userId: (json['user_id'] ?? json['userId'] ?? '').toString(),
-      coachId: json['coach_id'] as String? ?? json['coachId'] as String?,
-      name: json['name'] as String?,
-      description: json['description'] as String?,
-      days: json['days'] != null
-        ? (json['days'] as List)
-          .map((day) => DayMealPlan.fromJson(day as Map<String, dynamic>))
-          .toList()
-        : null,
-      macros: json['macros'] as Map<String, dynamic>?,
-      mealPlan: json['meal_plan'] as Map<String, dynamic>?,
-      dailyCalories: json['daily_calories'] as int? ?? json['dailyCalories'] as int?,
-      notes: json['notes'] as String?,
-      startDate: json['start_date'] != null || json['startDate'] != null
-        ? DateTime.parse(json['start_date'] ?? json['startDate'] as String)
-        : null,
-      endDate: json['end_date'] != null || json['endDate'] != null
-        ? DateTime.parse(json['end_date'] ?? json['endDate'] as String)
-        : null,
-      isActive: json['is_active'] as bool? ?? true,
-      customizedByCoach: json['customized_by_coach'] as bool?,
-      createdAt: createdAtValue != null
-        ? DateTime.parse(createdAtValue as String)
-        : DateTime.now(),
-      updatedAt: json['updated_at'] != null || json['updatedAt'] != null
-        ? DateTime.parse(json['updated_at'] ?? json['updatedAt'] as String)
-        : null,
+      coachId: asString(json['coach_id'] ?? json['coachId']),
+      name: asString(json['name']),
+      description: asString(json['description']),
+      days: parsedDays,
+      macros: _asMap(json['macros']),
+      mealPlan: mealPlanMap,
+      dailyCalories: _asInt(json['daily_calories'] ?? json['dailyCalories']),
+      notes: asString(json['notes']),
+      startDate: _asDateTime(json['start_date'] ?? json['startDate']),
+      endDate: _asDateTime(json['end_date'] ?? json['endDate']),
+      isActive: asBool(json['is_active'] ?? json['isActive']) ?? true,
+      customizedByCoach:
+          asBool(json['customized_by_coach'] ?? json['customizedByCoach']),
+      createdAt: _asDateTime(createdAtValue) ?? DateTime.now(),
+      updatedAt: _asDateTime(json['updated_at'] ?? json['updatedAt']),
       macroTargets: (json['macroTargets'] ?? json['macro_targets']) != null
-        ? ((json['macroTargets'] ?? json['macro_targets']) as Map<String, dynamic>)
-            .map((k, v) => MapEntry(k, v is int ? v : int.tryParse(v.toString()) ?? 0))
-        : null,
+          ? (_asMap(json['macroTargets'] ?? json['macro_targets']) ?? const {})
+              .map((k, v) => MapEntry(k, _asInt(v) ?? 0))
+          : null,
+      todayProgress: NutritionTodayProgress.fromJson(
+        _asMap(json['todayProgress'] ?? json['today_progress']) ??
+            <String, dynamic>{
+              'targetCalories': json['targetCalories'],
+              'consumedCalories': json['consumedCalories'],
+              'remainingCalories': json['remainingCalories'],
+              'progressPercent': json['progressPercent'],
+              'consumedProtein': json['consumedProtein'],
+              'consumedCarbs': json['consumedCarbs'],
+              'consumedFats': json['consumedFats'],
+            },
+      ),
     );
-    }
-  
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -107,8 +143,68 @@ class NutritionPlan {
       'updatedAt': updatedAt?.toIso8601String(),
       'macroTargets': macroTargets,
       'macro_targets': macroTargets,
+      'todayProgress': todayProgress?.toJson(),
+      'today_progress': todayProgress?.toJson(),
     };
   }
+}
+
+class NutritionTodayProgress {
+  final double targetCalories;
+  final double consumedCalories;
+  final double remainingCalories;
+  final double progressPercent;
+  final double consumedProtein;
+  final double consumedCarbs;
+  final double consumedFats;
+
+  NutritionTodayProgress({
+    required this.targetCalories,
+    required this.consumedCalories,
+    required this.remainingCalories,
+    required this.progressPercent,
+    required this.consumedProtein,
+    required this.consumedCarbs,
+    required this.consumedFats,
+  });
+
+  factory NutritionTodayProgress.fromJson(Map<String, dynamic>? json) {
+    if (json == null || json.isEmpty) return NutritionTodayProgress.empty();
+    return NutritionTodayProgress(
+      targetCalories:
+          _asDouble(json['targetCalories'] ?? json['target_calories']),
+      consumedCalories:
+          _asDouble(json['consumedCalories'] ?? json['consumed_calories']),
+      remainingCalories:
+          _asDouble(json['remainingCalories'] ?? json['remaining_calories']),
+      progressPercent:
+          _asDouble(json['progressPercent'] ?? json['progress_percent']),
+      consumedProtein:
+          _asDouble(json['consumedProtein'] ?? json['consumed_protein']),
+      consumedCarbs: _asDouble(json['consumedCarbs'] ?? json['consumed_carbs']),
+      consumedFats: _asDouble(json['consumedFats'] ?? json['consumed_fats']),
+    );
+  }
+
+  factory NutritionTodayProgress.empty() => NutritionTodayProgress(
+        targetCalories: 0,
+        consumedCalories: 0,
+        remainingCalories: 0,
+        progressPercent: 0,
+        consumedProtein: 0,
+        consumedCarbs: 0,
+        consumedFats: 0,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'targetCalories': targetCalories,
+        'consumedCalories': consumedCalories,
+        'remainingCalories': remainingCalories,
+        'progressPercent': progressPercent,
+        'consumedProtein': consumedProtein,
+        'consumedCarbs': consumedCarbs,
+        'consumedFats': consumedFats,
+      };
 }
 
 class DayMealPlan {
@@ -117,7 +213,7 @@ class DayMealPlan {
   final int dayNumber;
   final List<Meal> meals;
   final String? notes;
-  
+
   DayMealPlan({
     required this.id,
     required this.dayName,
@@ -125,19 +221,27 @@ class DayMealPlan {
     required this.meals,
     this.notes,
   });
-  
-  factory DayMealPlan.fromJson(Map<String, dynamic> json) {
+
+  factory DayMealPlan.fromJson(
+    Map<String, dynamic> json, {
+    int index = 0,
+  }) {
+    final dayNumber =
+        _asInt(json['dayNumber'] ?? json['day_number'] ?? json['day']) ??
+            (index + 1);
     return DayMealPlan(
-      id: json['id'] as String,
-      dayName: json['dayName'] as String,
-      dayNumber: json['dayNumber'] as int,
-      meals: (json['meals'] as List)
-          .map((meal) => Meal.fromJson(meal as Map<String, dynamic>))
+      id: asString(json['id']) ?? '',
+      dayName: resolveNutritionDayName(json, index, dayNumber: dayNumber),
+      dayNumber: dayNumber,
+      meals: (_asList(json['meals']) ??
+              _asList(_asMap(json['mealPlan'])?['meals']) ??
+              const [])
+          .map((meal) => Meal.fromJson(_asMap(meal) ?? const {}))
           .toList(),
-      notes: json['notes'] as String?,
+      notes: asString(json['notes']),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -165,7 +269,7 @@ class Meal {
   final String? imageUrl;
   final int order;
   bool completed;
-  
+
   Meal({
     required this.id,
     required this.name,
@@ -183,29 +287,30 @@ class Meal {
     this.order = 0,
     this.completed = false,
   });
-  
+
   factory Meal.fromJson(Map<String, dynamic> json) {
+    final fallbackName = resolveMealName(json);
     return Meal(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      nameAr: json['nameAr'] as String,
-      nameEn: json['nameEn'] as String,
-      type: json['type'] as String,
-      time: json['time'] as String,
-      foods: (json['foods'] as List)
-          .map((food) => FoodItem.fromJson(food as Map<String, dynamic>))
+      id: asString(json['id']) ?? '',
+      name: fallbackName,
+      nameAr: asString(json['nameAr'] ?? json['name_ar']) ?? fallbackName,
+      nameEn: asString(json['nameEn'] ?? json['name_en']) ?? fallbackName,
+      type: asString(json['type']) ?? '',
+      time: asString(json['time']) ?? '',
+      foods: (_asList(json['foods']) ?? const [])
+          .map((food) => FoodItem.fromJson(_asMap(food) ?? const {}))
           .toList(),
-      macros: MacroTargets.fromJson(json['macros'] as Map<String, dynamic>),
-      calories: json['calories'] as int,
-      instructions: json['instructions'] as String?,
-      instructionsAr: json['instructionsAr'] as String?,
-      instructionsEn: json['instructionsEn'] as String?,
-      imageUrl: json['imageUrl'] as String?,
-      order: json['order'] as int? ?? 0,
-      completed: json['completed'] as bool? ?? false,
+      macros: MacroTargets.fromJson(_asMap(json['macros']) ?? const {}),
+      calories: _asInt(json['calories']) ?? 0,
+      instructions: asString(json['instructions']),
+      instructionsAr: asString(json['instructionsAr']),
+      instructionsEn: asString(json['instructionsEn']),
+      imageUrl: asString(json['imageUrl']),
+      order: _asInt(json['order']) ?? 0,
+      completed: asBool(json['completed']) ?? false,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -227,6 +332,129 @@ class Meal {
   }
 }
 
+String? asString(dynamic v) {
+  return readString(v);
+}
+
+String? readString(dynamic v) {
+  if (v == null) return null;
+  if (v is String) return v;
+  if (v is List || v is Map) return jsonEncode(v);
+  if (v is num || v is bool) return v.toString();
+  if (kDebugMode) {
+    debugPrint(
+        '[NutritionPlan] Unexpected type for asString: ${v.runtimeType}');
+  }
+  return v.toString();
+}
+
+String resolveMealName(Map<String, dynamic> json) {
+  final prioritized = [
+    readString(json['name']),
+    readString(json['mealName']),
+    readString(json['meal_name']),
+    readString(json['title']),
+    readString(json['nameEn']),
+    readString(json['name_en']),
+    readString(json['nameAr']),
+    readString(json['name_ar']),
+  ];
+  for (final candidate in prioritized) {
+    final value = candidate?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+  }
+  return 'Meal';
+}
+
+String resolveNutritionDayName(
+  Map<String, dynamic> json,
+  int index, {
+  int? dayNumber,
+}) {
+  final prioritized = [
+    readString(json['dayName']),
+    readString(json['day_name']),
+    readString(json['name']),
+    readString(json['title']),
+  ];
+  for (final candidate in prioritized) {
+    final value = candidate?.trim();
+    if (value != null && value.isNotEmpty) {
+      return value;
+    }
+  }
+  final resolvedNumber = dayNumber ??
+      _asInt(json['dayNumber'] ?? json['day_number'] ?? json['day']) ??
+      (index + 1);
+  return 'Day $resolvedNumber';
+}
+
+bool? asBool(dynamic v) {
+  if (v == null) return null;
+  if (v is bool) return v;
+  if (v is int) return v == 1;
+  if (v is String) {
+    final normalized = v.trim().toLowerCase();
+    return ['true', '1', 'yes'].contains(normalized);
+  }
+  if (kDebugMode) {
+    debugPrint('[NutritionPlan] Unexpected type for asBool: ${v.runtimeType}');
+  }
+  return null;
+}
+
+Map<String, dynamic>? _asMap(dynamic value) {
+  if (value is Map<String, dynamic>) return value;
+  if (value is Map) return Map<String, dynamic>.from(value);
+  if (value != null && kDebugMode) {
+    debugPrint('[NutritionPlan] Unexpected map type: ${value.runtimeType}');
+  }
+  return null;
+}
+
+List<dynamic>? _asList(dynamic value) {
+  if (value is List) return value;
+  if (value != null && kDebugMode) {
+    debugPrint('[NutritionPlan] Unexpected list type: ${value.runtimeType}');
+  }
+  return null;
+}
+
+DateTime? _asDateTime(dynamic value) {
+  if (value == null) return null;
+  if (value is DateTime) return value;
+  if (value is String) return DateTime.tryParse(value);
+  if (value != null && kDebugMode) {
+    debugPrint(
+        '[NutritionPlan] Unexpected datetime type: ${value.runtimeType}');
+  }
+  return null;
+}
+
+int? _asInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is num) return value.toInt();
+  if (value is String) return int.tryParse(value);
+  if (value != null && kDebugMode) {
+    debugPrint('[NutritionPlan] Unexpected int type: ${value.runtimeType}');
+  }
+  return null;
+}
+
+double _asDouble(dynamic value, {double fallback = 0}) {
+  if (value is double) return value;
+  if (value is int) return value.toDouble();
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value) ?? fallback;
+  if (value != null && kDebugMode) {
+    debugPrint('[NutritionPlan] Unexpected double type: ${value.runtimeType}');
+  }
+  return fallback;
+}
+
 class FoodItem {
   final String id;
   final String name;
@@ -236,7 +464,7 @@ class FoodItem {
   final String unit;
   final MacroTargets macros;
   final int calories;
-  
+
   FoodItem({
     required this.id,
     required this.name,
@@ -247,20 +475,24 @@ class FoodItem {
     required this.macros,
     required this.calories,
   });
-  
+
   factory FoodItem.fromJson(Map<String, dynamic> json) {
     return FoodItem(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      nameAr: json['nameAr'] as String,
-      nameEn: json['nameEn'] as String,
-      quantity: (json['quantity'] as num).toDouble(),
-      unit: json['unit'] as String,
-      macros: MacroTargets.fromJson(json['macros'] as Map<String, dynamic>),
-      calories: json['calories'] as int,
+      id: asString(json['id']) ?? '',
+      name: asString(json['name']) ?? '',
+      nameAr: asString(json['nameAr'] ?? json['name_ar']) ??
+          asString(json['name']) ??
+          '',
+      nameEn: asString(json['nameEn'] ?? json['name_en']) ??
+          asString(json['name']) ??
+          '',
+      quantity: _asDouble(json['quantity']),
+      unit: asString(json['unit']) ?? '',
+      macros: MacroTargets.fromJson(_asMap(json['macros']) ?? const {}),
+      calories: _asInt(json['calories']) ?? 0,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -279,21 +511,21 @@ class MacroTargets {
   final double protein;
   final double carbs;
   final double fats;
-  
+
   MacroTargets({
     required this.protein,
     required this.carbs,
     required this.fats,
   });
-  
+
   factory MacroTargets.fromJson(Map<String, dynamic> json) {
     return MacroTargets(
-      protein: (json['protein'] as num).toDouble(),
-      carbs: (json['carbs'] as num).toDouble(),
-      fats: (json['fats'] as num).toDouble(),
+      protein: _asDouble(json['protein']),
+      carbs: _asDouble(json['carbs']),
+      fats: _asDouble(json['fats']),
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'protein': protein,
