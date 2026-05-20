@@ -53,25 +53,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              // Skip button
-              Positioned(
-                top: 8,
-                right: isArabic ? null : 16,
-                left: isArabic ? 16 : null,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
-                    backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.small),
-                    ),
-                  ),
-                  onPressed: widget.onComplete,
-                  child: Text(languageProvider.t('skip')),
-                ),
-              ),
-              
               // Page view
               Positioned.fill(
                 child: Padding(
@@ -93,6 +74,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   ),
                 ),
               ),
+
+              // Skip button
+              Positioned(
+                top: 8,
+                right: isArabic ? null : 16,
+                left: isArabic ? 16 : null,
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    foregroundColor: AppColors.textSecondary,
+                    backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AppRadius.small),
+                    ),
+                  ),
+                  onPressed: widget.onComplete,
+                  child: Text(languageProvider.t('skip')),
+                ),
+              ),
+              
               
               // Bottom navigation
               Positioned(

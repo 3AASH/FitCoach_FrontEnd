@@ -25,7 +25,8 @@ class ProgressRepository {
     return Options(headers: {'Authorization': 'Bearer $token'});
   }
 
-  Future<List<Map<String, dynamic>>> getEntries({int limit = 50, int offset = 0}) async {
+  Future<List<Map<String, dynamic>>> getEntries(
+      {int limit = 50, int offset = 0}) async {
     try {
       final response = await _dio.get(
         '/progress',
@@ -51,11 +52,13 @@ class ProgressRepository {
       final data = response.data as Map<String, dynamic>;
       return data['entry'] as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to create progress entry');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to create progress entry');
     }
   }
 
-  Future<Map<String, dynamic>> updateEntry(String id, Map<String, dynamic> payload) async {
+  Future<Map<String, dynamic>> updateEntry(
+      String id, Map<String, dynamic> payload) async {
     try {
       final response = await _dio.put(
         '/progress/$id',
@@ -66,7 +69,8 @@ class ProgressRepository {
       final data = response.data as Map<String, dynamic>;
       return data['entry'] as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update progress entry');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update progress entry');
     }
   }
 
@@ -77,7 +81,8 @@ class ProgressRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to delete progress entry');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to delete progress entry');
     }
   }
 }

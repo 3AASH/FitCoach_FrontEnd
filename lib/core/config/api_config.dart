@@ -60,7 +60,7 @@ class ApiConfig {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'http://localhost:3000/v2';
+        return 'http://10.0.2.2:3000/v2';
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
       case TargetPlatform.windows:
@@ -76,7 +76,7 @@ class ApiConfig {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return 'http://localhost:3000';
+        return 'http://10.0.2.2:3000';
       case TargetPlatform.iOS:
       case TargetPlatform.macOS:
       case TargetPlatform.windows:

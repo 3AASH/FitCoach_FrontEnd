@@ -33,6 +33,21 @@ class AdminProvider extends ChangeNotifier {
   List<AdminCoach> get coaches => _coaches;
   List<AdminCoach> get pendingCoaches =>
       _coaches.where((c) => c.isPending).toList();
+  void _upsertCoach(AdminCoach coach) {
+    final index = _coaches.indexWhere((item) => item.id == coach.id);
+    if (index == -1) {
+      _coaches = [coach, ..._coaches];
+      return;
+    }
+    final updated = [..._coaches];
+    updated[index] = coach;
+    _coaches = updated;
+  }
+
+  void _removeCoach(String coachId) {
+    _coaches = _coaches.where((coach) => coach.id != coachId).toList();
+  }
+
   RevenueAnalytics? get revenueAnalytics => _revenueAnalytics;
   List<AuditLog> get auditLogs => _auditLogs;
 
@@ -280,7 +295,7 @@ class AdminProvider extends ChangeNotifier {
   Future<CoachCreationResult?> createCoach({
     required String fullName,
     required String email,
-    String? phoneNumber,
+    required String phoneNumber,
     List<String> specializations = const [],
   }) async {
     if (DemoConfig.isDemo) {
@@ -385,7 +400,18 @@ class AdminProvider extends ChangeNotifier {
   /// Suspend coach
   Future<bool> suspendCoach(String id, String reason) async {
     if (DemoConfig.isDemo) {
-      await loadCoaches();
+      final index = _coaches.indexWhere((coach) => coach.id == id);
+      if (index != -1) {
+        _upsertCoach(
+          _coaches[index].copyWith(
+            isActive: false,
+            status: 'suspended',
+            suspendedAt: DateTime.now(),
+            suspensionReason: reason,
+          ),
+        );
+        notifyListeners();
+      }
       return true;
     }
     _isLoading = true;
@@ -393,13 +419,98 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.suspendCoach(id, reason);
+      final updated = await _repository.suspendCoach(id, reason);
+      if (updated != null) {
+        _upsertCoach(updated);
+      } else {
+        final existingIndex = _coaches.indexWhere((coach) => coach.id == id);
+        if (existingIndex != -1) {
+          _upsertCoach(
+            _coaches[existingIndex].copyWith(
+              isActive: false,
+              status: 'suspended',
+              suspendedAt: DateTime.now(),
+              suspensionReason: reason,
+            ),
+          );
+        }
+      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
 
-      await Future.wait([
-        loadCoaches(),
-        loadUsers(),
-      ]);
+  Future<bool> updateCoach(String id, AdminCoachUpdatePayload payload) async {
+    if (DemoConfig.isDemo) {
+      final index = _coaches.indexWhere((coach) => coach.id == id);
+      if (index != -1) {
+        final existing = _coaches[index];
+        _upsertCoach(
+          existing.copyWith(
+            fullName: payload.fullName,
+            fullNameAr: payload.fullNameAr,
+            email: payload.email,
+            phoneNumber: payload.phoneNumber,
+            profilePhotoUrl: payload.profilePhotoUrl,
+            bio: payload.bio,
+            experienceYears: payload.yearsOfExperience,
+            specializations: payload.specializations,
+            isApproved: payload.isApproved,
+            isActive: payload.isActive,
+            status: payload.isActive
+                ? (payload.isApproved ? 'approved' : 'pending')
+                : 'suspended',
+            approvedAt: payload.isApproved
+                ? (existing.approvedAt ?? DateTime.now())
+                : null,
+            suspendedAt: payload.isActive
+                ? null
+                : existing.suspendedAt ?? DateTime.now(),
+          ),
+        );
+        notifyListeners();
+      }
+      return true;
+    }
 
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updated = await _repository.updateCoach(id, payload);
+      _upsertCoach(updated);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteCoach(String id) async {
+    if (DemoConfig.isDemo) {
+      _removeCoach(id);
+      notifyListeners();
+      return true;
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.deleteCoach(id);
+      _removeCoach(id);
       _isLoading = false;
       notifyListeners();
       return true;

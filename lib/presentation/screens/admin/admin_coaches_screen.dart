@@ -43,6 +43,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
       context: context,
       isScrollControlled: true,
       builder: (sheetContext) {
+        final messenger = ScaffoldMessenger.of(context);
         return _CreateCoachSheet(
           lang: lang,
           onSubmit: (payload) async {
@@ -54,11 +55,11 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               specializations: payload.specializations,
             );
 
-            if (!mounted) return null;
+            if (!mounted || !sheetContext.mounted) return null;
 
             if (result != null) {
               Navigator.of(sheetContext).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 SnackBar(
                   content: Text(
                     lang.t('admin_coach_created_success'),
@@ -70,20 +71,6 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               if (result.credentials != null) {
                 _showCredentialsDialog(lang, result.credentials!);
               }
-            } else {
-              final error =
-                  adminProvider.error ?? lang.t('admin_create_coach_failed');
-              final normalized = error.toLowerCase();
-              final message = normalized.contains('409') ||
-                      normalized.contains('email already exists')
-                  ? lang.t('admin_email_exists')
-                  : error;
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(message),
-                  backgroundColor: AppColors.error,
-                ),
-              );
             }
             return result;
           },
@@ -118,10 +105,11 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           ),
           ElevatedButton.icon(
             onPressed: () async {
+              final messenger = ScaffoldMessenger.of(context);
               await Clipboard.setData(ClipboardData(text: textToCopy));
-              if (!mounted) return;
+              if (!mounted || !dialogContext.mounted) return;
               Navigator.of(dialogContext).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
+              messenger.showSnackBar(
                 SnackBar(content: Text(lang.t('admin_credentials_copied'))),
               );
             },
@@ -231,7 +219,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String?>(
-                        value: _statusFilter,
+                        initialValue: _statusFilter,
                         decoration: InputDecoration(
                           labelText: lang.t('admin_users_filter_status'),
                           border: OutlineInputBorder(
@@ -244,12 +232,16 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                             child: Text(lang.t('admin_filter_all')),
                           ),
                           DropdownMenuItem(
-                            value: 'active',
-                            child: Text(lang.t('admin_status_active')),
+                            value: 'approved',
+                            child: Text(lang.t('admin_status_approved')),
                           ),
                           DropdownMenuItem(
-                            value: 'inactive',
-                            child: Text(lang.t('admin_status_inactive')),
+                            value: 'pending',
+                            child: Text(lang.t('admin_status_pending')),
+                          ),
+                          DropdownMenuItem(
+                            value: 'suspended',
+                            child: Text(lang.isArabic ? 'معلّق' : 'Suspended'),
                           ),
                         ],
                         onChanged: (value) {
@@ -309,7 +301,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.fitness_center,
                                   size: 64,
                                   color: AppColors.textDisabled,
@@ -396,25 +388,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                                 ),
                               ),
                             ),
-                            if (!coach.isApproved)
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.warning,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  lang.t('admin_pending_label'),
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: AppColors.textWhite,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            _buildStatusChip(coach, lang),
                           ],
                         ),
                         const SizedBox(height: 4),
@@ -462,13 +436,19 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         case 'approve':
                           _showApproveCoachDialog(coach, lang);
                           break;
+                        case 'edit':
+                          _showEditCoachSheet(coach, lang);
+                          break;
                         case 'suspend':
                           _showSuspendCoachDialog(coach, lang);
+                          break;
+                        case 'delete':
+                          _showDeleteCoachDialog(coach, lang);
                           break;
                       }
                     },
                     itemBuilder: (context) => [
-                      if (!coach.isApproved)
+                      if (!coach.isApproved && !coach.isSuspended)
                         PopupMenuItem(
                           value: 'approve',
                           child: Row(
@@ -481,13 +461,36 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                           ),
                         ),
                       PopupMenuItem(
-                        value: 'suspend',
+                        value: 'edit',
                         child: Row(
                           children: [
-                            const Icon(Icons.block,
+                            const Icon(Icons.edit,
+                                size: 18, color: AppColors.primary),
+                            const SizedBox(width: 8),
+                            Text(lang.t('admin_edit_user_title')),
+                          ],
+                        ),
+                      ),
+                      if (!coach.isSuspended)
+                        PopupMenuItem(
+                          value: 'suspend',
+                          child: Row(
+                            children: [
+                              const Icon(Icons.block,
+                                  size: 18, color: AppColors.error),
+                              const SizedBox(width: 8),
+                              Text(lang.t('admin_action_suspend')),
+                            ],
+                          ),
+                        ),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Row(
+                          children: [
+                            const Icon(Icons.delete_forever,
                                 size: 18, color: AppColors.error),
                             const SizedBox(width: 8),
-                            Text(lang.t('admin_action_suspend')),
+                            Text(lang.t('admin_delete_user_title')),
                           ],
                         ),
                       ),
@@ -526,6 +529,49 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
     );
   }
 
+  Widget _buildStatusChip(AdminCoach coach, LanguageProvider lang) {
+    final colors = _statusColors(coach.effectiveStatus);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: colors.$1,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Text(
+        _statusLabel(coach, lang),
+        style: const TextStyle(
+          fontSize: 10,
+          color: AppColors.textWhite,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+  }
+
+  (Color, Color) _statusColors(String status) {
+    switch (status) {
+      case 'approved':
+        return (AppColors.success, AppColors.success);
+      case 'suspended':
+        return (AppColors.error, AppColors.error);
+      case 'pending':
+      default:
+        return (AppColors.warning, AppColors.warning);
+    }
+  }
+
+  String _statusLabel(AdminCoach coach, LanguageProvider lang) {
+    switch (coach.effectiveStatus) {
+      case 'approved':
+        return lang.t('admin_status_approved');
+      case 'suspended':
+        return lang.isArabic ? 'معلّق' : 'Suspended';
+      case 'pending':
+      default:
+        return lang.t('admin_status_pending');
+    }
+  }
+
   Widget _buildStatChip(IconData icon, String value, String label) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -561,7 +607,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
   void _showCoachDetailsDialog(AdminCoach coach, LanguageProvider lang) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(coach.fullName),
         content: SingleChildScrollView(
           child: Column(
@@ -583,10 +629,23 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                 ),
               _buildDetailRow(
                 lang.t('admin_users_filter_status'),
-                coach.isApproved
-                    ? (lang.t('admin_status_approved'))
-                    : (lang.t('admin_status_pending')),
+                _statusLabel(coach, lang),
               ),
+              if (coach.fullNameAr != null)
+                _buildDetailRow(
+                  lang.isArabic ? 'الاسم بالعربية' : 'Arabic name',
+                  coach.fullNameAr!,
+                ),
+              if (coach.bio != null)
+                _buildDetailRow(
+                  lang.isArabic ? 'نبذة' : 'Bio',
+                  coach.bio!,
+                ),
+              if (coach.experienceYears != null)
+                _buildDetailRow(
+                  lang.isArabic ? 'سنوات الخبرة' : 'Experience',
+                  '${coach.experienceYears}',
+                ),
               _buildDetailRow(
                   lang.t('admin_created_label'), _formatDate(coach.createdAt)),
               if (coach.approvedAt != null)
@@ -618,7 +677,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(lang.t('close')),
           ),
         ],
@@ -653,25 +712,26 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
   void _showApproveCoachDialog(AdminCoach coach, LanguageProvider lang) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(lang.t('admin_approve_coach_title')),
         content: Text(
           lang.t('admin_approve_coach_prompt', args: {'name': coach.fullName}),
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.pop(dialogContext),
             child: Text(lang.t('cancel')),
           ),
           ElevatedButton(
             onPressed: () async {
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
 
+              final messenger = ScaffoldMessenger.of(context);
               final adminProvider = context.read<AdminProvider>();
               final success = await adminProvider.approveCoach(coach.id);
 
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(lang.t('admin_coach_approved_success')),
                     backgroundColor: AppColors.success,
@@ -693,7 +753,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
 
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         title: Text(lang.t('admin_suspend_coach_title')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -721,7 +781,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           ElevatedButton(
             onPressed: () async {
               if (reasonController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
                   SnackBar(
                     content: Text(lang.t('admin_suspend_reason_required')),
                     backgroundColor: AppColors.error,
@@ -730,24 +790,128 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                 return;
               }
 
-              Navigator.pop(context);
+              Navigator.pop(dialogContext);
 
+              final messenger = ScaffoldMessenger.of(context);
               final adminProvider = context.read<AdminProvider>();
               final success = await adminProvider.suspendCoach(
                   coach.id, reasonController.text);
 
-              if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(lang.t('admin_coach_suspended_success')),
-                    backgroundColor: AppColors.success,
+              if (!mounted) {
+                return;
+              }
+
+              messenger.showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? lang.t('admin_coach_suspended_success')
+                        : (adminProvider.error ??
+                            (lang.isArabic
+                                ? 'فشل تعليق المدرب'
+                                : 'Failed to suspend coach')),
                   ),
-                );
+                  backgroundColor:
+                      success ? AppColors.success : AppColors.error,
+                ),
+              );
+
+              if (success) {
                 _loadCoaches();
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: Text(lang.t('admin_action_suspend')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditCoachSheet(AdminCoach coach, LanguageProvider lang) {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (sheetContext) {
+        final messenger = ScaffoldMessenger.of(context);
+        return _EditCoachSheet(
+          coach: coach,
+          lang: lang,
+          onSubmit: (payload) async {
+            final adminProvider = context.read<AdminProvider>();
+            final success = await adminProvider.updateCoach(coach.id, payload);
+            if (!mounted || !sheetContext.mounted) {
+              return false;
+            }
+            if (success) {
+              Navigator.of(sheetContext).pop();
+              messenger.showSnackBar(
+                SnackBar(
+                  content:
+                      Text(lang.isArabic ? 'تم تحديث المدرب' : 'Coach updated'),
+                  backgroundColor: AppColors.success,
+                ),
+              );
+              return true;
+            }
+            messenger.showSnackBar(
+              SnackBar(
+                content: Text(
+                  adminProvider.error ??
+                      (lang.isArabic
+                          ? 'فشل تحديث المدرب'
+                          : 'Failed to update coach'),
+                ),
+                backgroundColor: AppColors.error,
+              ),
+            );
+            return false;
+          },
+        );
+      },
+    );
+  }
+
+  void _showDeleteCoachDialog(AdminCoach coach, LanguageProvider lang) {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(lang.t('admin_delete_user_title')),
+        content: Text(
+          lang.isArabic
+              ? 'هل تريد حذف المدرب ${coach.fullName}؟ لا يمكن التراجع عن هذا الإجراء.'
+              : 'Delete coach ${coach.fullName}? This action cannot be undone.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(lang.t('cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.of(dialogContext).pop();
+              final adminProvider = context.read<AdminProvider>();
+              final success = await adminProvider.deleteCoach(coach.id);
+              if (!mounted) {
+                return;
+              }
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    success
+                        ? (lang.isArabic ? 'تم حذف المدرب' : 'Coach deleted')
+                        : (adminProvider.error ??
+                            (lang.isArabic
+                                ? 'فشل حذف المدرب'
+                                : 'Failed to delete coach')),
+                  ),
+                  backgroundColor:
+                      success ? AppColors.success : AppColors.error,
+                ),
+              );
+            },
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: Text(lang.t('admin_delete_user_title')),
           ),
         ],
       ),
@@ -781,9 +945,23 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
   final _specializationController = TextEditingController();
   final List<String> _specializations = [];
   bool _isSubmitting = false;
+  bool _canSubmit = false;
+  String? _submitError;
+
+  @override
+  void initState() {
+    super.initState();
+    _fullNameController.addListener(_handleRequiredFieldsChanged);
+    _emailController.addListener(_handleRequiredFieldsChanged);
+    _phoneController.addListener(_handleRequiredFieldsChanged);
+    _handleRequiredFieldsChanged();
+  }
 
   @override
   void dispose() {
+    _fullNameController.removeListener(_handleRequiredFieldsChanged);
+    _emailController.removeListener(_handleRequiredFieldsChanged);
+    _phoneController.removeListener(_handleRequiredFieldsChanged);
     _fullNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -874,10 +1052,16 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 controller: _phoneController,
                 keyboardType: TextInputType.phone,
                 decoration: InputDecoration(
-                  labelText: lang.t('admin_phone_optional'),
+                  labelText: lang.t('admin_phone_label'),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Phone number is required';
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 16),
               Text(
@@ -933,12 +1117,23 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                   style: const TextStyle(
                       color: AppColors.textSecondary, fontSize: 12),
                 ),
+              if (_submitError != null) ...[
+                const SizedBox(height: 16),
+                Text(
+                  _submitError!,
+                  style: const TextStyle(
+                    color: AppColors.error,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
               const SizedBox(height: 24),
               CustomButton(
                 text: _isSubmitting
                     ? (lang.t('admin_sending'))
                     : (lang.t('admin_create_coach_action')),
-                onPressed: _isSubmitting ? null : _handleSubmit,
+                onPressed:
+                    (!_canSubmit || _isSubmitting) ? null : _handleSubmit,
                 fullWidth: true,
                 size: ButtonSize.large,
                 icon: Icons.person_add_alt_1,
@@ -959,6 +1154,19 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
     });
   }
 
+  void _handleRequiredFieldsChanged() {
+    final canSubmit = _fullNameController.text.trim().isNotEmpty &&
+        _emailController.text.trim().isNotEmpty &&
+        _phoneController.text.trim().isNotEmpty;
+    if (_canSubmit == canSubmit && _submitError == null) {
+      return;
+    }
+    setState(() {
+      _canSubmit = canSubmit;
+      _submitError = null;
+    });
+  }
+
   void _removeSpecialization(String spec) {
     setState(() {
       _specializations.remove(spec);
@@ -972,37 +1180,414 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
 
     setState(() {
       _isSubmitting = true;
+      _submitError = null;
     });
 
     final payload = _CoachCreatePayload(
       fullName: _fullNameController.text.trim(),
       email: _emailController.text.trim(),
-      phoneNumber: _phoneController.text.trim().isEmpty
-          ? null
-          : _phoneController.text.trim(),
+      phoneNumber: _phoneController.text.trim(),
       specializations: List<String>.from(_specializations),
     );
 
     final result = await widget.onSubmit(payload);
 
     if (mounted && result == null) {
+      final providerError = context.read<AdminProvider>().error;
+      setState(() {
+        _isSubmitting = false;
+        _submitError = _normalizeSubmitError(providerError);
+      });
+    }
+  }
+
+  String _normalizeSubmitError(String? error) {
+    final message = (error ?? widget.lang.t('admin_create_coach_failed'))
+        .replaceFirst('Exception: ', '')
+        .trim();
+    if (message.isEmpty) {
+      return widget.lang.t('admin_create_coach_failed');
+    }
+    return message;
+  }
+}
+
+class _EditCoachSheet extends StatefulWidget {
+  final AdminCoach coach;
+  final LanguageProvider lang;
+  final Future<bool> Function(AdminCoachUpdatePayload payload) onSubmit;
+
+  const _EditCoachSheet({
+    required this.coach,
+    required this.lang,
+    required this.onSubmit,
+  });
+
+  @override
+  State<_EditCoachSheet> createState() => _EditCoachSheetState();
+}
+
+class _EditCoachSheetState extends State<_EditCoachSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _fullNameController;
+  late final TextEditingController _fullNameArController;
+  late final TextEditingController _emailController;
+  late final TextEditingController _phoneController;
+  late final TextEditingController _photoUrlController;
+  late final TextEditingController _bioController;
+  late final TextEditingController _experienceYearsController;
+  late final TextEditingController _specializationController;
+  late List<String> _specializations;
+  late bool _isApproved;
+  late bool _isActive;
+  bool _isSubmitting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final coach = widget.coach;
+    _fullNameController = TextEditingController(text: coach.fullName);
+    _fullNameArController = TextEditingController(text: coach.fullNameAr ?? '');
+    _emailController = TextEditingController(text: coach.email ?? '');
+    _phoneController = TextEditingController(text: coach.phoneNumber ?? '');
+    _photoUrlController =
+        TextEditingController(text: coach.profilePhotoUrl ?? '');
+    _bioController = TextEditingController(text: coach.bio ?? '');
+    _experienceYearsController = TextEditingController(
+      text: coach.experienceYears?.toString() ?? '',
+    );
+    _specializationController = TextEditingController();
+    _specializations = List<String>.from(coach.specializations);
+    _isApproved = coach.isApproved;
+    _isActive = coach.isActive && !coach.isSuspended;
+  }
+
+  @override
+  void dispose() {
+    _fullNameController.dispose();
+    _fullNameArController.dispose();
+    _emailController.dispose();
+    _phoneController.dispose();
+    _photoUrlController.dispose();
+    _bioController.dispose();
+    _experienceYearsController.dispose();
+    _specializationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = widget.lang;
+
+    return SafeArea(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.only(
+          left: 20,
+          right: 20,
+          top: 16,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+        ),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 46,
+                  height: 4,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  decoration: BoxDecoration(
+                    color: AppColors.border,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              Text(
+                lang.isArabic ? 'تعديل بيانات المدرب' : 'Edit coach',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _fullNameController,
+                decoration: InputDecoration(
+                  labelText: lang.t('admin_full_name_label'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return lang.t('admin_full_name_required');
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _fullNameArController,
+                decoration: InputDecoration(
+                  labelText: lang.isArabic ? 'الاسم بالعربية' : 'Arabic name',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: lang.t('email'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return lang.t('admin_email_required');
+                  }
+                  if (!value.contains('@')) {
+                    return lang.t('admin_invalid_email');
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _phoneController,
+                keyboardType: TextInputType.phone,
+                decoration: InputDecoration(
+                  labelText: lang.t('admin_phone_label'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _photoUrlController,
+                keyboardType: TextInputType.url,
+                decoration: InputDecoration(
+                  labelText: lang.isArabic
+                      ? 'رابط الصورة الشخصية'
+                      : 'Profile photo URL',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _experienceYearsController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText:
+                      lang.isArabic ? 'سنوات الخبرة' : 'Years of experience',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _bioController,
+                maxLines: 4,
+                decoration: InputDecoration(
+                  labelText: lang.isArabic ? 'نبذة' : 'Bio',
+                  alignLabelWithHint: true,
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                lang.t('admin_specializations_label'),
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _specializationController,
+                      decoration: InputDecoration(
+                        hintText: lang.t('admin_add_specialty_hint'),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onSubmitted: (_) => _addSpecialization(),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: _isSubmitting ? null : _addSpecialization,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.primary,
+                      foregroundColor: AppColors.textWhite,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 14,
+                      ),
+                    ),
+                    child: Text(lang.t('admin_add')),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (_specializations.isNotEmpty)
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _specializations.map((spec) {
+                    return Chip(
+                      label: Text(spec),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      onDeleted: _isSubmitting
+                          ? null
+                          : () => _removeSpecialization(spec),
+                    );
+                  }).toList(),
+                )
+              else
+                Text(
+                  lang.t('admin_no_specializations'),
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+              const SizedBox(height: 16),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: Text(lang.t('admin_status_approved')),
+                subtitle: Text(
+                  lang.isArabic
+                      ? 'تحديد ما إذا كان المدرب معتمدًا'
+                      : 'Whether the coach is approved',
+                ),
+                value: _isApproved,
+                onChanged: _isSubmitting
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _isApproved = value;
+                        });
+                      },
+              ),
+              SwitchListTile.adaptive(
+                contentPadding: EdgeInsets.zero,
+                title: Text(lang.isArabic ? 'نشط' : 'Active'),
+                subtitle: Text(
+                  lang.isArabic
+                      ? 'تعطيل هذا الخيار سيجعل حالة المدرب معلّقة'
+                      : 'Turning this off will mark the coach as suspended',
+                ),
+                value: _isActive,
+                onChanged: _isSubmitting
+                    ? null
+                    : (value) {
+                        setState(() {
+                          _isActive = value;
+                        });
+                      },
+              ),
+              const SizedBox(height: 24),
+              CustomButton(
+                text: _isSubmitting
+                    ? (lang.isArabic ? 'جارٍ الحفظ...' : 'Saving...')
+                    : (lang.isArabic ? 'حفظ التغييرات' : 'Save changes'),
+                onPressed: _isSubmitting ? null : _handleSubmit,
+                fullWidth: true,
+                size: ButtonSize.large,
+                icon: Icons.save,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _addSpecialization() {
+    final value = _specializationController.text.trim();
+    if (value.isEmpty) {
+      return;
+    }
+    if (_specializations.contains(value)) {
+      _specializationController.clear();
+      return;
+    }
+    setState(() {
+      _specializations = [..._specializations, value];
+      _specializationController.clear();
+    });
+  }
+
+  void _removeSpecialization(String spec) {
+    setState(() {
+      _specializations =
+          _specializations.where((item) => item != spec).toList();
+    });
+  }
+
+  Future<void> _handleSubmit() async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    final yearsText = _experienceYearsController.text.trim();
+    final years = yearsText.isEmpty ? null : int.tryParse(yearsText);
+    final payload = AdminCoachUpdatePayload(
+      fullName: _fullNameController.text.trim(),
+      fullNameAr: _nullIfEmpty(_fullNameArController.text),
+      email: _emailController.text.trim(),
+      phoneNumber: _nullIfEmpty(_phoneController.text),
+      profilePhotoUrl: _nullIfEmpty(_photoUrlController.text),
+      bio: _nullIfEmpty(_bioController.text),
+      yearsOfExperience: years,
+      specializations: List<String>.from(_specializations),
+      isApproved: _isApproved,
+      isActive: _isActive,
+    );
+
+    final success = await widget.onSubmit(payload);
+    if (mounted && !success) {
       setState(() {
         _isSubmitting = false;
       });
     }
+  }
+
+  String? _nullIfEmpty(String value) {
+    final trimmed = value.trim();
+    return trimmed.isEmpty ? null : trimmed;
   }
 }
 
 class _CoachCreatePayload {
   final String fullName;
   final String email;
-  final String? phoneNumber;
+  final String phoneNumber;
   final List<String> specializations;
 
   const _CoachCreatePayload({
     required this.fullName,
     required this.email,
-    this.phoneNumber,
+    required this.phoneNumber,
     this.specializations = const [],
   });
 }

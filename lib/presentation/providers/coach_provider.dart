@@ -3,6 +3,7 @@ import '../../core/config/demo_config.dart';
 import '../../data/demo/demo_data.dart';
 import '../../data/repositories/coach_repository.dart';
 import '../../data/models/coach_client.dart';
+import '../../data/models/coach_client_checkin.dart';
 import '../../data/models/appointment.dart';
 import '../../data/models/coach_analytics.dart';
 import '../../data/models/coach_earnings.dart';
@@ -25,6 +26,8 @@ class CoachProvider extends ChangeNotifier {
   CoachAnalytics? _analytics;
   CoachEarnings? _earnings;
   CoachClient? _selectedClient;
+  List<CoachClientCheckIn> _clientCheckIns = [];
+  CoachClientCheckIn? _latestClientCheckIn;
 
   // Getters
   bool get isLoading => _isLoading;
@@ -36,6 +39,8 @@ class CoachProvider extends ChangeNotifier {
   CoachAnalytics? get analytics => _analytics;
   CoachEarnings? get earnings => _earnings;
   CoachClient? get selectedClient => _selectedClient;
+  List<CoachClientCheckIn> get clientCheckIns => _clientCheckIns;
+  CoachClientCheckIn? get latestClientCheckIn => _latestClientCheckIn;
 
   /// Load coach analytics
   Future<void> loadAnalytics(String coachId) async {
@@ -84,6 +89,14 @@ class CoachProvider extends ChangeNotifier {
         status: status,
         search: search,
       );
+      if (_selectedClient != null) {
+        for (final client in _clients) {
+          if (client.id == _selectedClient!.id) {
+            _selectedClient = client;
+            break;
+          }
+        }
+      }
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -102,6 +115,9 @@ class CoachProvider extends ChangeNotifier {
       _selectedClient = DemoData.coachClients().firstWhere(
           (client) => client.id == clientId,
           orElse: () => DemoData.coachClients().first);
+      _clientCheckIns = _buildDemoCheckIns(_selectedClient!);
+      _latestClientCheckIn =
+          _clientCheckIns.isNotEmpty ? _clientCheckIns.first : null;
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -116,9 +132,18 @@ class CoachProvider extends ChangeNotifier {
         coachId: coachId,
         clientId: clientId,
       );
+      final checkInResponse = await _repository.getClientCheckIns(
+        coachId: coachId,
+        clientId: clientId,
+      );
+      _clientCheckIns = checkInResponse.checkIns;
+      _latestClientCheckIn = checkInResponse.latestCheckIn ??
+          (_clientCheckIns.isNotEmpty ? _clientCheckIns.first : null);
       _isLoading = false;
       notifyListeners();
     } catch (e) {
+      _clientCheckIns = [];
+      _latestClientCheckIn = null;
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
@@ -382,6 +407,46 @@ class CoachProvider extends ChangeNotifier {
   }
 
   /// Get client's workout plan
+
+  List<CoachClientCheckIn> _buildDemoCheckIns(CoachClient client) {
+    final now = DateTime.now();
+    return [
+      CoachClientCheckIn(
+        id: 'demo-inbody',
+        type: 'inbody',
+        title: 'InBody Check-In',
+        occurredAt: now.subtract(const Duration(days: 1)),
+        source: 'inbody_scan',
+        metrics: const CoachClientCheckInMetrics(
+          weight: 83,
+          bodyFatPercentage: 20,
+          skeletalMuscleMass: 40,
+          bmi: 22,
+        ),
+        changes: const CoachClientCheckInChanges(
+          weight: -1.2,
+          bodyFatPercentage: -0.8,
+          skeletalMuscleMass: 0.5,
+        ),
+        notes: 'Great consistency this week.',
+      ),
+      CoachClientCheckIn(
+        id: 'demo-intake',
+        type: 'intake',
+        title: 'First Intake Completed',
+        occurredAt: now.subtract(const Duration(days: 5)),
+        source: 'user_intake',
+        stage: 'basic',
+        context: {
+          'primaryGoal': client.goal ?? 'fat_loss',
+          'workoutLocation': 'gym',
+          'trainingDaysPerWeek': 4,
+          'experienceLevel': 'intermediate',
+        },
+      ),
+    ];
+  }
+
   Future<WorkoutPlan?> getClientWorkoutPlan(
     String coachId,
     String clientId,

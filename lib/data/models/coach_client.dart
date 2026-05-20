@@ -10,6 +10,10 @@ class CoachClient {
   final bool? coachAssignmentActive;
   final DateTime? assignedDate;
   final DateTime? lastActivity;
+  final DateTime? latestInbodyScanDate;
+  final double? latestWeight;
+  final double? latestBodyFatPercentage;
+  final double? latestSkeletalMuscleMass;
   final int? fitnessScore;
   final String? workoutPlanId;
   final String? workoutPlanName;
@@ -29,6 +33,10 @@ class CoachClient {
     this.coachAssignmentActive,
     this.assignedDate,
     this.lastActivity,
+    this.latestInbodyScanDate,
+    this.latestWeight,
+    this.latestBodyFatPercentage,
+    this.latestSkeletalMuscleMass,
     this.fitnessScore,
     this.workoutPlanId,
     this.workoutPlanName,
@@ -36,6 +44,57 @@ class CoachClient {
     this.nutritionPlanName,
     this.messageCount = 0,
   });
+
+  CoachClient copyWith({
+    String? id,
+    String? fullName,
+    String? email,
+    String? phoneNumber,
+    String? profilePhotoUrl,
+    String? subscriptionTier,
+    String? goal,
+    bool? isActive,
+    bool? coachAssignmentActive,
+    DateTime? assignedDate,
+    DateTime? lastActivity,
+    DateTime? latestInbodyScanDate,
+    double? latestWeight,
+    double? latestBodyFatPercentage,
+    double? latestSkeletalMuscleMass,
+    int? fitnessScore,
+    String? workoutPlanId,
+    String? workoutPlanName,
+    String? nutritionPlanId,
+    String? nutritionPlanName,
+    int? messageCount,
+  }) {
+    return CoachClient(
+      id: id ?? this.id,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+      profilePhotoUrl: profilePhotoUrl ?? this.profilePhotoUrl,
+      subscriptionTier: subscriptionTier ?? this.subscriptionTier,
+      goal: goal ?? this.goal,
+      isActive: isActive ?? this.isActive,
+      coachAssignmentActive:
+          coachAssignmentActive ?? this.coachAssignmentActive,
+      assignedDate: assignedDate ?? this.assignedDate,
+      lastActivity: lastActivity ?? this.lastActivity,
+      latestInbodyScanDate: latestInbodyScanDate ?? this.latestInbodyScanDate,
+      latestWeight: latestWeight ?? this.latestWeight,
+      latestBodyFatPercentage:
+          latestBodyFatPercentage ?? this.latestBodyFatPercentage,
+      latestSkeletalMuscleMass:
+          latestSkeletalMuscleMass ?? this.latestSkeletalMuscleMass,
+      fitnessScore: fitnessScore ?? this.fitnessScore,
+      workoutPlanId: workoutPlanId ?? this.workoutPlanId,
+      workoutPlanName: workoutPlanName ?? this.workoutPlanName,
+      nutritionPlanId: nutritionPlanId ?? this.nutritionPlanId,
+      nutritionPlanName: nutritionPlanName ?? this.nutritionPlanName,
+      messageCount: messageCount ?? this.messageCount,
+    );
+  }
 
   factory CoachClient.fromJson(Map<String, dynamic> json) {
     final assignment = _asMap(json['coach_assignment']);
@@ -47,7 +106,8 @@ class CoachClient {
       phoneNumber:
           _asNullableString(json['phone_number'] ?? json['phoneNumber']),
       profilePhotoUrl: _asNullableString(
-          json['profile_photo_url'] ?? json['profilePhotoUrl']),
+        json['profile_photo_url'] ?? json['profilePhotoUrl'],
+      ),
       subscriptionTier:
           (json['subscription_tier'] ?? json['subscriptionTier'] ?? 'freemium')
               .toString(),
@@ -61,15 +121,28 @@ class CoachClient {
       ),
       assignedDate: _asDateTime(json['assigned_date'] ?? json['assignedDate']),
       lastActivity: _asDateTime(json['last_activity'] ?? json['lastActivity']),
+      latestInbodyScanDate: _asDateTime(
+        json['latest_inbody_scan_date'] ?? json['latestInbodyScanDate'],
+      ),
+      latestWeight: _asDouble(json['latest_weight'] ?? json['latestWeight']),
+      latestBodyFatPercentage: _asDouble(
+        json['latest_body_fat_percentage'] ?? json['latestBodyFatPercentage'],
+      ),
+      latestSkeletalMuscleMass: _asDouble(
+        json['latest_skeletal_muscle_mass'] ?? json['latestSkeletalMuscleMass'],
+      ),
       fitnessScore: _asInt(json['fitness_score'] ?? json['fitnessScore']),
       workoutPlanId:
           _asNullableString(json['workout_plan_id'] ?? json['workoutPlanId']),
       workoutPlanName: _asNullableString(
-          json['workout_plan_name'] ?? json['workoutPlanName']),
+        json['workout_plan_name'] ?? json['workoutPlanName'],
+      ),
       nutritionPlanId: _asNullableString(
-          json['nutrition_plan_id'] ?? json['nutritionPlanId']),
+        json['nutrition_plan_id'] ?? json['nutritionPlanId'],
+      ),
       nutritionPlanName: _asNullableString(
-          json['nutrition_plan_name'] ?? json['nutritionPlanName']),
+        json['nutrition_plan_name'] ?? json['nutritionPlanName'],
+      ),
       messageCount: _asInt(json['message_count'] ?? json['messageCount']) ?? 0,
     );
   }
@@ -87,6 +160,10 @@ class CoachClient {
       'coach_assignment_active': coachAssignmentActive,
       'assigned_date': assignedDate?.toIso8601String(),
       'last_activity': lastActivity?.toIso8601String(),
+      'latest_inbody_scan_date': latestInbodyScanDate?.toIso8601String(),
+      'latest_weight': latestWeight,
+      'latest_body_fat_percentage': latestBodyFatPercentage,
+      'latest_skeletal_muscle_mass': latestSkeletalMuscleMass,
       'fitness_score': fitnessScore,
       'workout_plan_id': workoutPlanId,
       'workout_plan_name': workoutPlanName,
@@ -154,5 +231,12 @@ int? _asInt(dynamic value) {
   if (value is int) return value;
   if (value is num) return value.toInt();
   if (value is String) return int.tryParse(value);
+  return null;
+}
+
+double? _asDouble(dynamic value) {
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
   return null;
 }

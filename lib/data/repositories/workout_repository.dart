@@ -9,6 +9,12 @@ import '../models/inbody_model.dart';
 import '../../core/config/api_config.dart';
 
 class WorkoutRepository {
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
   final Dio _dio;
   final FlutterSecureStorage _secureStorage;
 
@@ -82,7 +88,7 @@ class WorkoutRepository {
   }
 
   Future<WorkoutCalendarResponse> getWorkoutCalendar() async {
-    final endpoint = '/workouts/calendar';
+    const endpoint = '/workouts/calendar';
     final requestUrl = '${_dio.options.baseUrl}$endpoint';
     _debugLog('[WorkoutRepository] GET $requestUrl');
     try {
@@ -351,16 +357,6 @@ class WorkoutRepository {
       return value.map((item) => item.toString()).toList();
     }
     return const <String>[];
-  }
-
-  Map<String, dynamic>? _asMap(dynamic value) {
-    if (value is Map<String, dynamic>) {
-      return value;
-    }
-    if (value is Map) {
-      return Map<String, dynamic>.from(value);
-    }
-    return null;
   }
 
   List<dynamic>? _asList(dynamic value) {
@@ -704,10 +700,22 @@ class WorkoutRepository {
         options: await _getAuthOptions(),
       );
 
-      return InBodyScan.fromJson(response.data['scan'] as Map<String, dynamic>);
+      final payload = _asMap(response.data);
+      final savedScan = _asMap(payload?['scan']);
+      if (savedScan != null) {
+        return InBodyScan.fromJson(savedScan);
+      }
+
+      final latestScan = await getLatestInBodyScan();
+      if (latestScan != null) {
+        return latestScan;
+      }
+
+      throw Exception('InBody scan saved but latest scan could not be loaded');
     } on DioException catch (e) {
       throw Exception(
-          e.response?.data['message'] ?? 'Failed to save InBody scan');
+        e.response?.data['message'] ?? 'Failed to save InBody scan',
+      );
     }
   }
 
@@ -738,9 +746,11 @@ class WorkoutRepository {
         options: await _getAuthOptions(),
       );
 
-      if (response.data['scan'] == null) return null;
+      final payload = _asMap(response.data);
+      final latestScan = _asMap(payload?['scan']);
+      if (latestScan == null) return null;
 
-      return InBodyScan.fromJson(response.data['scan'] as Map<String, dynamic>);
+      return InBodyScan.fromJson(latestScan);
     } on DioException catch (e) {
       if (e.response?.statusCode == 404) {
         return null; // No scans yet

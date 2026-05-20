@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/messaging_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_stat_info_card.dart';
@@ -103,13 +104,18 @@ class _AccountScreenState extends State<AccountScreen> {
     final role = (user?.role ?? 'user').toLowerCase();
 
     final tabOptions = <_AccountTabOption>[
-      _AccountTabOption('profile', Icons.person, languageProvider.t('account_tab_profile')),
+      _AccountTabOption(
+          'profile', Icons.person, languageProvider.t('account_tab_profile')),
       if (role == 'user')
-        _AccountTabOption('health', Icons.favorite, languageProvider.t('account_tab_health')),
+        _AccountTabOption(
+            'health', Icons.favorite, languageProvider.t('account_tab_health')),
       if (role == 'user')
-        _AccountTabOption('subscription', Icons.credit_card, languageProvider.t('account_tab_subscription')),
-      _AccountTabOption('notifications', Icons.notifications, languageProvider.t('account_tab_notifications')),
-      _AccountTabOption('settings', Icons.settings, languageProvider.t('account_tab_settings')),
+        _AccountTabOption('subscription', Icons.credit_card,
+            languageProvider.t('account_tab_subscription')),
+      _AccountTabOption('notifications', Icons.notifications,
+          languageProvider.t('account_tab_notifications')),
+      _AccountTabOption('settings', Icons.settings,
+          languageProvider.t('account_tab_settings')),
     ];
 
     return Scaffold(
@@ -155,7 +161,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                 ),
                                 Text(
                                   languageProvider.t('account_manage_profile'),
-                                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                  style: const TextStyle(
+                                      color: Colors.white70, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -173,7 +180,8 @@ class _AccountScreenState extends State<AccountScreen> {
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor: Colors.white.withValues(alpha: 0.2),
+                              backgroundColor:
+                                  Colors.white.withValues(alpha: 0.2),
                               child: Text(
                                 user?.name.substring(0, 1).toUpperCase() ?? 'U',
                                 style: const TextStyle(
@@ -199,13 +207,15 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     user?.email ?? user?.phoneNumber ?? '',
-                                    style: const TextStyle(color: Colors.white70, fontSize: 12),
+                                    style: const TextStyle(
+                                        color: Colors.white70, fontSize: 12),
                                   ),
                                 ],
                               ),
                             ),
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
                                 color: Colors.white.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
@@ -216,7 +226,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                     : role == 'admin'
                                         ? languageProvider.t('admin')
                                         : user?.subscriptionTier ?? 'Freemium',
-                                style: const TextStyle(color: Colors.white, fontSize: 12),
+                                style: const TextStyle(
+                                    color: Colors.white, fontSize: 12),
                               ),
                             ),
                           ],
@@ -234,15 +245,18 @@ class _AccountScreenState extends State<AccountScreen> {
                         _buildTabSelector(tabOptions),
                         const SizedBox(height: 16),
                         if (_activeTab == 'profile')
-                          _buildProfileSection(languageProvider, isArabic, role),
+                          _buildProfileSection(
+                              languageProvider, isArabic, role),
                         if (_activeTab == 'health')
                           _buildHealthSection(languageProvider, isArabic),
                         if (_activeTab == 'subscription')
                           _buildSubscriptionSection(languageProvider, isArabic),
                         if (_activeTab == 'notifications')
-                          _buildNotificationsSection(languageProvider, isArabic, role),
+                          _buildNotificationsSection(
+                              languageProvider, isArabic, role),
                         if (_activeTab == 'settings')
-                          _buildSettingsSection(context, languageProvider, themeProvider, authProvider, isArabic),
+                          _buildSettingsSection(context, languageProvider,
+                              themeProvider, authProvider, isArabic),
                       ],
                     ),
                   ),
@@ -271,7 +285,8 @@ class _AccountScreenState extends State<AccountScreen> {
                     value: option.id,
                     child: Row(
                       children: [
-                        Icon(option.icon, size: 18, color: AppColors.textSecondary),
+                        Icon(option.icon,
+                            size: 18, color: AppColors.textSecondary),
                         const SizedBox(width: 8),
                         Text(option.label),
                       ],
@@ -291,7 +306,8 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildProfileSection(LanguageProvider languageProvider, bool isArabic, String role) {
+  Widget _buildProfileSection(
+      LanguageProvider languageProvider, bool isArabic, String role) {
     final isCoach = role == 'coach';
     final isAdmin = role == 'admin';
 
@@ -389,7 +405,8 @@ class _AccountScreenState extends State<AccountScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildSectionTitle(languageProvider.t('account_section_progress_health')),
+        _buildSectionTitle(
+            languageProvider.t('account_section_progress_health')),
         const SizedBox(height: 12),
         CustomInfoCard(
           title: languageProvider.t('account_inbody_measurements'),
@@ -418,7 +435,8 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildSubscriptionSection(LanguageProvider languageProvider, bool isArabic) {
+  Widget _buildSubscriptionSection(
+      LanguageProvider languageProvider, bool isArabic) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -446,7 +464,8 @@ class _AccountScreenState extends State<AccountScreen> {
           iconColor: AppColors.secondary,
           onTap: () {
             Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const PaymentManagementScreen()),
+              MaterialPageRoute(
+                  builder: (_) => const PaymentManagementScreen()),
             );
           },
         ),
@@ -511,96 +530,129 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               if (!isCoach && !isAdmin) ...[
                 SwitchListTile(
-                  secondary: const Icon(Icons.fitness_center, color: AppColors.primary),
-                  title: Text(languageProvider.t('account_notification_workout_reminders')),
+                  secondary: const Icon(Icons.fitness_center,
+                      color: AppColors.primary),
+                  title: Text(languageProvider
+                      .t('account_notification_workout_reminders')),
                   value: _workoutReminders,
-                  onChanged: (value) => setState(() => _workoutReminders = value),
+                  onChanged: (value) =>
+                      setState(() => _workoutReminders = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.chat_bubble_outline, color: AppColors.accent),
-                  title: Text(languageProvider.t('account_notification_coach_messages')),
+                  secondary: const Icon(Icons.chat_bubble_outline,
+                      color: AppColors.accent),
+                  title: Text(languageProvider
+                      .t('account_notification_coach_messages')),
                   value: _coachMessages,
                   onChanged: (value) => setState(() => _coachMessages = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.restaurant_menu, color: AppColors.success),
-                  title: Text(languageProvider.t('account_notification_nutrition_tracking')),
+                  secondary: const Icon(Icons.restaurant_menu,
+                      color: AppColors.success),
+                  title: Text(languageProvider
+                      .t('account_notification_nutrition_tracking')),
                   value: _nutritionTracking,
-                  onChanged: (value) => setState(() => _nutritionTracking = value),
+                  onChanged: (value) =>
+                      setState(() => _nutritionTracking = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.local_offer, color: AppColors.warning),
-                  title: Text(languageProvider.t('account_notification_promotions')),
+                  secondary:
+                      const Icon(Icons.local_offer, color: AppColors.warning),
+                  title: Text(
+                      languageProvider.t('account_notification_promotions')),
                   value: _promotions,
                   onChanged: (value) => setState(() => _promotions = value),
                 ),
               ],
               if (isCoach) ...[
                 SwitchListTile(
-                  secondary: const Icon(Icons.group_add, color: AppColors.primary),
-                  title: Text(languageProvider.t('account_notification_new_assignments')),
+                  secondary:
+                      const Icon(Icons.group_add, color: AppColors.primary),
+                  title: Text(languageProvider
+                      .t('account_notification_new_assignments')),
                   value: _coachNewAssignments,
-                  onChanged: (value) => setState(() => _coachNewAssignments = value),
+                  onChanged: (value) =>
+                      setState(() => _coachNewAssignments = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
                   secondary: const Icon(Icons.chat, color: AppColors.accent),
-                  title: Text(languageProvider.t('account_notification_client_messages')),
+                  title: Text(languageProvider
+                      .t('account_notification_client_messages')),
                   value: _coachMessages,
                   onChanged: (value) => setState(() => _coachMessages = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.calendar_month, color: AppColors.secondary),
-                  title: Text(languageProvider.t('account_notification_session_reminders')),
+                  secondary: const Icon(Icons.calendar_month,
+                      color: AppColors.secondary),
+                  title: Text(languageProvider
+                      .t('account_notification_session_reminders')),
                   value: _coachSessionReminders,
-                  onChanged: (value) => setState(() => _coachSessionReminders = value),
+                  onChanged: (value) =>
+                      setState(() => _coachSessionReminders = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.payments, color: AppColors.success),
-                  title: Text(languageProvider.t('account_notification_payment_alerts')),
+                  secondary:
+                      const Icon(Icons.payments, color: AppColors.success),
+                  title: Text(languageProvider
+                      .t('account_notification_payment_alerts')),
                   value: _coachPaymentAlerts,
-                  onChanged: (value) => setState(() => _coachPaymentAlerts = value),
+                  onChanged: (value) =>
+                      setState(() => _coachPaymentAlerts = value),
                 ),
               ],
               if (isAdmin) ...[
                 SwitchListTile(
-                  secondary: const Icon(Icons.warning_amber, color: AppColors.warning),
-                  title: Text(languageProvider.t('account_notification_system_alerts')),
+                  secondary:
+                      const Icon(Icons.warning_amber, color: AppColors.warning),
+                  title: Text(
+                      languageProvider.t('account_notification_system_alerts')),
                   value: _adminSystemAlerts,
-                  onChanged: (value) => setState(() => _adminSystemAlerts = value),
+                  onChanged: (value) =>
+                      setState(() => _adminSystemAlerts = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
                   secondary: const Icon(Icons.report, color: AppColors.accent),
-                  title: Text(languageProvider.t('account_notification_user_reports')),
+                  title: Text(
+                      languageProvider.t('account_notification_user_reports')),
                   value: _adminUserReports,
-                  onChanged: (value) => setState(() => _adminUserReports = value),
+                  onChanged: (value) =>
+                      setState(() => _adminUserReports = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.verified_user, color: AppColors.primary),
-                  title: Text(languageProvider.t('account_notification_coach_applications')),
+                  secondary:
+                      const Icon(Icons.verified_user, color: AppColors.primary),
+                  title: Text(languageProvider
+                      .t('account_notification_coach_applications')),
                   value: _adminCoachApplications,
-                  onChanged: (value) => setState(() => _adminCoachApplications = value),
+                  onChanged: (value) =>
+                      setState(() => _adminCoachApplications = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.payment, color: AppColors.secondary),
-                  title: Text(languageProvider.t('account_notification_payment_issues')),
+                  secondary:
+                      const Icon(Icons.payment, color: AppColors.secondary),
+                  title: Text(languageProvider
+                      .t('account_notification_payment_issues')),
                   value: _adminPaymentIssues,
-                  onChanged: (value) => setState(() => _adminPaymentIssues = value),
+                  onChanged: (value) =>
+                      setState(() => _adminPaymentIssues = value),
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
                   secondary: const Icon(Icons.security, color: AppColors.error),
-                  title: Text(languageProvider.t('account_notification_security_alerts')),
+                  title: Text(languageProvider
+                      .t('account_notification_security_alerts')),
                   value: _adminSecurityAlerts,
-                  onChanged: (value) => setState(() => _adminSecurityAlerts = value),
+                  onChanged: (value) =>
+                      setState(() => _adminSecurityAlerts = value),
                 ),
               ],
             ],
@@ -629,9 +681,13 @@ class _AccountScreenState extends State<AccountScreen> {
               ListTile(
                 leading: const Icon(Icons.language, color: AppColors.primary),
                 title: Text(languageProvider.t('account_language')),
-                subtitle: Text(isArabic ? languageProvider.t('arabic') : languageProvider.t('english')),
-                trailing: Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
-                onTap: () => _showLanguageDialog(context, languageProvider, isArabic),
+                subtitle: Text(isArabic
+                    ? languageProvider.t('arabic')
+                    : languageProvider.t('english')),
+                trailing:
+                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                onTap: () =>
+                    _showLanguageDialog(context, languageProvider, isArabic),
               ),
               const Divider(height: 1),
               SwitchListTile(
@@ -647,13 +703,18 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.notifications, color: AppColors.warning),
-                title: Text(languageProvider.t('account_notification_settings')),
-                subtitle: Text(languageProvider.t('account_notification_settings_subtitle')),
-                trailing: Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                leading:
+                    const Icon(Icons.notifications, color: AppColors.warning),
+                title:
+                    Text(languageProvider.t('account_notification_settings')),
+                subtitle: Text(languageProvider
+                    .t('account_notification_settings_subtitle')),
+                trailing:
+                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const NotificationSettingsScreen()),
+                    MaterialPageRoute(
+                        builder: (_) => const NotificationSettingsScreen()),
                   );
                 },
               ),
@@ -749,9 +810,10 @@ class _AccountScreenState extends State<AccountScreen> {
 
   Widget _buildCoachBackendProfileCard(LanguageProvider languageProvider) {
     final coach = _coachProfileData ?? const <String, dynamic>{};
-    final specializations =
-        (coach['specializations'] as List?)?.map((e) => e.toString()).toList() ??
-            const <String>[];
+    final specializations = (coach['specializations'] as List?)
+            ?.map((e) => e.toString())
+            .toList() ??
+        const <String>[];
     final certifications =
         (coach['certifications'] as List?)?.map((e) => e.toString()).toList() ??
             const <String>[];
@@ -799,7 +861,8 @@ class _AccountScreenState extends State<AccountScreen> {
   Widget _buildAdminBackendProfileCard() {
     final admin = _adminProfileData ?? const <String, dynamic>{};
     final permissions =
-        (admin['permissions'] as List?)?.map((e) => e.toString()).join(', ') ?? '-';
+        (admin['permissions'] as List?)?.map((e) => e.toString()).join(', ') ??
+            '-';
 
     return CustomCard(
       child: Column(
@@ -907,7 +970,8 @@ class _AccountScreenState extends State<AccountScreen> {
             children: items
                 .map(
                   (item) => Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
                       color: AppColors.background.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(12),
@@ -973,7 +1037,8 @@ class _AccountScreenState extends State<AccountScreen> {
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
                 children: [
-                  const Icon(Icons.check_circle, size: 16, color: AppColors.success),
+                  const Icon(Icons.check_circle,
+                      size: 16, color: AppColors.success),
                   const SizedBox(width: 8),
                   Expanded(child: Text(permission)),
                 ],
@@ -985,7 +1050,8 @@ class _AccountScreenState extends State<AccountScreen> {
     );
   }
 
-  Widget _buildAdminStatsCard(LanguageProvider languageProvider, bool isArabic) {
+  Widget _buildAdminStatsCard(
+      LanguageProvider languageProvider, bool isArabic) {
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1051,12 +1117,14 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Text(
             value,
-            style: TextStyle(fontWeight: FontWeight.bold, color: color, fontSize: 18),
+            style: TextStyle(
+                fontWeight: FontWeight.bold, color: color, fontSize: 18),
           ),
           const SizedBox(height: 4),
           Text(
             label,
-            style: const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+            style:
+                const TextStyle(color: AppColors.textSecondary, fontSize: 11),
           ),
         ],
       ),
@@ -1137,7 +1205,8 @@ class _AccountScreenState extends State<AccountScreen> {
               controller: roleController,
               decoration: InputDecoration(
                 labelText: languageProvider.t('account_admin_role'),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
             const SizedBox(height: 12),
@@ -1145,7 +1214,8 @@ class _AccountScreenState extends State<AccountScreen> {
               controller: deptController,
               decoration: InputDecoration(
                 labelText: languageProvider.t('account_admin_department'),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
               ),
             ),
           ],
@@ -1295,6 +1365,7 @@ class _AccountScreenState extends State<AccountScreen> {
     );
 
     if (confirmed == true && context.mounted) {
+      await context.read<MessagingProvider>().disconnect();
       await authProvider.logout();
     }
   }

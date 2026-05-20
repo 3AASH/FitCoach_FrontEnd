@@ -240,11 +240,16 @@ class PublicCoachProfile {
   }
 
   String get initials {
-    final names = fullName.split(' ');
-    if (names.length >= 2) {
+    final trimmed = fullName.trim();
+    if (trimmed.isEmpty) {
+      return 'C';
+    }
+
+    final names = trimmed.split(RegExp(r'\s+'));
+    if (names.length >= 2 && names[0].isNotEmpty && names[1].isNotEmpty) {
       return '${names[0][0]}${names[1][0]}'.toUpperCase();
     }
-    return fullName.substring(0, 1).toUpperCase();
+    return trimmed.substring(0, 1).toUpperCase();
   }
 
   String get experienceText {

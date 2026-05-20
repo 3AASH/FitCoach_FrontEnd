@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/config/demo_config.dart';
@@ -6,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/public_coach_profile.dart';
 import '../../../data/repositories/coach_repository.dart';
+import '../booking/video_booking_screen.dart';
 
 class PublicCoachProfileScreen extends StatefulWidget {
   final String coachId;
@@ -54,6 +56,9 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
         _isLoading = false;
       });
     } catch (e) {
+      if (kDebugMode) {
+        debugPrint('Public coach profile load error: $e');
+      }
       setState(() {
         // In production, show the error state. In dev/demo-like scenarios, fall back to demo.
         _profile = DemoConfig.isDemo ? _getDemoProfile() : null;
@@ -64,35 +69,169 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
 
   // Convert comprehensive CoachProfile to PublicCoachProfile for UI
   PublicCoachProfile _publicFromComprehensive(dynamic profile) {
-    // If already PublicCoachProfile, just return
-    if (profile is PublicCoachProfile) return profile;
+    if (profile is PublicCoachProfile) {
+      return profile;
+    }
+
+    final certificates = <Certificate>[];
+    for (final raw in (profile.certificates as List? ?? const [])) {
+      final item = _asMap(raw);
+      if (item == null) {
+        continue;
+      }
+      try {
+        certificates.add(
+          Certificate(
+            id: _asString(item['id']) ??
+                _asString(item['certificateId']) ??
+                'certificate_${certificates.length}',
+            name: _asString(item['name']) ?? _asString(item['title']) ?? '',
+            issuingOrganization: _asString(item['issuing_organization']) ??
+                _asString(item['issuer']) ??
+                '',
+            dateObtained: _parseDate(item['date_obtained']) ?? DateTime(1970),
+            expiryDate: _parseDate(item['expiry_date']),
+            certificateUrl:
+                _asString(item['certificate_url']) ?? _asString(item['url']),
+          ),
+        );
+      } catch (_) {}
+    }
+
+    final experiences = <WorkExperience>[];
+    for (final raw in (profile.experiences as List? ?? const [])) {
+      final item = _asMap(raw);
+      if (item == null) {
+        continue;
+      }
+      try {
+        experiences.add(
+          WorkExperience(
+            id: _asString(item['id']) ??
+                _asString(item['experienceId']) ??
+                'experience_${experiences.length}',
+            title: _asString(item['title']) ?? '',
+            organization: _asString(item['organization']) ??
+                _asString(item['company']) ??
+                '',
+            startDate: _parseDate(item['start_date']) ?? DateTime(1970),
+            endDate: _parseDate(item['end_date']),
+            isCurrent: _asBool(item['is_current']) ?? false,
+            description: _asString(item['description']) ?? '',
+          ),
+        );
+      } catch (_) {}
+    }
+
+    final achievements = <Achievement>[];
+    for (final raw in (profile.achievements as List? ?? const [])) {
+      final item = _asMap(raw);
+      if (item == null) {
+        continue;
+      }
+      try {
+        achievements.add(
+          Achievement(
+            id: _asString(item['id']) ??
+                _asString(item['achievementId']) ??
+                'achievement_${achievements.length}',
+            title: _asString(item['title']) ?? _asString(item['name']) ?? '',
+            description: _asString(item['description']) ?? '',
+            date: _parseDate(item['date']) ?? DateTime(1970),
+            type: _asString(item['type']) ?? 'achievement',
+          ),
+        );
+      } catch (_) {}
+    }
+
     return PublicCoachProfile(
-      id: profile.id,
-      fullName: profile.name,
-      email: profile.email,
-      phoneNumber: profile.phone,
-      bio: profile.bio,
-      yearsOfExperience: profile.yearsOfExperience,
-      specializations: profile.specializations,
-      isVerified: profile.isVerified,
+      id: _asString(profile.id) ?? '',
+      fullName: _asString(profile.name) ?? '',
+      email: _asString(profile.email) ?? '',
+      phoneNumber: _asString(profile.phone),
+      bio: _asString(profile.bio),
+      yearsOfExperience: _asInt(profile.yearsOfExperience) ?? 0,
+      specializations: (profile.specializations as List?)
+              ?.map((entry) => entry.toString().trim())
+              .where((entry) => entry.isNotEmpty)
+              .toList() ??
+          const [],
+      isVerified: _asBool(profile.isVerified) ?? false,
       isApproved: true,
-      averageRating: profile.stats.avgRating,
-      totalClients: profile.stats.totalClients,
-      activeClients: profile.stats.activeClients,
-      completedSessions: profile.stats.completedSessions,
-      successRate: 0, // Not available in backend, set to 0 or compute if possible
-      profilePhotoUrl: profile.avatar,
-      certificates: (profile.certificates as List)
-          .map((e) => Certificate.fromJson(e))
-          .toList(),
-      experiences: (profile.experiences as List)
-          .map((e) => WorkExperience.fromJson(e))
-          .toList(),
-      achievements: (profile.achievements as List)
-          .map((e) => Achievement.fromJson(e))
-          .toList(),
-      createdAt: DateTime.now(), // Not available, fallback
+      averageRating: _asDouble(profile.stats.avgRating),
+      totalClients: _asInt(profile.stats.totalClients) ?? 0,
+      activeClients: _asInt(profile.stats.activeClients) ?? 0,
+      completedSessions: _asInt(profile.stats.completedSessions) ?? 0,
+      successRate: 0,
+      profilePhotoUrl: _asString(profile.avatar),
+      certificates: certificates,
+      experiences: experiences,
+      achievements: achievements,
+      createdAt: DateTime.now(),
     );
+  }
+
+  Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) {
+      return value;
+    }
+    if (value is Map) {
+      return value.map((key, val) => MapEntry(key.toString(), val));
+    }
+    return null;
+  }
+
+  String? _asString(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+    final textValue = value.toString().trim();
+    return textValue.isEmpty ? null : textValue;
+  }
+
+  int? _asInt(dynamic value) {
+    if (value is int) {
+      return value;
+    }
+    if (value is num) {
+      return value.toInt();
+    }
+    return int.tryParse(value.toString());
+  }
+
+  double? _asDouble(dynamic value) {
+    if (value is double) {
+      return value;
+    }
+    if (value is num) {
+      return value.toDouble();
+    }
+    return double.tryParse(value.toString());
+  }
+
+  bool? _asBool(dynamic value) {
+    if (value is bool) {
+      return value;
+    }
+    if (value is num) {
+      return value != 0;
+    }
+    final normalized = value?.toString().trim().toLowerCase();
+    if (normalized == 'true' || normalized == '1') {
+      return true;
+    }
+    if (normalized == 'false' || normalized == '0') {
+      return false;
+    }
+    return null;
+  }
+
+  DateTime? _parseDate(dynamic value) {
+    final textValue = _asString(value);
+    if (textValue == null) {
+      return null;
+    }
+    return DateTime.tryParse(textValue);
   }
 
   PublicCoachProfile _getDemoProfile() {
@@ -185,12 +324,51 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
     _tabController.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
+      bottomNavigationBar: (widget.onMessage != null ||
+              widget.onBookCall != null)
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: Row(
+                  children: [
+                    if (widget.onMessage != null)
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          onPressed: widget.onMessage,
+                          icon: const Icon(Icons.chat_bubble_outline),
+                          label: Text(lang.t('messages')),
+                        ),
+                      ),
+                    if (widget.onMessage != null && widget.onBookCall != null)
+                      const SizedBox(width: 12),
+                    if (widget.onBookCall != null)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: widget.onBookCall ??
+                              () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (_) => const VideoBookingScreen(),
+                                  ),
+                                );
+                              },
+                          icon: const Icon(Icons.videocam),
+                          label: Text(lang.t('book_video_call')),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            )
+          : null,
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _profile == null
@@ -272,10 +450,18 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                             indicatorColor: AppColors.primary,
                             indicatorWeight: 3,
                             tabs: [
-                              Tab(text: lang.t('public_coach_profile_tab_overview')),
-                              Tab(text: lang.t('public_coach_profile_tab_certificates')),
-                              Tab(text: lang.t('public_coach_profile_tab_experience')),
-                              Tab(text: lang.t('public_coach_profile_tab_achievements')),
+                              Tab(
+                                  text: lang
+                                      .t('public_coach_profile_tab_overview')),
+                              Tab(
+                                  text: lang.t(
+                                      'public_coach_profile_tab_certificates')),
+                              Tab(
+                                  text: lang.t(
+                                      'public_coach_profile_tab_experience')),
+                              Tab(
+                                  text: lang.t(
+                                      'public_coach_profile_tab_achievements')),
                             ],
                           ),
                         ),
@@ -521,6 +707,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
       ],
     );
   }
+
   Widget _buildOverviewTab(LanguageProvider lang) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
@@ -562,7 +749,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
             runSpacing: 8,
             children: _profile!.specializations.map((spec) {
               return Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(20),
@@ -748,6 +936,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
             },
           );
   }
+
   Widget _buildAchievementsTab(LanguageProvider lang) {
     return _profile!.achievements.isEmpty
         ? Center(

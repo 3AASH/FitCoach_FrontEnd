@@ -20,6 +20,47 @@ class CoachCredentials {
   });
 }
 
+class AdminCoachUpdatePayload {
+  final String fullName;
+  final String? fullNameAr;
+  final String email;
+  final String? phoneNumber;
+  final String? profilePhotoUrl;
+  final String? bio;
+  final int? yearsOfExperience;
+  final List<String> specializations;
+  final bool isApproved;
+  final bool isActive;
+
+  const AdminCoachUpdatePayload({
+    required this.fullName,
+    this.fullNameAr,
+    required this.email,
+    this.phoneNumber,
+    this.profilePhotoUrl,
+    this.bio,
+    this.yearsOfExperience,
+    required this.specializations,
+    required this.isApproved,
+    required this.isActive,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'fullName': fullName,
+      if (fullNameAr != null) 'fullNameAr': fullNameAr,
+      'email': email,
+      if (phoneNumber != null) 'phoneNumber': phoneNumber,
+      if (profilePhotoUrl != null) 'profilePhotoUrl': profilePhotoUrl,
+      if (bio != null) 'bio': bio,
+      if (yearsOfExperience != null) 'yearsOfExperience': yearsOfExperience,
+      'specializations': specializations,
+      'isApproved': isApproved,
+      'isActive': isActive,
+    };
+  }
+}
+
 class CoachCreationResult {
   final AdminCoach coach;
   final CoachCredentials? credentials;
@@ -247,7 +288,7 @@ class AdminRepository {
   Future<CoachCreationResult> createCoach({
     required String fullName,
     required String email,
-    String? phoneNumber,
+    required String phoneNumber,
     List<String>? specializations,
   }) async {
     try {
@@ -256,8 +297,7 @@ class AdminRepository {
         data: {
           'fullName': fullName,
           'email': email,
-          if (phoneNumber != null && phoneNumber.isNotEmpty)
-            'phoneNumber': phoneNumber,
+          'phoneNumber': phoneNumber,
           if (specializations != null && specializations.isNotEmpty)
             'specializations': specializations,
         },
@@ -302,15 +342,45 @@ class AdminRepository {
   }
 
   /// Suspend coach
-  Future<void> suspendCoach(String id, String reason) async {
+  Future<AdminCoach?> suspendCoach(String id, String reason) async {
     try {
-      await _dio.post(
+      final response = await _dio.post(
         '/admin/coaches/$id/suspend',
         data: {'reason': reason},
         options: await _getAuthOptions(),
       );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final coach = _asMap(data['coach']) ?? _asMap(data['data']);
+      return coach == null ? null : AdminCoach.fromJson(coach);
     } on DioException catch (e) {
       throw Exception(_readableError(e, fallback: 'Failed to suspend coach'));
+    }
+  }
+
+  Future<AdminCoach> updateCoach(
+      String id, AdminCoachUpdatePayload payload) async {
+    try {
+      final response = await _dio.put(
+        '/admin/coaches/$id',
+        data: payload.toJson(),
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final coach = _asMap(data['coach']) ?? _asMap(data['data']) ?? data;
+      return AdminCoach.fromJson(coach);
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to update coach'));
+    }
+  }
+
+  Future<void> deleteCoach(String id) async {
+    try {
+      await _dio.delete(
+        '/admin/coaches/$id',
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to delete coach'));
     }
   }
 

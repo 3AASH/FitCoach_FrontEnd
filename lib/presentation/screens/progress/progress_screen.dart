@@ -7,6 +7,107 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_stat_info_card.dart';
 
+class ProgressEntry {
+  final String id;
+  final String? userId;
+  final DateTime? date;
+  final double? weight;
+  final double? bodyFatPercentage;
+  final double? chest;
+  final double? waist;
+  final double? hips;
+  final double? bicepsLeft;
+  final double? bicepsRight;
+  final double? thighLeft;
+  final double? thighRight;
+  final String? frontPhotoUrl;
+  final String? sidePhotoUrl;
+  final String? backPhotoUrl;
+  final String? notes;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  const ProgressEntry({
+    required this.id,
+    this.userId,
+    this.date,
+    this.weight,
+    this.bodyFatPercentage,
+    this.chest,
+    this.waist,
+    this.hips,
+    this.bicepsLeft,
+    this.bicepsRight,
+    this.thighLeft,
+    this.thighRight,
+    this.frontPhotoUrl,
+    this.sidePhotoUrl,
+    this.backPhotoUrl,
+    this.notes,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  factory ProgressEntry.fromJson(Map<String, dynamic> json) {
+    return ProgressEntry(
+      id: _stringValue(json['id'] ?? json['_id']),
+      userId: _nullableStringValue(json['user_id'] ?? json['userId']),
+      date: _dateValue(json['date']),
+      weight: _doubleValue(json['weight']),
+      bodyFatPercentage: _doubleValue(
+        json['body_fat_percentage'] ?? json['bodyFatPercentage'],
+      ),
+      chest: _doubleValue(json['chest']),
+      waist: _doubleValue(json['waist']),
+      hips: _doubleValue(json['hips']),
+      bicepsLeft: _doubleValue(json['biceps_left'] ?? json['bicepsLeft']),
+      bicepsRight: _doubleValue(json['biceps_right'] ?? json['bicepsRight']),
+      thighLeft: _doubleValue(json['thigh_left'] ?? json['thighLeft']),
+      thighRight: _doubleValue(json['thigh_right'] ?? json['thighRight']),
+      frontPhotoUrl: _nullableStringValue(
+        json['front_photo_url'] ?? json['frontPhotoUrl'],
+      ),
+      sidePhotoUrl: _nullableStringValue(
+        json['side_photo_url'] ?? json['sidePhotoUrl'],
+      ),
+      backPhotoUrl: _nullableStringValue(
+        json['back_photo_url'] ?? json['backPhotoUrl'],
+      ),
+      notes: _nullableStringValue(json['notes']),
+      createdAt: _dateValue(json['created_at'] ?? json['createdAt']),
+      updatedAt: _dateValue(json['updated_at'] ?? json['updatedAt']),
+    );
+  }
+
+  bool get hasPhotos =>
+      frontPhotoUrl != null || sidePhotoUrl != null || backPhotoUrl != null;
+}
+
+String _stringValue(dynamic value, {String fallback = ''}) {
+  if (value == null) return fallback;
+  final text = value.toString().trim();
+  return text.isEmpty ? fallback : text;
+}
+
+String? _nullableStringValue(dynamic value) {
+  final text = _stringValue(value);
+  return text.isEmpty ? null : text;
+}
+
+DateTime? _dateValue(dynamic value) {
+  if (value == null) return null;
+  if (value is DateTime) return value;
+  return DateTime.tryParse(value.toString());
+}
+
+double? _doubleValue(dynamic value) {
+  if (value is int) return value.toDouble();
+  if (value is double) return value;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value.trim());
+  return null;
+}
+
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
 
@@ -18,7 +119,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   String _selectedPeriod = 'week';
   bool _loading = false;
   String? _error;
-  List<Map<String, dynamic>> _entries = [];
+  List<ProgressEntry> _entries = [];
   final TextEditingController _weightController = TextEditingController();
   final TextEditingController _notesController = TextEditingController();
 
@@ -54,7 +155,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
       final entries = await repository.getEntries();
       if (!mounted) return;
       setState(() {
-        _entries = entries;
+        _entries = entries.map(ProgressEntry.fromJson).toList()
+          ..sort((a, b) {
+            final aDate =
+                a.date ?? a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+            final bDate =
+                b.date ?? b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+            return bDate.compareTo(aDate);
+          });
       });
     } catch (e) {
       if (!mounted) return;
@@ -62,10 +170,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
         _error = e.toString();
       });
     } finally {
-      if (!mounted) return;
-      setState(() {
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _loading = false;
+        });
+      }
     }
   }
 
@@ -80,17 +189,15 @@ class _ProgressScreenState extends State<ProgressScreen> {
       return const <double>[];
     }
 
-    final sorted = [..._entries]
-      ..sort(
-        (a, b) => (a['date'] ?? '')
-            .toString()
-            .compareTo((b['date'] ?? '').toString()),
-      );
+    final sorted = [..._entries]..sort((a, b) {
+        final aDate =
+            a.date ?? a.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        final bDate =
+            b.date ?? b.createdAt ?? DateTime.fromMillisecondsSinceEpoch(0);
+        return aDate.compareTo(bDate);
+      });
 
-    final series = sorted
-        .map((e) => (e['weight'] as num?)?.toDouble())
-        .whereType<double>()
-        .toList();
+    final series = sorted.map((e) => e.weight).whereType<double>().toList();
 
     return series;
   }
@@ -105,11 +212,10 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final now = DateTime.now();
     final last7 = List<int>.filled(7, 0);
     for (final entry in _entries) {
-      final dateValue = entry['date']?.toString();
-      if (dateValue == null || dateValue.isEmpty) continue;
-      final date = DateTime.tryParse(dateValue);
+      final date = entry.date;
       if (date == null) continue;
-      final dayDiff = now.difference(DateTime(date.year, date.month, date.day)).inDays;
+      final dayDiff =
+          now.difference(DateTime(date.year, date.month, date.day)).inDays;
       if (dayDiff >= 0 && dayDiff < 7) {
         final index = 6 - dayDiff;
         last7[index] = 1;
@@ -125,11 +231,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
           .toList();
     }
 
-    final values = _entries
-        .map((e) => e['calories'] ?? e['caloriesIntake'] ?? e['calories_intake'])
-        .map((v) => v is num ? v.toDouble() : double.tryParse(v?.toString() ?? ''))
-        .whereType<double>()
-        .toList();
+    const values = <double>[];
 
     if (values.length <= 7) return values;
     return values.sublist(values.length - 7);
@@ -148,7 +250,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     if (DemoConfig.isDemo) return 7;
 
     final days = _entries
-        .map((e) => DateTime.tryParse((e['date'] ?? '').toString()))
+        .map((e) => e.date)
         .whereType<DateTime>()
         .map((d) => DateTime(d.year, d.month, d.day))
         .toSet();
@@ -229,6 +331,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
                       const SizedBox(height: 24),
 
+                      // Detailed progress entries
+                      _buildDetailedProgressEntries(isArabic),
+
+                      const SizedBox(height: 24),
+
                       // Achievements
                       _buildAchievements(isArabic),
                     ],
@@ -256,7 +363,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 _selectedPeriod = period;
               });
             },
-            selectedColor: AppColors.primary.withOpacity(0.2),
+            selectedColor: AppColors.primary.withValues(alpha: 0.2),
             checkmarkColor: AppColors.primary,
           ),
         );
@@ -383,7 +490,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: List.generate(7, (index) {
               final workouts = _workoutSeries;
-              final hasWorkout = index < workouts.length && workouts[index] == 1;
+              final hasWorkout =
+                  index < workouts.length && workouts[index] == 1;
               final days = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
               return Column(
                 children: [
@@ -440,7 +548,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
               children: (_calorieSeries.isEmpty
                       ? <double>[0, 0, 0, 0, 0, 0, 0]
                       : _calorieSeries)
-                  .map((cal) {
+                  .map<Widget>((cal) {
                 const maxCal = 2500;
                 final height = (cal / maxCal) * 150;
                 return Container(
@@ -472,6 +580,176 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
+  Widget _buildDetailedProgressEntries(bool isArabic) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isArabic ? 'السجل التفصيلي' : 'Detailed Progress',
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        if (_entries.isEmpty)
+          CustomCard(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Center(
+                child: Text(
+                  isArabic
+                      ? 'لا توجد إدخالات تقدم بعد'
+                      : 'No progress entries yet',
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+              ),
+            ),
+          )
+        else
+          ..._entries.map((entry) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: _buildProgressEntryCard(entry, isArabic),
+              )),
+      ],
+    );
+  }
+
+  Widget _buildProgressEntryCard(ProgressEntry entry, bool isArabic) {
+    final chips = <Widget>[];
+    void addChip(String label, String value) {
+      chips.add(
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+          decoration: BoxDecoration(
+            color: AppColors.primary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Text(
+            '$label: $value',
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (entry.weight != null) {
+      addChip(isArabic ? 'الوزن' : 'Weight',
+          '${entry.weight!.toStringAsFixed(1)} kg');
+    }
+    if (entry.bodyFatPercentage != null) {
+      addChip(isArabic ? 'الدهون' : 'Body Fat',
+          '${entry.bodyFatPercentage!.toStringAsFixed(1)}%');
+    }
+    if (entry.waist != null) {
+      addChip(isArabic ? 'الخصر' : 'Waist',
+          '${entry.waist!.toStringAsFixed(1)} cm');
+    }
+    if (entry.chest != null) {
+      addChip(isArabic ? 'الصدر' : 'Chest',
+          '${entry.chest!.toStringAsFixed(1)} cm');
+    }
+    if (entry.hips != null) {
+      addChip(
+          isArabic ? 'الورك' : 'Hips', '${entry.hips!.toStringAsFixed(1)} cm');
+    }
+    if (entry.bicepsLeft != null || entry.bicepsRight != null) {
+      final left = entry.bicepsLeft != null
+          ? entry.bicepsLeft!.toStringAsFixed(1)
+          : '--';
+      final right = entry.bicepsRight != null
+          ? entry.bicepsRight!.toStringAsFixed(1)
+          : '--';
+      addChip(isArabic ? 'الذراعان' : 'Arms', 'L $left / R $right cm');
+    }
+    if (entry.thighLeft != null || entry.thighRight != null) {
+      final left =
+          entry.thighLeft != null ? entry.thighLeft!.toStringAsFixed(1) : '--';
+      final right = entry.thighRight != null
+          ? entry.thighRight!.toStringAsFixed(1)
+          : '--';
+      addChip(isArabic ? 'الفخذان' : 'Thighs', 'L $left / R $right cm');
+    }
+
+    final photoUrls = [
+      entry.frontPhotoUrl,
+      entry.sidePhotoUrl,
+      entry.backPhotoUrl
+    ].whereType<String>().where((url) => url.isNotEmpty).toList();
+
+    return CustomCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            _formatEntryDate(entry.date ?? entry.createdAt),
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          if (chips.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: chips,
+            ),
+          ],
+          if (entry.notes != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              entry.notes!,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+          if (photoUrls.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              height: 88,
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: photoUrls.length,
+                separatorBuilder: (_, __) => const SizedBox(width: 8),
+                itemBuilder: (context, index) {
+                  final url = photoUrls[index];
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.network(
+                      url,
+                      width: 88,
+                      height: 88,
+                      fit: BoxFit.cover,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 88,
+                        height: 88,
+                        color: AppColors.surface,
+                        child: const Icon(Icons.image_not_supported_outlined),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  String _formatEntryDate(DateTime? date) {
+    if (date == null) return '--';
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
   Widget _buildAchievements(bool isArabic) {
     final workoutCount = _workoutCount;
     final streakDays = _streakDays;
@@ -482,7 +760,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
       {
         'icon': Icons.emoji_events,
         'title': isArabic ? 'أول أسبوع' : 'First Week',
-        'description': isArabic ? 'أكملت أسبوعك الأول' : 'Completed your first week',
+        'description':
+            isArabic ? 'أكملت أسبوعك الأول' : 'Completed your first week',
         'unlocked': DemoConfig.isDemo ? true : hasFirstWeek,
       },
       {
@@ -521,7 +800,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   height: 48,
                   decoration: BoxDecoration(
                     color: unlocked
-                        ? AppColors.accent.withOpacity(0.1)
+                        ? AppColors.accent.withValues(alpha: 0.1)
                         : AppColors.surface,
                     shape: BoxShape.circle,
                   ),
@@ -564,7 +843,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -681,42 +960,42 @@ class _ProgressScreenState extends State<ProgressScreen> {
 class _LineChartPainter extends CustomPainter {
   final List<double> data;
   final Color color;
-  
+
   _LineChartPainter({required this.data, required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
-    
+
     final paint = Paint()
       ..color = color
       ..strokeWidth = 2
       ..style = PaintingStyle.stroke;
-    
+
     final path = Path();
     final maxValue = data.reduce((a, b) => a > b ? a : b);
     final minValue = data.reduce((a, b) => a < b ? a : b);
     final range = (maxValue - minValue) == 0 ? 1.0 : (maxValue - minValue);
     final denominator = data.length <= 1 ? 1 : (data.length - 1);
-    
+
     for (var i = 0; i < data.length; i++) {
       final x = (i / denominator) * size.width;
       final y = size.height - ((data[i] - minValue) / range) * size.height;
-      
+
       if (i == 0) {
         path.moveTo(x, y);
       } else {
         path.lineTo(x, y);
       }
     }
-    
+
     canvas.drawPath(path, paint);
-    
+
     // Draw points
     final pointPaint = Paint()
       ..color = color
       ..style = PaintingStyle.fill;
-    
+
     for (var i = 0; i < data.length; i++) {
       final x = (i / denominator) * size.width;
       final y = size.height - ((data[i] - minValue) / range) * size.height;

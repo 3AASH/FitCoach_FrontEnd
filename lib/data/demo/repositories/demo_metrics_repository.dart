@@ -109,10 +109,12 @@ class DemoMetricsRepository {
     if (scans.length < 2) return null;
     final first = scans.first;
     final last = scans.last;
+    final firstBodyFat = first.percentBodyFat ?? 0;
+    final lastBodyFat = last.percentBodyFat ?? 0;
     return InBodyProgress(
       daysElapsed: last.scanDate.difference(first.scanDate).inDays,
       weightLost: first.weight - last.weight,
-      bodyFatReduced: first.percentBodyFat - last.percentBodyFat,
+      bodyFatReduced: firstBodyFat - lastBodyFat,
       muscleGained: 0.4,
       progressPercentage: 0.52,
     );

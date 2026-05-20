@@ -4,6 +4,22 @@ import '../models/user_profile.dart';
 import '../../core/config/api_config.dart';
 import '../auth/social_auth_client.dart';
 
+class AuthRepositoryException implements Exception {
+  AuthRepositoryException({
+    required this.message,
+    this.field,
+  });
+
+  final String message;
+  final String? field;
+
+  bool get isPhoneFieldError =>
+      field == 'phone' || message.toLowerCase().contains('phone');
+
+  @override
+  String toString() => message;
+}
+
 abstract class AuthRepositoryBase {
   Future<void> requestOTP(String phoneNumber);
   Future<AuthResponse> verifyOTP(String phoneNumber, String otpCode);
@@ -16,6 +32,7 @@ abstract class AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   });
   Future<AuthResponse> socialLogin(String provider);
   Future<String?> getStoredToken();
@@ -49,6 +66,8 @@ class AuthRepository implements AuthRepositoryBase {
   final SocialAuthClient _socialAuthClient;
 
   static const String _tokenKey = 'fitcoach_auth_token';
+  static String get _authBasePath =>
+      ApiConfig.baseUrl.endsWith('/v2') ? '/auth' : '/api/v2/auth';
 
   AuthRepository({SocialAuthClient? socialAuthClient})
       : _dio = Dio(BaseOptions(
@@ -73,11 +92,11 @@ class AuthRepository implements AuthRepositoryBase {
   @override
   Future<void> requestOTP(String phoneNumber) async {
     try {
-      await _dio.post('/auth/send-otp', data: {
+      await _dio.post('$_authBasePath/send-otp', data: {
         'phoneNumber': phoneNumber,
       });
     } on DioException catch (e) {
-      throw Exception(_readableError(e, fallback: 'Failed to send OTP'));
+      throw _buildAuthException(e, fallback: 'Failed to send OTP');
     }
   }
 
@@ -86,7 +105,7 @@ class AuthRepository implements AuthRepositoryBase {
   Future<AuthResponse> verifyOTP(String phoneNumber, String otpCode) async {
     try {
       final response = await _dio.post(
-        '/auth/verify-otp',
+        '$_authBasePath/verify-otp',
         data: {
           'phoneNumber': phoneNumber,
           'otpCode': otpCode,
@@ -100,7 +119,7 @@ class AuthRepository implements AuthRepositoryBase {
       return AuthResponse(
           user: user, token: token, isNewUser: data['isNewUser'] ?? false);
     } on DioException catch (e) {
-      throw Exception(_readableError(e, fallback: 'Failed to verify OTP'));
+      throw _buildAuthException(e, fallback: 'Failed to verify OTP');
     }
   }
 
@@ -112,7 +131,7 @@ class AuthRepository implements AuthRepositoryBase {
   }) async {
     try {
       final response = await _dio.post(
-        '/auth/login',
+        '$_authBasePath/login',
         data: {
           'emailOrPhone': emailOrPhone,
           'password': password,
@@ -125,7 +144,7 @@ class AuthRepository implements AuthRepositoryBase {
 
       return AuthResponse(user: user, token: token, isNewUser: false);
     } on DioException catch (e) {
-      throw Exception(_readableError(e, fallback: 'Login failed'));
+      throw _buildAuthException(e, fallback: 'Login failed');
     }
   }
 
@@ -136,15 +155,17 @@ class AuthRepository implements AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   }) async {
     try {
       final response = await _dio.post(
-        '/auth/signup',
+        '$_authBasePath/signup',
         data: {
           'name': name,
           'email': email,
           'phone': phone,
           'password': password,
+          if (otpCode != null) 'otpCode': otpCode,
         },
       );
 
@@ -154,7 +175,7 @@ class AuthRepository implements AuthRepositoryBase {
 
       return AuthResponse(user: user, token: token, isNewUser: true);
     } on DioException catch (e) {
-      throw Exception(_readableError(e, fallback: 'Signup failed'));
+      throw _buildAuthException(e, fallback: 'Signup failed');
     }
   }
 
@@ -186,6 +207,52 @@ class AuthRepository implements AuthRepositoryBase {
     }
   }
 
+  AuthRepositoryException _buildAuthException(
+    DioException error, {
+    required String fallback,
+  }) {
+    final message = _readableError(error, fallback: fallback);
+    return AuthRepositoryException(
+      message: message,
+      field: _extractField(error.response?.data, message),
+    );
+  }
+
+  String? _extractField(dynamic data, String message) {
+    if (data is Map<String, dynamic>) {
+      final directField = data['field'] ?? data['path'] ?? data['param'];
+      if (directField is String &&
+          directField.toLowerCase().contains('phone')) {
+        return 'phone';
+      }
+
+      final errors = data['errors'];
+      if (errors is Map<String, dynamic>) {
+        for (final entry in errors.entries) {
+          if (entry.key.toLowerCase().contains('phone')) {
+            return 'phone';
+          }
+        }
+      }
+      if (errors is List) {
+        for (final entry in errors) {
+          if (entry is Map<String, dynamic>) {
+            final path = entry['path'] ?? entry['field'] ?? entry['param'];
+            if (path is String && path.toLowerCase().contains('phone')) {
+              return 'phone';
+            }
+          }
+        }
+      }
+    }
+
+    if (message.toLowerCase().contains('phone')) {
+      return 'phone';
+    }
+
+    return null;
+  }
+
   String _readableError(DioException error, {required String fallback}) {
     final response = error.response;
     if (response != null) {
@@ -194,6 +261,17 @@ class AuthRepository implements AuthRepositoryBase {
         final message = data['message'] ?? data['error'] ?? data['details'];
         if (message is String && message.trim().isNotEmpty) {
           return message;
+        }
+
+        final errors = data['errors'];
+        if (errors is List && errors.isNotEmpty) {
+          final first = errors.first;
+          if (first is Map<String, dynamic>) {
+            final errorMessage = first['msg'] ?? first['message'] ?? first['error'];
+            if (errorMessage is String && errorMessage.trim().isNotEmpty) {
+              return errorMessage;
+            }
+          }
         }
       }
       if (data is String && data.trim().isNotEmpty) {
@@ -284,7 +362,7 @@ class AuthRepository implements AuthRepositoryBase {
       final token = await getStoredToken();
       if (token != null) {
         await _dio.post(
-          '/auth/logout',
+          '$_authBasePath/logout',
           options: Options(headers: {'Authorization': 'Bearer $token'}),
         );
       }
@@ -305,7 +383,7 @@ class AuthRepository implements AuthRepositoryBase {
       }
 
       final response = await _dio.post(
-        '/auth/refresh',
+        '$_authBasePath/refresh',
         data: {'refreshToken': currentToken},
         options: Options(
           headers: {'Authorization': 'Bearer $currentToken'},

@@ -106,9 +106,10 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<String?>(
-                        value: _statusFilter,
+                        initialValue: _statusFilter,
                         decoration: InputDecoration(
-                          labelText: languageProvider.t('coach_clients_status_label'),
+                          labelText:
+                              languageProvider.t('coach_clients_status_label'),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -116,15 +117,18 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         items: [
                           DropdownMenuItem(
                             value: null,
-                            child: Text(languageProvider.t('coach_clients_status_all')),
+                            child: Text(
+                                languageProvider.t('coach_clients_status_all')),
                           ),
                           DropdownMenuItem(
                             value: 'active',
-                            child: Text(languageProvider.t('coach_clients_status_active')),
+                            child: Text(languageProvider
+                                .t('coach_clients_status_active')),
                           ),
                           DropdownMenuItem(
                             value: 'inactive',
-                            child: Text(languageProvider.t('coach_clients_status_inactive')),
+                            child: Text(languageProvider
+                                .t('coach_clients_status_inactive')),
                           ),
                         ],
                         onChanged: (value) {
@@ -164,8 +168,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: _loadClients,
-                              child:
-                                  Text(languageProvider.t('retry')),
+                              child: Text(languageProvider.t('retry')),
                             ),
                           ],
                         ),
@@ -175,7 +178,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.people_outline,
                                   size: 64,
                                   color: AppColors.textDisabled,
@@ -218,16 +221,21 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
     LanguageProvider languageProvider,
     bool isArabic,
   ) {
+    final checkInBadge = _buildCheckInBadge(client, languageProvider);
+
     return CustomCard(
       child: InkWell(
-        onTap: () {
-          Navigator.push(
+        onTap: () async {
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) =>
                   CoachClientDetailScreen(clientId: client.id),
             ),
           );
+          if (mounted) {
+            _loadClients();
+          }
         },
         child: Padding(
           padding: const EdgeInsets.all(16),
@@ -275,7 +283,9 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             ),
                           ),
                         const SizedBox(height: 4),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -295,7 +305,6 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -314,6 +323,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                                 ),
                               ),
                             ),
+                            if (checkInBadge != null) checkInBadge,
                           ],
                         ),
                       ],
@@ -331,15 +341,15 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             color: _getScoreColor(client.fitnessScore!),
                           ),
                           child: Center(
-                              child: Text(
-                                '${client.fitnessScore}',
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.textWhite,
-                                ),
+                            child: Text(
+                              '${client.fitnessScore}',
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textWhite,
                               ),
                             ),
+                          ),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -399,6 +409,56 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
         ),
       ),
     );
+  }
+
+  Widget? _buildCheckInBadge(client, LanguageProvider languageProvider) {
+    final label = _checkInBadgeText(client, languageProvider);
+    if (label == null) {
+      return null;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.info.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: AppColors.info.withValues(alpha: 0.25)),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          fontSize: 10,
+          color: AppColors.info,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  String? _checkInBadgeText(client, LanguageProvider languageProvider) {
+    final referenceDate = client.latestInbodyScanDate ?? client.lastActivity;
+    if (referenceDate == null) {
+      return null;
+    }
+
+    final daysAgo = DateTime.now().difference(referenceDate).inDays;
+    if (client.latestInbodyScanDate != null) {
+      if (daysAgo <= 0) {
+        return languageProvider.isArabic
+            ? 'تم تسجيل InBody اليوم'
+            : 'Checked in today';
+      }
+      return languageProvider.isArabic
+          ? 'آخر InBody منذ $daysAgo يوم'
+          : 'Last InBody $daysAgo' 'd ago';
+    }
+
+    if (daysAgo <= 0) {
+      return languageProvider.isArabic ? 'نشاط اليوم' : 'Active today';
+    }
+    return languageProvider.isArabic
+        ? 'آخر نشاط منذ $daysAgo يوم'
+        : 'Last activity $daysAgo' 'd ago';
   }
 
   Color _getTierColor(String tier) {

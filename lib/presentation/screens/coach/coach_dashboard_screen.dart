@@ -9,12 +9,10 @@ import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../../data/models/coach_client.dart';
-import '../../providers/quota_provider.dart';
 import '../../providers/video_call_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/custom_stat_info_card.dart';
-import '../../widgets/quota_indicator.dart';
 import '../../../data/models/appointment.dart';
 import '../account/account_screen.dart';
 import 'coach_clients_screen.dart';
@@ -24,6 +22,7 @@ import 'nutrition_plan_builder_screen.dart';
 import '../video_call/video_call_screen.dart';
 import 'coach_schedule_session_sheet.dart';
 import 'coach_client_detail_screen.dart';
+import '../messaging/coach_messaging_screen.dart';
 
 enum _UpcomingFilter { all, video }
 
@@ -40,6 +39,7 @@ class _ClientSpotlightEntry {
   final String? goal;
   final double momentum;
   final bool needsAttention;
+  final bool hasMissingFitnessScore;
   final int activityDaysAgo;
 
   const _ClientSpotlightEntry({
@@ -48,6 +48,7 @@ class _ClientSpotlightEntry {
     this.goal,
     required this.momentum,
     required this.needsAttention,
+    required this.hasMissingFitnessScore,
     required this.activityDaysAgo,
   });
 
@@ -166,7 +167,6 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAnalytics();
-      _loadQuota();
     });
   }
 
@@ -183,14 +183,6 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         startDate: now.subtract(const Duration(days: 1)),
         endDate: now.add(const Duration(days: 14)),
       );
-    }
-  }
-
-  void _loadQuota() {
-    final authProvider = context.read<AuthProvider>();
-    final quotaProvider = context.read<QuotaProvider>();
-    if (authProvider.user?.id != null) {
-      quotaProvider.loadQuota(authProvider.user!.id);
     }
   }
 
@@ -282,13 +274,15 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final analytics = coachProvider.analytics;
     final isAnalyticsLoading = coachProvider.isAnalyticsLoading;
     final isAppointmentsLoading = coachProvider.isAppointmentsLoading;
-    final todayAppointmentCount = coachProvider.appointments.length;
+    final todayAppointmentCount =
+        _getTodayAppointments(coachProvider.appointments).length;
+    final upcomingAppointmentCount =
+        _getUpcomingAppointments(coachProvider.appointments).length;
 
     return SafeArea(
       child: RefreshIndicator(
         onRefresh: () async {
           _loadAnalytics();
-          _loadQuota();
         },
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -298,16 +292,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               // Error banners
               Builder(
                 builder: (context) {
-                  final quotaError = context.watch<QuotaProvider>().error;
                   final coachProvider = context.watch<CoachProvider>();
                   final analyticsError = coachProvider.error;
                   return Column(
                     children: [
-                      if (quotaError != null && quotaError.isNotEmpty)
-                        ErrorBanner(
-                          message: quotaError,
-                          onRetry: _loadQuota,
-                        ),
                       if (analyticsError != null && analyticsError.isNotEmpty)
                         ErrorBanner(
                           message: analyticsError,
@@ -361,7 +349,6 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           icon: const Icon(Icons.refresh),
                           onPressed: () {
                             _loadAnalytics();
-                            _loadQuota();
                           },
                         ),
                       ],
@@ -371,19 +358,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               ),
 
               const SizedBox(height: 16),
-              // Quota indicators
-              AnimatedReveal(
-                delay: const Duration(milliseconds: 120),
-                offset: const Offset(0.1, 0.08),
-                child: Row(
-                  children: [
-                    Expanded(child: QuotaIndicator(type: 'message')),
-                    const SizedBox(width: 12),
-                    Expanded(child: QuotaIndicator(type: 'videoCall')),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 8),
 
               // Quick stats
               if (isAnalyticsLoading)
@@ -406,9 +381,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       Expanded(
                         child: CustomStatCard(
                           title: lang.t('coach_metric_upcoming'),
-                          value: '${analytics.upcomingAppointments}',
+                          value: '$upcomingAppointmentCount',
                           icon: Icons.video_call,
                           color: AppColors.secondary,
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = 2;
+                            });
+                          },
                         ),
                       ),
                     ],
@@ -426,6 +406,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           value: '${analytics.unreadMessages}',
                           icon: Icons.message,
                           color: AppColors.accent,
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = 3;
+                            });
+                          },
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -435,6 +420,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           value: '$todayAppointmentCount',
                           icon: Icons.today,
                           color: AppColors.primary,
+                          onTap: () {
+                            setState(() {
+                              _selectedIndex = 2;
+                            });
+                          },
                         ),
                       ),
                     ],
@@ -553,7 +543,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 offset: const Offset(0, 0.12),
                 child: CustomInfoCard(
                   title: lang.t('coach_quick_action_message_clients_title'),
-                  subtitle: lang.t('coach_quick_action_message_clients_subtitle'),
+                  subtitle:
+                      lang.t('coach_quick_action_message_clients_subtitle'),
                   icon: Icons.chat_bubble_outline,
                   iconColor: AppColors.accent,
                   onTap: () => setState(() => _selectedIndex = 3),
@@ -567,7 +558,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 offset: const Offset(-0.05, 0.12),
                 child: CustomInfoCard(
                   title: lang.t('coach_quick_action_quick_schedule_title'),
-                  subtitle: lang.t('coach_quick_action_quick_schedule_subtitle'),
+                  subtitle:
+                      lang.t('coach_quick_action_quick_schedule_subtitle'),
                   icon: Icons.video_call,
                   iconColor: AppColors.secondary,
                   onTap: () => _openQuickSchedule(lang),
@@ -725,27 +717,60 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                 ],
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: entry.needsAttention
-                                    ? AppColors.error.withValues(alpha: 0.12)
-                                    : AppColors.success.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: Text(
-                                entry.needsAttention ? lang.t('coach_needs_checkin') : lang.t('coach_on_track'),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                  color: entry.needsAttention
-                                      ? AppColors.error
-                                      : AppColors.success,
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 10,
+                                    vertical: 6,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: entry.needsAttention
+                                        ? AppColors.error
+                                            .withValues(alpha: 0.12)
+                                        : AppColors.success
+                                            .withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Text(
+                                    entry.needsAttention
+                                        ? lang.t('coach_needs_checkin')
+                                        : lang.t('coach_on_track'),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: entry.needsAttention
+                                          ? AppColors.error
+                                          : AppColors.success,
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                if (entry.hasMissingFitnessScore) ...[
+                                  const SizedBox(height: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 6,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.textSecondary
+                                          .withValues(alpha: 0.12),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      lang.isArabic
+                                          ? 'بدون درجة لياقة'
+                                          : 'Needs score',
+                                      style: const TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ],
                         ),
@@ -760,7 +785,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         ),
                         const SizedBox(height: 6),
                         Text(
-                          lang.t('coach_plan_health', args: {'percent': '${(entry.momentum * 100).round()}'}),
+                          lang.t('coach_plan_health', args: {
+                            'percent': '${(entry.momentum * 100).round()}'
+                          }),
                           style: const TextStyle(
                             fontSize: 12,
                             color: AppColors.textSecondary,
@@ -783,14 +810,14 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   ) {
     final now = DateTime.now();
     final entries = clients.map((client) {
-      final fitness = (client.fitnessScore ?? 55) / 100;
+      final hasMissingFitnessScore = client.fitnessScore == null;
+      final fitness = ((client.fitnessScore ?? 55).clamp(0, 100)) / 100;
       final lastTouch = client.lastActivity ??
           client.assignedDate ??
           now.subtract(const Duration(days: 14));
       final inactivityDays = now.difference(lastTouch).inDays;
       final activityScore = (1 - (inactivityDays / 14)).clamp(0.0, 1.0);
-      final needsAttention =
-          inactivityDays > 5 || (client.fitnessScore ?? 0) < 55;
+      final needsAttention = inactivityDays > 5;
       final composite = (fitness * 0.6) + (activityScore * 0.4);
       return _ClientSpotlightEntry(
         id: client.id,
@@ -798,6 +825,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         goal: client.goal,
         momentum: composite,
         needsAttention: needsAttention,
+        hasMissingFitnessScore: hasMissingFitnessScore,
         activityDaysAgo: inactivityDays,
       );
     }).toList();
@@ -942,16 +970,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     LanguageProvider lang,
     bool isArabic,
   ) {
-    final today = DateTime.now();
-    final todayAppointments = coachProvider.appointments.where((appointment) {
-      final scheduledDate = _parseAppointmentDate(appointment);
-      if (scheduledDate == null) {
-        return false;
-      }
-      return scheduledDate.year == today.year &&
-          scheduledDate.month == today.month &&
-          scheduledDate.day == today.day;
-    }).toList()
+    final todayAppointments = _getTodayAppointments(coachProvider.appointments)
       ..sort((a, b) {
         final aDate = _parseAppointmentDate(a);
         final bDate = _parseAppointmentDate(b);
@@ -968,7 +987,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           child: Center(
             child: Column(
               children: [
-                Icon(
+                const Icon(
                   Icons.event_busy,
                   size: 48,
                   color: AppColors.textDisabled,
@@ -1111,19 +1130,18 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
 
   List<Appointment> _getUpcomingAppointments(List<Appointment> appointments) {
     final now = DateTime.now();
-    final todayKey = DateTime(now.year, now.month, now.day);
+    final startOfTomorrow = DateTime(now.year, now.month, now.day + 1);
 
     final upcoming = appointments.where((appointment) {
       final scheduledDate = _parseAppointmentDate(appointment);
       if (scheduledDate == null) {
         return false;
       }
-      final appointmentDay = DateTime(
-        scheduledDate.year,
-        scheduledDate.month,
-        scheduledDate.day,
-      );
-      return appointmentDay.isAfter(todayKey);
+      final localScheduledDate = scheduledDate.toLocal();
+      if (!_isDashboardUpcomingStatus(appointment.status)) {
+        return false;
+      }
+      return !localScheduledDate.isBefore(startOfTomorrow);
     }).toList()
       ..sort((a, b) {
         final aDate = _parseAppointmentDate(a);
@@ -1135,6 +1153,38 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
       });
 
     return upcoming;
+  }
+
+  List<Appointment> _getTodayAppointments(List<Appointment> appointments) {
+    final now = DateTime.now();
+    final startOfToday = DateTime(now.year, now.month, now.day);
+    final startOfTomorrow = DateTime(now.year, now.month, now.day + 1);
+
+    final todayAppointments = appointments.where((appointment) {
+      final scheduledDate = _parseAppointmentDate(appointment);
+      if (scheduledDate == null) {
+        return false;
+      }
+      final localScheduledDate = scheduledDate.toLocal();
+      if (!_isDashboardUpcomingStatus(appointment.status)) {
+        return false;
+      }
+      return !localScheduledDate.isBefore(startOfToday) &&
+          localScheduledDate.isBefore(startOfTomorrow);
+    }).toList();
+
+    return todayAppointments;
+  }
+
+  bool _isDashboardUpcomingStatus(String status) {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+      case 'confirmed':
+      case 'in_progress':
+        return true;
+      default:
+        return false;
+    }
   }
 
   Future<void> _handleJoinCall(Appointment appointment) async {
@@ -1240,31 +1290,6 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   }
 
   Widget _buildMessagesTab(LanguageProvider lang) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang.t('coach_messages')),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.chat_bubble_outline,
-              size: 80,
-              color: AppColors.textDisabled,
-            ),
-            const SizedBox(height: 24),
-            Text(
-              lang.t('coach_messages_coming_soon'),
-              style: const TextStyle(
-                fontSize: 18,
-                color: AppColors.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+    return const CoachMessagingScreen();
   }
-
 }

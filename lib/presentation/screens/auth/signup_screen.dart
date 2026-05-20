@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/phone_number_utils.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/animated_reveal.dart';
+import '../../widgets/international_phone_input.dart';
 
 class SignupScreen extends StatefulWidget {
   final VoidCallback onAuthenticated;
   final VoidCallback onNavigateToLogin;
-  
+
   const SignupScreen({
     super.key,
     required this.onAuthenticated,
@@ -26,10 +29,21 @@ class _SignupScreenState extends State<SignupScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  final TextEditingController _otpController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreeToTerms = false;
+  bool _isOtpSent = false;
+  bool _isSendingCode = false;
+  bool _isCreatingAccount = false;
+  bool _resendEnabled = false;
+  int _resendCountdown = 60;
+  CountryPhoneOption _selectedCountry = PhoneNumberUtils.defaultCountry;
+  String? _phoneErrorText;
+  String? _verificationErrorText;
+  String? _normalizedPhone;
 
   @override
   void dispose() {
@@ -38,7 +52,113 @@ class _SignupScreenState extends State<SignupScreen> {
     _phoneController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _otpController.dispose();
     super.dispose();
+  }
+
+  void _startResendCountdown() {
+    setState(() {
+      _resendEnabled = false;
+      _resendCountdown = 60;
+    });
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(seconds: 1));
+      if (!mounted || !_isOtpSent) {
+        return false;
+      }
+      setState(() {
+        _resendCountdown--;
+        if (_resendCountdown <= 0) {
+          _resendEnabled = true;
+        }
+      });
+      return _resendCountdown > 0;
+    });
+  }
+
+  void _resetOtpState() {
+    _isOtpSent = false;
+    _resendEnabled = false;
+    _resendCountdown = 60;
+    _verificationErrorText = null;
+    _normalizedPhone = null;
+    _otpController.clear();
+  }
+
+  String? _validateAndNormalizePhone(bool isArabic) {
+    final normalizedPhone = PhoneNumberUtils.normalize(
+      rawInput: _phoneController.text,
+      country: _selectedCountry,
+    );
+
+    if (!normalizedPhone.isValid) {
+      setState(() {
+        _phoneErrorText =
+            isArabic ? 'أدخل رقم هاتف صالحاً' : 'Enter a valid phone number';
+      });
+      return null;
+    }
+
+    return normalizedPhone.normalizedPhone;
+  }
+
+  Future<void> _sendCode(bool isArabic) async {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    if (!_agreeToTerms) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isArabic
+                ? 'الرجاء الموافقة على الشروط والأحكام'
+                : 'Please agree to Terms & Conditions',
+          ),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    final normalizedPhone = _validateAndNormalizePhone(isArabic);
+    if (normalizedPhone == null) {
+      return;
+    }
+
+    final authProvider = context.read<AuthProvider>();
+    setState(() {
+      _isSendingCode = true;
+      _phoneErrorText = null;
+      _verificationErrorText = null;
+    });
+
+    final success = await authProvider.requestOTP(normalizedPhone);
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isSendingCode = false;
+    });
+
+    if (success) {
+      setState(() {
+        _isOtpSent = true;
+        _normalizedPhone = normalizedPhone;
+        _verificationErrorText = null;
+        _otpController.clear();
+      });
+      _startResendCountdown();
+    } else {
+      setState(() {
+        if (authProvider.phoneFieldError != null) {
+          _phoneErrorText = authProvider.phoneFieldError;
+        } else {
+          _verificationErrorText = authProvider.error;
+        }
+      });
+    }
   }
 
   @override
@@ -74,13 +194,13 @@ class _SignupScreenState extends State<SignupScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                
+
                 const SizedBox(height: 8),
-                
+
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 100),
                   child: Text(
-                    isArabic 
+                    isArabic
                         ? 'انضم إلينا وابدأ رحلة اللياقة'
                         : 'Join us and start your fitness journey',
                     style: const TextStyle(
@@ -90,9 +210,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Full Name
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 200),
@@ -108,18 +228,22 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic ? 'الرجاء إدخال الاسم' : 'Please enter your name';
+                        return isArabic
+                            ? 'الرجاء إدخال الاسم'
+                            : 'Please enter your name';
                       }
                       if (value.length < 3) {
-                        return isArabic ? 'الاسم قصير جداً' : 'Name is too short';
+                        return isArabic
+                            ? 'الاسم قصير جداً'
+                            : 'Name is too short';
                       }
                       return null;
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Email
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 260),
@@ -136,7 +260,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic ? 'الرجاء إدخال البريد' : 'Please enter email';
+                        return isArabic
+                            ? 'الرجاء إدخال البريد'
+                            : 'Please enter email';
                       }
                       if (!value.contains('@')) {
                         return isArabic ? 'بريد غير صالح' : 'Invalid email';
@@ -145,34 +271,39 @@ class _SignupScreenState extends State<SignupScreen> {
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Phone
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 320),
-                  child: TextFormField(
+                  child: InternationalPhoneInput(
                     controller: _phoneController,
-                    decoration: InputDecoration(
-                      labelText: isArabic ? 'رقم الهاتف' : 'Phone Number',
-                      hintText: '+966 5X XXX XXXX',
-                      prefixIcon: const Icon(Icons.phone),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return isArabic ? 'الرجاء إدخال رقم الهاتف' : 'Please enter phone';
-                      }
-                      return null;
+                    label: isArabic ? 'رقم الهاتف' : 'Phone Number',
+                    hint: isArabic ? '10 1234 5678' : '10 1234 5678',
+                    selectedCountry: _selectedCountry,
+                    onCountryChanged: (country) {
+                      setState(() {
+                        _selectedCountry = country;
+                        _phoneErrorText = null;
+                        _resetOtpState();
+                      });
+                      context.read<AuthProvider>().clearErrors();
                     },
+                    onChanged: (_) {
+                      setState(() {
+                        _phoneErrorText = null;
+                        _resetOtpState();
+                      });
+                      context.read<AuthProvider>().clearErrors();
+                    },
+                    enabled: !authProvider.isLoading && !_isSendingCode && !_isCreatingAccount,
+                    errorText: _phoneErrorText,
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Password
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 380),
@@ -181,11 +312,15 @@ class _SignupScreenState extends State<SignupScreen> {
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: isArabic ? 'كلمة المرور' : 'Password',
-                      hintText: isArabic ? '8 أحرف على الأقل' : 'At least 8 characters',
+                      hintText: isArabic
+                          ? '8 أحرف على الأقل'
+                          : 'At least 8 characters',
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
@@ -199,18 +334,22 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic ? 'الرجاء إدخال كلمة المرور' : 'Please enter password';
+                        return isArabic
+                            ? 'الرجاء إدخال كلمة المرور'
+                            : 'Please enter password';
                       }
                       if (value.length < 8) {
-                        return isArabic ? 'كلمة المرور قصيرة' : 'Password too short';
+                        return isArabic
+                            ? 'كلمة المرور قصيرة'
+                            : 'Password too short';
                       }
                       return null;
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Confirm Password
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 440),
@@ -218,12 +357,17 @@ class _SignupScreenState extends State<SignupScreen> {
                     controller: _confirmPasswordController,
                     obscureText: _obscureConfirmPassword,
                     decoration: InputDecoration(
-                      labelText: isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password',
-                      hintText: isArabic ? 'أعد كتابة كلمة المرور' : 'Re-enter password',
+                      labelText:
+                          isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password',
+                      hintText: isArabic
+                          ? 'أعد كتابة كلمة المرور'
+                          : 'Re-enter password',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                          _obscureConfirmPassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
                         onPressed: () {
                           setState(() {
@@ -237,18 +381,22 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic ? 'الرجاء تأكيد كلمة المرور' : 'Please confirm password';
+                        return isArabic
+                            ? 'الرجاء تأكيد كلمة المرور'
+                            : 'Please confirm password';
                       }
                       if (value != _passwordController.text) {
-                        return isArabic ? 'كلمة المرور غير متطابقة' : 'Passwords don\'t match';
+                        return isArabic
+                            ? 'كلمة المرور غير متطابقة'
+                            : 'Passwords don\'t match';
                       }
                       return null;
                     },
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Terms and conditions
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 520),
@@ -283,12 +431,12 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                               children: [
                                 TextSpan(
-                                  text: isArabic 
-                                      ? 'أوافق على ' 
+                                  text: isArabic
+                                      ? 'أوافق على '
                                       : 'I agree to the ',
                                 ),
                                 TextSpan(
-                                  text: isArabic 
+                                  text: isArabic
                                       ? 'الشروط والأحكام'
                                       : 'Terms & Conditions',
                                   style: const TextStyle(
@@ -301,7 +449,7 @@ class _SignupScreenState extends State<SignupScreen> {
                                   text: isArabic ? ' و' : ' and ',
                                 ),
                                 TextSpan(
-                                  text: isArabic 
+                                  text: isArabic
                                       ? 'سياسة الخصوصية'
                                       : 'Privacy Policy',
                                   style: const TextStyle(
@@ -318,25 +466,66 @@ class _SignupScreenState extends State<SignupScreen> {
                     ],
                   ),
                 ),
-                
+
+                if (_isOtpSent) ...[
+                  const SizedBox(height: 16),
+                  AnimatedReveal(
+                    delay: const Duration(milliseconds: 560),
+                    child: TextFormField(
+                      controller: _otpController,
+                      decoration: InputDecoration(
+                        labelText: isArabic ? 'رمز التحقق' : 'Verification Code',
+                        hintText: isArabic ? 'أدخل 6 أرقام' : 'Enter 6 digits',
+                        prefixIcon: const Icon(Icons.lock_clock_outlined),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        errorText: _verificationErrorText,
+                      ),
+                      keyboardType: TextInputType.number,
+                      maxLength: 6,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: TextButton(
+                      onPressed: _resendEnabled && !_isSendingCode && !_isCreatingAccount
+                          ? () => _sendCode(isArabic)
+                          : null,
+                      child: Text(
+                        _resendEnabled
+                            ? (isArabic ? 'إعادة الإرسال' : 'Resend code')
+                            : '${isArabic ? 'إعادة الإرسال خلال' : 'Resend in'} $_resendCountdown',
+                      ),
+                    ),
+                  ),
+                ],
+
                 const SizedBox(height: 24),
-                
+
                 // Sign up button
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 580),
                   child: CustomButton(
-                    text: authProvider.isLoading
-                        ? (isArabic ? 'جاري الإنشاء...' : 'Creating account...')
-                        : (isArabic ? 'إنشاء حساب' : 'Sign Up'),
-                    onPressed: authProvider.isLoading ? null : () => _handleSignup(isArabic),
+                    text: _isSendingCode
+                        ? (isArabic ? 'جارٍ إرسال الرمز...' : 'Sending code...')
+                        : _isCreatingAccount
+                            ? (isArabic ? 'جاري الإنشاء...' : 'Creating account...')
+                            : _isOtpSent
+                                ? (isArabic ? 'إنشاء حساب' : 'Create Account')
+                                : (isArabic ? 'إرسال الرمز' : 'Send Code'),
+                    onPressed: authProvider.isLoading || _isSendingCode || _isCreatingAccount
+                        ? null
+                        : () => _isOtpSent ? _handleSignup(isArabic) : _sendCode(isArabic),
                     variant: ButtonVariant.primary,
                     size: ButtonSize.large,
                     fullWidth: true,
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Divider with "OR"
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 640),
@@ -357,9 +546,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Social signup buttons
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 700),
@@ -372,9 +561,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Social buttons row
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 760),
@@ -409,9 +598,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 32),
-                
+
                 // Login link
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 820),
@@ -419,7 +608,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        isArabic ? 'لديك حساب بالفعل؟' : 'Already have an account?',
+                        isArabic
+                            ? 'لديك حساب بالفعل؟'
+                            : 'Already have an account?',
                         style: const TextStyle(
                           fontSize: 14,
                           color: AppColors.textSecondary,
@@ -446,7 +637,7 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
-  
+
   Widget _buildSocialButton({
     required IconData icon,
     required String label,
@@ -465,17 +656,17 @@ class _SignupScreenState extends State<SignupScreen> {
       child: Icon(icon, color: color, size: 28),
     );
   }
-  
+
   Future<void> _handleSignup(bool isArabic) async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic 
+            isArabic
                 ? 'الرجاء الموافقة على الشروط والأحكام'
                 : 'Please agree to Terms & Conditions',
           ),
@@ -484,33 +675,61 @@ class _SignupScreenState extends State<SignupScreen> {
       );
       return;
     }
-    
+
+    final normalizedPhone = _normalizedPhone ?? _validateAndNormalizePhone(isArabic);
+    if (normalizedPhone == null) {
+      return;
+    }
+
+    final otpCode = _otpController.text.trim();
+    if (otpCode.length != 6) {
+      setState(() {
+        _verificationErrorText =
+            isArabic ? 'أدخل رمز تحقق مكوناً من 6 أرقام' : 'Enter a 6-digit verification code';
+      });
+      return;
+    }
+
     final authProvider = context.read<AuthProvider>();
-    
+    setState(() {
+      _isCreatingAccount = true;
+      _verificationErrorText = null;
+    });
+
     final success = await authProvider.signup(
       name: _nameController.text.trim(),
       email: _emailController.text.trim(),
-      phone: _phoneController.text.trim(),
+      phone: normalizedPhone,
       password: _passwordController.text,
+      otpCode: otpCode,
     );
-    
-    if (success && mounted) {
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _isCreatingAccount = false;
+    });
+
+    if (success) {
       widget.onAuthenticated();
-    } else if (authProvider.error != null && mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authProvider.error!),
-          backgroundColor: AppColors.error,
-        ),
-      );
+    } else {
+      setState(() {
+        if (authProvider.phoneFieldError != null) {
+          _phoneErrorText = authProvider.phoneFieldError;
+        } else {
+          _verificationErrorText = authProvider.error;
+        }
+      });
     }
   }
-  
+
   Future<void> _socialSignup(String provider, bool isArabic) async {
     final authProvider = context.read<AuthProvider>();
-    
+
     final success = await authProvider.socialLogin(provider);
-    
+
     if (success && mounted) {
       widget.onAuthenticated();
     } else if (authProvider.error != null && mounted) {

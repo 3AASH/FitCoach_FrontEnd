@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/coach_client.dart';
+import '../models/coach_client_checkin.dart';
 import '../models/appointment.dart';
 import '../models/coach_analytics.dart';
 import '../models/coach_earnings.dart';
@@ -20,7 +21,14 @@ class CoachRepository {
         '/coaches/$coachId/profile',
         options: await _getAuthOptions(),
       );
-      return CoachProfile.fromJson(response.data as Map<String, dynamic>);
+      final data = _asMap(response.data);
+      if (data == null) {
+        throw const FormatException(
+            'Coach profile payload is not a JSON object');
+      }
+
+      final payload = _asMap(data['coach']) ?? data;
+      return CoachProfile.fromJson(payload);
     } on DioException catch (e) {
       throw Exception(
           e.response?.data['message'] ?? 'Failed to get coach profile');
@@ -92,6 +100,26 @@ class CoachRepository {
       return clients.firstWhere((c) => c.id == clientId);
     } catch (e) {
       throw Exception('Failed to get client details');
+    }
+  }
+
+  Future<CoachClientCheckInResponse> getClientCheckIns({
+    required String coachId,
+    required String clientId,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/coaches/$coachId/clients/$clientId/checkins',
+        options: await _getAuthOptions(),
+      );
+
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return CoachClientCheckInResponse.fromJson(data);
+    } on DioException catch (e) {
+      throw Exception(
+        _asMap(e.response?.data)?['message'] ??
+            'Failed to get client check-ins',
+      );
     }
   }
 
