@@ -22,14 +22,16 @@ class ApiConfig {
 
   // Base URLs for different environments
   static const Map<String, String> _baseUrls = {
-    'staging': 'https://staging-api.fitcoach.sa/v2',
-    'production': 'https://api.fitcoach.sa/v2',
+    'development': 'http://localhost:3000/v2',
+    'staging': 'https://stagingfitcoach.livingitenglish.com/v2',
+    'production': 'https://fitcoach.livingitenglish.com/v2',
   };
 
   // Socket URLs for different environments
   static const Map<String, String> _socketUrls = {
-    'staging': 'https://staging-api.fitcoach.sa',
-    'production': 'https://api.fitcoach.sa',
+    'development': 'http://localhost:3000',
+    'staging': 'https://stagingfitcoach.livingitenglish.com',
+    'production': 'https://fitcoach.livingitenglish.com',
   };
 
   /// Get current API base URL
