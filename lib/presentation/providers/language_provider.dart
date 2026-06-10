@@ -612,6 +612,30 @@ class LanguageProvider with ChangeNotifier {
     'subscription_payment_redirect': 'Redirecting to payment page',
     'subscription_payment_failed': 'Payment failed: {error}',
     'subscription_continue_to_payment': 'Continue to payment',
+    'subscription_send_request': 'Send subscription request',
+    'subscription_request_sent':
+        'Request sent. Your plan will be activated once the admin confirms payment.',
+    'subscription_request_failed': 'Failed to send subscription request',
+    'subscription_request_pending_banner':
+        'Your subscription request is awaiting admin review.',
+    'subscription_request_cancel': 'Cancel',
+    'subscription_request_cancelled': 'Subscription request cancelled',
+    'subscription_request_disclaimer':
+        'Payment is arranged directly with the admin. Your plan activates after approval.',
+    'subscription_request_status_pending': 'Pending',
+    'subscription_request_summary': 'Current: {current} → Requested: {plan}',
+    'subscription_request_approve': 'Approve',
+    'subscription_request_reject': 'Reject',
+    'subscription_request_approve_confirm_title': 'Approve request?',
+    'subscription_request_approve_confirm_body':
+        'Confirm that payment has been received. The plan activates immediately.',
+    'subscription_request_reject_confirm_title': 'Reject request?',
+    'subscription_request_reject_confirm_body':
+        'The user will be notified that their request was declined.',
+    'subscription_request_approved_toast': 'Request approved — plan activated',
+    'subscription_request_rejected_toast': 'Request rejected',
+    'subscription_request_action_failed': 'Failed to update request',
+    'subscription_admin_pending_requests': 'Pending subscription requests',
     'subscription_features_header': 'Features',
     'subscription_feature_included': 'Included',
     'subscription_feature_not_included': 'Not included',
@@ -1954,6 +1978,30 @@ class LanguageProvider with ChangeNotifier {
     'subscription_payment_redirect': 'سيتم توجيهك إلى صفحة الدفع',
     'subscription_payment_failed': 'فشل إنشاء الدفع: {error}',
     'subscription_continue_to_payment': 'متابعة للدفع',
+    'subscription_send_request': 'إرسال طلب الاشتراك',
+    'subscription_request_sent':
+        'تم إرسال الطلب. سيتم تفعيل خطتك بعد تأكيد الإدارة لعملية الدفع.',
+    'subscription_request_failed': 'فشل إرسال طلب الاشتراك',
+    'subscription_request_pending_banner':
+        'طلب الاشتراك الخاص بك في انتظار مراجعة الإدارة.',
+    'subscription_request_cancel': 'إلغاء',
+    'subscription_request_cancelled': 'تم إلغاء طلب الاشتراك',
+    'subscription_request_disclaimer':
+        'يتم ترتيب الدفع مباشرة مع الإدارة. يتم تفعيل خطتك بعد الموافقة.',
+    'subscription_request_status_pending': 'قيد الانتظار',
+    'subscription_request_summary': 'الحالي: {current} ← المطلوب: {plan}',
+    'subscription_request_approve': 'موافقة',
+    'subscription_request_reject': 'رفض',
+    'subscription_request_approve_confirm_title': 'الموافقة على الطلب؟',
+    'subscription_request_approve_confirm_body':
+        'أكد استلام الدفع. سيتم تفعيل الخطة فوراً.',
+    'subscription_request_reject_confirm_title': 'رفض الطلب؟',
+    'subscription_request_reject_confirm_body':
+        'سيتم إشعار المستخدم برفض طلبه.',
+    'subscription_request_approved_toast': 'تمت الموافقة — تم تفعيل الخطة',
+    'subscription_request_rejected_toast': 'تم رفض الطلب',
+    'subscription_request_action_failed': 'فشل تحديث الطلب',
+    'subscription_admin_pending_requests': 'طلبات الاشتراك المعلقة',
     'subscription_features_header': 'الميزات',
     'subscription_feature_included': 'متوفر',
     'subscription_feature_not_included': 'غير متوفر',

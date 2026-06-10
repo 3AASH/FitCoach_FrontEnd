@@ -99,4 +99,84 @@ class SubscriptionPlanRepository {
       throw Exception(e.response?.data['message'] ?? 'Failed to delete plan');
     }
   }
+
+  /// Current user's subscription state plus their latest request, if any.
+  Future<Map<String, dynamic>> getMySubscription() async {
+    try {
+      final response = await _dio.get(
+        '/subscriptions/me',
+        options: await _getAuthOptions(),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to load subscription');
+    }
+  }
+
+  /// Submit a subscription request; the admin settles payment manually and
+  /// approves or rejects it.
+  Future<Map<String, dynamic>> requestSubscription(String planId) async {
+    try {
+      final response = await _dio.post(
+        '/subscriptions/requests',
+        data: {'planId': planId},
+        options: await _getAuthOptions(),
+      );
+      final data = response.data as Map<String, dynamic>;
+      return data['request'] as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to submit subscription request');
+    }
+  }
+
+  Future<void> cancelRequest(String requestId) async {
+    try {
+      await _dio.delete(
+        '/subscriptions/requests/$requestId',
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to cancel subscription request');
+    }
+  }
+
+  /// Admin: list subscription requests, optionally filtered by status.
+  Future<List<Map<String, dynamic>>> getRequests({String status = 'pending'}) async {
+    try {
+      final response = await _dio.get(
+        '/admin/subscription-requests',
+        queryParameters: {'status': status},
+        options: await _getAuthOptions(),
+      );
+      final data = response.data as Map<String, dynamic>;
+      final requests = data['requests'] as List? ?? [];
+      return requests.cast<Map<String, dynamic>>();
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to load subscription requests');
+    }
+  }
+
+  Future<void> approveRequest(String requestId, {String? adminNotes}) async {
+    try {
+      await _dio.put(
+        '/admin/subscription-requests/$requestId/approve',
+        data: {if (adminNotes != null) 'adminNotes': adminNotes},
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to approve request');
+    }
+  }
+
+  Future<void> rejectRequest(String requestId, {String? adminNotes}) async {
+    try {
+      await _dio.put(
+        '/admin/subscription-requests/$requestId/reject',
+        data: {if (adminNotes != null) 'adminNotes': adminNotes},
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to reject request');
+    }
+  }
 }

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../core/constants/colors.dart';
-import '../../../data/repositories/payment_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
@@ -29,7 +27,6 @@ class SubscriptionUpgradeScreen extends StatefulWidget {
 class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
   String? _selectedPlanId;
   String _selectedCycle = 'monthly'; // 'monthly' or 'yearly'
-  String _selectedPaymentMethod = 'stripe'; // 'stripe' or 'tap'
   bool _isProcessing = false;
 
   @override
@@ -37,7 +34,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     super.initState();
     _selectedPlanId = widget.requiredTier;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<SubscriptionPlanProvider>().loadPlans();
+      final planProvider = context.read<SubscriptionPlanProvider>();
+      planProvider.loadPlans();
+      planProvider.loadMySubscription();
     });
   }
 
@@ -125,31 +124,48 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                             ),
                           )),
                       const SizedBox(height: 32),
-                      Text(
-                        tr('subscription_payment_method'),
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildPaymentMethodSelector(languageProvider),
-                      const SizedBox(height: 32),
-                      SizedBox(
-                        width: double.infinity,
-                        child: CustomButton(
-                          text: _isProcessing
-                              ? tr('processing')
-                              : tr('subscription_continue_to_payment'),
-                            onPressed: _isProcessing || selectedPlan == null
-                              ? null
-                              : () => _handlePayment(languageProvider, selectedPlan!),
-                          variant: ButtonVariant.primary,
-                          size: ButtonSize.large,
-                          fullWidth: true,
-                          icon: Icons.payment,
+                      if (planProvider.hasPendingRequest) ...[
+                        CustomCard(
+                          color: AppColors.info.withValues(alpha: 0.1),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.hourglass_top, color: AppColors.info),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  tr('subscription_request_pending_banner'),
+                                  style: const TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: _isProcessing
+                                    ? null
+                                    : () => _handleCancelRequest(languageProvider),
+                                child: Text(tr('subscription_request_cancel')),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
+                        const SizedBox(height: 16),
+                      ] else
+                        SizedBox(
+                          width: double.infinity,
+                          child: CustomButton(
+                            text: _isProcessing
+                                ? tr('processing')
+                                : tr('subscription_send_request'),
+                            onPressed: _isProcessing || selectedPlan == null
+                                ? null
+                                : () => _handleSubscriptionRequest(languageProvider, selectedPlan!),
+                            variant: ButtonVariant.primary,
+                            size: ButtonSize.large,
+                            fullWidth: true,
+                            icon: Icons.send,
+                          ),
+                        ),
                       const SizedBox(height: 16),
                       Text(
-                        tr('subscription_payment_disclaimer'),
+                        tr('subscription_request_disclaimer'),
                         style: const TextStyle(fontSize: 12, color: AppColors.textDisabled),
                         textAlign: TextAlign.center,
                       ),
@@ -483,83 +499,14 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     return Color(0xFF000000 | parsed);
   }
   
-  Widget _buildPaymentMethodSelector(LanguageProvider languageProvider) {
-    String tr(String key, {Map<String, String>? args}) =>
-        languageProvider.t(key, args: args);
-    return Row(
-      children: [
-        Expanded(
-          child: _buildPaymentMethodCard(
-            'stripe',
-            tr('payment_method_credit_card'),
-            Icons.credit_card,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: _buildPaymentMethodCard(
-            'tap',
-            tr('payment_method_tap'),
-            Icons.payment,
-          ),
-        ),
-      ],
-    );
-  }
-  
-  Widget _buildPaymentMethodCard(
-    String method,
-    String label,
-    IconData icon,
-  ) {
-    final isSelected = _selectedPaymentMethod == method;
-    
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _selectedPaymentMethod = method;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
-            width: isSelected ? 2 : 1,
-          ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              color: isSelected ? AppColors.primary : AppColors.textDisabled,
-              size: 32,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primary : AppColors.textSecondary,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-  
-  Future<void> _handlePayment(LanguageProvider languageProvider, SubscriptionPlan plan) async {
+  Future<void> _handleSubscriptionRequest(
+      LanguageProvider languageProvider, SubscriptionPlan plan) async {
     setState(() {
       _isProcessing = true;
     });
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
-    final tierCode = _resolveTierCode(plan);
-    
+
     try {
       if (DemoConfig.isDemo) {
         final userProvider = context.read<UserProvider>();
@@ -580,55 +527,27 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
         }
         return;
       }
-      final repository = PaymentRepository();
-      
-      Map<String, dynamic> paymentResult;
-      
-      if (_selectedPaymentMethod == 'stripe') {
-        // Create Stripe payment
-        paymentResult = await repository.createStripePayment(
-          tier: tierCode,
-          billingCycle: _selectedCycle,
-        );
-        
-        // Launch Stripe checkout URL
-        final checkoutUrl = paymentResult['checkoutUrl'] as String;
-        await _launchPaymentUrl(checkoutUrl);
-        
-      } else {
-        // Create Tap payment
-        paymentResult = await repository.createTapPayment(
-          tier: tierCode,
-          billingCycle: _selectedCycle,
-        );
-        
-        // Launch Tap payment URL
-        final paymentUrl = paymentResult['paymentUrl'] as String;
-        await _launchPaymentUrl(paymentUrl);
-      }
-      
+
+      final planProvider = context.read<SubscriptionPlanProvider>();
+      final success = await planProvider.submitRequest(plan.id);
+
       if (mounted) {
-        // Show success message
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              tr('subscription_payment_redirect'),
+              success
+                  ? tr('subscription_request_sent')
+                  : (planProvider.error ?? tr('subscription_request_failed')),
             ),
-            backgroundColor: AppColors.success,
+            backgroundColor: success ? AppColors.success : AppColors.error,
           ),
         );
-        
-        // After payment completes (webhook will update backend)
-        // User needs to restart app or pull to refresh
       }
-      
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              tr('subscription_payment_failed', args: {'error': e.toString()}),
-            ),
+            content: Text(tr('subscription_request_failed')),
             backgroundColor: AppColors.error,
           ),
         );
@@ -642,26 +561,19 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     }
   }
 
-  String _resolveTierCode(SubscriptionPlan plan) {
-    const supported = {'freemium', 'premium', 'smart_premium'};
-    final idValue = plan.id.toLowerCase();
-    if (supported.contains(idValue)) return idValue;
+  Future<void> _handleCancelRequest(LanguageProvider languageProvider) async {
+    String tr(String key, {Map<String, String>? args}) =>
+        languageProvider.t(key, args: args);
+    final planProvider = context.read<SubscriptionPlanProvider>();
+    final success = await planProvider.cancelRequest();
 
-    final normalizedName = plan.name
-        .toLowerCase()
-        .replaceAll(' ', '_')
-        .replaceAll('-', '_');
-    if (supported.contains(normalizedName)) return normalizedName;
-
-    return idValue;
-  }
-  
-  Future<void> _launchPaymentUrl(String url) async {
-    final uri = Uri.parse(url);
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
-      throw Exception('Could not launch payment URL');
+    if (mounted && success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(tr('subscription_request_cancelled')),
+          backgroundColor: AppColors.success,
+        ),
+      );
     }
   }
 }

@@ -21,7 +21,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<SubscriptionPlanProvider>().loadPlans();
+      final planProvider = context.read<SubscriptionPlanProvider>();
+      planProvider.loadPlans();
+      planProvider.loadRequests();
     });
   }
 
@@ -41,12 +43,29 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             child: planProvider.isLoading && !planProvider.hasLoaded
                 ? const Center(child: CircularProgressIndicator())
                 : RefreshIndicator(
-                    onRefresh: () => planProvider.loadPlans(forceRefresh: true),
+                    onRefresh: () async {
+                      await planProvider.loadPlans(forceRefresh: true);
+                      await planProvider.loadRequests();
+                    },
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 140),
                       children: [
                         if (planProvider.error != null)
                           _ErrorBanner(message: planProvider.error!),
+                        if (planProvider.pendingRequests.isNotEmpty) ...[
+                          Text(
+                            tr('subscription_admin_pending_requests'),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...planProvider.pendingRequests.map(
+                            (request) => _buildRequestCard(request, languageProvider),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
                         if (planProvider.isSaving)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 8),
@@ -160,6 +179,145 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRequestCard(
+    Map<String, dynamic> request,
+    LanguageProvider languageProvider,
+  ) {
+    String tr(String key, {Map<String, String>? args}) =>
+        languageProvider.t(key, args: args);
+    final userName = request['user_name']?.toString() ?? request['phone_number']?.toString() ?? '—';
+    final planName = request['plan_name']?.toString() ?? '—';
+    final currentTier = request['current_tier']?.toString() ?? 'freemium';
+    final price = request['price']?.toString();
+    final currency = request['currency']?.toString() ?? '';
+
+    return CustomCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.person_outline, size: 20, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  userName,
+                  style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  tr('subscription_request_status_pending'),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            tr(
+              'subscription_request_summary',
+              args: {
+                'current': currentTier,
+                'plan': price != null && price.isNotEmpty
+                    ? '$planName ($price $currency)'
+                    : planName,
+              },
+            ),
+            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: tr('subscription_request_approve'),
+                  onPressed: () => _decideRequest(request, approve: true),
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.medium,
+                  fullWidth: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  text: tr('subscription_request_reject'),
+                  onPressed: () => _decideRequest(request, approve: false),
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.medium,
+                  fullWidth: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _decideRequest(Map<String, dynamic> request, {required bool approve}) async {
+    final languageProvider = context.read<LanguageProvider>();
+    String tr(String key, {Map<String, String>? args}) =>
+        languageProvider.t(key, args: args);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          approve
+              ? tr('subscription_request_approve_confirm_title')
+              : tr('subscription_request_reject_confirm_title'),
+        ),
+        content: Text(
+          approve
+              ? tr('subscription_request_approve_confirm_body')
+              : tr('subscription_request_reject_confirm_body'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(tr('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(tr('confirm')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final planProvider = context.read<SubscriptionPlanProvider>();
+    final success = await planProvider.decideRequest(
+      request['id'].toString(),
+      approve: approve,
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? (approve
+                  ? tr('subscription_request_approved_toast')
+                  : tr('subscription_request_rejected_toast'))
+              : (planProvider.error ?? tr('subscription_request_action_failed')),
+        ),
+        backgroundColor: success ? AppColors.success : AppColors.error,
       ),
     );
   }
