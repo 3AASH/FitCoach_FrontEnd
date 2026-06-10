@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
 import '../../../data/models/appointment.dart';
+import '../../../data/repositories/booking_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/video_call_provider.dart';
 import '../../widgets/custom_button.dart';
@@ -14,9 +15,9 @@ class AppointmentDetailScreen extends StatefulWidget {
   final Appointment appointment;
 
   const AppointmentDetailScreen({
-    Key? key,
+    super.key,
     required this.appointment,
-  }) : super(key: key);
+  });
 
   @override
   State<AppointmentDetailScreen> createState() =>
@@ -24,7 +25,9 @@ class AppointmentDetailScreen extends StatefulWidget {
 }
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
+  final BookingRepository _bookingRepository = BookingRepository();
   bool _isCheckingAccess = false;
+  bool _isActionInProgress = false;
   String? _accessMessage;
   bool _canJoin = false;
 
@@ -59,7 +62,6 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   }
 
   Future<void> _joinCall() async {
-    // Navigate to video call screen
     final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
     Navigator.push(
       context,
@@ -72,6 +74,150 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _cancelAppointment() async {
+    final lang = Provider.of<LanguageProvider>(context, listen: false);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(lang.t('cancel_appointment')),
+        content: Text(lang.t('cancel_appointment_confirm')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(lang.t('cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
+            child: Text(lang.t('cancel_appointment'), style: const TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isActionInProgress = true);
+
+    try {
+      await _bookingRepository.cancelBooking(widget.appointment.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(lang.t('cancel_appointment_success')), backgroundColor: AppColors.success),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(lang.t('cancel_appointment_failed')), backgroundColor: AppColors.error),
+      );
+    } finally {
+      if (mounted) setState(() => _isActionInProgress = false);
+    }
+  }
+
+  Future<void> _rescheduleAppointment() async {
+    final lang = Provider.of<LanguageProvider>(context, listen: false);
+
+    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
+    TimeOfDay selectedTime = const TimeOfDay(hour: 10, minute: 0);
+
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setDialogState) => AlertDialog(
+          title: Text(lang.t('reschedule_appointment')),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: Text(lang.t('date')),
+                subtitle: Text(DateFormat('EEEE, MMM d, y').format(selectedDate)),
+                onTap: () async {
+                  final picked = await showDatePicker(
+                    context: ctx,
+                    initialDate: selectedDate,
+                    firstDate: DateTime.now(),
+                    lastDate: DateTime.now().add(const Duration(days: 60)),
+                  );
+                  if (picked != null) {
+                    setDialogState(() => selectedDate = picked);
+                  }
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.access_time),
+                title: Text(lang.t('time')),
+                subtitle: Text(selectedTime.format(context)),
+                onTap: () async {
+                  final picked = await showTimePicker(
+                    context: ctx,
+                    initialTime: selectedTime,
+                  );
+                  if (picked != null) {
+                    setDialogState(() => selectedTime = picked);
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text(lang.t('cancel')),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, {
+                'date': selectedDate,
+                'time': selectedTime,
+              }),
+              child: Text(lang.t('confirm')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (result == null || !mounted) return;
+
+    final newDate = result['date'] as DateTime;
+    final newTime = result['time'] as TimeOfDay;
+    // Backend stores schedules in UTC; convert the picked local time
+    final utcDateTime = DateTime(
+      newDate.year,
+      newDate.month,
+      newDate.day,
+      newTime.hour,
+      newTime.minute,
+    ).toUtc();
+    final timeStr =
+        '${utcDateTime.hour.toString().padLeft(2, '0')}:${utcDateTime.minute.toString().padLeft(2, '0')}';
+
+    setState(() => _isActionInProgress = true);
+
+    try {
+      await _bookingRepository.updateBooking(
+        widget.appointment.id,
+        scheduledDate: utcDateTime,
+        scheduledTime: timeStr,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(lang.t('reschedule_appointment_success')), backgroundColor: AppColors.success),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(lang.t('reschedule_appointment_failed')), backgroundColor: AppColors.error),
+      );
+    } finally {
+      if (mounted) setState(() => _isActionInProgress = false);
+    }
   }
 
   Color _getStatusColor(String status) {
@@ -135,7 +281,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
 
-    final scheduledTime = DateTime.parse(widget.appointment.scheduledAt);
+    final scheduledTime = DateTime.parse(widget.appointment.scheduledAt).toLocal();
     final now = DateTime.now();
     final tenMinutesBefore = scheduledTime.subtract(const Duration(minutes: 10));
     final canJoinSoon = now.isAfter(tenMinutesBefore) &&
@@ -320,6 +466,35 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       ),
                     ),
                 ],
+              ),
+
+            // Cancel/reschedule actions for active appointments
+            if (widget.appointment.status == 'confirmed' || widget.appointment.status == 'pending')
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Row(
+                  children: [
+                    if (widget.appointment.status == 'confirmed')
+                      Expanded(
+                        child: CustomButton(
+                          text: languageProvider.t('reschedule_appointment'),
+                          onPressed: _isActionInProgress ? null : _rescheduleAppointment,
+                          icon: Icons.calendar_month,
+                          variant: ButtonVariant.secondary,
+                        ),
+                      ),
+                    if (widget.appointment.status == 'confirmed')
+                      const SizedBox(width: 12),
+                    Expanded(
+                      child: CustomButton(
+                        text: languageProvider.t('cancel_appointment'),
+                        onPressed: _isActionInProgress ? null : _cancelAppointment,
+                        icon: Icons.cancel,
+                        variant: ButtonVariant.danger,
+                      ),
+                    ),
+                  ],
+                ),
               ),
           ],
         ),
