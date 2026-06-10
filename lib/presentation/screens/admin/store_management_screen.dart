@@ -137,6 +137,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 'stock': stock,
                 'status': status,
                 'sales': 0,
+                'description': product.description ?? '',
+                'imageUrl': product.mainImage ?? '',
               };
             })
             .toList();
@@ -316,7 +318,15 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       color: AppColors.surface,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.shopping_bag, size: 30),
+                    clipBehavior: Clip.antiAlias,
+                    child: product['imageUrl']?.toString().isNotEmpty == true
+                        ? Image.network(
+                            product['imageUrl'].toString(),
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                const Icon(Icons.shopping_bag, size: 30),
+                          )
+                        : const Icon(Icons.shopping_bag, size: 30),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -642,81 +652,137 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         TextEditingController(text: product?['price']?.toString() ?? '');
     final stockController =
         TextEditingController(text: product?['stock']?.toString() ?? '');
-    String status = product?['status']?.toString() ?? 'active';
+    final descriptionController = TextEditingController(
+        text: product?['description']?.toString() ?? '');
+    final imageUrlController =
+        TextEditingController(text: product?['imageUrl']?.toString() ?? '');
+    final formKey = GlobalKey<FormState>();
+    bool saving = false;
 
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(isEdit
-            ? (lang.t('store_edit_product'))
-            : (lang.t('store_add_product'))),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration:
-                    InputDecoration(labelText: lang.t('store_name_label')),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: categoryController,
-                decoration:
-                    InputDecoration(labelText: lang.t('store_category_label')),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: priceController,
-                keyboardType: TextInputType.number,
-                decoration:
-                    InputDecoration(labelText: lang.t('store_price_label')),
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: stockController,
-                keyboardType: TextInputType.number,
-                decoration:
-                    InputDecoration(labelText: lang.t('store_stock_label')),
-              ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                value: status,
-                items: [
-                  DropdownMenuItem(
-                    value: 'active',
-                    child: Text(lang.t('store_status_active')),
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(isEdit
+              ? (lang.t('store_edit_product'))
+              : (lang.t('store_add_product'))),
+          content: Form(
+            key: formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration:
+                        InputDecoration(labelText: lang.t('store_name_label')),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return lang.t('store_required_field');
+                      }
+                      return null;
+                    },
                   ),
-                  DropdownMenuItem(
-                    value: 'low_stock',
-                    child: Text(lang.t('store_status_low_stock')),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: categoryController,
+                    decoration: InputDecoration(
+                        labelText: lang.t('store_category_label')),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || value.trim().isEmpty) {
+                        return lang.t('store_required_field');
+                      }
+                      return null;
+                    },
                   ),
-                  DropdownMenuItem(
-                    value: 'out_of_stock',
-                    child: Text(lang.t('store_status_out_of_stock')),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: priceController,
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    decoration:
+                        InputDecoration(labelText: lang.t('store_price_label')),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      final price = double.tryParse(value?.trim() ?? '');
+                      if (price == null || price <= 0) {
+                        return lang.t('store_invalid_price');
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: stockController,
+                    keyboardType: TextInputType.number,
+                    decoration:
+                        InputDecoration(labelText: lang.t('store_stock_label')),
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      final stock = int.tryParse(value?.trim() ?? '');
+                      if (stock == null || stock < 0) {
+                        return lang.t('store_invalid_stock');
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                        labelText: lang.t('store_description_label')),
+                    minLines: 2,
+                    maxLines: 4,
+                    textInputAction: TextInputAction.next,
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: imageUrlController,
+                    decoration: InputDecoration(
+                        labelText: lang.t('store_image_url_label')),
+                    keyboardType: TextInputType.url,
+                    validator: (value) {
+                      final url = value?.trim() ?? '';
+                      if (url.isEmpty) return null;
+                      final uri = Uri.tryParse(url);
+                      if (uri == null ||
+                          uri.host.isEmpty ||
+                          !(uri.scheme == 'http' || uri.scheme == 'https')) {
+                        return lang.t('store_invalid_image_url');
+                      }
+                      return null;
+                    },
                   ),
                 ],
-                onChanged: (v) => status = v ?? status,
-                decoration:
-                    InputDecoration(labelText: lang.t('store_status_label')),
               ),
-            ],
+            ),
           ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(lang.t('cancel')),
-          ),
-          TextButton(
-            onPressed: () async {
-              final name = nameController.text.trim();
-              if (name.isEmpty) return;
-              final category = categoryController.text.trim().isEmpty
-                  ? 'General'
-                  : categoryController.text.trim();
-              final price = double.tryParse(priceController.text.trim()) ?? 0;
-              final stock = int.tryParse(stockController.text.trim()) ?? 0;
+          actions: [
+            TextButton(
+              onPressed: saving ? null : () => Navigator.pop(context),
+              child: Text(lang.t('cancel')),
+            ),
+            FilledButton(
+              onPressed: saving
+                  ? null
+                  : () async {
+                      if (!(formKey.currentState?.validate() ?? false)) {
+                        return;
+                      }
+
+                      final name = nameController.text.trim();
+                      final category = categoryController.text.trim();
+                      final price =
+                          double.parse(priceController.text.trim());
+                      final stock = int.parse(stockController.text.trim());
+                      final description = descriptionController.text.trim();
+                      final imageUrl = imageUrlController.text.trim();
+
+                      setDialogState(() {
+                        saving = true;
+                      });
 
               if (DemoConfig.isDemo) {
                 setState(() {
@@ -730,7 +796,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                         'category': category,
                         'price': price,
                         'stock': stock,
-                        'status': status,
+                        'status': _statusForStock(stock),
+                        'description': description,
+                        'imageUrl': imageUrl,
                       };
                     }
                   } else {
@@ -740,8 +808,10 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       'category': category,
                       'price': price,
                       'stock': stock,
-                      'status': status,
+                      'status': _statusForStock(stock),
                       'sales': 0,
+                      'description': description,
+                      'imageUrl': imageUrl,
                     });
                   }
                 });
@@ -759,7 +829,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                     category: category,
                     price: price,
                     stockQuantity: stock,
-                    isActive: status != 'out_of_stock',
+                    description: description,
+                    imageUrl: imageUrl,
+                    isActive: true,
                   );
                 } else {
                   await repository.createProductAdmin(
@@ -767,6 +839,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                     category: category,
                     price: price,
                     stockQuantity: stock,
+                    description: description,
+                    imageUrl: imageUrl,
                   );
                 }
 
@@ -775,6 +849,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 Navigator.pop(context);
               } catch (e) {
                 if (!mounted) return;
+                setDialogState(() {
+                  saving = false;
+                });
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Text(e.toString()),
@@ -782,12 +859,25 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                   ),
                 );
               }
-            },
-            child: Text(lang.t('save')),
-          ),
-        ],
+                    },
+              child: saving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text(lang.t('save')),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  String _statusForStock(int stock) {
+    if (stock <= 0) return 'out_of_stock';
+    if (stock <= 10) return 'low_stock';
+    return 'active';
   }
 
   Future<void> _confirmDeleteProduct(

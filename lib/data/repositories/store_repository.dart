@@ -328,6 +328,8 @@ class StoreRepository {
     required String category,
     required double price,
     int stockQuantity = 0,
+    String? description,
+    String? imageUrl,
   }) async {
     try {
       final headers = await _getHeaders();
@@ -338,6 +340,10 @@ class StoreRepository {
           'category': category,
           'price': price,
           'stockQuantity': stockQuantity,
+          if (description != null && description.trim().isNotEmpty)
+            'description': description.trim(),
+          if (imageUrl != null && imageUrl.trim().isNotEmpty)
+            'images': [imageUrl.trim()],
         },
         options: Options(headers: headers),
       );
@@ -355,6 +361,8 @@ class StoreRepository {
     String? category,
     double? price,
     int? stockQuantity,
+    String? description,
+    String? imageUrl,
     bool? isActive,
   }) async {
     try {
@@ -366,6 +374,9 @@ class StoreRepository {
           if (category != null) 'category': category,
           if (price != null) 'price': price,
           if (stockQuantity != null) 'stockQuantity': stockQuantity,
+          if (description != null) 'description': description.trim(),
+          if (imageUrl != null)
+            'images': imageUrl.trim().isEmpty ? <String>[] : [imageUrl.trim()],
           if (isActive != null) 'isActive': isActive,
         },
         options: Options(headers: headers),
