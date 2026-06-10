@@ -915,9 +915,38 @@ class WorkoutRepository {
 
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to upload image');
+      final data = e.response?.data;
+      final body = data is Map<String, dynamic> ? data : const <String, dynamic>{};
+      throw InBodyUploadException(
+        body['message']?.toString() ?? 'Failed to upload image',
+        statusCode: e.response?.statusCode,
+        code: body['code']?.toString(),
+        retryable: body['retryable'] == true,
+        upgradeRequired: body['upgradeRequired'] == true,
+      );
     }
   }
+}
+
+/// Structured failure from the InBody AI extraction endpoint, so the UI can
+/// distinguish "retake the photo" from "upgrade required" from hard errors.
+class InBodyUploadException implements Exception {
+  final String message;
+  final int? statusCode;
+  final String? code;
+  final bool retryable;
+  final bool upgradeRequired;
+
+  InBodyUploadException(
+    this.message, {
+    this.statusCode,
+    this.code,
+    this.retryable = false,
+    this.upgradeRequired = false,
+  });
+
+  @override
+  String toString() => message;
 }
 
 class WorkoutExerciseCompletionResult {
