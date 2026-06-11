@@ -121,27 +121,25 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
       if (!mounted) return;
 
       setState(() {
-        _products = products
-            .map((product) {
-              final stock = product.stockQuantity;
-              final status = stock == 0
-                  ? 'out_of_stock'
-                  : stock <= 10
-                      ? 'low_stock'
-                      : 'active';
-              return {
-                'id': product.id,
-                'name': product.name,
-                'category': product.category,
-                'price': product.price,
-                'stock': stock,
-                'status': status,
-                'sales': 0,
-                'description': product.description ?? '',
-                'imageUrl': product.mainImage ?? '',
-              };
-            })
-            .toList();
+        _products = products.map((product) {
+          final stock = product.stockQuantity;
+          final status = stock == 0
+              ? 'out_of_stock'
+              : stock <= 10
+                  ? 'low_stock'
+                  : 'active';
+          return {
+            'id': product.id,
+            'name': product.name,
+            'category': product.category,
+            'price': product.price,
+            'stock': stock,
+            'status': status,
+            'sales': 0,
+            'description': product.description ?? '',
+            'imageUrl': product.mainImage ?? '',
+          };
+        }).toList();
 
         _categories = categories
             .map((name) => {
@@ -188,8 +186,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
       ),
       body: Column(
         children: [
-          if (_loading)
-            const LinearProgressIndicator(minHeight: 4),
+          if (_loading) const LinearProgressIndicator(minHeight: 4),
           if (_error != null)
             Padding(
               padding: const EdgeInsets.all(12),
@@ -204,10 +201,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
             color: AppColors.background,
             child: Row(
               children: [
-                _buildTab(
-                    'products', lang.t('store_tab_products'), lang),
-                _buildTab(
-                    'categories', lang.t('store_tab_categories'), lang),
+                _buildTab('products', lang.t('store_tab_products'), lang),
+                _buildTab('categories', lang.t('store_tab_categories'), lang),
                 _buildTab('orders', lang.t('store_tab_orders'), lang),
               ],
             ),
@@ -386,8 +381,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: () =>
-                          _openProductForm(lang, product: product),
+                      onPressed: () => _openProductForm(lang, product: product),
                       icon: const Icon(Icons.edit, size: 18),
                       label: Text(lang.t('store_edit')),
                     ),
@@ -465,7 +459,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 ),
               ),
               Icon(
-                Directionality.of(context) == TextDirection.rtl ? Icons.chevron_left : Icons.chevron_right,
+                Directionality.of(context) == TextDirection.rtl
+                    ? Icons.chevron_left
+                    : Icons.chevron_right,
                 color: AppColors.textDisabled,
               ),
             ],
@@ -652,8 +648,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         TextEditingController(text: product?['price']?.toString() ?? '');
     final stockController =
         TextEditingController(text: product?['stock']?.toString() ?? '');
-    final descriptionController = TextEditingController(
-        text: product?['description']?.toString() ?? '');
+    final descriptionController =
+        TextEditingController(text: product?['description']?.toString() ?? '');
     final imageUrlController =
         TextEditingController(text: product?['imageUrl']?.toString() ?? '');
     final formKey = GlobalKey<FormState>();
@@ -774,8 +770,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
 
                       final name = nameController.text.trim();
                       final category = categoryController.text.trim();
-                      final price =
-                          double.parse(priceController.text.trim());
+                      final price = double.parse(priceController.text.trim());
                       final stock = int.parse(stockController.text.trim());
                       final description = descriptionController.text.trim();
                       final imageUrl = imageUrlController.text.trim();
@@ -784,81 +779,83 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                         saving = true;
                       });
 
-              if (DemoConfig.isDemo) {
-                setState(() {
-                  if (isEdit) {
-                    final index =
-                        _products.indexWhere((p) => p['id'] == product['id']);
-                    if (index != -1) {
-                      _products[index] = {
-                        ..._products[index],
-                        'name': name,
-                        'category': category,
-                        'price': price,
-                        'stock': stock,
-                        'status': _statusForStock(stock),
-                        'description': description,
-                        'imageUrl': imageUrl,
-                      };
-                    }
-                  } else {
-                    _products.insert(0, {
-                      'id': DateTime.now().millisecondsSinceEpoch.toString(),
-                      'name': name,
-                      'category': category,
-                      'price': price,
-                      'stock': stock,
-                      'status': _statusForStock(stock),
-                      'sales': 0,
-                      'description': description,
-                      'imageUrl': imageUrl,
-                    });
-                  }
-                });
+                      if (DemoConfig.isDemo) {
+                        setState(() {
+                          if (isEdit) {
+                            final index = _products
+                                .indexWhere((p) => p['id'] == product['id']);
+                            if (index != -1) {
+                              _products[index] = {
+                                ..._products[index],
+                                'name': name,
+                                'category': category,
+                                'price': price,
+                                'stock': stock,
+                                'status': _statusForStock(stock),
+                                'description': description,
+                                'imageUrl': imageUrl,
+                              };
+                            }
+                          } else {
+                            _products.insert(0, {
+                              'id': DateTime.now()
+                                  .millisecondsSinceEpoch
+                                  .toString(),
+                              'name': name,
+                              'category': category,
+                              'price': price,
+                              'stock': stock,
+                              'status': _statusForStock(stock),
+                              'sales': 0,
+                              'description': description,
+                              'imageUrl': imageUrl,
+                            });
+                          }
+                        });
 
-                Navigator.pop(context);
-                return;
-              }
+                        Navigator.pop(context);
+                        return;
+                      }
 
-              try {
-                final repository = StoreRepository();
-                if (isEdit) {
-                  await repository.updateProductAdmin(
-                    productId: product['id'] as String,
-                    name: name,
-                    category: category,
-                    price: price,
-                    stockQuantity: stock,
-                    description: description,
-                    imageUrl: imageUrl,
-                    isActive: true,
-                  );
-                } else {
-                  await repository.createProductAdmin(
-                    name: name,
-                    category: category,
-                    price: price,
-                    stockQuantity: stock,
-                    description: description,
-                    imageUrl: imageUrl,
-                  );
-                }
+                      try {
+                        final repository = StoreRepository();
+                        if (isEdit) {
+                          await repository.updateProductAdmin(
+                            productId: product['id'] as String,
+                            name: name,
+                            category: category,
+                            price: price,
+                            stockQuantity: stock,
+                            description: description,
+                            imageUrl: imageUrl,
+                            isActive: _statusForStock(stock) != 'out_of_stock',
+                          );
+                        } else {
+                          await repository.createProductAdmin(
+                            name: name,
+                            category: category,
+                            price: price,
+                            stockQuantity: stock,
+                            description: description,
+                            imageUrl: imageUrl,
+                          );
+                        }
 
-                if (!mounted) return;
-                await _loadData();
-                Navigator.pop(context);
-              } catch (e) {
-                if (!mounted) return;
-                setDialogState(() {
-                  saving = false;
-                });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(e.toString()),
-                    backgroundColor: AppColors.error,
-                  ),
-                );
-              }
+                        if (!mounted) return;
+                        await _loadData();
+                        Navigator.pop(context);
+                      } catch (e) {
+                        if (!mounted) return;
+                        setDialogState(() {
+                          saving = false;
+                        });
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(e.toString()),
+                            backgroundColor: AppColors.error,
+                          ),
+                        );
+                      }
                     },
               child: saving
                   ? const SizedBox(
@@ -887,7 +884,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
       builder: (context) => AlertDialog(
         title: Text(lang.t('store_delete_product')),
         content: Text(
-          lang.t('store_delete_product_confirm', args: {'name': product['name'].toString()}),
+          lang.t('store_delete_product_confirm',
+              args: {'name': product['name'].toString()}),
         ),
         actions: [
           TextButton(
@@ -948,8 +946,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
             : (lang.t('store_add_category'))),
         content: TextField(
           controller: nameController,
-          decoration: InputDecoration(
-              labelText: lang.t('store_category_name')),
+          decoration: InputDecoration(labelText: lang.t('store_category_name')),
         ),
         actions: [
           TextButton(
@@ -984,7 +981,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
     );
   }
 
-  void _openCategoryDetails(LanguageProvider lang, Map<String, dynamic> category) {
+  void _openCategoryDetails(
+      LanguageProvider lang, Map<String, dynamic> category) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -1068,21 +1066,20 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
             children: [
               TextField(
                 controller: idController,
-                decoration: InputDecoration(
-                    labelText: lang.t('store_order_id')),
+                decoration:
+                    InputDecoration(labelText: lang.t('store_order_id')),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: customerController,
-                decoration: InputDecoration(
-                    labelText: lang.t('store_customer')),
+                decoration:
+                    InputDecoration(labelText: lang.t('store_customer')),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: totalController,
                 keyboardType: TextInputType.number,
-                decoration:
-                    InputDecoration(labelText: lang.t('store_total')),
+                decoration: InputDecoration(labelText: lang.t('store_total')),
               ),
               const SizedBox(height: 12),
               DropdownButtonFormField<String>(
@@ -1182,8 +1179,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
               const SizedBox(height: 6),
               Text('${lang.t('store_items')}: ${order['items'] ?? 0}'),
               const SizedBox(height: 6),
-              Text(
-                  '${lang.t('store_address')}: ${order['address'] ?? '—'}'),
+              Text('${lang.t('store_address')}: ${order['address'] ?? '—'}'),
               const SizedBox(height: 12),
               Text(
                 '${lang.t('store_total')}: ${order['total']} ${lang.t('store_currency')}',
