@@ -25,7 +25,6 @@ class AppointmentDetailScreen extends StatefulWidget {
 }
 
 class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
-  final BookingRepository _bookingRepository = BookingRepository();
   bool _isCheckingAccess = false;
   bool _isActionInProgress = false;
   String? _accessMessage;
@@ -43,7 +42,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     });
 
     final provider = Provider.of<VideoCallProvider>(context, listen: false);
-    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageProvider =
+        Provider.of<LanguageProvider>(context, listen: false);
     final result = await provider.canJoinCall(widget.appointment.id);
 
     if (result != null && result['canJoin'] == true) {
@@ -55,21 +55,24 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     } else {
       setState(() {
         _canJoin = false;
-        _accessMessage = result?['reason'] ?? languageProvider.t('cannot_join_call');
+        _accessMessage =
+            result?['reason'] ?? languageProvider.t('cannot_join_call');
         _isCheckingAccess = false;
       });
     }
   }
 
   Future<void> _joinCall() async {
-    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final languageProvider =
+        Provider.of<LanguageProvider>(context, listen: false);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => VideoCallScreen(
           appointmentId: widget.appointment.id,
           coachId: widget.appointment.coachId,
-          coachName: widget.appointment.coachName ?? languageProvider.t('coach'),
+          coachName:
+              widget.appointment.coachName ?? languageProvider.t('coach'),
           isCoach: false,
         ),
       ),
@@ -92,7 +95,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
-            child: Text(lang.t('cancel_appointment'), style: const TextStyle(color: Colors.white)),
+            child: Text(lang.t('cancel_appointment'),
+                style: const TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -103,16 +107,22 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     setState(() => _isActionInProgress = true);
 
     try {
-      await _bookingRepository.cancelBooking(widget.appointment.id);
+      await context
+          .read<BookingRepository>()
+          .cancelBooking(widget.appointment.id);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(lang.t('cancel_appointment_success')), backgroundColor: AppColors.success),
+        SnackBar(
+            content: Text(lang.t('cancel_appointment_success')),
+            backgroundColor: AppColors.success),
       );
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(lang.t('cancel_appointment_failed')), backgroundColor: AppColors.error),
+        SnackBar(
+            content: Text(lang.t('cancel_appointment_failed')),
+            backgroundColor: AppColors.error),
       );
     } finally {
       if (mounted) setState(() => _isActionInProgress = false);
@@ -122,8 +132,10 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Future<void> _rescheduleAppointment() async {
     final lang = Provider.of<LanguageProvider>(context, listen: false);
 
-    DateTime selectedDate = DateTime.now().add(const Duration(days: 1));
-    TimeOfDay selectedTime = const TimeOfDay(hour: 10, minute: 0);
+    final currentScheduledAt =
+        DateTime.parse(widget.appointment.scheduledAt).toLocal();
+    DateTime selectedDate = currentScheduledAt;
+    TimeOfDay selectedTime = TimeOfDay.fromDateTime(currentScheduledAt);
 
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -136,7 +148,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               ListTile(
                 leading: const Icon(Icons.calendar_today),
                 title: Text(lang.t('date')),
-                subtitle: Text(DateFormat('EEEE, MMM d, y').format(selectedDate)),
+                subtitle:
+                    Text(DateFormat('EEEE, MMM d, y').format(selectedDate)),
                 onTap: () async {
                   final picked = await showDatePicker(
                     context: ctx,
@@ -200,20 +213,24 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     setState(() => _isActionInProgress = true);
 
     try {
-      await _bookingRepository.updateBooking(
-        widget.appointment.id,
-        scheduledDate: utcDateTime,
-        scheduledTime: timeStr,
-      );
+      await context.read<BookingRepository>().updateBooking(
+            widget.appointment.id,
+            scheduledDate: utcDateTime,
+            scheduledTime: timeStr,
+          );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(lang.t('reschedule_appointment_success')), backgroundColor: AppColors.success),
+        SnackBar(
+            content: Text(lang.t('reschedule_appointment_success')),
+            backgroundColor: AppColors.success),
       );
       Navigator.pop(context, true);
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(lang.t('reschedule_appointment_failed')), backgroundColor: AppColors.error),
+        SnackBar(
+            content: Text(lang.t('reschedule_appointment_failed')),
+            backgroundColor: AppColors.error),
       );
     } finally {
       if (mounted) setState(() => _isActionInProgress = false);
@@ -281,9 +298,11 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
 
-    final scheduledTime = DateTime.parse(widget.appointment.scheduledAt).toLocal();
+    final scheduledTime =
+        DateTime.parse(widget.appointment.scheduledAt).toLocal();
     final now = DateTime.now();
-    final tenMinutesBefore = scheduledTime.subtract(const Duration(minutes: 10));
+    final tenMinutesBefore =
+        scheduledTime.subtract(const Duration(minutes: 10));
     final canJoinSoon = now.isAfter(tenMinutesBefore) &&
         widget.appointment.status == 'confirmed';
 
@@ -328,7 +347,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     CircleAvatar(
                       radius: 30,
                       backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                      child: Icon(
+                      child: const Icon(
                         Icons.person,
                         size: 30,
                         color: AppColors.primary,
@@ -348,7 +367,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            widget.appointment.coachName ?? languageProvider.t('coach'),
+                            widget.appointment.coachName ??
+                                languageProvider.t('coach'),
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -368,7 +388,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             _buildDetailCard(
               icon: Icons.calendar_today,
               title: languageProvider.t('date_time'),
-              value: DateFormat('EEEE, MMM d, y - h:mm a').format(scheduledTime),
+              value:
+                  DateFormat('EEEE, MMM d, y - h:mm a').format(scheduledTime),
             ),
 
             const SizedBox(height: 16),
@@ -377,7 +398,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             _buildDetailCard(
               icon: Icons.timer,
               title: languageProvider.t('duration'),
-              value: '${widget.appointment.durationMinutes ?? 30} ${languageProvider.t('minutes')}',
+              value:
+                  '${widget.appointment.durationMinutes ?? 30} ${languageProvider.t('minutes')}',
             ),
 
             const SizedBox(height: 16),
@@ -459,7 +481,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              _accessMessage ?? languageProvider.t('cannot_join_yet'),
+                              _accessMessage ??
+                                  languageProvider.t('cannot_join_yet'),
                             ),
                           ),
                         ],
@@ -469,7 +492,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
               ),
 
             // Cancel/reschedule actions for active appointments
-            if (widget.appointment.status == 'confirmed' || widget.appointment.status == 'pending')
+            if (widget.appointment.status == 'confirmed' ||
+                widget.appointment.status == 'pending')
               Padding(
                 padding: const EdgeInsets.only(top: 16),
                 child: Row(
@@ -478,7 +502,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                       Expanded(
                         child: CustomButton(
                           text: languageProvider.t('reschedule_appointment'),
-                          onPressed: _isActionInProgress ? null : _rescheduleAppointment,
+                          onPressed: _isActionInProgress
+                              ? null
+                              : _rescheduleAppointment,
                           icon: Icons.calendar_month,
                           variant: ButtonVariant.secondary,
                         ),
@@ -488,7 +514,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     Expanded(
                       child: CustomButton(
                         text: languageProvider.t('cancel_appointment'),
-                        onPressed: _isActionInProgress ? null : _cancelAppointment,
+                        onPressed:
+                            _isActionInProgress ? null : _cancelAppointment,
                         icon: Icons.cancel,
                         variant: ButtonVariant.danger,
                       ),
@@ -500,5 +527,5 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         ),
       ),
     );
-                                }
-                              }
+  }
+}

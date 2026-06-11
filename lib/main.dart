@@ -32,6 +32,7 @@ import 'data/repositories/admin_repository.dart';
 import 'data/repositories/appointment_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'data/repositories/subscription_plan_repository.dart';
+import 'data/repositories/booking_repository.dart';
 import 'data/demo/repositories/demo_workout_repository.dart';
 import 'data/demo/repositories/demo_messaging_repository.dart';
 import 'data/demo/repositories/demo_subscription_plan_repository.dart';
@@ -39,16 +40,16 @@ import 'data/demo/repositories/demo_metrics_repository.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Hive for local storage
   await Hive.initFlutter();
-  
+
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
-  
+
   // Set system UI overlay style
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -56,7 +57,7 @@ void main() async {
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-  
+
   runApp(const FitCoachApp());
 }
 
@@ -115,13 +116,16 @@ class FitCoachApp extends StatelessWidget {
         Provider<AppointmentRepository>(
           create: (_) => AppointmentRepository(),
         ),
+        Provider<BookingRepository>(
+          create: (_) => BookingRepository(),
+        ),
         Provider<StoreRepository>(
           create: (_) => StoreRepository(),
         ),
         Provider<SubscriptionPlanRepository>(
           create: (_) => SubscriptionPlanRepository(),
         ),
-        
+
         // Providers
         ChangeNotifierProvider<LanguageProvider>(
           create: (_) => LanguageProvider(),
@@ -220,13 +224,15 @@ class FitCoachApp extends StatelessWidget {
           ),
           update: (context, repo, previous) => previous ?? StoreProvider(repo),
         ),
-        ChangeNotifierProxyProvider<SubscriptionPlanRepository, SubscriptionPlanProvider>(
+        ChangeNotifierProxyProvider<SubscriptionPlanRepository,
+            SubscriptionPlanProvider>(
           create: (context) => SubscriptionPlanProvider(
             context.read<SubscriptionPlanRepository>(),
             demoRepository: context.read<DemoSubscriptionPlanRepository>(),
             demoConfig: context.read<DemoModeConfig>(),
           ),
-          update: (context, repo, previous) => previous ??
+          update: (context, repo, previous) =>
+              previous ??
               SubscriptionPlanProvider(
                 repo,
                 demoRepository: context.read<DemoSubscriptionPlanRepository>(),
@@ -239,7 +245,7 @@ class FitCoachApp extends StatelessWidget {
           return MaterialApp(
             title: 'FitCoach+',
             debugShowCheckedModeBanner: false,
-            
+
             // Localization
             locale: languageProvider.locale,
             supportedLocales: const [
@@ -251,12 +257,12 @@ class FitCoachApp extends StatelessWidget {
               GlobalWidgetsLocalizations.delegate,
               GlobalCupertinoLocalizations.delegate,
             ],
-            
+
             // Theme
             theme: AppThemeConfig.getLightTheme(),
             darkTheme: AppThemeConfig.getDarkTheme(),
             themeMode: themeProvider.themeMode,
-            
+
             // App
             home: const App(),
           );
