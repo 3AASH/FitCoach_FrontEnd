@@ -25,6 +25,7 @@ class SubscriptionPlanProvider extends ChangeNotifier {
   Map<String, dynamic>? _mySubscription;
   Map<String, dynamic>? _latestRequest;
   List<Map<String, dynamic>> _pendingRequests = [];
+  bool _isLoadingMySubscription = false;
   bool _isLoadingRequests = false;
 
   List<SubscriptionPlan> get plans => _plans;
@@ -37,6 +38,7 @@ class SubscriptionPlanProvider extends ChangeNotifier {
   Map<String, dynamic>? get latestRequest => _latestRequest;
   bool get hasPendingRequest => _latestRequest?['status'] == 'pending';
   List<Map<String, dynamic>> get pendingRequests => _pendingRequests;
+  bool get isLoadingMySubscription => _isLoadingMySubscription;
   bool get isLoadingRequests => _isLoadingRequests;
 
   List<SubscriptionPlan> get paidPlans =>
@@ -166,13 +168,20 @@ class SubscriptionPlanProvider extends ChangeNotifier {
   /// Load the user's current subscription and latest request state.
   Future<void> loadMySubscription() async {
     if (_demoConfig.isDemo) return;
+    if (_isLoadingMySubscription) return;
+
+    _isLoadingMySubscription = true;
+    _error = null;
+    notifyListeners();
+
     try {
       final data = await _repository.getMySubscription();
       _mySubscription = data['subscription'] as Map<String, dynamic>?;
       _latestRequest = data['latestRequest'] as Map<String, dynamic>?;
-      notifyListeners();
     } catch (e) {
       _error = e.toString();
+    } finally {
+      _isLoadingMySubscription = false;
       notifyListeners();
     }
   }
@@ -205,6 +214,7 @@ class SubscriptionPlanProvider extends ChangeNotifier {
       await _repository.cancelRequest(requestId);
       _latestRequest = {..._latestRequest!, 'status': 'cancelled'};
       notifyListeners();
+      await loadMySubscription();
       return true;
     } catch (e) {
       _error = e.toString();
@@ -232,7 +242,8 @@ class SubscriptionPlanProvider extends ChangeNotifier {
   }
 
   /// Admin: approve or reject a request, then drop it from the local list.
-  Future<bool> decideRequest(String requestId, {required bool approve, String? notes}) async {
+  Future<bool> decideRequest(String requestId,
+      {required bool approve, String? notes}) async {
     try {
       if (approve) {
         await _repository.approveRequest(requestId, adminNotes: notes);
