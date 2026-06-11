@@ -24,6 +24,7 @@ class InBodyInputScreen extends StatefulWidget {
 class _InBodyInputScreenState extends State<InBodyInputScreen> {
   String _inputMode = 'selection'; // 'selection', 'ai-scan', 'manual'
   Uint8List? _selectedImageBytes;
+  XFile? _selectedImageFile;
   bool _isAnalyzing = false;
   bool _isSaving = false;
   bool _extractionComplete = false;
@@ -786,6 +787,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       if (!mounted) return;
       setState(() {
         _selectedImageBytes = bytes;
+        _selectedImageFile = file;
         _isAnalyzing = true;
         _extractionComplete = false;
         _extractedData = null;
@@ -823,7 +825,10 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       if (!mounted) return;
       setState(() {
         _isAnalyzing = false;
-        _selectedImageBytes = null;
+        if (!error.retryable || error.upgradeRequired) {
+          _selectedImageBytes = null;
+          _selectedImageFile = null;
+        }
       });
       if (error.upgradeRequired) {
         _showUpgradePrompt();
@@ -838,10 +843,20 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         setState(() {
           _isAnalyzing = false;
           _selectedImageBytes = null;
+          _selectedImageFile = null;
         });
       }
       _showImageError();
     }
+  }
+
+  Future<void> _retrySelectedImage() async {
+    final file = _selectedImageFile;
+    if (file == null) {
+      await _openGallery();
+      return;
+    }
+    await _handlePickedImage(file);
   }
 
   Future<void> _simulateExtraction() async {
@@ -886,7 +901,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
             ? SnackBarAction(
                 label: lang.isArabic ? 'إعادة المحاولة' : 'Retry',
                 textColor: Colors.white,
-                onPressed: _openGallery,
+                onPressed: _retrySelectedImage,
               )
             : null,
       ),
@@ -926,6 +941,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   void _clearAiCapture() {
     setState(() {
       _selectedImageBytes = null;
+      _selectedImageFile = null;
       _isAnalyzing = false;
       _extractionComplete = false;
       _extractedData = null;
@@ -963,6 +979,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     setState(() {
       _inputMode = 'manual';
       _selectedImageBytes = null;
+      _selectedImageFile = null;
       _isAnalyzing = false;
       _extractionComplete = false;
     });
