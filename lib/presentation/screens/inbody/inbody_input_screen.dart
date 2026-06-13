@@ -12,6 +12,7 @@ import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../subscription/subscription_manager_screen.dart';
+import '../subscription/subscription_upgrade_screen.dart';
 
 class InBodyInputScreen extends StatefulWidget {
   const InBodyInputScreen({super.key});
@@ -23,6 +24,7 @@ class InBodyInputScreen extends StatefulWidget {
 class _InBodyInputScreenState extends State<InBodyInputScreen> {
   String _inputMode = 'selection'; // 'selection', 'ai-scan', 'manual'
   Uint8List? _selectedImageBytes;
+  XFile? _selectedImageFile;
   bool _isAnalyzing = false;
   bool _isSaving = false;
   bool _extractionComplete = false;
@@ -785,6 +787,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       if (!mounted) return;
       setState(() {
         _selectedImageBytes = bytes;
+        _selectedImageFile = file;
         _isAnalyzing = true;
         _extractionComplete = false;
         _extractedData = null;
@@ -818,9 +821,42 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           'bmr': extracted['basalMetabolicRate'],
         };
       });
+    } on InBodyUploadException catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _isAnalyzing = false;
+        if (!error.retryable || error.upgradeRequired) {
+          _selectedImageBytes = null;
+          _selectedImageFile = null;
+        }
+      });
+      if (error.upgradeRequired) {
+        _showUpgradePrompt();
+      } else {
+        _showImageError(
+          message: error.message,
+          retryable: error.retryable,
+        );
+      }
     } catch (error) {
+      if (mounted) {
+        setState(() {
+          _isAnalyzing = false;
+          _selectedImageBytes = null;
+          _selectedImageFile = null;
+        });
+      }
       _showImageError();
     }
+  }
+
+  Future<void> _retrySelectedImage() async {
+    final file = _selectedImageFile;
+    if (file == null) {
+      await _openGallery();
+      return;
+    }
+    await _handlePickedImage(file);
   }
 
   Future<void> _simulateExtraction() async {
@@ -851,17 +887,53 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     });
   }
 
-  void _showImageError() {
+  void _showImageError({String? message, bool retryable = false}) {
+    if (!mounted) return;
+    final lang = context.read<LanguageProvider>();
+    final fallback = lang.isArabic
+        ? 'حدث خطأ أثناء معالجة الصورة. حاول مرة أخرى.'
+        : 'Something went wrong while processing the image. Please try again.';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message ?? fallback),
+        backgroundColor: retryable ? AppColors.warning : AppColors.error,
+        action: retryable
+            ? SnackBarAction(
+                label: lang.isArabic ? 'إعادة المحاولة' : 'Retry',
+                textColor: Colors.white,
+                onPressed: _retrySelectedImage,
+              )
+            : null,
+      ),
+    );
+  }
+
+  void _showUpgradePrompt() {
     if (!mounted) return;
     final lang = context.read<LanguageProvider>();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
           lang.isArabic
-              ? 'حدث خطأ أثناء معالجة الصورة. حاول مرة أخرى.'
-              : 'Something went wrong while processing the image. Please try again.',
+              ? 'استخراج البيانات بالذكاء الاصطناعي متاح للمشتركين فقط. قم بالترقية للمتابعة.'
+              : 'AI extraction is available for subscribers only. Upgrade to continue.',
         ),
-        backgroundColor: AppColors.error,
+        backgroundColor: AppColors.warning,
+        action: SnackBarAction(
+          label: lang.isArabic ? 'ترقية' : 'Upgrade',
+          textColor: Colors.white,
+          onPressed: () {
+            if (!mounted) return;
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SubscriptionUpgradeScreen(
+                  requiredTier: 'premium',
+                  featureName: 'AI InBody Extraction',
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -869,6 +941,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   void _clearAiCapture() {
     setState(() {
       _selectedImageBytes = null;
+      _selectedImageFile = null;
       _isAnalyzing = false;
       _extractionComplete = false;
       _extractedData = null;
@@ -906,6 +979,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     setState(() {
       _inputMode = 'manual';
       _selectedImageBytes = null;
+      _selectedImageFile = null;
       _isAnalyzing = false;
       _extractionComplete = false;
     });
