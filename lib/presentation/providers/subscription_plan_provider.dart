@@ -22,11 +22,24 @@ class SubscriptionPlanProvider extends ChangeNotifier {
   bool _hasLoaded = false;
   String? _error;
 
+  Map<String, dynamic>? _mySubscription;
+  Map<String, dynamic>? _latestRequest;
+  List<Map<String, dynamic>> _pendingRequests = [];
+  bool _isLoadingMySubscription = false;
+  bool _isLoadingRequests = false;
+
   List<SubscriptionPlan> get plans => _plans;
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
   bool get hasLoaded => _hasLoaded;
   String? get error => _error;
+
+  Map<String, dynamic>? get mySubscription => _mySubscription;
+  Map<String, dynamic>? get latestRequest => _latestRequest;
+  bool get hasPendingRequest => _latestRequest?['status'] == 'pending';
+  List<Map<String, dynamic>> get pendingRequests => _pendingRequests;
+  bool get isLoadingMySubscription => _isLoadingMySubscription;
+  bool get isLoadingRequests => _isLoadingRequests;
 
   List<SubscriptionPlan> get paidPlans =>
       _plans.where((plan) => !plan.isFree).toList()
@@ -150,6 +163,101 @@ class SubscriptionPlanProvider extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  /// Load the user's current subscription and latest request state.
+  Future<void> loadMySubscription() async {
+    if (_demoConfig.isDemo) return;
+    if (_isLoadingMySubscription) return;
+
+    _isLoadingMySubscription = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final data = await _repository.getMySubscription();
+      _mySubscription = data['subscription'] as Map<String, dynamic>?;
+      _latestRequest = data['latestRequest'] as Map<String, dynamic>?;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoadingMySubscription = false;
+      notifyListeners();
+    }
+  }
+
+  /// Submit a subscription request for [planId].
+  /// Payment is settled manually with the admin; access is granted on approval.
+  Future<bool> submitRequest(String planId) async {
+    _isSaving = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _latestRequest = await _repository.requestSubscription(planId);
+      _isSaving = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isSaving = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> cancelRequest() async {
+    final requestId = _latestRequest?['id'] as String?;
+    if (requestId == null) return false;
+
+    try {
+      await _repository.cancelRequest(requestId);
+      _latestRequest = {..._latestRequest!, 'status': 'cancelled'};
+      notifyListeners();
+      await loadMySubscription();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
+  /// Admin: load pending subscription requests.
+  Future<void> loadRequests({String status = 'pending'}) async {
+    if (_isLoadingRequests) return;
+    _isLoadingRequests = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _pendingRequests = await _repository.getRequests(status: status);
+      _isLoadingRequests = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoadingRequests = false;
+      notifyListeners();
+    }
+  }
+
+  /// Admin: approve or reject a request, then drop it from the local list.
+  Future<bool> decideRequest(String requestId,
+      {required bool approve, String? notes}) async {
+    try {
+      if (approve) {
+        await _repository.approveRequest(requestId, adminNotes: notes);
+      } else {
+        await _repository.rejectRequest(requestId, adminNotes: notes);
+      }
+      _pendingRequests.removeWhere((r) => r['id'] == requestId);
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
   }
 
   void _upsertPlan(SubscriptionPlan plan) {

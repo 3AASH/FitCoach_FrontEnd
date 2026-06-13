@@ -375,6 +375,25 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
 
+    // Outside demo mode users cannot change their own tier; they submit a
+    // request that the admin approves after settling payment manually.
+    if (!DemoConfig.isDemo) {
+      final planProvider = context.read<SubscriptionPlanProvider>();
+      final requested = await planProvider.submitRequest(targetPlan.id);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            requested
+                ? tr('subscription_request_sent')
+                : (planProvider.error ?? tr('subscription_request_failed')),
+          ),
+          backgroundColor: requested ? AppColors.success : AppColors.error,
+        ),
+      );
+      return;
+    }
+
     final wasFreemium =
         currentPlan?.isFree ?? (authProvider.user?.subscriptionTier == 'Freemium');
 

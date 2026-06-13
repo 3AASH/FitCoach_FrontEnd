@@ -12,16 +12,20 @@ class SubscriptionManagementScreen extends StatefulWidget {
   const SubscriptionManagementScreen({super.key});
 
   @override
-  State<SubscriptionManagementScreen> createState() => _SubscriptionManagementScreenState();
+  State<SubscriptionManagementScreen> createState() =>
+      _SubscriptionManagementScreenState();
 }
 
-class _SubscriptionManagementScreenState extends State<SubscriptionManagementScreen> {
+class _SubscriptionManagementScreenState
+    extends State<SubscriptionManagementScreen> {
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      context.read<SubscriptionPlanProvider>().loadPlans();
+      final planProvider = context.read<SubscriptionPlanProvider>();
+      planProvider.loadPlans();
+      planProvider.loadRequests();
     });
   }
 
@@ -41,12 +45,30 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
             child: planProvider.isLoading && !planProvider.hasLoaded
                 ? const Center(child: CircularProgressIndicator())
                 : RefreshIndicator(
-                    onRefresh: () => planProvider.loadPlans(forceRefresh: true),
+                    onRefresh: () async {
+                      await planProvider.loadPlans(forceRefresh: true);
+                      await planProvider.loadRequests();
+                    },
                     child: ListView(
                       padding: const EdgeInsets.fromLTRB(16, 24, 16, 140),
                       children: [
                         if (planProvider.error != null)
                           _ErrorBanner(message: planProvider.error!),
+                        if (planProvider.pendingRequests.isNotEmpty) ...[
+                          Text(
+                            tr('subscription_admin_pending_requests'),
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          ...planProvider.pendingRequests.map(
+                            (request) =>
+                                _buildRequestCard(request, languageProvider),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
                         if (planProvider.isSaving)
                           const Padding(
                             padding: EdgeInsets.symmetric(vertical: 8),
@@ -56,7 +78,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                           const _EmptyState()
                         else
                           ...plans
-                              .map((plan) => _buildPlanCard(plan, languageProvider))
+                              .map((plan) =>
+                                  _buildPlanCard(plan, languageProvider))
                               .toList(),
                         const SizedBox(height: 24),
                         if (plans.isNotEmpty) ...[
@@ -164,7 +187,166 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     );
   }
 
-  Widget _buildPlanCard(SubscriptionPlan plan, LanguageProvider languageProvider) {
+  Widget _buildRequestCard(
+    Map<String, dynamic> request,
+    LanguageProvider languageProvider,
+  ) {
+    String tr(String key, {Map<String, String>? args}) =>
+        languageProvider.t(key, args: args);
+    final userName = request['user_name']?.toString() ??
+        request['phone_number']?.toString() ??
+        '—';
+    final planName = request['plan_name']?.toString() ?? '—';
+    final currentTier = request['current_tier']?.toString() ?? 'freemium';
+    final price = request['price']?.toString();
+    final currency = request['currency']?.toString() ?? '';
+
+    return CustomCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.person_outline,
+                  size: 20, color: AppColors.textSecondary),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  userName,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.warning.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  tr('subscription_request_status_pending'),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.warning,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            tr(
+              'subscription_request_summary',
+              args: {
+                'current': currentTier,
+                'plan': price != null && price.isNotEmpty
+                    ? '$planName ($price $currency)'
+                    : planName,
+              },
+            ),
+            style:
+                const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: CustomButton(
+                  text: tr('subscription_request_approve'),
+                  onPressed: () => _decideRequest(request, approve: true),
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.medium,
+                  fullWidth: true,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: CustomButton(
+                  text: tr('subscription_request_reject'),
+                  onPressed: () => _decideRequest(request, approve: false),
+                  variant: ButtonVariant.secondary,
+                  size: ButtonSize.medium,
+                  fullWidth: true,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _decideRequest(Map<String, dynamic> request,
+      {required bool approve}) async {
+    final languageProvider = context.read<LanguageProvider>();
+    String tr(String key, {Map<String, String>? args}) =>
+        languageProvider.t(key, args: args);
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          approve
+              ? tr('subscription_request_approve_confirm_title')
+              : tr('subscription_request_reject_confirm_title'),
+        ),
+        content: Text(
+          approve
+              ? tr('subscription_request_approve_confirm_body')
+              : tr('subscription_request_reject_confirm_body'),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(tr('cancel')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(tr('confirm')),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    final requestId = request['id']?.toString() ?? '';
+    if (requestId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(tr('subscription_request_action_failed')),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    final planProvider = context.read<SubscriptionPlanProvider>();
+    final success = await planProvider.decideRequest(
+      requestId,
+      approve: approve,
+    );
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          success
+              ? (approve
+                  ? tr('subscription_request_approved_toast')
+                  : tr('subscription_request_rejected_toast'))
+              : (planProvider.error ??
+                  tr('subscription_request_action_failed')),
+        ),
+        backgroundColor: success ? AppColors.success : AppColors.error,
+      ),
+    );
+  }
+
+  Widget _buildPlanCard(
+      SubscriptionPlan plan, LanguageProvider languageProvider) {
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
     final metadata = plan.metadata;
@@ -195,7 +377,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                         ),
                         if (plan.isRecommended)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: AppColors.success.withOpacity(0.12),
                               borderRadius: BorderRadius.circular(12),
@@ -274,14 +457,17 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
           if (plan.features.isEmpty)
             Text(
               tr('subscription_admin_add_features_hint'),
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              style:
+                  const TextStyle(color: AppColors.textSecondary, fontSize: 12),
             )
           else
             Wrap(
               spacing: 8,
               runSpacing: 8,
               children: plan.features.take(6).map((feature) {
-                final text = feature.value == null ? feature.label : '${feature.label}: ${feature.value}';
+                final text = feature.value == null
+                    ? feature.label
+                    : '${feature.label}: ${feature.value}';
                 return Chip(
                   label: Text(text, style: const TextStyle(fontSize: 12)),
                   backgroundColor: AppColors.background,
@@ -294,7 +480,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               Expanded(
                 child: CustomButton(
                   text: tr('subscription_admin_edit_plan'),
-                  onPressed: () => _openPlanEditor(languageProvider, plan: plan),
+                  onPressed: () =>
+                      _openPlanEditor(languageProvider, plan: plan),
                   icon: Icons.edit,
                   fullWidth: true,
                   size: ButtonSize.large,
@@ -303,7 +490,9 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               const SizedBox(width: 12),
               CustomButton(
                 text: tr('delete'),
-                onPressed: plan.isFree ? null : () => _confirmDeletePlan(plan, languageProvider),
+                onPressed: plan.isFree
+                    ? null
+                    : () => _confirmDeletePlan(plan, languageProvider),
                 icon: Icons.delete_forever,
                 variant: ButtonVariant.danger,
               ),
@@ -321,14 +510,16 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     if (value is num && value.toInt() < 0) {
       return tr('subscription_limit_unlimited');
     }
-    final parsed = value is num ? value.toInt() : int.tryParse(value.toString());
+    final parsed =
+        value is num ? value.toInt() : int.tryParse(value.toString());
     if (parsed == null) {
       return value.toString();
     }
     return tr('subscription_limit_value', args: {'value': parsed.toString()});
   }
 
-  void _openPlanEditor(LanguageProvider languageProvider, {SubscriptionPlan? plan}) {
+  void _openPlanEditor(LanguageProvider languageProvider,
+      {SubscriptionPlan? plan}) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -344,14 +535,16 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
               Navigator.of(sheetContext).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(languageProvider.t('subscription_admin_save_success')),
+                  content: Text(
+                      languageProvider.t('subscription_admin_save_success')),
                   backgroundColor: AppColors.success,
                 ),
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text(languageProvider.t('subscription_admin_save_error')),
+                  content:
+                      Text(languageProvider.t('subscription_admin_save_error')),
                   backgroundColor: AppColors.error,
                 ),
               );
@@ -363,7 +556,8 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
     );
   }
 
-  void _confirmDeletePlan(SubscriptionPlan plan, LanguageProvider languageProvider) {
+  void _confirmDeletePlan(
+      SubscriptionPlan plan, LanguageProvider languageProvider) {
     showDialog(
       context: context,
       builder: (dialogContext) => AlertDialog(
@@ -389,10 +583,13 @@ class _SubscriptionManagementScreenState extends State<SubscriptionManagementScr
                 SnackBar(
                   content: Text(
                     success
-                        ? languageProvider.t('subscription_admin_delete_success')
-                        : languageProvider.t('subscription_admin_delete_failure'),
+                        ? languageProvider
+                            .t('subscription_admin_delete_success')
+                        : languageProvider
+                            .t('subscription_admin_delete_failure'),
                   ),
-                  backgroundColor: success ? AppColors.success : AppColors.error,
+                  backgroundColor:
+                      success ? AppColors.success : AppColors.error,
                 ),
               );
             },
@@ -425,7 +622,8 @@ class _MetricChip extends StatelessWidget {
         children: [
           Text(
             label,
-            style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+            style:
+                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -464,7 +662,8 @@ class _ErrorBanner extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+            onPressed: () =>
+                ScaffoldMessenger.of(context).hideCurrentSnackBar(),
             child: Text(languageProvider.t('dismiss')),
           ),
         ],
@@ -483,7 +682,8 @@ class _EmptyState extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 80),
       child: Column(
         children: [
-          Icon(Icons.auto_graph, size: 72, color: AppColors.textDisabled.withOpacity(0.7)),
+          Icon(Icons.auto_graph,
+              size: 72, color: AppColors.textDisabled.withOpacity(0.7)),
           const SizedBox(height: 16),
           Text(
             languageProvider.t('subscription_admin_empty_title'),
@@ -534,16 +734,20 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
     super.initState();
     final plan = widget.initialPlan;
     _nameController = TextEditingController(text: plan?.name ?? '');
-    _descriptionController = TextEditingController(text: plan?.description ?? '');
+    _descriptionController =
+        TextEditingController(text: plan?.description ?? '');
     _monthlyPriceController = TextEditingController(
       text: plan != null ? plan.monthlyPrice.toStringAsFixed(0) : '',
     );
     _yearlyPriceController = TextEditingController(
-      text: plan?.yearlyPrice != null ? plan!.yearlyPrice!.toStringAsFixed(0) : '',
+      text: plan?.yearlyPrice != null
+          ? plan!.yearlyPrice!.toStringAsFixed(0)
+          : '',
     );
     _currencyController = TextEditingController(text: plan?.currency ?? 'SAR');
     _badgeController = TextEditingController(text: plan?.badge ?? '');
-    _accentColorController = TextEditingController(text: plan?.accentColor ?? '#7C3AED');
+    _accentColorController =
+        TextEditingController(text: plan?.accentColor ?? '#7C3AED');
     _messagesLimitController = TextEditingController(
       text: plan?.metadata['messagesLimit']?.toString() ?? '',
     );
@@ -622,12 +826,12 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 controller: _nameController,
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_plan_name'),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
-                validator: (value) =>
-                    value == null || value.trim().isEmpty
-                        ? tr('subscription_admin_form_name_required')
-                        : null,
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? tr('subscription_admin_form_name_required')
+                    : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -635,7 +839,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 maxLines: 3,
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_plan_description'),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 16),
@@ -647,7 +852,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_monthly_price'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -665,8 +871,10 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       controller: _yearlyPriceController,
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
-                        labelText: tr('subscription_admin_form_yearly_price_optional'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        labelText:
+                            tr('subscription_admin_form_yearly_price_optional'),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -680,7 +888,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       controller: _currencyController,
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_currency'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -690,7 +899,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       controller: _badgeController,
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_badge_optional'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -702,7 +912,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_accent_color'),
                   hintText: '#7C3AED',
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
               ),
               const SizedBox(height: 12),
@@ -721,7 +932,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_messages_limit'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -732,7 +944,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       keyboardType: TextInputType.number,
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_video_limit'),
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
                     ),
                   ),
@@ -744,7 +957,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 children: [
                   Text(
                     tr('subscription_admin_form_features'),
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   TextButton.icon(
                     onPressed: _addFeatureField,
@@ -771,16 +985,20 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         TextFormField(
                           controller: field.labelController,
                           decoration: InputDecoration(
-                            labelText: tr('subscription_admin_form_feature_label'),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            labelText:
+                                tr('subscription_admin_form_feature_label'),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
                           controller: field.valueController,
                           decoration: InputDecoration(
-                            labelText: tr('subscription_admin_form_feature_value'),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                            labelText:
+                                tr('subscription_admin_form_feature_value'),
+                            border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10)),
                           ),
                         ),
                         Align(
@@ -840,7 +1058,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
     }
 
     final plan = SubscriptionPlan(
-      id: widget.initialPlan?.id ?? _generatePlanId(_nameController.text.trim()),
+      id: widget.initialPlan?.id ??
+          _generatePlanId(_nameController.text.trim()),
       name: _nameController.text.trim(),
       description: _descriptionController.text.trim(),
       monthlyPrice: double.tryParse(_monthlyPriceController.text.trim()) ?? 0,
@@ -851,7 +1070,9 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
           ? 'SAR'
           : _currencyController.text.trim(),
       isRecommended: _isRecommended,
-      badge: _badgeController.text.trim().isEmpty ? null : _badgeController.text.trim(),
+      badge: _badgeController.text.trim().isEmpty
+          ? null
+          : _badgeController.text.trim(),
       accentColor: _accentColorController.text.trim().isEmpty
           ? '#7C3AED'
           : _accentColorController.text.trim(),
@@ -916,7 +1137,9 @@ class _FeatureField {
     return SubscriptionPlanFeature(
       id: id,
       label: labelController.text.trim(),
-      value: valueController.text.trim().isEmpty ? null : valueController.text.trim(),
+      value: valueController.text.trim().isEmpty
+          ? null
+          : valueController.text.trim(),
       order: 0,
     );
   }
@@ -926,4 +1149,3 @@ class _FeatureField {
     valueController.dispose();
   }
 }
-
