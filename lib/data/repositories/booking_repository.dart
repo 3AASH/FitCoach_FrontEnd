@@ -93,6 +93,47 @@ class BookingRepository {
     return null;
   }
 
+  Future<bool> cancelBooking(String bookingId, {String? reason}) async {
+    try {
+      final payload = <String, dynamic>{};
+      if (reason != null && reason.trim().isNotEmpty) {
+        payload['reason'] = reason.trim();
+      }
+      await _dio.delete(
+        '/bookings/$bookingId',
+        data: payload.isNotEmpty ? payload : null,
+        options: await _getAuthOptions(),
+      );
+      return true;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Failed to cancel booking');
+    }
+  }
+
+  Future<bool> updateBooking(String bookingId, {
+    required DateTime scheduledDate,
+    required String scheduledTime,
+    int? durationMinutes,
+    String? notes,
+  }) async {
+    try {
+      final payload = <String, dynamic>{
+        'scheduledDate': _dateOnly(scheduledDate),
+        'scheduledTime': scheduledTime,
+        if (durationMinutes != null) 'durationMinutes': durationMinutes,
+        if (notes != null && notes.trim().isNotEmpty) 'notes': notes.trim(),
+      };
+      await _dio.put(
+        '/bookings/$bookingId',
+        data: payload,
+        options: await _getAuthOptions(),
+      );
+      return true;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data?['message'] ?? 'Failed to update booking');
+    }
+  }
+
   Future<Options> _getAuthOptions() async {
     final token = await _secureStorage.read(key: _tokenKey);
     return Options(headers: {'Authorization': 'Bearer $token'});

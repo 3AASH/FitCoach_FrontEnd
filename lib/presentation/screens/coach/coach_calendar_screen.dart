@@ -53,7 +53,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
     return appointments.where((appointment) {
       DateTime? scheduledDate;
       try {
-        scheduledDate = DateTime.parse(appointment.scheduledAt);
+        scheduledDate = DateTime.parse(appointment.scheduledAt).toLocal();
       } catch (_) {
         return false;
       }
@@ -270,7 +270,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    _formatTime(DateTime.parse(appointment.scheduledAt)),
+                    _formatTime(DateTime.parse(appointment.scheduledAt).toLocal()),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -354,6 +354,33 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
+                if (appointment.status == 'pending') ...[
+                  TextButton.icon(
+                    onPressed: () => _confirmAppointment(
+                      appointment,
+                      authProvider,
+                      lang,
+                    ),
+                    icon: const Icon(Icons.check_circle, size: 16),
+                    label: Text(lang.t('coach_calendar_confirm')),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.success,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton.icon(
+                    onPressed: () => _rejectAppointment(
+                      appointment,
+                      authProvider,
+                      lang,
+                    ),
+                    icon: const Icon(Icons.cancel, size: 16),
+                    label: Text(lang.t('coach_calendar_reject')),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.error,
+                    ),
+                  ),
+                ],
                 if (appointment.status == 'scheduled') ...[
                   TextButton.icon(
                     onPressed: () => _showUpdateAppointmentDialog(
@@ -550,13 +577,14 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   : () async {
                       Navigator.pop(context);
 
+                      // Backend stores schedules in UTC
                       final scheduledAt = DateTime(
                         selectedDate.year,
                         selectedDate.month,
                         selectedDate.day,
                         selectedTime.hour,
                         selectedTime.minute,
-                      );
+                      ).toUtc();
 
                       final success = await coachProvider.createAppointment(
                         coachId: authProvider.user!.id,
@@ -604,9 +632,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
     AuthProvider authProvider,
     LanguageProvider lang,
   ) {
-    DateTime selectedDate = DateTime.parse(appointment.scheduledAt);
+    DateTime selectedDate = DateTime.parse(appointment.scheduledAt).toLocal();
     TimeOfDay selectedTime =
-        TimeOfDay.fromDateTime(DateTime.parse(appointment.scheduledAt));
+        TimeOfDay.fromDateTime(DateTime.parse(appointment.scheduledAt).toLocal());
     int duration = appointment.durationMinutes ?? 30;
     final notesController = TextEditingController(text: appointment.notes);
 
@@ -702,13 +730,14 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               onPressed: () async {
                 Navigator.pop(context);
 
+                // Backend stores schedules in UTC
                 final scheduledAt = DateTime(
                   selectedDate.year,
                   selectedDate.month,
                   selectedDate.day,
                   selectedTime.hour,
                   selectedTime.minute,
-                );
+                ).toUtc();
 
                 final coachProvider = context.read<CoachProvider>();
                 final success = await coachProvider.updateAppointment(
@@ -805,6 +834,135 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
     );
   }
 
+  void _confirmAppointment(
+    Appointment appointment,
+    AuthProvider authProvider,
+    LanguageProvider lang,
+  ) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(lang.t('coach_calendar_confirm_title')),
+        content: appointment.notes != null
+            ? Text('${appointment.notes}')
+            : Text(lang.t('coach_calendar_confirm_title')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(lang.t('auth_cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final coachProvider = context.read<CoachProvider>();
+              final success = await coachProvider.updateAppointment(
+                coachId: authProvider.user!.id,
+                appointmentId: appointment.id,
+                status: 'confirmed',
+              );
+
+              if (success && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(lang.t('coach_calendar_confirm_title')),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+                _loadAppointments();
+              } else if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      coachProvider.error ?? lang.t('coach_calendar_update_failed'),
+                    ),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.success,
+            ),
+            child: Text(lang.t('coach_calendar_confirm_confirm')),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _rejectAppointment(
+    Appointment appointment,
+    AuthProvider authProvider,
+    LanguageProvider lang,
+  ) {
+    final reasonController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(lang.t('coach_calendar_reject_title')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(lang.t('coach_calendar_cancel_confirm')),
+            const SizedBox(height: 12),
+            TextField(
+              controller: reasonController,
+              decoration: InputDecoration(
+                labelText: lang.t('coach_calendar_reject_hint'),
+                border: const OutlineInputBorder(),
+              ),
+              maxLines: 2,
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(lang.t('auth_cancel')),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              Navigator.pop(context);
+
+              final coachProvider = context.read<CoachProvider>();
+              final success = await coachProvider.updateAppointment(
+                coachId: authProvider.user!.id,
+                appointmentId: appointment.id,
+                status: 'rejected',
+                notes: reasonController.text.isNotEmpty ? reasonController.text : null,
+              );
+
+              if (success && mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(lang.t('coach_calendar_reject_title')),
+                    backgroundColor: AppColors.success,
+                  ),
+                );
+                _loadAppointments();
+              } else if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      coachProvider.error ?? lang.t('coach_calendar_update_failed'),
+                    ),
+                    backgroundColor: AppColors.error,
+                  ),
+                );
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.error,
+            ),
+            child: Text(lang.t('coach_calendar_reject_confirm')),
+          ),
+        ],
+      ),
+    );
+  }
+
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
@@ -841,6 +999,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
 
   Color _getStatusColor(String status) {
     switch (status) {
+      case 'pending':
+        return AppColors.warning;
       case 'scheduled':
         return AppColors.primary;
       case 'in_progress':
@@ -848,6 +1008,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
       case 'completed':
         return AppColors.success;
       case 'cancelled':
+        return AppColors.error;
+      case 'rejected':
         return AppColors.error;
       case 'missed':
         return AppColors.textSecondary;
@@ -871,6 +1033,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
 
   String _getStatusDisplayName(String? status, LanguageProvider lang) {
     switch (status) {
+      case 'pending':
+        return lang.t('coach_status_pending');
       case 'scheduled':
         return lang.t('coach_status_scheduled');
       case 'in_progress':
@@ -879,6 +1043,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
         return lang.t('coach_status_completed');
       case 'cancelled':
         return lang.t('coach_status_cancelled');
+      case 'rejected':
+        return lang.t('coach_status_rejected');
       case 'missed':
         return lang.t('coach_status_missed');
       default:
