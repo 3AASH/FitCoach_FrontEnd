@@ -8,15 +8,14 @@ class StoreRepository {
   final Dio _dio;
   final FlutterSecureStorage _secureStorage;
   final Future<String?> Function()? _tokenReader;
-  
+
   static const String _tokenKey = 'fitcoach_auth_token';
-  
+
   StoreRepository({
     Dio? dio,
     FlutterSecureStorage? secureStorage,
     Future<String?> Function()? tokenReader,
-  })
-      : _dio = dio ??
+  })  : _dio = dio ??
             Dio(BaseOptions(
               baseUrl: ApiConfig.baseUrl,
               connectTimeout: const Duration(seconds: 30),
@@ -54,7 +53,7 @@ class StoreRepository {
   }) async {
     try {
       final headers = await _getHeaders();
-      
+
       final queryParams = {
         'limit': limit,
         'offset': offset,
@@ -74,7 +73,7 @@ class StoreRepository {
 
       final data = response.data as Map<String, dynamic>;
       final productsList = data['products'] as List;
-      
+
       return productsList
           .map((json) => Product.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -129,7 +128,8 @@ class StoreRepository {
           .whereType<String>()
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to get categories');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to get categories');
     }
   }
 
@@ -169,7 +169,7 @@ class StoreRepository {
   }) async {
     try {
       final headers = await _getHeaders();
-      
+
       final queryParams = {
         'limit': limit,
         'offset': offset,
@@ -184,7 +184,7 @@ class StoreRepository {
 
       final data = response.data as Map<String, dynamic>;
       final ordersList = data['orders'] as List;
-      
+
       return ordersList
           .map((json) => Order.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -303,7 +303,7 @@ class StoreRepository {
   }) async {
     try {
       final headers = await _getHeaders();
-      
+
       final queryParams = {
         'limit': limit,
         'offset': offset,
@@ -328,6 +328,8 @@ class StoreRepository {
     required String category,
     required double price,
     int stockQuantity = 0,
+    String? description,
+    String? imageUrl,
   }) async {
     try {
       final headers = await _getHeaders();
@@ -338,13 +340,18 @@ class StoreRepository {
           'category': category,
           'price': price,
           'stockQuantity': stockQuantity,
+          if (description != null && description.trim().isNotEmpty)
+            'description': description.trim(),
+          if (imageUrl != null && imageUrl.trim().isNotEmpty)
+            'images': [imageUrl.trim()],
         },
         options: Options(headers: headers),
       );
 
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to create product');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to create product');
     }
   }
 
@@ -355,6 +362,8 @@ class StoreRepository {
     String? category,
     double? price,
     int? stockQuantity,
+    String? description,
+    String? imageUrl,
     bool? isActive,
   }) async {
     try {
@@ -366,6 +375,10 @@ class StoreRepository {
           if (category != null) 'category': category,
           if (price != null) 'price': price,
           if (stockQuantity != null) 'stockQuantity': stockQuantity,
+          if (description != null && description.trim().isNotEmpty)
+            'description': description.trim(),
+          if (imageUrl != null)
+            'images': imageUrl.trim().isEmpty ? <String>[] : [imageUrl.trim()],
           if (isActive != null) 'isActive': isActive,
         },
         options: Options(headers: headers),
@@ -373,7 +386,8 @@ class StoreRepository {
 
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update product');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update product');
     }
   }
 
@@ -386,7 +400,8 @@ class StoreRepository {
         options: Options(headers: headers),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to delete product');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to delete product');
     }
   }
 
@@ -404,12 +419,14 @@ class StoreRepository {
       final data = response.data as Map<String, dynamic>;
       return data['available'] as bool;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to check availability');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to check availability');
     }
   }
 
   /// Apply promo code
-  Future<Map<String, dynamic>> applyPromoCode(String code, double subtotal) async {
+  Future<Map<String, dynamic>> applyPromoCode(
+      String code, double subtotal) async {
     try {
       final headers = await _getHeaders();
 
@@ -424,7 +441,8 @@ class StoreRepository {
 
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to apply promo code');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to apply promo code');
     }
   }
 
@@ -448,7 +466,8 @@ class StoreRepository {
       final data = response.data as Map<String, dynamic>;
       return (data['shippingCost'] as num).toDouble();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to calculate shipping');
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to calculate shipping');
     }
   }
 }

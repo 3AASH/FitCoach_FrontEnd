@@ -43,11 +43,9 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
   final _countryController = TextEditingController();
 
   // Payment
-  StorePaymentMethod _paymentMethod = StorePaymentMethod.card;
-  final _cardNumberController = TextEditingController();
-  final _cardNameController = TextEditingController();
-  final _cardExpiryController = TextEditingController();
-  final _cardCvvController = TextEditingController();
+  // Cash on delivery is the only payment method until online payment is
+  // integrated; the enum stays so card can be re-enabled later.
+  final StorePaymentMethod _paymentMethod = StorePaymentMethod.cod;
 
   @override
   void dispose() {
@@ -60,10 +58,6 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     _zipController.dispose();
     _notesController.dispose();
     _countryController.dispose();
-    _cardNumberController.dispose();
-    _cardNameController.dispose();
-    _cardExpiryController.dispose();
-    _cardCvvController.dispose();
     super.dispose();
   }
 
@@ -75,8 +69,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
   }
 
   double get _shipping {
-    // Simple rule: free shipping for bigger baskets.
-    return _subtotal >= 100 ? 0 : 15;
+    // Mirrors the backend rule: free shipping above 200 SAR, otherwise 25.
+    return _subtotal > 200 ? 0 : 25;
   }
 
   double get _tax {
@@ -98,17 +92,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
   }
 
   bool _validatePayment(LanguageProvider lang) {
-    if (_paymentMethod == StorePaymentMethod.cod) return true;
-
-    if (_cardNumberController.text.trim().isEmpty ||
-        _cardNameController.text.trim().isEmpty ||
-        _cardExpiryController.text.trim().isEmpty ||
-        _cardCvvController.text.trim().isEmpty) {
-      _showError(lang.t('checkout_fill_payment_details'));
-      return false;
-    }
-
-    return true;
+    // Cash on delivery needs no payment details.
+    return _paymentMethod == StorePaymentMethod.cod;
   }
 
   void _showError(String message) {
@@ -245,7 +230,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               'zip': _zipController.text.trim(),
               'notes': _notesController.text.trim(),
             },
-            'paymentMethod': _paymentMethod == StorePaymentMethod.card ? 'card' : 'cod',
+            'paymentMethod': 'cod',
           };
 
           _lastResult = result;
@@ -308,7 +293,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
             'zip': _zipController.text.trim(),
             'notes': _notesController.text.trim(),
           },
-          'paymentMethod': _paymentMethod == StorePaymentMethod.card ? 'card' : 'cod',
+          'paymentMethod': 'cod',
         };
 
         _lastResult = result;
@@ -341,7 +326,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
           'zip': _zipController.text.trim(),
           'notes': _notesController.text.trim(),
         },
-        'paymentMethod': _paymentMethod == StorePaymentMethod.card ? 'card' : 'cod',
+        'paymentMethod': 'cod',
       };
 
       _lastResult = result;
@@ -687,64 +672,15 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 8),
-              RadioListTile<StorePaymentMethod>(
-                value: StorePaymentMethod.card,
-                groupValue: _paymentMethod,
-                onChanged: (value) => setState(() => _paymentMethod = value ?? StorePaymentMethod.card),
-                title: Text(lang.t('payment_method_card')),
-              ),
-              RadioListTile<StorePaymentMethod>(
-                value: StorePaymentMethod.cod,
-                groupValue: _paymentMethod,
-                onChanged: (value) => setState(() => _paymentMethod = value ?? StorePaymentMethod.card),
+              // Online payment is not available yet, so cash on delivery is
+              // shown as the single, pre-selected option.
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                leading: const Icon(Icons.payments_outlined, color: AppColors.primary),
                 title: Text(lang.t('payment_method_cod')),
+                subtitle: Text(lang.t('checkout_cod_only_note')),
+                trailing: const Icon(Icons.check_circle, color: AppColors.success),
               ),
-              if (_paymentMethod == StorePaymentMethod.card) ...[
-                const Divider(height: 24),
-                _field(
-                  lang: lang,
-                  controller: _cardNumberController,
-                  labelKey: 'checkout_card_number',
-                  icon: Icons.credit_card,
-                  required: true,
-                  textInputType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                _field(
-                  lang: lang,
-                  controller: _cardNameController,
-                  labelKey: 'checkout_card_name',
-                  icon: Icons.badge,
-                  required: true,
-                  textInputType: TextInputType.name,
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _field(
-                        lang: lang,
-                        controller: _cardExpiryController,
-                        labelKey: 'checkout_card_expiry',
-                        icon: Icons.calendar_today,
-                        required: true,
-                        textInputType: TextInputType.datetime,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: _field(
-                        lang: lang,
-                        controller: _cardCvvController,
-                        labelKey: 'checkout_card_cvv',
-                        icon: Icons.lock,
-                        required: true,
-                        textInputType: TextInputType.number,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
             ],
           ),
         ),
