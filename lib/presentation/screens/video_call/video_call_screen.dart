@@ -76,7 +76,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       final permissionsGranted = await _requestPermissions();
       if (!permissionsGranted) {
         setState(() {
-          _errorMessage = 'Camera and microphone permissions are required';
+          _errorMessage =
+              'Camera and microphone access is required. Enable them for this app in Settings, then rejoin.';
           _isLoading = false;
         });
         return;
@@ -130,8 +131,24 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       Permission.microphone,
     ].request();
 
-    return statuses[Permission.camera]!.isGranted &&
-        statuses[Permission.microphone]!.isGranted;
+    final camera = statuses[Permission.camera]!;
+    final microphone = statuses[Permission.microphone]!;
+
+    if (camera.isGranted && microphone.isGranted) {
+      return true;
+    }
+
+    // On iOS, once a permission is denied the system never prompts again, so
+    // `.request()` returns immediately without a dialog. In that case deep-link
+    // the user to the app's Settings page where they can enable it manually.
+    if (camera.isPermanentlyDenied ||
+        microphone.isPermanentlyDenied ||
+        camera.isDenied ||
+        microphone.isDenied) {
+      await openAppSettings();
+    }
+
+    return false;
   }
 
   Future<void> _connectToRoom(String token, String roomName) async {
