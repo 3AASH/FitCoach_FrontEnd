@@ -5,9 +5,13 @@ import 'package:flutter/foundation.dart';
 
 class ApiConfig {
   // Environment flag
+  // Demo default points at the Hostinger staging backend so device builds
+  // (incl. `12pm`, which builds via xcodebuild and can't thread dart-defines)
+  // hit a real server out of the box. Local dev: override with
+  // `--dart-define=ENV=development` to use localhost:3000.
   static const String environment = String.fromEnvironment(
     'ENV',
-    defaultValue: 'development',
+    defaultValue: 'staging',
   );
 
   static const String _overrideBaseUrl = String.fromEnvironment(

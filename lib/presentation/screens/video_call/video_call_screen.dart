@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:twilio_flutter_video_sdk/twilio_flutter_video_sdk.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -8,8 +8,13 @@ import '../../../data/repositories/rating_repository.dart';
 import '../../providers/video_call_provider.dart';
 import '../../widgets/rating_modal.dart';
 
-/// Video Call Screen with Agora RTC
-/// Handles in-app video calls between user and coach
+/// Video Call Screen with Twilio Programmable Video
+/// Handles in-app native video calls between user and coach.
+///
+/// Connects to a Twilio Room using the `token` + `roomName` minted by the
+/// backend (`/video-calls/:appointmentId/start`). Twilio identifies the local
+/// participant by the `identity` baked into the access-token JWT, so we do not
+/// use Agora's numeric `uid` here.
 class VideoCallScreen extends StatefulWidget {
   final String appointmentId;
   final String coachId;
@@ -33,9 +38,14 @@ class VideoCallScreen extends StatefulWidget {
 }
 
 class _VideoCallScreenState extends State<VideoCallScreen> {
-  late RtcEngine _engine;
-  int? _remoteUid;
-  bool _localUserJoined = false;
+  TwilioVideoController? _controller;
+  TwilioVideoRoom? _room;
+
+  // Remote participant video tracks, keyed by participantSid. For a 1:1 call
+  // there is a single entry, but we track a set to stay robust.
+  final Set<String> _remoteSids = {};
+
+  bool _localConnected = false;
   bool _isMuted = false;
   bool _isCameraOff = false;
   bool _isFrontCamera = true;
@@ -45,11 +55,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Timer? _callTimer;
   int _callDuration = 0; // in seconds
 
-  String? _token;
-  String? _channelName;
-  int? _uid;
-  String? _appId;
-  bool _engineInitialized = false;
+  StreamSubscription<TwilioVideoEvent>? _eventsSub;
+  StreamSubscription<VideoTrackInfo>? _trackSub;
+  StreamSubscription<String>? _errorsSub;
 
   @override
   void initState() {
@@ -74,7 +82,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         return;
       }
 
-      // Get call token from backend
+      // Gate check
       final joinStatus = await provider.canJoinCall(widget.appointmentId);
       if (joinStatus == null || joinStatus['canJoin'] != true) {
         setState(() {
@@ -83,8 +91,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         });
         return;
       }
-      final callData = await provider.startCall(widget.appointmentId);
 
+      // Create session + get token from backend
+      final callData = await provider.startCall(widget.appointmentId);
       if (callData == null) {
         setState(() {
           _errorMessage = 'Failed to start call. Please try again.';
@@ -93,15 +102,20 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         return;
       }
 
-      setState(() {
-        _token = callData['token'];
-        _channelName = callData['channelName'];
-        _uid = callData['uid'];
-        _appId = callData['appId'];
-      });
+      final token = callData['token'] as String?;
+      // Backend sends roomName for Twilio; channelName carries the same value.
+      final roomName =
+          (callData['roomName'] ?? callData['channelName']) as String?;
 
-      // Initialize Agora
-      await _initializeAgora();
+      if (token == null || roomName == null) {
+        setState(() {
+          _errorMessage = 'Call configuration is incomplete.';
+          _isLoading = false;
+        });
+        return;
+      }
+
+      await _connectToRoom(token, roomName);
     } catch (e) {
       setState(() {
         _errorMessage = 'Error: ${e.toString()}';
@@ -111,7 +125,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Future<bool> _requestPermissions() async {
-    Map<Permission, PermissionStatus> statuses = await [
+    final statuses = await [
       Permission.camera,
       Permission.microphone,
     ].request();
@@ -120,78 +134,73 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         statuses[Permission.microphone]!.isGranted;
   }
 
-  Future<void> _initializeAgora() async {
+  Future<void> _connectToRoom(String token, String roomName) async {
     try {
-      // Create RTC engine
-      _engine = createAgoraRtcEngine();
-      _engineInitialized = true;
+      final controller = TwilioVideoController();
+      final room = controller.createRoom();
+      _controller = controller;
+      _room = room;
 
-      // Initialize engine
-      await _engine.initialize(RtcEngineContext(
-        appId: _appId!,
-        channelProfile: ChannelProfileType.channelProfileCommunication,
-      ));
-
-      // Register event handlers
-      _engine.registerEventHandler(
-        RtcEngineEventHandler(
-          onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
-            debugPrint('Local user joined: ${connection.localUid}');
+      // Connection lifecycle
+      _eventsSub = room.events.listen((event) {
+        switch (event) {
+          case TwilioVideoEvent.connected:
+            if (!mounted) return;
             setState(() {
-              _localUserJoined = true;
+              _localConnected = true;
               _isLoading = false;
             });
             _startCallTimer();
-          },
-          onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
-            debugPrint('Remote user joined: $remoteUid');
+            break;
+          case TwilioVideoEvent.disconnected:
+            // Remote/room teardown — clear remote tiles.
+            if (!mounted) return;
+            setState(() => _remoteSids.clear());
+            break;
+          case TwilioVideoEvent.connectionFailure:
+            if (!mounted) return;
             setState(() {
-              _remoteUid = remoteUid;
+              _errorMessage = 'Failed to connect to the call.';
+              _isLoading = false;
             });
-          },
-          onUserOffline: (RtcConnection connection, int remoteUid,
-              UserOfflineReasonType reason) {
-            debugPrint('Remote user offline: $remoteUid');
-            setState(() {
-              _remoteUid = null;
-            });
-          },
-          onError: (ErrorCodeType err, String msg) {
-            debugPrint('Agora error: $err - $msg');
-          },
-          onConnectionStateChanged: (RtcConnection connection,
-              ConnectionStateType state, ConnectionChangedReasonType reason) {
-            debugPrint('Connection state changed: $state');
-          },
-        ),
-      );
+            break;
+          case TwilioVideoEvent.participantDisconnected:
+            // Tile removal is driven by videoTrackEvents below.
+            break;
+          default:
+            break;
+        }
+      });
 
-      // Enable video
-      await _engine.enableVideo();
-      await _engine.enableAudio();
-      await _engine.startPreview();
+      // Remote video tile lifecycle: render only when the track is enabled and
+      // its native view is ready (per the SDK's guidance).
+      _trackSub = room.videoTrackEvents.listen((track) {
+        if (!mounted) return;
+        setState(() {
+          if (track.isEnabled && track.nativeViewReady) {
+            _remoteSids.add(track.participantSid);
+          } else {
+            _remoteSids.remove(track.participantSid);
+          }
+        });
+      });
 
-      // Set video encoder configuration
-      await _engine.setVideoEncoderConfiguration(
-        const VideoEncoderConfiguration(
-          dimensions: VideoDimensions(width: 640, height: 360),
-          frameRate: 15,
-          bitrate: 0,
-        ),
-      );
+      _errorsSub = room.errors.listen((err) {
+        debugPrint('Twilio video error: $err');
+      });
 
-      // Join channel
-      await _engine.joinChannel(
-        token: _token!,
-        channelId: _channelName!,
-        uid: _uid!,
-        options: const ChannelMediaOptions(
-          channelProfile: ChannelProfileType.channelProfileCommunication,
-          clientRoleType: ClientRoleType.clientRoleBroadcaster,
+      await room.joinRoom(
+        RoomOptions(
+          accessToken: token,
+          roomName: roomName,
+          enableAudio: true,
+          enableVideo: true,
+          enableFrontCamera: true,
         ),
       );
     } catch (e) {
-      debugPrint('Agora initialization error: $e');
+      debugPrint('Twilio connect error: $e');
+      if (!mounted) return;
       setState(() {
         _errorMessage = 'Failed to initialize video call: ${e.toString()}';
         _isLoading = false;
@@ -214,21 +223,19 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Future<void> _toggleMute() async {
-    setState(() {
-      _isMuted = !_isMuted;
-    });
-    await _engine.muteLocalAudioStream(_isMuted);
+    final next = !_isMuted;
+    setState(() => _isMuted = next);
+    await _room?.setMuted(next);
   }
 
   Future<void> _toggleCamera() async {
-    setState(() {
-      _isCameraOff = !_isCameraOff;
-    });
-    await _engine.muteLocalVideoStream(_isCameraOff);
+    final next = !_isCameraOff;
+    setState(() => _isCameraOff = next);
+    await _room?.setVideoEnabled(!next);
   }
 
   Future<void> _switchCamera() async {
-    await _engine.switchCamera();
+    await _room?.switchCamera();
     setState(() {
       _isFrontCamera = !_isFrontCamera;
     });
@@ -236,19 +243,16 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   Future<void> _endCall() async {
     final provider = Provider.of<VideoCallProvider>(context, listen: false);
-    // Stop timer
     _callTimer?.cancel();
 
-    // Calculate duration in minutes
     final durationMinutes = (_callDuration / 60).ceil();
 
-    // Leave channel
-    await _engine.leaveChannel();
+    // Leave the Twilio room
+    await _room?.disconnect();
 
-    // Send end call to backend
+    // Notify backend
     await provider.endCall(widget.appointmentId, durationMinutes);
 
-    // Navigate back
     if (mounted) {
       Navigator.of(context).pop();
 
@@ -310,10 +314,11 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   @override
   void dispose() {
     _callTimer?.cancel();
-    if (_engineInitialized) {
-      _engine.leaveChannel();
-      _engine.release();
-    }
+    _eventsSub?.cancel();
+    _trackSub?.cancel();
+    _errorsSub?.cancel();
+    _room?.disconnect();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -386,19 +391,17 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   border: Border.all(color: Colors.white, width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: _localUserJoined
-                    ? AgoraVideoView(
-                        controller: VideoViewController(
-                          rtcEngine: _engine,
-                          canvas: const VideoCanvas(uid: 0),
-                        ),
-                      )
+                child: (_localConnected && !_isCameraOff)
+                    ? const TwilioVideoView(viewId: '0')
                     : Container(
                         color: Colors.grey[900],
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                          ),
+                        child: Center(
+                          child: _localConnected
+                              ? const Icon(Icons.videocam_off,
+                                  color: Colors.white54)
+                              : const CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
                         ),
                       ),
               ),
@@ -439,8 +442,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             ),
           ),
 
-          // Other party name
-          if (_remoteUid == null)
+          // Waiting-for-remote overlay
+          if (_remoteSids.isEmpty)
             Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -471,36 +474,33 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Widget _remoteVideo() {
-    if (_remoteUid != null) {
-      return AgoraVideoView(
-        controller: VideoViewController.remote(
-          rtcEngine: _engine,
-          canvas: VideoCanvas(uid: _remoteUid),
-          connection: RtcConnection(channelId: _channelName),
-        ),
-      );
-    } else {
-      return Container(
-        color: Colors.grey[900],
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.person, size: 80, color: Colors.white54),
-              const SizedBox(height: 16),
-              Text(
-                widget.coachName,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
+    if (_remoteSids.isNotEmpty) {
+      // 1:1 call — render the first remote participant full-screen.
+      final sid = _remoteSids.first;
+      return SizedBox.expand(
+        child: TwilioVideoView(viewId: sid),
       );
     }
+    return Container(
+      color: Colors.grey[900],
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.person, size: 80, color: Colors.white54),
+            const SizedBox(height: 16),
+            Text(
+              widget.coachName,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildControls() {
@@ -553,7 +553,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             color: Colors.white,
             backgroundColor: Colors.black54,
             onPressed: () {
-              // Toggle speaker (already enabled by default in communication mode)
+              // Speaker is enabled by default for video rooms.
             },
           ),
         ],

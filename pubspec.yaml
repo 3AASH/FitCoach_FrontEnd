@@ -24,8 +24,8 @@ dependencies:
   socket_io_client: ^2.0.3
   http: ^1.1.2
 
-  # Video Calls
-  agora_rtc_engine: ^6.3.0
+  # Video Calls (Twilio Programmable Video — ticket 59)
+  twilio_flutter_video_sdk: ^1.0.0
   permission_handler: ^11.1.0
 
   # Local Storage

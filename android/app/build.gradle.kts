@@ -5,10 +5,18 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+dependencies {
+    // twilio_flutter_video_sdk does not expose the Twilio Android SDK strongly
+    // enough for GeneratedPluginRegistrant compilation under newer toolchains.
+    implementation("com.twilio:video-android:7.9.1")
+}
+
 android {
     namespace = "com.example.fitapp"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = "27.0.12077973"
+    // integration_test currently resolves to NDK 28.2.x; use the highest
+    // required NDK because side-by-side NDKs are backward compatible.
+    ndkVersion = "28.2.13676358"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
@@ -24,7 +32,8 @@ android {
         applicationId = "com.example.fitapp"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        minSdk = flutter.minSdkVersion
+        // Twilio Programmable Video Android SDK requires API 24+.
+        minSdk = maxOf(24, flutter.minSdkVersion)
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
