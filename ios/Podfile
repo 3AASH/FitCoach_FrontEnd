@@ -42,6 +42,18 @@ post_install do |installer|
 
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+
+      # permission_handler (iOS) compiles each permission behind a macro. Without
+      # these, Permission.camera/microphone .request() returns denied WITHOUT ever
+      # prompting iOS (no entry appears in Settings). Enable the ones the app uses.
+      config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
+        '$(inherited)',
+        'PERMISSION_CAMERA=1',
+        'PERMISSION_MICROPHONE=1',
+        'PERMISSION_PHOTOS=1',
+        'PERMISSION_LOCATION=1',
+        'PERMISSION_NOTIFICATIONS=1',
+      ]
     end
   end
 end
