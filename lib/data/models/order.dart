@@ -60,10 +60,15 @@ class Order {
           .toList(),
       subtotal: _double(json['subtotal']),
       discount: json['discount'] != null ? _double(json['discount']) : null,
-      shippingCost:
-          json['shipping_cost'] != null || json['shippingCost'] != null
-              ? _double(json['shipping_cost'] ?? json['shippingCost'])
-              : null,
+      shippingCost: json['shipping_cost'] != null ||
+              json['shippingCost'] != null ||
+              json['shipping_fee'] != null ||
+              json['shippingFee'] != null
+          ? _double(json['shipping_cost'] ??
+              json['shippingCost'] ??
+              json['shipping_fee'] ??
+              json['shippingFee'])
+          : null,
       tax: json['tax'] != null ? _double(json['tax']) : null,
       total: _double(json['total']),
       status: _string(json['status'], fallback: 'pending'),

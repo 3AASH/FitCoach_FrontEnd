@@ -837,15 +837,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      item['image'] as String,
-                      width: 46,
-                      height: 46,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  _buildProductThumbnail(item['image']),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
@@ -868,6 +860,33 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget _buildProductThumbnail(dynamic imageValue) {
+    final imageUrl = imageValue?.toString().trim() ?? '';
+    final fallback = Container(
+      width: 46,
+      height: 46,
+      color: AppColors.surface,
+      child: const Icon(
+        Icons.image_not_supported_outlined,
+        color: AppColors.textDisabled,
+        size: 22,
+      ),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: imageUrl.isEmpty
+          ? fallback
+          : Image.network(
+              imageUrl,
+              width: 46,
+              height: 46,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => fallback,
+            ),
     );
   }
 

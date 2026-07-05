@@ -978,7 +978,7 @@ class _StoreScreenState extends State<StoreScreen> {
         'nameAr': p.nameAr,
         'price': p.finalPrice,
         'quantity': ci.quantity,
-        'image': imageUrl,
+        'image': imageUrl ?? '',
       };
     }).toList();
 
@@ -1161,15 +1161,7 @@ class _StoreScreenState extends State<StoreScreen> {
             margin: const EdgeInsets.only(bottom: 12),
             child: Row(
               children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    item['image'],
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                _buildStoreThumbnail(item['image'], size: 60),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -1337,12 +1329,8 @@ class _StoreScreenState extends State<StoreScreen> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(8),
-                            child: Image.network(
-                              item['image'] as String,
-                              width: 46,
-                              height: 46,
-                              fit: BoxFit.cover,
-                            ),
+                            child: _buildStoreThumbnail(item['image'],
+                                size: 46, rounded: false),
                           ),
                           const SizedBox(width: 10),
                           Expanded(
@@ -1884,5 +1872,38 @@ class _StoreScreenState extends State<StoreScreen> {
           _tabController ?? DefaultTabController.maybeOf(context);
       controller?.animateTo(2);
     });
+  }
+
+  Widget _buildStoreThumbnail(
+    dynamic imageValue, {
+    required double size,
+    bool rounded = true,
+  }) {
+    final imageUrl = imageValue?.toString().trim() ?? '';
+    final fallback = Container(
+      width: size,
+      height: size,
+      color: AppColors.surface,
+      child: Icon(
+        Icons.image_not_supported_outlined,
+        color: AppColors.textDisabled,
+        size: size * 0.45,
+      ),
+    );
+    final child = imageUrl.isEmpty
+        ? fallback
+        : Image.network(
+            imageUrl,
+            width: size,
+            height: size,
+            fit: BoxFit.cover,
+            errorBuilder: (_, __, ___) => fallback,
+          );
+
+    if (!rounded) return child;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: child,
+    );
   }
 }
