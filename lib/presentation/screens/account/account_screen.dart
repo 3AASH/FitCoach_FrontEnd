@@ -669,6 +669,7 @@ class _AccountScreenState extends State<AccountScreen> {
     AuthProvider authProvider,
     bool isArabic,
   ) {
+    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -1241,13 +1242,19 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildSectionTitle(String title) {
+    final theme = Theme.of(context);
     return Text(
       title,
-      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      style: TextStyle(
+        fontSize: 18,
+        fontWeight: FontWeight.bold,
+        color: theme.colorScheme.onSurface,
+      ),
     );
   }
 
   Widget _buildDetailRow(String label, String value) {
+    final theme = Theme.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Row(
@@ -1256,13 +1263,18 @@ class _AccountScreenState extends State<AccountScreen> {
             width: 120,
             child: Text(
               '$label:',
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: theme.textTheme.bodySmall?.color,
                 fontWeight: FontWeight.w600,
               ),
             ),
           ),
-          Expanded(child: Text(value)),
+          Expanded(
+            child: Text(
+              value,
+              style: TextStyle(color: theme.colorScheme.onSurface),
+            ),
+          ),
         ],
       ),
     );
@@ -1365,8 +1377,12 @@ class _AccountScreenState extends State<AccountScreen> {
     );
 
     if (confirmed == true && context.mounted) {
-      await context.read<MessagingProvider>().disconnect();
+      final messagingProvider = context.read<MessagingProvider>();
+      final navigator = Navigator.of(context);
+      await messagingProvider.disconnect();
       await authProvider.logout();
+      if (!context.mounted) return;
+      navigator.popUntil((route) => route.isFirst);
     }
   }
 }

@@ -7,6 +7,7 @@ import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/admin_user.dart';
 import '../../../data/models/admin_coach.dart';
+import '../../../data/repositories/admin_repository.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({super.key});
@@ -54,6 +55,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       appBar: AppBar(
         title: Text(lang.t('admin_users_title')),
         actions: [
+          IconButton(
+            tooltip: lang.t('admin_create_admin_action'),
+            icon: const Icon(Icons.admin_panel_settings),
+            onPressed: () => _showCreateAdminDialog(lang),
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadUsers,
@@ -674,6 +680,162 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       }
     }
     return null;
+  }
+
+  void _showCreateAdminDialog(LanguageProvider lang) {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
+    final passwordController = TextEditingController();
+    bool saving = false;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text(lang.t('admin_create_admin_title')),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('admin_full_name_label'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? lang.t('admin_full_name_required')
+                              : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('email'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        final email = value?.trim() ?? '';
+                        if (email.isEmpty) {
+                          return lang.t('admin_email_required');
+                        }
+                        if (!email.contains('@') || !email.contains('.')) {
+                          return lang.t('admin_invalid_email');
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: phoneController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('admin_phone_optional'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('admin_password_optional'),
+                        helperText: lang.t('admin_password_optional_hint'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        final password = value?.trim() ?? '';
+                        if (password.isNotEmpty && password.length < 6) {
+                          return lang.t('admin_password_min');
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(dialogContext),
+                child: Text(lang.t('cancel')),
+              ),
+              ElevatedButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!(formKey.currentState?.validate() ?? false)) {
+                          return;
+                        }
+                        setDialogState(() => saving = true);
+                        final dialogNavigator = Navigator.of(dialogContext);
+                        final messenger = ScaffoldMessenger.of(context);
+                        final adminProvider = context.read<AdminProvider>();
+                        final result = await adminProvider.createAdmin(
+                          fullName: nameController.text.trim(),
+                          email: emailController.text.trim(),
+                          phoneNumber: phoneController.text.trim(),
+                          password: passwordController.text.trim(),
+                        );
+                        if (!mounted) return;
+                        dialogNavigator.pop();
+                        if (result == null) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(adminProvider.error ??
+                                  lang.t('admin_create_admin_failed')),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                          return;
+                        }
+                        _loadUsers();
+                        _showAdminCredentialsDialog(result, lang);
+                      },
+                child: Text(saving
+                    ? lang.t('admin_sending')
+                    : lang.t('admin_create_admin_action')),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _showAdminCredentialsDialog(
+      AdminCreationResult result, LanguageProvider lang) {
+    final credentials = result.credentials;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(lang.t('admin_admin_created_success')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                '${lang.t('email')}: ${credentials?.email ?? result.admin.email ?? ''}'),
+            const SizedBox(height: 8),
+            Text(
+                '${lang.t('password')}: ${credentials?.defaultPassword ?? '123456'}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(lang.t('ok')),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSuspendUserDialog(AdminUser user, LanguageProvider lang) {

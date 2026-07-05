@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
-import '../../../core/config/demo_config.dart';
 import '../../../core/utils/phone_number_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -33,8 +32,6 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isSignupOtpSent = false;
   bool _isSendingSignupCode = false;
   bool _isCreatingSignupAccount = false;
-  DateTime? _logoPressStart;
-
   CountryPhoneOption _otpPhoneCountry = PhoneNumberUtils.defaultCountry;
   CountryPhoneOption _signupPhoneCountry = PhoneNumberUtils.defaultCountry;
   CountryPhoneOption _passwordLoginPhoneCountry =
@@ -514,31 +511,6 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _tryDemo() {
-    final authProvider = context.read<AuthProvider>();
-    if (DemoConfig.isDemo) {
-      authProvider.setDemoRole('user');
-      widget.onAuthenticated();
-    } else {
-      _showError(context.read<LanguageProvider>().t('auth_demo_unavailable'));
-    }
-  }
-
-  void _handleLogoPress() {
-    _logoPressStart = DateTime.now();
-  }
-
-  void _handleLogoRelease() {
-    final start = _logoPressStart;
-    _logoPressStart = null;
-    if (start == null) {
-      return;
-    }
-    if (DateTime.now().difference(start).inSeconds >= 2) {
-      _tryDemo();
-    }
-  }
-
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: AppColors.error),
@@ -622,57 +594,52 @@ class _AuthScreenState extends State<AuthScreen> {
                 padding: const EdgeInsets.all(24),
                 child: Column(
                   children: [
-                    GestureDetector(
-                      onTapDown: (_) => _handleLogoPress(),
-                      onTapUp: (_) => _handleLogoRelease(),
-                      onTapCancel: _handleLogoRelease,
-                      child: Column(
-                        children: [
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Image.asset(
-                                'assets/images/logo_primary.png',
-                                fit: BoxFit.contain,
-                              ),
+                    Column(
+                      children: [
+                        Container(
+                          width: 64,
+                          height: 64,
+                          decoration: BoxDecoration(
+                            color: AppColors.primary,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Image.asset(
+                              'assets/images/logo_primary.png',
+                              fit: BoxFit.contain,
                             ),
                           ),
-                          const SizedBox(height: 12),
-                          AnimatedReveal(
-                            offset: Offset(isRTL ? -0.25 : 0.25, 0),
-                            duration: const Duration(milliseconds: 650),
-                            child: Text(
-                              languageProvider.t('auth_app_name'),
-                              style: const TextStyle(
-                                fontSize: 26,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                              textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 12),
+                        AnimatedReveal(
+                          offset: Offset(isRTL ? -0.25 : 0.25, 0),
+                          duration: const Duration(milliseconds: 650),
+                          child: Text(
+                            languageProvider.t('auth_app_name'),
+                            style: const TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 4),
-                          AnimatedReveal(
-                            delay: const Duration(milliseconds: 120),
-                            offset: Offset(isRTL ? -0.2 : 0.2, 0),
-                            duration: const Duration(milliseconds: 650),
-                            child: Text(
-                              languageProvider.t('auth_tagline'),
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.white.withValues(alpha: 0.85),
-                              ),
-                              textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 4),
+                        AnimatedReveal(
+                          delay: const Duration(milliseconds: 120),
+                          offset: Offset(isRTL ? -0.2 : 0.2, 0),
+                          duration: const Duration(milliseconds: 650),
+                          child: Text(
+                            languageProvider.t('auth_tagline'),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.white.withValues(alpha: 0.85),
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 24),
                     ConstrainedBox(
@@ -838,14 +805,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                           : () => _handleSocialLogin('apple'),
                                     ),
                                   ],
-                                ),
-                                const SizedBox(height: 16),
-                                Center(
-                                  child: OutlinedButton(
-                                    onPressed: isBusy ? null : _tryDemo,
-                                    child: Text(
-                                        languageProvider.t('auth_try_demo')),
-                                  ),
                                 ),
                               ],
                               if (_step == AuthStep.email) ...[
@@ -1307,78 +1266,6 @@ class _AuthScreenState extends State<AuthScreen> {
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      languageProvider.t('auth_demo_credentials'),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      languageProvider.t('auth_demo_user'),
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      languageProvider.t(
-                        'auth_demo_credentials_detail',
-                        args: {
-                          'email': 'user@fitcoach.com',
-                          'password':
-                              languageProvider.t('auth_demo_password_any'),
-                        },
-                      ),
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      languageProvider.t('auth_demo_coach'),
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      languageProvider.t(
-                        'auth_demo_credentials_detail',
-                        args: {
-                          'email': 'coach@fitcoach.com',
-                          'password':
-                              languageProvider.t('auth_demo_password_any'),
-                        },
-                      ),
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      languageProvider.t('auth_demo_admin'),
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      languageProvider.t(
-                        'auth_demo_credentials_detail',
-                        args: {
-                          'email': 'admin@fitcoach.com',
-                          'password':
-                              languageProvider.t('auth_demo_password_any'),
-                        },
-                      ),
-                      textAlign: TextAlign.center,
-                      style:
-                          const TextStyle(fontSize: 12, color: Colors.white70),
                     ),
                     if (isRTL) const SizedBox(height: 8),
                   ],

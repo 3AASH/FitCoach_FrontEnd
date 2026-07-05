@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../core/constants/colors.dart';
@@ -654,6 +655,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         TextEditingController(text: product?['imageUrl']?.toString() ?? '');
     final formKey = GlobalKey<FormState>();
     bool saving = false;
+    String? selectedPhotoPath;
+    String? selectedPhotoName;
 
     await showDialog<void>(
       context: context,
@@ -751,6 +754,38 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: saving
+                        ? null
+                        : () async {
+                            final result = await FilePicker.platform.pickFiles(
+                              type: FileType.image,
+                              allowMultiple: false,
+                              withData: false,
+                            );
+                            final file = result?.files.single;
+                            if (file?.path == null) return;
+                            setDialogState(() {
+                              selectedPhotoPath = file!.path;
+                              selectedPhotoName = file.name;
+                            });
+                          },
+                    icon: const Icon(Icons.photo_camera),
+                    label: Text(selectedPhotoName?.isNotEmpty == true
+                        ? selectedPhotoName!
+                        : lang.t('store_upload_product_photo')),
+                  ),
+                  if (selectedPhotoPath != null) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      lang.t('store_upload_product_photo_ready'),
+                      style: const TextStyle(
+                        color: AppColors.success,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -817,6 +852,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                         return;
                       }
 
+                      final dialogNavigator = Navigator.of(dialogContext);
+                      final messenger = ScaffoldMessenger.of(context);
                       try {
                         final repository = StoreRepository();
                         if (isEdit) {
@@ -830,8 +867,14 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                             imageUrl: imageUrl,
                             isActive: _statusForStock(stock) != 'out_of_stock',
                           );
+                          if (selectedPhotoPath != null) {
+                            await repository.uploadProductPhotoAdmin(
+                              productId: product['id'] as String,
+                              filePath: selectedPhotoPath!,
+                            );
+                          }
                         } else {
-                          await repository.createProductAdmin(
+                          final response = await repository.createProductAdmin(
                             name: name,
                             category: category,
                             price: price,
@@ -839,17 +882,29 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                             description: description,
                             imageUrl: imageUrl,
                           );
+                          final createdProduct = response['product'];
+                          final createdId = createdProduct is Map
+                              ? createdProduct['id']?.toString()
+                              : null;
+                          if (selectedPhotoPath != null &&
+                              createdId != null &&
+                              createdId.isNotEmpty) {
+                            await repository.uploadProductPhotoAdmin(
+                              productId: createdId,
+                              filePath: selectedPhotoPath!,
+                            );
+                          }
                         }
 
                         if (!mounted) return;
                         await _loadData();
-                        Navigator.pop(context);
+                        dialogNavigator.pop();
                       } catch (e) {
                         if (!mounted) return;
                         setDialogState(() {
                           saving = false;
                         });
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(e.toString()),
                             backgroundColor: AppColors.error,

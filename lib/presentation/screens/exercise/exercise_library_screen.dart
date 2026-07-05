@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../data/services/exercise_catalog_service.dart';
 import '../../providers/language_provider.dart';
@@ -716,46 +717,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   }
 
   String? _resolveThumbnail(String? thumbnailUrl, String? videoUrl) {
-    final direct = thumbnailUrl?.trim();
-    if (direct != null && direct.isNotEmpty) return direct;
-    return _thumbnailFromVideoUrl(videoUrl);
-  }
-
-  String? _thumbnailFromVideoUrl(String? videoUrl) {
-    if (videoUrl == null || videoUrl.trim().isEmpty) return null;
-    final uri = Uri.tryParse(videoUrl.trim());
-    if (uri == null) return null;
-    final host = uri.host.toLowerCase();
-    if (host.contains('youtu.be')) {
-      final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
-      return _youtubeThumbnail(id);
-    }
-    if (host.contains('youtube.com')) {
-      String? id = uri.queryParameters['v'];
-      final shortsIndex = uri.pathSegments.indexOf('shorts');
-      if ((id == null || id.isEmpty) &&
-          shortsIndex >= 0 &&
-          uri.pathSegments.length > shortsIndex + 1) {
-        id = uri.pathSegments[shortsIndex + 1];
-      }
-      final embedIndex = uri.pathSegments.indexOf('embed');
-      if ((id == null || id.isEmpty) &&
-          embedIndex >= 0 &&
-          uri.pathSegments.length > embedIndex + 1) {
-        id = uri.pathSegments[embedIndex + 1];
-      }
-      return _youtubeThumbnail(id);
-    }
-    if (host.contains('vimeo.com') && uri.pathSegments.isNotEmpty) {
-      final id = uri.pathSegments.last;
-      if (id.isNotEmpty) return 'https://vumbnail.com/$id.jpg';
-    }
-    return null;
-  }
-
-  String? _youtubeThumbnail(String? id) {
-    if (id == null || id.trim().isEmpty) return null;
-    return 'https://img.youtube.com/vi/${id.trim()}/hqdefault.jpg';
+    return VideoThumbnailResolver.resolve(
+      thumbnailUrl: thumbnailUrl,
+      videoUrl: videoUrl,
+    );
   }
 
   Future<void> _openVideo(String? videoUrl, bool isArabic) async {

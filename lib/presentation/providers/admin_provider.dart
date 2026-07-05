@@ -276,6 +276,58 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
+  Future<AdminCreationResult?> createAdmin({
+    required String fullName,
+    required String email,
+    String? phoneNumber,
+    String? password,
+  }) async {
+    if (DemoConfig.isDemo) {
+      final now = DateTime.now();
+      final admin = AdminUser(
+        id: 'admin_${now.microsecondsSinceEpoch}',
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        subscriptionTier: 'freemium',
+        isActive: true,
+        createdAt: now,
+      );
+      _users.insert(0, admin);
+      notifyListeners();
+      return AdminCreationResult(
+        admin: admin,
+        credentials: CoachCredentials(
+          email: email,
+          defaultPassword:
+              password?.trim().isNotEmpty == true ? password!.trim() : '123456',
+        ),
+      );
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _repository.createAdmin(
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        password: password,
+      );
+      await loadUsers();
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
   /// Load coaches
   Future<void> loadCoaches({
     String? search,
@@ -573,6 +625,8 @@ class AdminProvider extends ChangeNotifier {
                       .map((item) => item.trim())
                       .where((item) => item.isNotEmpty)
                       .toList(),
+                  alternatives: exercise.alternatives,
+                  alternativesCount: exercise.alternatives.length,
                   videoUrl: exercise.videoUrl,
                   thumbnailUrl: exercise.thumbnailUrl,
                   instructions: exercise.instructions,

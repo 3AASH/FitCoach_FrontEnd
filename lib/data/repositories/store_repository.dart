@@ -391,6 +391,33 @@ class StoreRepository {
     }
   }
 
+  /// Admin: upload product photo and make it the primary image.
+  Future<Map<String, dynamic>> uploadProductPhotoAdmin({
+    required String productId,
+    required String filePath,
+  }) async {
+    try {
+      final token = await _getToken();
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(filePath),
+      });
+      final response = await _dio.post(
+        '/admin/products/$productId/photo',
+        data: formData,
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to upload product photo');
+    }
+  }
+
   /// Admin: delete product
   Future<void> deleteProductAdmin(String productId) async {
     try {

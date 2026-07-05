@@ -424,66 +424,94 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.workoutBackground,
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                12,
-                16,
-                32 + MediaQuery.of(context).padding.bottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildWorkoutHeroHeader(
-                    plan,
-                    currentDay,
-                    languageProvider,
-                    completedExercises,
-                    totalExercises,
-                    workoutProgress,
-                    isArabic,
-                  ),
-                  const SizedBox(height: 14),
-                  _buildWorkoutCalendarSections(
-                    workoutProvider,
-                    languageProvider,
-                    isArabic,
-                  ),
-                  const SizedBox(height: 14),
-                  _buildWorkoutSummaryCard(
-                    plan,
-                    currentDay,
-                    languageProvider,
-                    workoutProgress,
-                    isArabic,
-                  ),
-                  const SizedBox(height: 14),
-                  if (currentDay != null && currentDay.exercises.isNotEmpty)
-                    _buildExerciseList(
-                      currentDay,
-                      workoutProvider,
-                      languageProvider,
-                      isArabic,
-                    )
-                  else
-                    CustomCard(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        languageProvider.t('workout_select_day'),
-                        style: const TextStyle(color: AppColors.textSecondary),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                ],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.2,
+              child: Image.asset(
+                'assets/placeholders/splash_onboarding/workout_onboarding.png',
+                fit: BoxFit.cover,
               ),
             ),
           ),
-        ),
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.workoutBackground.withValues(alpha: 0.92),
+                    AppColors.workoutBackground.withValues(alpha: 0.97),
+                    AppColors.workoutBackground,
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 560),
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(
+                    16,
+                    12,
+                    16,
+                    32 + MediaQuery.of(context).padding.bottom,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _buildWorkoutHeroHeader(
+                        plan,
+                        currentDay,
+                        languageProvider,
+                        completedExercises,
+                        totalExercises,
+                        workoutProgress,
+                        isArabic,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildWorkoutCalendarSections(
+                        workoutProvider,
+                        languageProvider,
+                        isArabic,
+                      ),
+                      const SizedBox(height: 14),
+                      _buildWorkoutSummaryCard(
+                        plan,
+                        currentDay,
+                        languageProvider,
+                        workoutProgress,
+                        isArabic,
+                      ),
+                      const SizedBox(height: 14),
+                      if (currentDay != null && currentDay.exercises.isNotEmpty)
+                        _buildExerciseList(
+                          currentDay,
+                          workoutProvider,
+                          languageProvider,
+                          isArabic,
+                        )
+                      else
+                        CustomCard(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            languageProvider.t('workout_select_day'),
+                            style: const TextStyle(color: AppColors.textSecondary),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -93,6 +93,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
+    final theme = Theme.of(context);
     final t = languageProvider.t;
     final userRole = authProvider.user?.role ?? 'user';
 
@@ -127,10 +128,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           // Notification channels
           Text(
             t('notification_channels_title'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           const SizedBox(height: 12),
@@ -186,10 +187,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           if (userRole == 'user') ...[
             Text(
               t('notification_user_section'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -257,10 +258,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           if (userRole == 'coach') ...[
             Text(
               t('notification_coach_section'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -328,10 +329,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
           if (userRole == 'admin') ...[
             Text(
               t('notification_admin_section'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: theme.colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 12),
@@ -419,19 +420,20 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     required bool value,
     required Function(bool) onChanged,
   }) {
+    final theme = Theme.of(context);
     return SwitchListTile(
       value: value,
       onChanged: onChanged,
       title: Text(
         title,
-        style: const TextStyle(
-          color: AppColors.textPrimary,
+        style: TextStyle(
+          color: theme.colorScheme.onSurface,
           fontWeight: FontWeight.w600,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: const TextStyle(color: AppColors.textSecondary),
+        style: TextStyle(color: theme.textTheme.bodySmall?.color),
       ),
       secondary: Icon(icon, color: AppColors.primary),
       activeThumbColor: AppColors.primary,

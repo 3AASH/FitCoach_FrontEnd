@@ -310,16 +310,12 @@ class AuthProvider extends ChangeNotifier {
 
     try {
       await _repository.logout();
-
+    } catch (e) {
+      _error = e.toString();
+    } finally {
       _isAuthenticated = false;
       _user = null;
       _token = null;
-      _error = null;
-
-      _isLoading = false;
-      notifyListeners();
-    } catch (e) {
-      _error = e.toString();
       _isLoading = false;
       notifyListeners();
     }

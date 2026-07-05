@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/admin_exercise.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
@@ -219,6 +220,8 @@ class _ExerciseAdminCard extends StatelessWidget {
       if (exercise.muscleGroups.isNotEmpty) exercise.muscleGroups.join(', '),
       if (exercise.equipment.isNotEmpty) exercise.equipment.join(', '),
     ].join(' • ');
+    final alternativesCount =
+        exercise.alternativesCount ?? exercise.alternatives.length;
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -227,7 +230,7 @@ class _ExerciseAdminCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            _ExerciseThumb(url: exercise.thumbnailUrl),
+            _ExerciseThumb(url: exercise.thumbnailUrl, videoUrl: exercise.videoUrl),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -252,6 +255,18 @@ class _ExerciseAdminCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (exercise.alternatives.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Swaps: ${exercise.alternatives.take(3).join(', ')}${exercise.alternatives.length > 3 ? ' +' : ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -261,6 +276,17 @@ class _ExerciseAdminCard extends StatelessWidget {
                         _Badge(label: exercise.difficulty!),
                       if (exercise.videoUrl != null)
                         const _Badge(label: 'Video'),
+                      _Badge(
+                        label: exercise.hasAlternatives
+                            ? 'Swaps $alternativesCount'
+                            : 'No swaps',
+                        background: exercise.hasAlternatives
+                            ? AppColors.success.withValues(alpha: 0.14)
+                            : AppColors.surface,
+                        foreground: exercise.hasAlternatives
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                      ),
                     ],
                   ),
                 ],
@@ -307,6 +333,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
   late final TextEditingController _difficulty;
   late final TextEditingController _muscles;
   late final TextEditingController _equipment;
+  late final TextEditingController _alternatives;
   late final TextEditingController _videoUrl;
   late final TextEditingController _thumbnailUrl;
   late final TextEditingController _instructions;
@@ -324,6 +351,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         TextEditingController(text: exercise?.muscleGroups.join(', ') ?? '');
     _equipment =
         TextEditingController(text: exercise?.equipment.join(', ') ?? '');
+    _alternatives =
+      TextEditingController(text: exercise?.alternatives.join(', ') ?? '');
     _videoUrl = TextEditingController(text: exercise?.videoUrl ?? '');
     _thumbnailUrl = TextEditingController(text: exercise?.thumbnailUrl ?? '');
     _instructions = TextEditingController(text: exercise?.instructions ?? '');
@@ -338,6 +367,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     _difficulty.dispose();
     _muscles.dispose();
     _equipment.dispose();
+    _alternatives.dispose();
     _videoUrl.dispose();
     _thumbnailUrl.dispose();
     _instructions.dispose();
@@ -389,6 +419,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                 _field(_difficulty, 'Difficulty'),
                 _field(_muscles, 'Muscle groups, comma separated'),
                 _field(_equipment, 'Equipment, comma separated'),
+                _field(_alternatives, 'Swap alternatives (exercise IDs, comma separated)'),
                 _field(_videoUrl, 'Video URL'),
                 _field(_thumbnailUrl, 'Thumbnail URL'),
                 _field(_instructions, 'Instructions', maxLines: 4),
@@ -433,6 +464,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final base = widget.exercise;
+    final videoUrl = _emptyToNull(_videoUrl.text);
+    final thumbnailUrl = _emptyToNull(_thumbnailUrl.text) ??
+        VideoThumbnailResolver.fromVideoUrl(videoUrl);
     final exercise = AdminExercise(
       id: base?.id ?? '',
       exId: _emptyToNull(_exId.text),
@@ -442,8 +476,10 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
       difficulty: _emptyToNull(_difficulty.text),
       muscleGroups: _csv(_muscles.text),
       equipment: _csv(_equipment.text),
-      videoUrl: _emptyToNull(_videoUrl.text),
-      thumbnailUrl: _emptyToNull(_thumbnailUrl.text),
+      alternatives: _csv(_alternatives.text),
+      alternativesCount: _csv(_alternatives.text).length,
+      videoUrl: videoUrl,
+      thumbnailUrl: thumbnailUrl,
       instructions: _emptyToNull(_instructions.text),
     );
 
@@ -478,12 +514,16 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
 
 class _ExerciseThumb extends StatelessWidget {
   final String? url;
+  final String? videoUrl;
 
-  const _ExerciseThumb({this.url});
+  const _ExerciseThumb({this.url, this.videoUrl});
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = url;
+    final imageUrl = VideoThumbnailResolver.resolve(
+      thumbnailUrl: url,
+      videoUrl: videoUrl,
+    );
     if (imageUrl == null || imageUrl.isEmpty) {
       return _placeholder();
     }
@@ -514,21 +554,27 @@ class _ExerciseThumb extends StatelessWidget {
 
 class _Badge extends StatelessWidget {
   final String label;
+  final Color? background;
+  final Color? foreground;
 
-  const _Badge({required this.label});
+  const _Badge({
+    required this.label,
+    this.background,
+    this.foreground,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
+        color: background ?? AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: AppColors.primary,
+        style: TextStyle(
+          color: foreground ?? AppColors.primary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),

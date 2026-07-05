@@ -887,6 +887,9 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
+                validator: (value) => value == null || value.trim().isEmpty
+                    ? tr('subscription_admin_form_description_required')
+                    : null,
               ),
               const SizedBox(height: 16),
               Row(
@@ -904,9 +907,11 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         if (value == null || value.trim().isEmpty) {
                           return tr('subscription_admin_form_price_required');
                         }
-                        return double.tryParse(value.trim()) == null
-                            ? tr('subscription_admin_form_invalid_amount')
-                            : null;
+                        final amount = double.tryParse(value.trim());
+                        if (amount == null || amount < 0) {
+                          return tr('subscription_admin_form_invalid_amount');
+                        }
+                        return null;
                       },
                     ),
                   ),
@@ -921,6 +926,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => _optionalMoneyValidator(value, tr),
                     ),
                   ),
                 ],
@@ -936,6 +942,17 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) {
+                        final currency = value?.trim() ?? '';
+                        if (currency.isEmpty) {
+                          return tr(
+                              'subscription_admin_form_currency_required');
+                        }
+                        if (!RegExp(r'^[A-Z]{3}$').hasMatch(currency)) {
+                          return tr('subscription_admin_form_currency_invalid');
+                        }
+                        return null;
+                      },
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -960,6 +977,16 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),
+                validator: (value) {
+                  final color = value?.trim() ?? '';
+                  if (color.isEmpty) {
+                    return tr('subscription_admin_form_color_required');
+                  }
+                  if (!RegExp(r'^#[0-9A-Fa-f]{6}$').hasMatch(color)) {
+                    return tr('subscription_admin_form_color_invalid');
+                  }
+                  return null;
+                },
               ),
               const SizedBox(height: 12),
               SwitchListTile.adaptive(
@@ -980,6 +1007,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => _requiredIntValidator(value, tr),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -992,6 +1020,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12)),
                       ),
+                      validator: (value) => _requiredIntValidator(value, tr),
                     ),
                   ),
                 ],
@@ -1035,6 +1064,16 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                             border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10)),
                           ),
+                          validator: (value) {
+                            final label = value?.trim() ?? '';
+                            final featureValue =
+                                field.valueController.text.trim();
+                            if (label.isEmpty && featureValue.isNotEmpty) {
+                              return tr(
+                                  'subscription_admin_form_feature_label_required');
+                            }
+                            return null;
+                          },
                         ),
                         const SizedBox(height: 12),
                         TextFormField(
@@ -1087,6 +1126,30 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
     });
   }
 
+  String? _optionalMoneyValidator(
+      String? value, String Function(String, {Map<String, String>? args}) tr) {
+    final raw = value?.trim() ?? '';
+    if (raw.isEmpty) return null;
+    final amount = double.tryParse(raw);
+    if (amount == null || amount < 0) {
+      return tr('subscription_admin_form_invalid_amount');
+    }
+    return null;
+  }
+
+  String? _requiredIntValidator(
+      String? value, String Function(String, {Map<String, String>? args}) tr) {
+    final raw = value?.trim() ?? '';
+    if (raw.isEmpty) {
+      return tr('subscription_admin_form_limit_required');
+    }
+    final amount = int.tryParse(raw);
+    if (amount == null || amount < 0) {
+      return tr('subscription_admin_form_limit_invalid');
+    }
+    return null;
+  }
+
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -1111,22 +1174,16 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
       yearlyPrice: _yearlyPriceController.text.trim().isEmpty
           ? null
           : double.tryParse(_yearlyPriceController.text.trim()),
-      currency: _currencyController.text.trim().isEmpty
-          ? 'SAR'
-          : _currencyController.text.trim(),
+      currency: _currencyController.text.trim().toUpperCase(),
       isRecommended: _isRecommended,
       badge: _badgeController.text.trim().isEmpty
           ? null
           : _badgeController.text.trim(),
-      accentColor: _accentColorController.text.trim().isEmpty
-          ? '#7C3AED'
-          : _accentColorController.text.trim(),
+      accentColor: _accentColorController.text.trim(),
       features: features,
       metadata: {
-        if (_messagesLimitController.text.trim().isNotEmpty)
-          'messagesLimit': int.tryParse(_messagesLimitController.text.trim()),
-        if (_videoLimitController.text.trim().isNotEmpty)
-          'videoCallsLimit': int.tryParse(_videoLimitController.text.trim()),
+        'messagesLimit': int.parse(_messagesLimitController.text.trim()),
+        'videoCallsLimit': int.parse(_videoLimitController.text.trim()),
       }..removeWhere((key, value) => value == null),
     );
 

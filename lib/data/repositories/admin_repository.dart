@@ -73,6 +73,16 @@ class CoachCreationResult {
   });
 }
 
+class AdminCreationResult {
+  final AdminUser admin;
+  final CoachCredentials? credentials;
+
+  const AdminCreationResult({
+    required this.admin,
+    this.credentials,
+  });
+}
+
 class AdminRepository {
   final Dio _dio;
   final FlutterSecureStorage _secureStorage;
@@ -253,6 +263,47 @@ class AdminRepository {
       );
     } on DioException catch (e) {
       throw Exception(_readableError(e, fallback: 'Failed to delete user'));
+    }
+  }
+
+  /// Create a new admin account directly.
+  Future<AdminCreationResult> createAdmin({
+    required String fullName,
+    required String email,
+    String? phoneNumber,
+    String? password,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/admin/admins',
+        data: {
+          'fullName': fullName,
+          'email': email,
+          if (phoneNumber != null && phoneNumber.trim().isNotEmpty)
+            'phoneNumber': phoneNumber.trim(),
+          if (password != null && password.trim().isNotEmpty)
+            'password': password.trim(),
+        },
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final adminPayload = _asMap(data['admin']) ?? data;
+      final credentialsPayload = _asMap(data['credentials']);
+      return AdminCreationResult(
+        admin: AdminUser.fromJson({
+          ...adminPayload,
+          'subscription_tier': adminPayload['subscription_tier'] ?? 'freemium',
+        }),
+        credentials: credentialsPayload == null
+            ? null
+            : CoachCredentials(
+                email: credentialsPayload['email']?.toString() ?? email,
+                defaultPassword:
+                    credentialsPayload['defaultPassword']?.toString() ?? '',
+              ),
+      );
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to create admin'));
     }
   }
 
