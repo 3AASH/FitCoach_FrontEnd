@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -41,11 +43,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     super.initState();
     _wasActive = widget.isActive;
     _loadIntroFlag();
-    Future.microtask(() {
-      Future.wait([
-        context.read<WorkoutProvider>().loadActivePlan(),
-        context.read<WorkoutProvider>().loadWorkoutCalendar(),
-      ]);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      unawaited(_loadWorkoutData());
     });
     if (widget.isActive) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -86,10 +86,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     super.didUpdateWidget(oldWidget);
     if (widget.isActive && !_wasActive) {
       _promptedSecondIntake = false;
-      Future.wait([
-        context.read<WorkoutProvider>().loadActivePlan(),
-        context.read<WorkoutProvider>().loadWorkoutCalendar(silent: true),
-      ]);
+      unawaited(_loadWorkoutData(silentCalendar: true));
       if (!_showIntro && _introLoaded) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           _maybeShowSecondIntake();
@@ -97,6 +94,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       }
     }
     _wasActive = widget.isActive;
+  }
+
+  Future<void> _loadWorkoutData({bool silentCalendar = false}) async {
+    final workoutProvider = context.read<WorkoutProvider>();
+    try {
+      await workoutProvider.loadActivePlan();
+      await workoutProvider.loadWorkoutCalendar(silent: silentCalendar);
+    } catch (_) {
+      // Provider methods own their error state; this prevents unhandled futures.
+    }
   }
 
   void _maybeShowSecondIntake() {
@@ -236,7 +243,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           onComplete: () {
             if (mounted) {
               Navigator.of(context).pop();
-              context.read<WorkoutProvider>().loadActivePlan();
+              unawaited(_loadWorkoutData());
             }
           },
         ),
@@ -264,18 +271,23 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       );
     }
 
-    final initialCalendarLoading =
-        workoutProvider.isCalendarLoading && !workoutProvider.hasLoadedCalendar;
-    if (workoutProvider.isLoading || initialCalendarLoading) {
+    final hasPlan = workoutProvider.activePlan != null;
+    final initialPlanLoading = workoutProvider.isLoading && !hasPlan;
+    final initialCalendarLoading = workoutProvider.isCalendarLoading &&
+        !workoutProvider.hasLoadedCalendar &&
+        !hasPlan;
+    if (initialPlanLoading || initialCalendarLoading) {
       return const Scaffold(
+        backgroundColor: AppColors.workoutBackground,
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
 
-    if (workoutProvider.error != null) {
+    if (workoutProvider.error != null && !hasPlan) {
       return Scaffold(
+        backgroundColor: AppColors.workoutBackground,
         appBar: AppBar(
           title: Text(languageProvider.t('workout')),
         ),
@@ -303,7 +315,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 ElevatedButton.icon(
                   onPressed: () {
                     workoutProvider.clearError();
-                    workoutProvider.loadActivePlan();
+                    unawaited(_loadWorkoutData());
                   },
                   icon: const Icon(Icons.refresh),
                   label: Text(languageProvider.t('retry')),
@@ -315,9 +327,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       );
     }
 
-    if (workoutProvider.hasLoadedCalendar &&
+    if (!hasPlan &&
+        workoutProvider.hasLoadedCalendar &&
         workoutProvider.calendarPlan == null) {
       return Scaffold(
+        backgroundColor: AppColors.workoutBackground,
         appBar: AppBar(
           title: Text(languageProvider.t('workout')),
         ),
@@ -341,8 +355,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               const SizedBox(height: 16),
               OutlinedButton.icon(
                 onPressed: () {
-                  workoutProvider.loadActivePlan();
-                  workoutProvider.loadWorkoutCalendar();
+                  unawaited(_loadWorkoutData());
                 },
                 icon: const Icon(Icons.refresh),
                 label: Text(languageProvider.t('retry')),
@@ -355,6 +368,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     if (workoutProvider.activePlan == null) {
       return Scaffold(
+        backgroundColor: AppColors.workoutBackground,
         appBar: AppBar(
           title: Text(languageProvider.t('workout')),
         ),
@@ -386,7 +400,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
               const SizedBox(height: 16),
               OutlinedButton.icon(
-                onPressed: workoutProvider.loadActivePlan,
+                onPressed: () => unawaited(_loadWorkoutData()),
                 icon: const Icon(Icons.refresh),
                 label: Text(languageProvider.t('retry')),
               ),
@@ -409,7 +423,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         totalExercises == 0 ? 0.0 : completedExercises / totalExercises;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor: AppColors.workoutBackground,
       body: SafeArea(
         child: Align(
           alignment: Alignment.topCenter,
@@ -501,13 +515,19 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               const Icon(Icons.arrow_back, color: Colors.white, size: 18),
               const SizedBox(width: 12),
               Expanded(
-                child: Text(
-                  lang.t('workouts_title'),
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 34,
-                    fontWeight: FontWeight.w600,
-                    height: 1,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: isArabic
+                      ? AlignmentDirectional.centerEnd
+                      : AlignmentDirectional.centerStart,
+                  child: Text(
+                    lang.t('workouts_title'),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                      height: 1.05,
+                    ),
                   ),
                 ),
               ),
@@ -534,17 +554,26 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          Text(
-            '${lang.t('workout_week', args: {
-                  'number': '1'
-                })}, ${lang.t('workout_day_label', args: {
-                  'number': '$dayNumber'
-                })}',
-            style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.9),
-              fontSize: 32,
-              fontWeight: FontWeight.w500,
-              height: 1,
+          SizedBox(
+            width: double.infinity,
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: isArabic
+                  ? AlignmentDirectional.centerEnd
+                  : AlignmentDirectional.centerStart,
+              child: Text(
+                '${lang.t('workout_week', args: {
+                      'number': '1'
+                    })}, ${lang.t('workout_day_label', args: {
+                      'number': '$dayNumber'
+                    })}',
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.9),
+                  fontSize: 28,
+                  fontWeight: FontWeight.w500,
+                  height: 1.05,
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 8),
@@ -759,16 +788,22 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           Row(
             children: [
               Expanded(
-                child: Text(
-                  planTitle,
-                  style: const TextStyle(
-                    fontSize: 38,
-                    fontWeight: FontWeight.w500,
-                    color: Color(0xFF161827),
-                    height: 1,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: isArabic
+                      ? AlignmentDirectional.centerEnd
+                      : AlignmentDirectional.centerStart,
+                  child: Text(
+                    planTitle,
+                    style: const TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF161827),
+                      height: 1.1,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Container(
@@ -1010,24 +1045,30 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       children: [
         Icon(icon, size: 26, color: const Color(0xFF7D8095)),
         const SizedBox(height: 6),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w600,
-            color: Color(0xFF272938),
+        SizedBox(
+          width: double.infinity,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF272938),
+              ),
+              textAlign: TextAlign.center,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 2),
         Text(
           label,
           style: const TextStyle(
-              fontSize: 20, color: Color(0xFF7C7F92), height: 1),
+              fontSize: 14, color: Color(0xFF7C7F92), height: 1.1),
           textAlign: TextAlign.center,
-          maxLines: 1,
+          maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
       ],
@@ -1253,11 +1294,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     child: Text(
                       isArabic ? exercise.nameAr : exercise.nameEn,
                       style: const TextStyle(
-                        fontSize: 19,
+                        fontSize: 17,
                         fontWeight: FontWeight.w500,
                         color: Color(0xFF181A27),
-                        height: 1.1,
+                        height: 1.15,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (isCompleted)
@@ -1277,20 +1320,27 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   Text(
                     '${exercise.sets}\n${lang.t('sets')}',
                     style:
-                        const TextStyle(fontSize: 16, color: Color(0xFF6C6F83)),
+                        const TextStyle(fontSize: 14, color: Color(0xFF6C6F83)),
                   ),
                   const Text('•', style: TextStyle(color: Color(0xFF6C6F83))),
                   Text(
                     '${exercise.reps}\n${lang.t('reps')}',
                     style:
-                        const TextStyle(fontSize: 16, color: Color(0xFF6C6F83)),
+                        const TextStyle(fontSize: 14, color: Color(0xFF6C6F83)),
                   ),
                   if (muscleLabel.isNotEmpty) ...[
                     const Text('•', style: TextStyle(color: Color(0xFF6C6F83))),
-                    Text(
-                      muscleLabel,
-                      style: const TextStyle(
-                          fontSize: 16, color: Color(0xFF6C6F83)),
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: compact ? constraints.maxWidth : 180,
+                      ),
+                      child: Text(
+                        muscleLabel,
+                        style: const TextStyle(
+                            fontSize: 13, color: Color(0xFF6C6F83)),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ],
@@ -1433,6 +1483,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     trailing: Icon(
                         isArabic ? Icons.chevron_left : Icons.chevron_right),
                     onTap: () async {
+                      final messenger = ScaffoldMessenger.of(this.context);
                       Navigator.pop(context);
                       final success = await provider.substituteExercise(
                         exercise.id,
@@ -1440,7 +1491,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       );
 
                       if (success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(
                               lang.t('exercise_substituted_successfully'),

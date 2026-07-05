@@ -262,6 +262,18 @@ class FitCoachApp extends StatelessWidget {
             theme: AppThemeConfig.getLightTheme(),
             darkTheme: AppThemeConfig.getDarkTheme(),
             themeMode: themeProvider.themeMode,
+            builder: (context, child) {
+              final mediaQuery = MediaQuery.of(context);
+              return MediaQuery(
+                data: mediaQuery.copyWith(
+                  textScaler: mediaQuery.textScaler.clamp(
+                    minScaleFactor: 0.9,
+                    maxScaleFactor: 1.15,
+                  ),
+                ),
+                child: child ?? const SizedBox.shrink(),
+              );
+            },
 
             // App
             home: const App(),

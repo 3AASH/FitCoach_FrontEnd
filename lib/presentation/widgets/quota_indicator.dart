@@ -7,7 +7,7 @@ import '../providers/language_provider.dart';
 class QuotaIndicator extends StatelessWidget {
   final String type; // 'message' or 'videoCall'
   final bool showDetails;
-  
+
   const QuotaIndicator({
     super.key,
     required this.type,
@@ -16,17 +16,21 @@ class QuotaIndicator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final quotaProvider = context.watch<QuotaProvider>();
     final languageProvider = context.watch<LanguageProvider>();
     final translator = languageProvider.t;
-    
+
     final isMessage = type == 'message';
-    final limit = isMessage ? quotaProvider.messagesLimit : quotaProvider.videoCallsLimit;
-    final remaining = isMessage ? quotaProvider.messagesRemaining : quotaProvider.videoCallsRemaining;
+    final limit =
+        isMessage ? quotaProvider.messagesLimit : quotaProvider.videoCallsLimit;
+    final remaining = isMessage
+        ? quotaProvider.messagesRemaining
+        : quotaProvider.videoCallsRemaining;
     final percentage = isMessage
         ? quotaProvider.messagesUsagePercentage
         : quotaProvider.videoCallsUsagePercentage;
-    
+
     // Unlimited messages (Smart Premium)
     if (limit == -1 && isMessage) {
       return Container(
@@ -53,16 +57,16 @@ class QuotaIndicator extends StatelessWidget {
         ),
       );
     }
-    
+
     // Determine color based on remaining quota
     Color getColor() {
       if (remaining <= 0) return AppColors.error;
       if (percentage > 0.8) return AppColors.warning;
       return AppColors.success;
     }
-    
+
     final color = getColor();
-    
+
     if (!showDetails) {
       // Compact version
       return Container(
@@ -93,7 +97,7 @@ class QuotaIndicator extends StatelessWidget {
         ),
       );
     }
-    
+
     // Detailed version
     return Container(
       padding: const EdgeInsets.all(16),
@@ -113,14 +117,18 @@ class QuotaIndicator extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              Text(
-                isMessage
-                    ? translator('messages_remaining_label')
-                    : translator('video_calls_remaining_label'),
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.textPrimary,
+              Expanded(
+                child: Text(
+                  isMessage
+                      ? translator('messages_remaining_label')
+                      : translator('video_calls_remaining_label'),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textPrimary,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -128,12 +136,18 @@ class QuotaIndicator extends StatelessWidget {
           const SizedBox(height: 12),
           Row(
             children: [
-              Text(
-                '$remaining',
-                style: TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                  color: color,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(
+                    '$remaining',
+                    style: TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: color,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 8),
@@ -151,7 +165,7 @@ class QuotaIndicator extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: AppColors.surface,
+              backgroundColor: theme.cardColor,
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 8,
             ),
@@ -199,7 +213,9 @@ class QuotaIndicator extends StatelessWidget {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      translator(isMessage ? 'quota_exceeded' : 'video_call_quota_exceeded'),
+                      translator(isMessage
+                          ? 'quota_exceeded'
+                          : 'video_call_quota_exceeded'),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.error,
@@ -219,7 +235,7 @@ class QuotaIndicator extends StatelessWidget {
 
 class QuotaBanner extends StatelessWidget {
   final String type;
-  
+
   const QuotaBanner({
     super.key,
     required this.type,
@@ -230,14 +246,14 @@ class QuotaBanner extends StatelessWidget {
     final quotaProvider = context.watch<QuotaProvider>();
     final languageProvider = context.watch<LanguageProvider>();
     final translator = languageProvider.t;
-    
+
     final isMessage = type == 'message';
-    final canProceed = isMessage 
-        ? quotaProvider.canSendMessage() 
+    final canProceed = isMessage
+        ? quotaProvider.canSendMessage()
         : quotaProvider.canMakeVideoCall();
-    
+
     if (canProceed) return const SizedBox.shrink();
-    
+
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
@@ -259,7 +275,9 @@ class QuotaBanner extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  translator(isMessage ? 'quota_exceeded' : 'video_call_quota_exceeded'),
+                  translator(isMessage
+                      ? 'quota_exceeded'
+                      : 'video_call_quota_exceeded'),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

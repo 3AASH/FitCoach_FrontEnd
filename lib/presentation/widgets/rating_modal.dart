@@ -6,7 +6,7 @@ import '../../../core/constants/colors.dart';
 class RatingModal extends StatefulWidget {
   final String type; // 'message', 'video_call', 'workout', 'nutrition'
   final Function(int rating, String? feedback) onSubmit;
-  
+
   const RatingModal({
     super.key,
     required this.type,
@@ -40,16 +40,17 @@ class _RatingModalState extends State<RatingModal> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final languageProvider = context.watch<LanguageProvider>();
     final translator = languageProvider.t;
-    
+
     return Container(
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: theme.cardColor,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -68,9 +69,9 @@ class _RatingModalState extends State<RatingModal> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Icon
             Center(
               child: Container(
@@ -87,9 +88,9 @@ class _RatingModalState extends State<RatingModal> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Title
             Center(
               child: Text(
@@ -101,9 +102,9 @@ class _RatingModalState extends State<RatingModal> {
                 textAlign: TextAlign.center,
               ),
             ),
-            
+
             const SizedBox(height: 8),
-            
+
             // Subtitle
             Center(
               child: Text(
@@ -115,9 +116,9 @@ class _RatingModalState extends State<RatingModal> {
                 textAlign: TextAlign.center,
               ),
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Star rating
             Center(
               child: Row(
@@ -154,7 +155,7 @@ class _RatingModalState extends State<RatingModal> {
                 }),
               ),
             ),
-            
+
             if (_labelRating > 0) ...[
               const SizedBox(height: 16),
               Center(
@@ -168,9 +169,9 @@ class _RatingModalState extends State<RatingModal> {
                 ),
               ),
             ],
-            
+
             const SizedBox(height: 32),
-            
+
             // Feedback
             Text(
               translator('rating_feedback_label'),
@@ -180,7 +181,7 @@ class _RatingModalState extends State<RatingModal> {
               ),
             ),
             const SizedBox(height: 12),
-            
+
             TextField(
               controller: _feedbackController,
               maxLines: 4,
@@ -191,9 +192,9 @@ class _RatingModalState extends State<RatingModal> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Submit button
             SizedBox(
               width: double.infinity,
@@ -217,9 +218,9 @@ class _RatingModalState extends State<RatingModal> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 12),
-            
+
             // Skip button
             Center(
               child: TextButton(
@@ -238,7 +239,7 @@ class _RatingModalState extends State<RatingModal> {
       ),
     );
   }
-  
+
   String _getTitleKey() {
     switch (widget.type) {
       case 'video_call':
@@ -260,13 +261,13 @@ class _RatingModalState extends State<RatingModal> {
     if (rating >= 5) return 'rating_label_5';
     return 'rating_label_3';
   }
-  
+
   Color _getRatingColor(int rating) {
     if (rating <= 2) return AppColors.error;
     if (rating == 3) return AppColors.warning;
     return AppColors.success;
   }
-  
+
   void _submit() {
     final feedback = _feedbackController.text.trim();
     widget.onSubmit(_rating, feedback.isEmpty ? null : feedback);

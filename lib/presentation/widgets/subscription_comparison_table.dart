@@ -18,6 +18,7 @@ class SubscriptionComparisonTable extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final languageProvider = context.watch<LanguageProvider>();
     final isArabic = languageProvider.isArabic;
     String tr(String key, {Map<String, String>? args}) =>
@@ -36,29 +37,37 @@ class SubscriptionComparisonTable extends StatelessWidget {
         width: tableWidth.toDouble(),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: AppColors.border.withValues(alpha: 0.6)),
-          boxShadow: const [
+          border: Border.all(color: theme.dividerColor.withValues(alpha: 0.8)),
+          boxShadow: [
             BoxShadow(
-              offset: Offset(0, 10),
+              offset: const Offset(0, 10),
               blurRadius: 25,
-              color: Color.fromARGB(20, 15, 23, 42),
+              color: Colors.black.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.16 : 0.08,
+              ),
             ),
           ],
         ),
         child: Column(
           children: [
-            _buildHeaderRow(tr, isArabic),
+            _buildHeaderRow(context, tr, isArabic),
             const Divider(height: 28),
-            ...labels.map((label) => _buildFeatureRow(label, tr, isArabic)).toList(),
+            ...labels
+                .map((label) => _buildFeatureRow(context, label, tr, isArabic))
           ],
         ),
       ),
     );
   }
 
-  Widget _buildHeaderRow(String Function(String, {Map<String, String>? args}) tr, bool isArabic) {
+  Widget _buildHeaderRow(
+    BuildContext context,
+    String Function(String, {Map<String, String>? args}) tr,
+    bool isArabic,
+  ) {
+    final theme = Theme.of(context);
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -91,8 +100,12 @@ class SubscriptionComparisonTable extends StatelessWidget {
                           fontSize: 16,
                           fontWeight:
                               isActive ? FontWeight.w800 : FontWeight.w600,
-                          color: isActive ? AppColors.primary : Colors.black,
+                          color: isActive
+                              ? AppColors.primary
+                              : theme.colorScheme.onSurface,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     if (plan.badge != null)
@@ -122,10 +135,12 @@ class SubscriptionComparisonTable extends StatelessWidget {
                       ? tr('subscription_free_label')
                       : '${plan.monthlyPrice.toStringAsFixed(0)} ${plan.currency}/$monthUnit',
                   style: const TextStyle(
-                    fontSize: 20,
+                    fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (plan.yearlyPrice != null && plan.yearlyPrice! > 0)
                   Padding(
@@ -149,21 +164,23 @@ class SubscriptionComparisonTable extends StatelessWidget {
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
 
   Widget _buildFeatureRow(
+    BuildContext context,
     String label,
     String Function(String, {Map<String, String>? args}) tr,
     bool isArabic,
   ) {
+    final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: Color(0xFFE5E7EB), width: 0.6),
+          bottom: BorderSide(color: theme.dividerColor, width: 0.6),
         ),
       ),
       child: Row(
@@ -177,6 +194,8 @@ class SubscriptionComparisonTable extends StatelessWidget {
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
+              maxLines: 3,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
           ...plans.map((plan) {
@@ -192,7 +211,8 @@ class SubscriptionComparisonTable extends StatelessWidget {
                   Icon(
                     included ? Icons.check_circle : Icons.cancel,
                     size: 18,
-                    color: included ? AppColors.success : AppColors.textDisabled,
+                    color:
+                        included ? AppColors.success : AppColors.textDisabled,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -206,12 +226,14 @@ class SubscriptionComparisonTable extends StatelessWidget {
                             ? AppColors.textPrimary
                             : AppColors.textSecondary,
                       ),
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ),
     );

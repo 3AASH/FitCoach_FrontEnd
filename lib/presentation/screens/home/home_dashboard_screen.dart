@@ -114,14 +114,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
+        onTap: (index) async {
+          final tappedCurrentTab = index == _selectedIndex;
           setState(() {
             _selectedIndex = index;
           });
-          if (index == 1) {
+          if (index == 1 && tappedCurrentTab) {
             final workoutProvider = context.read<WorkoutProvider>();
-            workoutProvider.loadActivePlan();
-            workoutProvider.loadWorkoutCalendar(silent: true);
+            await workoutProvider.loadActivePlan();
+            await workoutProvider.loadWorkoutCalendar(silent: true);
           }
         },
         type: BottomNavigationBarType.fixed,

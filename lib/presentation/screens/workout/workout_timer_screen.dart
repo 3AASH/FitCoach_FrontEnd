@@ -10,7 +10,7 @@ class WorkoutTimerScreen extends StatefulWidget {
   final int sets;
   final int reps;
   final int restSeconds;
-  
+
   const WorkoutTimerScreen({
     super.key,
     required this.exerciseName,
@@ -46,8 +46,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
   @override
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
-    
+
     return Scaffold(
+      backgroundColor: AppColors.workoutBackground,
       appBar: AppBar(
         title: Text(widget.exerciseName),
         actions: [
@@ -65,7 +66,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
             backgroundColor: AppColors.surface,
             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
           ),
-          
+
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -82,9 +83,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Timer circle
                   Container(
                     width: 280,
@@ -95,7 +96,8 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                           ? AppColors.warning.withValues(alpha: 0.1)
                           : AppColors.success.withValues(alpha: 0.1),
                       border: Border.all(
-                        color: _isResting ? AppColors.warning : AppColors.success,
+                        color:
+                            _isResting ? AppColors.warning : AppColors.success,
                         width: 8,
                       ),
                     ),
@@ -154,9 +156,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Status message
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -173,15 +175,16 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                       _getStatusMessage(languageProvider),
                       style: TextStyle(
                         fontSize: 16,
-                        color: _isResting ? AppColors.warning : AppColors.primary,
+                        color:
+                            _isResting ? AppColors.warning : AppColors.primary,
                         fontWeight: FontWeight.w600,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 48),
-                  
+
                   // Control buttons
                   if (_isResting) ...[
                     Row(
@@ -200,9 +203,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                             icon: _isPaused ? Icons.play_arrow : Icons.pause,
                           ),
                         ),
-                        
+
                         const SizedBox(width: 16),
-                        
+
                         // Skip rest
                         SizedBox(
                           width: 140,
@@ -229,9 +232,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                       ),
                     ),
                   ],
-                  
+
                   const SizedBox(height: 16),
-                  
+
                   // Secondary actions
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -243,9 +246,11 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                       ),
                       const SizedBox(width: 24),
                       TextButton.icon(
-                        onPressed: () => _skipExercise(context, languageProvider),
+                        onPressed: () =>
+                            _skipExercise(context, languageProvider),
                         icon: const Icon(Icons.skip_next),
-                        label: Text(languageProvider.t('workouts_skip_exercise')),
+                        label:
+                            Text(languageProvider.t('workouts_skip_exercise')),
                       ),
                     ],
                   ),
@@ -257,13 +262,13 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       ),
     );
   }
-  
+
   String _formatTime(int seconds) {
     final minutes = seconds ~/ 60;
     final secs = seconds % 60;
     return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
   }
-  
+
   String _getStatusMessage(LanguageProvider lang) {
     if (_isResting) {
       if (_isPaused) {
@@ -271,10 +276,11 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       }
       return lang.t('workouts_rest_motivation');
     } else {
-      return lang.t('workouts_complete_reps', args: {'reps': widget.reps.toString()});
+      return lang
+          .t('workouts_complete_reps', args: {'reps': widget.reps.toString()});
     }
   }
-  
+
   void _completeSet() {
     if (_currentSet < widget.sets) {
       // Start rest timer
@@ -289,7 +295,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       _showWorkoutComplete();
     }
   }
-  
+
   void _startRestTimer() {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -306,13 +312,13 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       }
     });
   }
-  
+
   void _togglePause() {
     setState(() {
       _isPaused = !_isPaused;
     });
   }
-  
+
   void _skipRest() {
     _timer?.cancel();
     setState(() {
@@ -321,7 +327,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       _isPaused = false;
     });
   }
-  
+
   void _adjustRest(BuildContext context, LanguageProvider lang) {
     showDialog(
       context: context,
@@ -331,7 +337,8 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [30, 45, 60, 90, 120].map((seconds) {
             return ListTile(
-              title: Text(lang.t('workouts_seconds_label', args: {'seconds': '$seconds'})),
+              title: Text(lang
+                  .t('workouts_seconds_label', args: {'seconds': '$seconds'})),
               onTap: () {
                 Navigator.pop(context);
                 _setRestDuration(seconds);
@@ -356,7 +363,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       _startRestTimer();
     }
   }
-  
+
   void _skipExercise(BuildContext context, LanguageProvider lang) {
     showDialog(
       context: context,
@@ -379,7 +386,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       ),
     );
   }
-  
+
   void _confirmExit(BuildContext context, LanguageProvider lang) {
     showDialog(
       context: context,
@@ -402,7 +409,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
       ),
     );
   }
-  
+
   void _showWorkoutComplete() {
     showDialog(
       context: context,

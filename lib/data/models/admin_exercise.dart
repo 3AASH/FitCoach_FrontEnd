@@ -1,0 +1,132 @@
+class AdminExercise {
+  final String id;
+  final String? exId;
+  final String nameEn;
+  final String? nameAr;
+  final String? descriptionEn;
+  final String? descriptionAr;
+  final String? category;
+  final String? difficulty;
+  final List<String> muscleGroups;
+  final List<String> equipment;
+  final String? videoUrl;
+  final String? thumbnailUrl;
+  final String? instructions;
+
+  const AdminExercise({
+    required this.id,
+    this.exId,
+    required this.nameEn,
+    this.nameAr,
+    this.descriptionEn,
+    this.descriptionAr,
+    this.category,
+    this.difficulty,
+    this.muscleGroups = const [],
+    this.equipment = const [],
+    this.videoUrl,
+    this.thumbnailUrl,
+    this.instructions,
+  });
+
+  factory AdminExercise.fromJson(Map<String, dynamic> json) {
+    return AdminExercise(
+      id: _string(json['id']) ?? _string(json['ex_id']) ?? '',
+      exId: _string(json['ex_id'] ?? json['exId']),
+      nameEn: _string(json['name_en'] ?? json['nameEn'] ?? json['name']) ??
+          _string(json['ex_id']) ??
+          'Exercise',
+      nameAr: _string(json['name_ar'] ?? json['nameAr']),
+      descriptionEn: _string(json['description_en'] ?? json['descriptionEn']),
+      descriptionAr: _string(json['description_ar'] ?? json['descriptionAr']),
+      category: _string(json['category']),
+      difficulty: _string(json['difficulty']),
+      muscleGroups: _stringList(json['muscle_groups'] ?? json['muscleGroups']),
+      equipment: _stringList(json['equipment']),
+      videoUrl: _string(json['video_url'] ?? json['videoUrl']),
+      thumbnailUrl: _string(json['thumbnail_url'] ?? json['thumbnailUrl']),
+      instructions: _string(json['instructions'] ?? json['instructions_en']),
+    );
+  }
+
+  Map<String, dynamic> toAdminPayload() {
+    return {
+      if (_nonEmpty(exId) != null) 'exId': _nonEmpty(exId),
+      'name': nameEn,
+      if (_nonEmpty(nameAr) != null) 'nameAr': _nonEmpty(nameAr),
+      if (_nonEmpty(descriptionEn) != null)
+        'description': _nonEmpty(descriptionEn),
+      if (_nonEmpty(descriptionAr) != null)
+        'descriptionAr': _nonEmpty(descriptionAr),
+      if (_nonEmpty(category) != null) 'category': _nonEmpty(category),
+      if (_nonEmpty(difficulty) != null) 'difficulty': _nonEmpty(difficulty),
+      'muscleGroups': muscleGroups,
+      'equipment': equipment,
+      if (_nonEmpty(videoUrl) != null) 'videoUrl': _nonEmpty(videoUrl),
+      if (_nonEmpty(thumbnailUrl) != null)
+        'thumbnailUrl': _nonEmpty(thumbnailUrl),
+      if (_nonEmpty(instructions) != null)
+        'instructions': _nonEmpty(instructions),
+    };
+  }
+
+  AdminExercise copyWith({
+    String? id,
+    String? exId,
+    String? nameEn,
+    String? nameAr,
+    String? descriptionEn,
+    String? descriptionAr,
+    String? category,
+    String? difficulty,
+    List<String>? muscleGroups,
+    List<String>? equipment,
+    String? videoUrl,
+    String? thumbnailUrl,
+    String? instructions,
+  }) {
+    return AdminExercise(
+      id: id ?? this.id,
+      exId: exId ?? this.exId,
+      nameEn: nameEn ?? this.nameEn,
+      nameAr: nameAr ?? this.nameAr,
+      descriptionEn: descriptionEn ?? this.descriptionEn,
+      descriptionAr: descriptionAr ?? this.descriptionAr,
+      category: category ?? this.category,
+      difficulty: difficulty ?? this.difficulty,
+      muscleGroups: muscleGroups ?? this.muscleGroups,
+      equipment: equipment ?? this.equipment,
+      videoUrl: videoUrl ?? this.videoUrl,
+      thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
+      instructions: instructions ?? this.instructions,
+    );
+  }
+
+  static String? _string(dynamic value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  static String? _nonEmpty(String? value) {
+    final text = value?.trim();
+    return text == null || text.isEmpty ? null : text;
+  }
+
+  static List<String> _stringList(dynamic value) {
+    if (value is List) {
+      return value
+          .map((item) => item.toString().trim())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    if (value is String && value.trim().isNotEmpty) {
+      return value
+          .split(',')
+          .map((item) => item.trim())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    return const [];
+  }
+}

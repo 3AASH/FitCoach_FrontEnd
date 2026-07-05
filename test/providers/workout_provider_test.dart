@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:fitapp/data/models/workout_calendar.dart';
 import 'package:fitapp/presentation/providers/workout_provider.dart';
 import 'package:fitapp/data/repositories/workout_repository.dart';
 import 'package:fitapp/data/models/workout_plan.dart';
@@ -7,10 +10,13 @@ class FakeWorkoutRepository extends WorkoutRepository {
   WorkoutPlan? _plan;
 
   FakeWorkoutRepository() {
-    _plan = _buildPlan();
+    _plan = buildPlan();
   }
 
-  static WorkoutPlan _buildPlan() {
+  static WorkoutPlan buildPlan({
+    String id = 'plan1',
+    String name = 'Test Plan',
+  }) {
     final exercise = Exercise(
       id: 'ex1',
       name: 'Push Up',
@@ -28,10 +34,10 @@ class FakeWorkoutRepository extends WorkoutRepository {
     );
 
     return WorkoutPlan(
-      id: 'plan1',
+      id: id,
       userId: 'user1',
-      name: 'Test Plan',
-      description: 'Test Plan',
+      name: name,
+      description: name,
       days: [day],
       createdAt: DateTime.now(),
     );
@@ -40,6 +46,23 @@ class FakeWorkoutRepository extends WorkoutRepository {
   @override
   Future<WorkoutPlan?> getActivePlan() async {
     return _plan;
+  }
+
+  @override
+  Future<WorkoutCalendarResponse> getWorkoutCalendar() async {
+    return WorkoutCalendarResponse(
+      plan: WorkoutCalendarPlan(
+        id: _plan?.id ?? 'plan1',
+        name: _plan?.name ?? 'Test Plan',
+        startDate: null,
+        endDate: null,
+        daysPerWeek: _plan?.days?.length ?? 0,
+      ),
+      previous: const [],
+      today: null,
+      upcoming: const [],
+      allDays: const [],
+    );
   }
 
   @override
@@ -73,6 +96,25 @@ class FakeWorkoutRepository extends WorkoutRepository {
   }
 }
 
+class QueuedWorkoutRepository extends WorkoutRepository {
+  final List<Completer<WorkoutPlan?>> planRequests = [];
+  final List<Completer<WorkoutCalendarResponse>> calendarRequests = [];
+
+  @override
+  Future<WorkoutPlan?> getActivePlan() {
+    final completer = Completer<WorkoutPlan?>();
+    planRequests.add(completer);
+    return completer.future;
+  }
+
+  @override
+  Future<WorkoutCalendarResponse> getWorkoutCalendar() {
+    final completer = Completer<WorkoutCalendarResponse>();
+    calendarRequests.add(completer);
+    return completer.future;
+  }
+}
+
 void main() {
   group('WorkoutProvider Tests', () {
     late WorkoutProvider workoutProvider;
@@ -91,6 +133,81 @@ void main() {
       await workoutProvider.loadActivePlan();
       expect(workoutProvider.activePlan, isNotNull);
       expect(workoutProvider.isLoading, false);
+    });
+
+    test('loadActivePlan keeps the newest overlapping response', () async {
+      final repo = QueuedWorkoutRepository();
+      final provider = WorkoutProvider(repo);
+
+      final firstLoad = provider.loadActivePlan();
+      final secondLoad = provider.loadActivePlan();
+
+      expect(repo.planRequests.length, 2);
+      repo.planRequests[1].complete(
+        FakeWorkoutRepository.buildPlan(id: 'plan2', name: 'New Plan'),
+      );
+      await secondLoad;
+
+      expect(provider.activePlan?.id, 'plan2');
+      expect(provider.isLoading, false);
+
+      repo.planRequests[0].complete(
+        FakeWorkoutRepository.buildPlan(id: 'plan1', name: 'Old Plan'),
+      );
+      await firstLoad;
+
+      expect(provider.activePlan?.id, 'plan2');
+      expect(provider.isLoading, false);
+    });
+
+    test('loadWorkoutCalendar keeps the newest overlapping response', () async {
+      final repo = QueuedWorkoutRepository();
+      final provider = WorkoutProvider(repo);
+
+      final firstLoad = provider.loadWorkoutCalendar();
+      final secondLoad = provider.loadWorkoutCalendar();
+
+      expect(repo.calendarRequests.length, 2);
+      repo.calendarRequests[1].complete(
+        WorkoutCalendarResponse(
+          plan: WorkoutCalendarPlan(
+            id: 'plan2',
+            name: 'New Calendar',
+            startDate: null,
+            endDate: null,
+            daysPerWeek: 1,
+          ),
+          previous: const [],
+          today: null,
+          upcoming: const [],
+          allDays: const [],
+        ),
+      );
+      await secondLoad;
+
+      expect(provider.calendarPlan?.id, 'plan2');
+      expect(provider.hasLoadedCalendar, true);
+      expect(provider.isCalendarLoading, false);
+
+      repo.calendarRequests[0].complete(
+        WorkoutCalendarResponse(
+          plan: WorkoutCalendarPlan(
+            id: 'plan1',
+            name: 'Old Calendar',
+            startDate: null,
+            endDate: null,
+            daysPerWeek: 1,
+          ),
+          previous: const [],
+          today: null,
+          upcoming: const [],
+          allDays: const [],
+        ),
+      );
+      await firstLoad;
+
+      expect(provider.calendarPlan?.id, 'plan2');
+      expect(provider.isCalendarLoading, false);
     });
 
     test('completeExercise should mark exercise as completed', () async {

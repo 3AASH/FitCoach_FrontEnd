@@ -6,6 +6,8 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/admin_analytics.dart';
 import '../models/admin_user.dart';
 import '../models/admin_coach.dart';
+import '../models/admin_exercise.dart';
+import '../models/admin_workout_template.dart';
 import '../models/revenue_analytics.dart';
 import '../models/audit_log.dart';
 import '../../core/config/api_config.dart';
@@ -101,6 +103,17 @@ class AdminRepository {
         'Content-Type': ApiConfig.contentType,
       },
       contentType: ApiConfig.contentType,
+    );
+  }
+
+  Future<Options> _getUploadAuthOptions() async {
+    final token = _tokenReader != null
+        ? await _tokenReader()
+        : await _secureStorage.read(key: _tokenKey);
+    return Options(
+      headers: {
+        'Authorization': 'Bearer $token',
+      },
     );
   }
 
@@ -381,6 +394,198 @@ class AdminRepository {
       );
     } on DioException catch (e) {
       throw Exception(_readableError(e, fallback: 'Failed to delete coach'));
+    }
+  }
+
+  Future<List<AdminExercise>> getExercises({
+    String? search,
+    String? category,
+    String? difficulty,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    const endpoint = '/admin/exercises';
+    try {
+      final response = await _dio.get(
+        endpoint,
+        queryParameters: {
+          'limit': limit,
+          'offset': offset,
+          if (search != null && search.trim().isNotEmpty) 'search': search,
+          if (category != null && category.trim().isNotEmpty)
+            'category': category,
+          if (difficulty != null && difficulty.trim().isNotEmpty)
+            'difficulty': difficulty,
+        },
+        options: await _getAuthOptions(),
+      );
+
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = _asList(
+        data['exercises'] ??
+            (_asMap(data['data'])?['exercises']) ??
+            data['data'],
+      );
+
+      return list
+          .map((json) =>
+              AdminExercise.fromJson(_asMap(json) ?? const <String, dynamic>{}))
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to get exercises'));
+    }
+  }
+
+  Future<AdminExercise> createExercise(AdminExercise exercise) async {
+    try {
+      final response = await _dio.post(
+        '/admin/exercises',
+        data: exercise.toAdminPayload(),
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final payload = _asMap(data['exercise']) ?? _asMap(data['data']) ?? data;
+      return AdminExercise.fromJson(payload);
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to create exercise'));
+    }
+  }
+
+  Future<AdminExercise> updateExercise(AdminExercise exercise) async {
+    try {
+      final response = await _dio.put(
+        '/admin/exercises/${exercise.id}',
+        data: exercise.toAdminPayload(),
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final payload = _asMap(data['exercise']) ?? _asMap(data['data']) ?? data;
+      return AdminExercise.fromJson(payload);
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to update exercise'));
+    }
+  }
+
+  Future<void> deleteExercise(String id) async {
+    try {
+      await _dio.delete(
+        '/admin/exercises/$id',
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(_readableError(e, fallback: 'Failed to delete exercise'));
+    }
+  }
+
+  Future<AdminExercise> uploadExerciseVideo(String id, String filePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'video': await MultipartFile.fromFile(filePath),
+      });
+      final response = await _dio.post(
+        '/admin/exercises/$id/video',
+        data: formData,
+        options: await _getUploadAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final payload = _asMap(data['exercise']) ?? data;
+      return AdminExercise.fromJson(payload);
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to upload exercise video'));
+    }
+  }
+
+  Future<List<AdminWorkoutTemplate>> getWorkoutTemplates({
+    String? type,
+    String? goal,
+    String? location,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/admin/workout-templates',
+        queryParameters: {
+          if (type != null && type.trim().isNotEmpty) 'type': type,
+          if (goal != null && goal.trim().isNotEmpty) 'goal': goal,
+          if (location != null && location.trim().isNotEmpty)
+            'location': location,
+        },
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = _asList(data['templates'] ?? data['data']);
+      return list
+          .map((json) => AdminWorkoutTemplate.fromJson(
+              _asMap(json) ?? const <String, dynamic>{}))
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get workout templates'));
+    }
+  }
+
+  Future<Map<String, dynamic>> getWorkoutTemplate(String planId) async {
+    try {
+      final response = await _dio.get(
+        '/admin/workout-templates/$planId',
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['template']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get workout template'));
+    }
+  }
+
+  Future<Map<String, dynamic>> saveWorkoutTemplate(
+      Map<String, dynamic> template) async {
+    final planId = template['plan_id']?.toString();
+    if (planId == null || planId.trim().isEmpty) {
+      throw Exception('Workout template plan_id is required');
+    }
+    try {
+      final response = await _dio.put(
+        '/admin/workout-templates/$planId',
+        data: template,
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to save workout template'));
+    }
+  }
+
+  Future<Map<String, dynamic>> importWorkoutTemplatesFromFile(
+      String filePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(filePath),
+      });
+      final response = await _dio.post(
+        '/admin/workout-templates/import',
+        data: formData,
+        options: await _getUploadAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to import workout templates'));
+    }
+  }
+
+  Future<Map<String, dynamic>> refreshWorkoutTemplateUsers(
+      String planId) async {
+    try {
+      final response = await _dio.post(
+        '/admin/workout-templates/$planId/refresh-users',
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to refresh users for workout template'));
     }
   }
 

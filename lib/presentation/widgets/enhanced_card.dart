@@ -15,7 +15,7 @@ class EnhancedCard extends StatefulWidget {
   final bool showBorder;
   final bool hoverEffect;
   final BorderRadius? borderRadius;
-  
+
   const EnhancedCard({
     super.key,
     required this.child,
@@ -37,6 +37,7 @@ class _EnhancedCardState extends State<EnhancedCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return MouseRegion(
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
@@ -48,40 +49,59 @@ class _EnhancedCardState extends State<EnhancedCard> {
             ? Matrix4.translationValues(0, -2, 0)
             : Matrix4.identity(),
         decoration: BoxDecoration(
-          color: widget.color ?? Colors.white,
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(AppRadius.medium), // 10px
+          color: widget.color ?? theme.cardColor,
+          borderRadius: widget.borderRadius ??
+              BorderRadius.circular(AppRadius.medium), // 10px
           border: widget.showBorder
               ? Border.all(
-                  color: AppColors.border,
+                  color: theme.dividerColor,
                   width: 1,
                 )
               : null,
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: widget.hoverEffect && _isHovered && widget.onTap != null
-                    ? 0.1
-                    : 0.05,),
-              blurRadius: widget.hoverEffect && _isHovered && widget.onTap != null ? 20 : 10,
-              offset: Offset(0, widget.hoverEffect && _isHovered && widget.onTap != null ? 4 : 2),
+              color: Colors.black.withValues(
+                alpha: widget.hoverEffect && _isHovered && widget.onTap != null
+                    ? 0.14
+                    : theme.brightness == Brightness.dark
+                        ? 0.16
+                        : 0.05,
+              ),
+              blurRadius:
+                  widget.hoverEffect && _isHovered && widget.onTap != null
+                      ? 20
+                      : 10,
+              offset: Offset(
+                  0,
+                  widget.hoverEffect && _isHovered && widget.onTap != null
+                      ? 4
+                      : 2),
             ),
           ],
         ),
-        child: widget.onTap != null
-            ? Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: widget.onTap,
-                  borderRadius: widget.borderRadius ?? BorderRadius.circular(AppRadius.medium),
-                  child: Padding(
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: theme.colorScheme.onSurface),
+          child: IconTheme.merge(
+            data: IconThemeData(color: theme.colorScheme.onSurface),
+            child: widget.onTap != null
+                ? Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      onTap: widget.onTap,
+                      borderRadius: widget.borderRadius ??
+                          BorderRadius.circular(AppRadius.medium),
+                      child: Padding(
+                        padding: widget.padding ?? const EdgeInsets.all(16),
+                        child: widget.child,
+                      ),
+                    ),
+                  )
+                : Padding(
                     padding: widget.padding ?? const EdgeInsets.all(16),
                     child: widget.child,
                   ),
-                ),
-              )
-            : Padding(
-                padding: widget.padding ?? const EdgeInsets.all(16),
-                child: widget.child,
-              ),
+          ),
+        ),
       ),
     );
   }
@@ -92,7 +112,7 @@ class CardHeader extends StatelessWidget {
   final String title;
   final String? subtitle;
   final Widget? trailing;
-  
+
   const CardHeader({
     super.key,
     required this.title,
@@ -113,6 +133,8 @@ class CardHeader extends StatelessWidget {
                 Text(
                   title,
                   style: AppTextStyles.h3,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 if (subtitle != null) ...[
                   const SizedBox(height: 4),
@@ -121,6 +143,8 @@ class CardHeader extends StatelessWidget {
                     style: AppTextStyles.small.copyWith(
                       color: AppColors.textSecondary,
                     ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ],
@@ -137,7 +161,7 @@ class CardHeader extends StatelessWidget {
 class CardContent extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
-  
+
   const CardContent({
     super.key,
     required this.child,
@@ -157,7 +181,7 @@ class CardContent extends StatelessWidget {
 class CardFooter extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
-  
+
   const CardFooter({
     super.key,
     required this.child,

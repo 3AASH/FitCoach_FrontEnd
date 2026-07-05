@@ -19,18 +19,21 @@ class CustomStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.medium),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.9),
+          color: theme.cardColor.withValues(alpha: 0.96),
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.border, width: 1),
+          border: Border.all(color: theme.dividerColor, width: 1),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
+              color: Colors.black.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.16 : 0.05,
+              ),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -49,15 +52,25 @@ class CustomStatCard extends StatelessWidget {
               child: Icon(icon, color: color, size: 18),
             ),
             const SizedBox(height: 12),
-            Text(
-              value,
-              style: AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
+            SizedBox(
+              width: double.infinity,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  value,
+                  maxLines: 1,
+                  style:
+                      AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
+                ),
+              ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
-              maxLines: 1,
+              style:
+                  AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
           ],
@@ -85,18 +98,21 @@ class CustomInfoCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadius.medium),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: theme.cardColor,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: theme.dividerColor),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: Colors.black.withValues(
+                alpha: theme.brightness == Brightness.dark ? 0.14 : 0.04,
+              ),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),
@@ -111,7 +127,8 @@ class CustomInfoCard extends StatelessWidget {
                 color: (iconColor ?? AppColors.primary).withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(icon, color: iconColor ?? AppColors.primary, size: 20),
+              child:
+                  Icon(icon, color: iconColor ?? AppColors.primary, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -120,13 +137,19 @@ class CustomInfoCard extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+                    style: AppTextStyles.bodyMedium
+                        .copyWith(color: AppColors.textPrimary),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
                     Text(
                       subtitle!,
-                      style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+                      style: AppTextStyles.small
+                          .copyWith(color: AppColors.textSecondary),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ],

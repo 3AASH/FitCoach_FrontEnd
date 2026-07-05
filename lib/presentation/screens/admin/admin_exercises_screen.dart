@@ -1,0 +1,538 @@
+import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:provider/provider.dart';
+import '../../../core/constants/colors.dart';
+import '../../../data/models/admin_exercise.dart';
+import '../../providers/admin_provider.dart';
+import '../../providers/language_provider.dart';
+import '../../widgets/custom_card.dart';
+
+class AdminExercisesScreen extends StatefulWidget {
+  const AdminExercisesScreen({super.key});
+
+  @override
+  State<AdminExercisesScreen> createState() => _AdminExercisesScreenState();
+}
+
+class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AdminProvider>().loadExercises();
+    });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _refresh() {
+    return context.read<AdminProvider>().loadExercises(
+          search: _searchController.text.trim().isEmpty
+              ? null
+              : _searchController.text.trim(),
+        );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = context.watch<AdminProvider>();
+    final lang = context.watch<LanguageProvider>();
+    final isArabic = lang.isArabic;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isArabic ? 'Exercise Library' : 'Exercise Library'),
+        actions: [
+          IconButton(
+            tooltip: lang.t('refresh'),
+            onPressed: _refresh,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _openEditor(),
+        icon: const Icon(Icons.add),
+        label: Text(lang.t('add')),
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: TextField(
+                controller: _searchController,
+                textInputAction: TextInputAction.search,
+                onSubmitted: (_) => _refresh(),
+                decoration: InputDecoration(
+                  hintText: isArabic
+                      ? 'Search by ID or name'
+                      : 'Search by ID or name',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: _searchController.text.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.clear),
+                          onPressed: () {
+                            _searchController.clear();
+                            _refresh();
+                          },
+                        ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
+                  ),
+                ),
+              ),
+            ),
+            if (provider.error != null)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: Text(
+                  provider.error!,
+                  style: const TextStyle(color: AppColors.error),
+                ),
+              ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refresh,
+                child: provider.isLoading && provider.exercises.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : provider.exercises.isEmpty
+                        ? ListView(
+                            children: const [
+                              SizedBox(height: 160),
+                              Center(
+                                child: Text(
+                                  'No exercises found',
+                                  style:
+                                      TextStyle(color: AppColors.textSecondary),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                            itemCount: provider.exercises.length,
+                            itemBuilder: (context, index) {
+                              final exercise = provider.exercises[index];
+                              return _ExerciseAdminCard(
+                                exercise: exercise,
+                                onEdit: () => _openEditor(exercise: exercise),
+                                onUploadVideo: () => _uploadVideo(exercise),
+                                onDelete: () => _confirmDelete(exercise),
+                              );
+                            },
+                          ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openEditor({AdminExercise? exercise}) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _ExerciseEditorSheet(exercise: exercise),
+    );
+  }
+
+  Future<void> _confirmDelete(AdminExercise exercise) async {
+    final lang = context.read<LanguageProvider>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(lang.t('delete')),
+        content: Text('Delete ${exercise.nameEn}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(lang.t('cancel')),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(lang.t('delete')),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+    final ok = await context.read<AdminProvider>().deleteExercise(exercise.id);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? 'Exercise deleted'
+            : context.read<AdminProvider>().error ?? 'Delete failed'),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
+      ),
+    );
+  }
+
+  Future<void> _uploadVideo(AdminExercise exercise) async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.video,
+      allowMultiple: false,
+    );
+    final path = result?.files.single.path;
+    if (path == null || !mounted) return;
+
+    final provider = context.read<AdminProvider>();
+    final ok = await provider.uploadExerciseVideo(exercise.id, path);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content:
+            Text(ok ? 'Video uploaded' : provider.error ?? 'Upload failed'),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
+      ),
+    );
+  }
+}
+
+class _ExerciseAdminCard extends StatelessWidget {
+  final AdminExercise exercise;
+  final VoidCallback onEdit;
+  final VoidCallback onUploadVideo;
+  final VoidCallback onDelete;
+
+  const _ExerciseAdminCard({
+    required this.exercise,
+    required this.onEdit,
+    required this.onUploadVideo,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final subtitle = [
+      if (exercise.exId != null) exercise.exId!,
+      if (exercise.muscleGroups.isNotEmpty) exercise.muscleGroups.join(', '),
+      if (exercise.equipment.isNotEmpty) exercise.equipment.join(', '),
+    ].join(' • ');
+
+    return CustomCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            _ExerciseThumb(url: exercise.thumbnailUrl),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    exercise.nameEn,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 6,
+                    children: [
+                      if (exercise.difficulty != null)
+                        _Badge(label: exercise.difficulty!),
+                      if (exercise.videoUrl != null)
+                        const _Badge(label: 'Video'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: 'Edit',
+              onPressed: onEdit,
+              icon: const Icon(Icons.edit),
+            ),
+            IconButton(
+              tooltip: 'Upload video',
+              onPressed: onUploadVideo,
+              icon: const Icon(Icons.video_call),
+            ),
+            IconButton(
+              tooltip: 'Delete',
+              onPressed: onDelete,
+              color: AppColors.error,
+              icon: const Icon(Icons.delete_outline),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ExerciseEditorSheet extends StatefulWidget {
+  final AdminExercise? exercise;
+
+  const _ExerciseEditorSheet({this.exercise});
+
+  @override
+  State<_ExerciseEditorSheet> createState() => _ExerciseEditorSheetState();
+}
+
+class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
+  final _formKey = GlobalKey<FormState>();
+  late final TextEditingController _exId;
+  late final TextEditingController _nameEn;
+  late final TextEditingController _nameAr;
+  late final TextEditingController _category;
+  late final TextEditingController _difficulty;
+  late final TextEditingController _muscles;
+  late final TextEditingController _equipment;
+  late final TextEditingController _videoUrl;
+  late final TextEditingController _thumbnailUrl;
+  late final TextEditingController _instructions;
+
+  @override
+  void initState() {
+    super.initState();
+    final exercise = widget.exercise;
+    _exId = TextEditingController(text: exercise?.exId ?? '');
+    _nameEn = TextEditingController(text: exercise?.nameEn ?? '');
+    _nameAr = TextEditingController(text: exercise?.nameAr ?? '');
+    _category = TextEditingController(text: exercise?.category ?? '');
+    _difficulty = TextEditingController(text: exercise?.difficulty ?? '');
+    _muscles =
+        TextEditingController(text: exercise?.muscleGroups.join(', ') ?? '');
+    _equipment =
+        TextEditingController(text: exercise?.equipment.join(', ') ?? '');
+    _videoUrl = TextEditingController(text: exercise?.videoUrl ?? '');
+    _thumbnailUrl = TextEditingController(text: exercise?.thumbnailUrl ?? '');
+    _instructions = TextEditingController(text: exercise?.instructions ?? '');
+  }
+
+  @override
+  void dispose() {
+    _exId.dispose();
+    _nameEn.dispose();
+    _nameAr.dispose();
+    _category.dispose();
+    _difficulty.dispose();
+    _muscles.dispose();
+    _equipment.dispose();
+    _videoUrl.dispose();
+    _thumbnailUrl.dispose();
+    _instructions.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+    final inset = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: inset),
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.9,
+        minChildSize: 0.5,
+        maxChildSize: 0.95,
+        builder: (context, scrollController) => Material(
+          color: Colors.white,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          child: Form(
+            key: _formKey,
+            child: ListView(
+              controller: scrollController,
+              padding: const EdgeInsets.all(16),
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        widget.exercise == null
+                            ? 'Create Exercise'
+                            : 'Edit Exercise',
+                        style: AppTextStyles.h2,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                _field(_nameEn, 'English name', required: true),
+                _field(_exId, 'Exercise ID used by templates'),
+                _field(_nameAr, 'Arabic name'),
+                _field(_category, 'Category'),
+                _field(_difficulty, 'Difficulty'),
+                _field(_muscles, 'Muscle groups, comma separated'),
+                _field(_equipment, 'Equipment, comma separated'),
+                _field(_videoUrl, 'Video URL'),
+                _field(_thumbnailUrl, 'Thumbnail URL'),
+                _field(_instructions, 'Instructions', maxLines: 4),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: _save,
+                  icon: const Icon(Icons.save),
+                  label: Text(lang.t('save')),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _field(
+    TextEditingController controller,
+    String label, {
+    bool required = false,
+    int maxLines = 1,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        validator: required
+            ? (value) =>
+                value == null || value.trim().isEmpty ? 'Required' : null
+            : null,
+        decoration: InputDecoration(
+          labelText: label,
+          border: const OutlineInputBorder(),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _save() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final base = widget.exercise;
+    final exercise = AdminExercise(
+      id: base?.id ?? '',
+      exId: _emptyToNull(_exId.text),
+      nameEn: _nameEn.text.trim(),
+      nameAr: _emptyToNull(_nameAr.text),
+      category: _emptyToNull(_category.text),
+      difficulty: _emptyToNull(_difficulty.text),
+      muscleGroups: _csv(_muscles.text),
+      equipment: _csv(_equipment.text),
+      videoUrl: _emptyToNull(_videoUrl.text),
+      thumbnailUrl: _emptyToNull(_thumbnailUrl.text),
+      instructions: _emptyToNull(_instructions.text),
+    );
+
+    final provider = context.read<AdminProvider>();
+    final ok = base == null
+        ? await provider.createExercise(exercise)
+        : await provider.updateExercise(exercise);
+
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok ? 'Exercise saved' : provider.error ?? 'Save failed'),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
+      ),
+    );
+    if (ok) Navigator.pop(context);
+  }
+
+  String? _emptyToNull(String value) {
+    final text = value.trim();
+    return text.isEmpty ? null : text;
+  }
+
+  List<String> _csv(String value) {
+    return value
+        .split(',')
+        .map((item) => item.trim())
+        .where((item) => item.isNotEmpty)
+        .toList();
+  }
+}
+
+class _ExerciseThumb extends StatelessWidget {
+  final String? url;
+
+  const _ExerciseThumb({this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final imageUrl = url;
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return _placeholder();
+    }
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: Image.network(
+        imageUrl,
+        width: 64,
+        height: 64,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => _placeholder(),
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    return Container(
+      width: 64,
+      height: 64,
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: const Icon(Icons.fitness_center, color: AppColors.textSecondary),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final String label;
+
+  const _Badge({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.primary,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
+  }
+}
