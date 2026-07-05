@@ -8,7 +8,7 @@ class AppThemeConfig {
   static ThemeData getLightTheme() {
     return ThemeData(
       useMaterial3: true,
-      
+
       // Color scheme matching React CSS variables
       colorScheme: ColorScheme.light(
         primary: AppColors.primary,
@@ -21,10 +21,10 @@ class AppThemeConfig {
         onSurface: AppColors.textPrimary,
         surfaceContainerHighest: AppColors.border,
       ),
-      
+
       // Scaffold background
       scaffoldBackgroundColor: AppColors.background,
-      
+
       // App bar theme
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.background,
@@ -38,7 +38,7 @@ class AppThemeConfig {
           color: AppColors.textPrimary,
         ),
       ),
-      
+
       // Card theme matching React
       cardTheme: CardThemeData(
         color: Colors.white,
@@ -50,12 +50,13 @@ class AppThemeConfig {
         ),
         margin: EdgeInsets.zero,
       ),
-      
+
       // Input decoration theme
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.surface,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
           borderSide: BorderSide(color: AppColors.border, width: 1),
@@ -80,7 +81,7 @@ class AppThemeConfig {
         hintStyle: AppTextStyles.body.copyWith(color: AppColors.textDisabled),
         errorStyle: AppTextStyles.small.copyWith(color: AppColors.error),
       ),
-      
+
       // Elevated button theme
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
@@ -96,7 +97,7 @@ class AppThemeConfig {
           minimumSize: const Size(0, 36), // h-9 in React
         ),
       ),
-      
+
       // Outlined button theme
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
@@ -111,7 +112,7 @@ class AppThemeConfig {
           minimumSize: const Size(0, 36),
         ),
       ),
-      
+
       // Text button theme
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
@@ -125,7 +126,7 @@ class AppThemeConfig {
           minimumSize: const Size(0, 36),
         ),
       ),
-      
+
       // Floating action button theme
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: AppColors.primary,
@@ -135,7 +136,7 @@ class AppThemeConfig {
           borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
       ),
-      
+
       // Bottom navigation bar theme
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: AppColors.background,
@@ -146,7 +147,7 @@ class AppThemeConfig {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
-      
+
       // Dialog theme
       dialogTheme: DialogThemeData(
         backgroundColor: AppColors.background,
@@ -161,7 +162,7 @@ class AppThemeConfig {
           color: AppColors.textSecondary,
         ),
       ),
-      
+
       // Snackbar theme
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppColors.backgroundDark,
@@ -173,7 +174,7 @@ class AppThemeConfig {
         ),
         behavior: SnackBarBehavior.floating,
       ),
-      
+
       // Chip theme
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.secondary,
@@ -187,14 +188,14 @@ class AppThemeConfig {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       ),
-      
+
       // Divider theme
       dividerTheme: DividerThemeData(
         color: AppColors.border,
         thickness: 1,
         space: 1,
       ),
-      
+
       // Switch theme
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) {
@@ -210,7 +211,7 @@ class AppThemeConfig {
           return AppColors.border;
         }),
       ),
-      
+
       // Checkbox theme
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -225,7 +226,7 @@ class AppThemeConfig {
           borderRadius: BorderRadius.circular(4),
         ),
       ),
-      
+
       // Radio theme
       radioTheme: RadioThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) {
@@ -235,7 +236,7 @@ class AppThemeConfig {
           return AppColors.border;
         }),
       ),
-      
+
       // Slider theme
       sliderTheme: SliderThemeData(
         activeTrackColor: AppColors.primary,
@@ -245,27 +246,27 @@ class AppThemeConfig {
         trackHeight: 4,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
       ),
-      
+
       // Progress indicator theme
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColors.primary,
         linearTrackColor: AppColors.surface,
         circularTrackColor: AppColors.surface,
       ),
-      
+
       // Text selection theme
       textSelectionTheme: TextSelectionThemeData(
         cursorColor: AppColors.primary,
         selectionColor: AppColors.primary.withValues(alpha: 0.3),
         selectionHandleColor: AppColors.primary,
       ),
-      
+
       // Icon theme
       iconTheme: IconThemeData(
         color: AppColors.textPrimary,
         size: 24,
       ),
-      
+
       // Typography
       textTheme: TextTheme(
         displayLarge: AppTextStyles.h1,
@@ -283,7 +284,7 @@ class AppThemeConfig {
         labelMedium: AppTextStyles.labelSmall,
         labelSmall: AppTextStyles.small,
       ),
-      
+
       // Tooltip theme
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
@@ -295,7 +296,7 @@ class AppThemeConfig {
         ),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       ),
-      
+
       // List tile theme
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -307,28 +308,100 @@ class AppThemeConfig {
       ),
     );
   }
-  
+
   /// Get the dark theme (optional, matching React dark mode)
   static ThemeData getDarkTheme() {
-    return ThemeData(
-      useMaterial3: true,
+    final light = getLightTheme();
+    return light.copyWith(
       brightness: Brightness.dark,
-      
-      colorScheme: ColorScheme.dark(
-        primary: AppColors.primary,
+      colorScheme: const ColorScheme.dark(
+        primary: AppColors.primaryLight,
         onPrimary: AppColors.backgroundDark,
         secondary: AppColors.secondary,
         onSecondary: AppColors.secondaryForeground,
         error: AppColors.error,
         onError: Colors.white,
-        surface: AppColors.surfaceDark,
-        onSurface: Colors.white,
+        surface: Colors.white,
+        onSurface: AppColors.textPrimary,
+        surfaceContainerHighest: AppColors.borderDark,
       ),
-      
       scaffoldBackgroundColor: AppColors.backgroundDark,
-      
-      // Continue dark theme configuration...
-      // (Similar structure to light theme but with dark colors)
+      canvasColor: AppColors.backgroundDark,
+      cardColor: Colors.white,
+      dividerColor: AppColors.border,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.backgroundDark,
+        foregroundColor: AppColors.textPrimaryDark,
+        elevation: 0,
+        centerTitle: false,
+        titleTextStyle: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        iconTheme: const IconThemeData(
+          color: AppColors.textPrimaryDark,
+        ),
+      ),
+      cardTheme: CardThemeData(
+        color: Colors.white,
+        elevation: 0,
+        shadowColor: Colors.black.withValues(alpha: 0.18),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+          side: const BorderSide(color: AppColors.border, width: 1),
+        ),
+        margin: EdgeInsets.zero,
+      ),
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: AppColors.surfaceDarkRaised,
+        selectedItemColor: AppColors.primaryLight,
+        unselectedItemColor: AppColors.textSecondaryDark,
+        selectedLabelStyle: AppTextStyles.small,
+        unselectedLabelStyle: AppTextStyles.small,
+        type: BottomNavigationBarType.fixed,
+        elevation: 8,
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: Colors.white,
+        elevation: 8,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.large),
+        ),
+        titleTextStyle: AppTextStyles.h3.copyWith(
+          color: AppColors.textPrimary,
+        ),
+        contentTextStyle: AppTextStyles.body.copyWith(
+          color: AppColors.textSecondary,
+        ),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: AppColors.surfaceDarkRaised,
+        contentTextStyle: AppTextStyles.body.copyWith(
+          color: AppColors.textPrimaryDark,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+      inputDecorationTheme: light.inputDecorationTheme.copyWith(
+        fillColor: Colors.white,
+        labelStyle: AppTextStyles.label.copyWith(color: AppColors.textPrimary),
+        hintStyle: AppTextStyles.body.copyWith(color: AppColors.textDisabled),
+      ),
+      textTheme: light.textTheme.apply(
+        bodyColor: AppColors.textPrimary,
+        displayColor: AppColors.textPrimary,
+      ),
+      listTileTheme: ListTileThemeData(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        titleTextStyle: AppTextStyles.body.copyWith(
+          color: AppColors.textPrimary,
+        ),
+        subtitleTextStyle: AppTextStyles.small.copyWith(
+          color: AppColors.textSecondary,
+        ),
+        iconColor: AppColors.textPrimary,
+      ),
     );
   }
 }

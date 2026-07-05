@@ -5,6 +5,8 @@ import '../../data/repositories/admin_repository.dart';
 import '../../data/models/admin_analytics.dart';
 import '../../data/models/admin_user.dart';
 import '../../data/models/admin_coach.dart';
+import '../../data/models/admin_exercise.dart';
+import '../../data/models/admin_workout_template.dart';
 import '../../data/models/revenue_analytics.dart';
 import '../../data/models/audit_log.dart';
 
@@ -16,21 +18,29 @@ class AdminProvider extends ChangeNotifier {
   // State
   bool _isLoading = false;
   String? _error;
+  String? _usersError;
+  String? _coachesError;
 
   AdminAnalytics? _analytics;
   List<AdminUser> _users = [];
   AdminUser? _selectedUser;
   List<AdminCoach> _coaches = [];
+  List<AdminExercise> _exercises = [];
+  List<AdminWorkoutTemplate> _workoutTemplates = [];
   RevenueAnalytics? _revenueAnalytics;
   List<AuditLog> _auditLogs = [];
 
   // Getters
   bool get isLoading => _isLoading;
   String? get error => _error;
+  String? get usersError => _usersError;
+  String? get coachesError => _coachesError;
   AdminAnalytics? get analytics => _analytics;
   List<AdminUser> get users => _users;
   AdminUser? get selectedUser => _selectedUser;
   List<AdminCoach> get coaches => _coaches;
+  List<AdminExercise> get exercises => _exercises;
+  List<AdminWorkoutTemplate> get workoutTemplates => _workoutTemplates;
   List<AdminCoach> get pendingCoaches =>
       _coaches.where((c) => c.isPending).toList();
   void _upsertCoach(AdminCoach coach) {
@@ -85,11 +95,13 @@ class AdminProvider extends ChangeNotifier {
     if (DemoConfig.isDemo) {
       _users = DemoData.adminUsers();
       _error = null;
+      _usersError = null;
       _isLoading = false;
       notifyListeners();
       return;
     }
     _isLoading = true;
+    _usersError = null;
     _error = null;
     notifyListeners();
 
@@ -100,9 +112,11 @@ class AdminProvider extends ChangeNotifier {
         status: status,
         coachId: coachId,
       );
+      _usersError = null;
       _isLoading = false;
       notifyListeners();
     } catch (e) {
+      _usersError = e.toString();
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
@@ -268,11 +282,13 @@ class AdminProvider extends ChangeNotifier {
     if (DemoConfig.isDemo) {
       _coaches = DemoData.adminCoaches();
       _error = null;
+      _coachesError = null;
       _isLoading = false;
       notifyListeners();
       return;
     }
     _isLoading = true;
+    _coachesError = null;
     _error = null;
     notifyListeners();
 
@@ -282,9 +298,11 @@ class AdminProvider extends ChangeNotifier {
         status: status,
         approved: approved,
       );
+      _coachesError = null;
       _isLoading = false;
       notifyListeners();
     } catch (e) {
+      _coachesError = e.toString();
       _error = e.toString();
       _isLoading = false;
       notifyListeners();
@@ -511,6 +529,245 @@ class AdminProvider extends ChangeNotifier {
     try {
       await _repository.deleteCoach(id);
       _removeCoach(id);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadExercises({
+    String? search,
+    String? category,
+    String? difficulty,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _exercises = DemoConfig.isDemo
+          ? DemoData.fallbackExerciseLibrary()
+              .map(
+                (exercise) => AdminExercise(
+                  id: exercise.id,
+                  exId: exercise.id,
+                  nameEn: exercise.nameEn,
+                  nameAr: exercise.nameAr,
+                  category: exercise.category,
+                  difficulty: exercise.difficulty,
+                  muscleGroups: (exercise.muscleGroup ?? '')
+                      .split(',')
+                      .map((item) => item.trim())
+                      .where((item) => item.isNotEmpty)
+                      .toList(),
+                  equipment: (exercise.equipment ?? '')
+                      .split(',')
+                      .map((item) => item.trim())
+                      .where((item) => item.isNotEmpty)
+                      .toList(),
+                  videoUrl: exercise.videoUrl,
+                  thumbnailUrl: exercise.thumbnailUrl,
+                  instructions: exercise.instructions,
+                ),
+              )
+              .toList()
+          : await _repository.getExercises(
+              search: search,
+              category: category,
+              difficulty: difficulty,
+            );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> createExercise(AdminExercise exercise) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final created = DemoConfig.isDemo
+          ? exercise.copyWith(
+              id: exercise.exId ??
+                  DateTime.now().microsecondsSinceEpoch.toString(),
+            )
+          : await _repository.createExercise(exercise);
+      _exercises = [created, ..._exercises];
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> updateExercise(AdminExercise exercise) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updated = DemoConfig.isDemo
+          ? exercise
+          : await _repository.updateExercise(exercise);
+      final index = _exercises.indexWhere((item) => item.id == updated.id);
+      if (index == -1) {
+        _exercises = [updated, ..._exercises];
+      } else {
+        final next = [..._exercises];
+        next[index] = updated;
+        _exercises = next;
+      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> deleteExercise(String id) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.deleteExercise(id);
+      }
+      _exercises = _exercises.where((exercise) => exercise.id != id).toList();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> uploadExerciseVideo(String id, String filePath) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final updated = await _repository.uploadExerciseVideo(id, filePath);
+      final index = _exercises.indexWhere((item) => item.id == updated.id);
+      if (index != -1) {
+        final next = [..._exercises];
+        next[index] = updated;
+        _exercises = next;
+      }
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadWorkoutTemplates({
+    String? type,
+    String? goal,
+    String? location,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _workoutTemplates = DemoConfig.isDemo
+          ? const []
+          : await _repository.getWorkoutTemplates(
+              type: type,
+              goal: goal,
+              location: location,
+            );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> getWorkoutTemplate(String planId) async {
+    try {
+      return await _repository.getWorkoutTemplate(planId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> saveWorkoutTemplate(Map<String, dynamic> template) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.saveWorkoutTemplate(template);
+      await loadWorkoutTemplates();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> importWorkoutTemplatesFromFile(String filePath) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.importWorkoutTemplatesFromFile(filePath);
+      await loadWorkoutTemplates();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> refreshWorkoutTemplateUsers(String planId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      await _repository.refreshWorkoutTemplateUsers(planId);
       _isLoading = false;
       notifyListeners();
       return true;

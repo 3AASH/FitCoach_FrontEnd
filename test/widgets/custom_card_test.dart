@@ -53,10 +53,12 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(CustomCard),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(CustomCard),
+              matching: find.byType(Container),
+            )
+            .first,
       );
 
       final decoration = container.decoration as BoxDecoration;
@@ -76,10 +78,12 @@ void main() {
       );
 
       final padding = tester.widget<Padding>(
-        find.descendant(
-          of: find.byType(CustomCard),
-          matching: find.byType(Padding),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('Test Content'),
+              matching: find.byType(Padding),
+            )
+            .first,
       );
 
       expect(padding.padding, const EdgeInsets.all(24));
@@ -98,10 +102,12 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.ancestor(
-          of: find.text('Test Content'),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .ancestor(
+              of: find.text('Test Content'),
+              matching: find.byType(Container),
+            )
+            .first,
       );
 
       expect(container.margin, const EdgeInsets.all(20));
@@ -119,10 +125,12 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(CustomCard),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(CustomCard),
+              matching: find.byType(Container),
+            )
+            .first,
       );
 
       final decoration = container.decoration as BoxDecoration;
@@ -142,10 +150,12 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(CustomCard),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(CustomCard),
+              matching: find.byType(Container),
+            )
+            .first,
       );
 
       final decoration = container.decoration as BoxDecoration;
@@ -165,17 +175,20 @@ void main() {
       );
 
       final container = tester.widget<Container>(
-        find.descendant(
-          of: find.byType(CustomCard),
-          matching: find.byType(Container),
-        ).first,
+        find
+            .descendant(
+              of: find.byType(CustomCard),
+              matching: find.byType(Container),
+            )
+            .first,
       );
 
       final decoration = container.decoration as BoxDecoration;
       expect(decoration.borderRadius, BorderRadius.circular(20));
     });
 
-    testWidgets('shows ripple effect when tappable', (WidgetTester tester) async {
+    testWidgets('shows ripple effect when tappable',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: Scaffold(
@@ -190,7 +203,8 @@ void main() {
       expect(find.byType(InkWell), findsOneWidget);
     });
 
-    testWidgets('no ripple effect when not tappable', (WidgetTester tester) async {
+    testWidgets('no ripple effect when not tappable',
+        (WidgetTester tester) async {
       await tester.pumpWidget(
         const MaterialApp(
           home: Scaffold(

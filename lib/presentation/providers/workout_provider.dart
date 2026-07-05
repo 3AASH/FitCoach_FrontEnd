@@ -23,6 +23,8 @@ class WorkoutProvider extends ChangeNotifier {
   String? _error;
   String? _calendarError;
   int? _currentDayIndex;
+  int _activePlanLoadToken = 0;
+  int _calendarLoadToken = 0;
   final Map<String, bool> _completedExercises = {};
 
   WorkoutProvider(
@@ -60,6 +62,7 @@ class WorkoutProvider extends ChangeNotifier {
   }
 
   Future<void> loadActivePlan() async {
+    final loadToken = ++_activePlanLoadToken;
     if (_demoConfig.isDemo) {
       _activePlan = await _demoRepository.getActivePlan(
         userId: DemoConfig.demoUserId,
@@ -81,6 +84,7 @@ class WorkoutProvider extends ChangeNotifier {
     try {
       final plan = await _repository.getActivePlan();
       await _ensureCatalogLoaded();
+      if (loadToken != _activePlanLoadToken) return;
       _activePlan = plan == null ? null : _applyCatalogToPlan(plan);
       if (_activePlan?.days != null && _activePlan!.days!.isNotEmpty) {
         final currentDayNumber = _activePlan!.currentDayNumber;
@@ -95,16 +99,20 @@ class WorkoutProvider extends ChangeNotifier {
         _currentDayIndex = null;
       }
     } catch (e) {
+      if (loadToken != _activePlanLoadToken) return;
       _error = e.toString();
       _activePlan = null;
       _currentDayIndex = null;
+    } finally {
+      if (loadToken == _activePlanLoadToken) {
+        _isLoading = false;
+        notifyListeners();
+      }
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> loadWorkoutCalendar({bool silent = false}) async {
+    final loadToken = ++_calendarLoadToken;
     if (_demoConfig.isDemo) {
       _calendar = WorkoutCalendarResponse(
         plan: _activePlan == null
@@ -134,16 +142,20 @@ class WorkoutProvider extends ChangeNotifier {
     }
 
     try {
-      _calendar = await _repository.getWorkoutCalendar();
+      final calendar = await _repository.getWorkoutCalendar();
+      if (loadToken != _calendarLoadToken) return;
+      _calendar = calendar;
       _calendarError = null;
-      _hasLoadedCalendar = true;
     } catch (e) {
+      if (loadToken != _calendarLoadToken) return;
       _calendarError = e.toString();
-      _hasLoadedCalendar = true;
+    } finally {
+      if (loadToken == _calendarLoadToken) {
+        _hasLoadedCalendar = true;
+        _isCalendarLoading = false;
+        notifyListeners();
+      }
     }
-
-    _isCalendarLoading = false;
-    notifyListeners();
   }
 
   Future<void> loadExerciseLibrary() async {
@@ -413,6 +425,7 @@ class WorkoutProvider extends ChangeNotifier {
 
   void clearError() {
     _error = null;
+    _calendarError = null;
     notifyListeners();
   }
 }

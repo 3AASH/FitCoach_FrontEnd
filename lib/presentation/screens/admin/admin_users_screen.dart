@@ -48,6 +48,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final adminProvider = context.watch<AdminProvider>();
     final lang = languageProvider;
+    final usersError = adminProvider.usersError;
 
     return Scaffold(
       appBar: AppBar(
@@ -176,7 +177,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           Expanded(
             child: adminProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : adminProvider.error != null
+                : usersError != null
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -185,7 +186,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 size: 64, color: AppColors.error),
                             const SizedBox(height: 16),
                             Text(
-                              adminProvider.error!,
+                              usersError,
                               textAlign: TextAlign.center,
                               style: const TextStyle(color: AppColors.error),
                             ),

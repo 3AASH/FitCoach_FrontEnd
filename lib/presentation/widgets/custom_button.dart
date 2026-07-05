@@ -80,14 +80,22 @@ class _CustomButtonState extends State<CustomButton> {
             ),
           )
         : Row(
-            mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
+            mainAxisSize:
+                widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (widget.icon != null) ...[
                 Icon(widget.icon, size: _getIconSize()),
                 const SizedBox(width: 8),
               ],
-              Text(widget.text),
+              Flexible(
+                child: Text(
+                  widget.text,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           );
 
@@ -110,7 +118,7 @@ class _CustomButtonState extends State<CustomButton> {
             child: buttonChild,
           ),
         );
-        
+
       case ButtonVariant.secondary:
         return SizedBox(
           width: widget.fullWidth ? double.infinity : null,
@@ -122,7 +130,9 @@ class _CustomButtonState extends State<CustomButton> {
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               side: BorderSide(
-                color: isDisabled ? AppColors.border : AppColors.secondaryForeground,
+                color: isDisabled
+                    ? AppColors.border
+                    : AppColors.secondaryForeground,
                 width: 1,
               ),
               shape: RoundedRectangleBorder(
@@ -132,7 +142,7 @@ class _CustomButtonState extends State<CustomButton> {
             child: buttonChild,
           ),
         );
-        
+
       case ButtonVariant.outline:
         return SizedBox(
           width: widget.fullWidth ? double.infinity : null,
@@ -153,7 +163,7 @@ class _CustomButtonState extends State<CustomButton> {
             child: buttonChild,
           ),
         );
-        
+
       case ButtonVariant.text:
         return SizedBox(
           width: widget.fullWidth ? double.infinity : null,
@@ -170,7 +180,7 @@ class _CustomButtonState extends State<CustomButton> {
             child: buttonChild,
           ),
         );
-        
+
       case ButtonVariant.danger:
         return SizedBox(
           width: widget.fullWidth ? double.infinity : null,
@@ -189,7 +199,7 @@ class _CustomButtonState extends State<CustomButton> {
             child: buttonChild,
           ),
         );
-        
+
       case ButtonVariant.ghost:
         return SizedBox(
           width: widget.fullWidth ? double.infinity : null,
@@ -206,7 +216,7 @@ class _CustomButtonState extends State<CustomButton> {
             child: buttonChild,
           ),
         );
-        
+
       case ButtonVariant.link:
         return SizedBox(
           width: widget.fullWidth ? double.infinity : null,
@@ -241,7 +251,7 @@ class _CustomButtonState extends State<CustomButton> {
         return const EdgeInsets.symmetric(horizontal: 32, vertical: 16);
     }
   }
-  
+
   TextStyle _getTextStyle() {
     switch (widget.size) {
       case ButtonSize.small:
@@ -252,7 +262,7 @@ class _CustomButtonState extends State<CustomButton> {
         return const TextStyle(fontSize: 18, fontWeight: FontWeight.w600);
     }
   }
-  
+
   double _getIconSize() {
     switch (widget.size) {
       case ButtonSize.small:
@@ -263,7 +273,7 @@ class _CustomButtonState extends State<CustomButton> {
         return 24;
     }
   }
-  
+
   Color _getLoadingColor() {
     switch (widget.variant) {
       case ButtonVariant.primary:

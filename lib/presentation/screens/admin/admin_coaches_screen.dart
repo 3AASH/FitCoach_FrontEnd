@@ -132,6 +132,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final adminProvider = context.watch<AdminProvider>();
     final lang = languageProvider;
+    final coachesError = adminProvider.coachesError;
 
     return Scaffold(
       appBar: AppBar(
@@ -275,7 +276,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           Expanded(
             child: adminProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : adminProvider.error != null
+                : coachesError != null
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -284,7 +285,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                                 size: 64, color: AppColors.error),
                             const SizedBox(height: 16),
                             Text(
-                              adminProvider.error!,
+                              coachesError,
                               textAlign: TextAlign.center,
                               style: const TextStyle(color: AppColors.error),
                             ),

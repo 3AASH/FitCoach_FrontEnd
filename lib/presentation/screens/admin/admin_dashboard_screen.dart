@@ -10,6 +10,8 @@ import 'admin_users_screen.dart';
 import 'admin_coaches_screen.dart';
 import 'admin_revenue_screen.dart';
 import 'admin_audit_logs_screen.dart';
+import 'admin_exercises_screen.dart';
+import 'admin_workout_templates_screen.dart';
 import 'store_management_screen.dart';
 import 'subscription_management_screen.dart';
 
@@ -40,7 +42,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final isArabic = languageProvider.isArabic;
-    
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
@@ -50,6 +52,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           const AdminCoachesScreen(),
           const AdminRevenueScreen(),
           const SubscriptionManagementScreen(),
+          const AdminExercisesScreen(),
+          const AdminWorkoutTemplatesScreen(),
           const StoreManagementScreen(),
           const AdminAuditLogsScreen(),
         ],
@@ -86,6 +90,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             label: languageProvider.t('admin_tab_subscriptions'),
           ),
           BottomNavigationBarItem(
+            icon: const Icon(Icons.fitness_center),
+            label: isArabic ? 'Exercises' : 'Exercises',
+          ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.view_week),
+            label: isArabic ? 'Workouts' : 'Workouts',
+          ),
+          BottomNavigationBarItem(
             icon: const Icon(Icons.store),
             label: languageProvider.t('admin_tab_store'),
           ),
@@ -97,7 +109,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
     );
   }
-  
+
   Widget _buildDashboardTab(LanguageProvider languageProvider, bool isArabic) {
     final adminProvider = context.watch<AdminProvider>();
     final analytics = adminProvider.analytics;
@@ -143,7 +155,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: const Icon(Icons.account_circle),
                         onPressed: () {
                           Navigator.of(context).push(
-                            MaterialPageRoute(builder: (_) => const AccountScreen()),
+                            MaterialPageRoute(
+                                builder: (_) => const AccountScreen()),
                           );
                         },
                       ),
@@ -155,9 +168,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ],
               ),
-              
+
               const SizedBox(height: 24),
-              
+
               // Key metrics
               if (isLoading)
                 const Center(child: CircularProgressIndicator())
@@ -189,9 +202,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 Row(
                   children: [
                     Expanded(
@@ -208,7 +221,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: CustomStatCard(
-                        title: languageProvider.t('admin_metric_active_coaches'),
+                        title:
+                            languageProvider.t('admin_metric_active_coaches'),
                         value: '${analytics.coaches.active}',
                         icon: Icons.fitness_center,
                         color: AppColors.accent,
@@ -219,15 +233,16 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 12),
-                
+
                 Row(
                   children: [
                     Expanded(
                       child: CustomStatCard(
                         title: languageProvider.t('admin_metric_revenue_30d'),
-                        value: '\$${analytics.revenue.last30Days.toStringAsFixed(0)}',
+                        value:
+                            '\$${analytics.revenue.last30Days.toStringAsFixed(0)}',
                         icon: Icons.attach_money,
                         color: AppColors.success,
                         onTap: () {
@@ -246,9 +261,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                   ],
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Subscription Distribution
                 Text(
                   languageProvider.t('admin_subscription_distribution'),
@@ -281,7 +296,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                 const SizedBox(width: 12),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         sub.subscriptionTier,
@@ -295,7 +311,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         borderRadius: BorderRadius.circular(4),
                                         child: LinearProgressIndicator(
                                           value: percentage / 100,
-                                          backgroundColor: AppColors.textDisabled.withValues(alpha: 0.2),
+                                          backgroundColor: AppColors
+                                              .textDisabled
+                                              .withValues(alpha: 0.2),
                                           valueColor: AlwaysStoppedAnimation(
                                             _getTierColor(sub.subscriptionTier),
                                           ),
@@ -335,9 +353,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     }).toList(),
                   ),
                 ),
-                
+
                 const SizedBox(height: 24),
-                
+
                 // Sessions Today
                 CustomCard(
                   child: Padding(
@@ -390,7 +408,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
     );
   }
-  
+
   Color _getTierColor(String tier) {
     switch (tier) {
       case 'Basic':
@@ -403,7 +421,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         return AppColors.textSecondary;
     }
   }
-  
+
   // ignore: unused_element
   Widget _buildActivityItem({
     required IconData icon,
@@ -433,7 +451,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       ),
     );
   }
-  
+
   // ignore: unused_element
   Widget _buildQuickActionCard({
     required IconData icon,

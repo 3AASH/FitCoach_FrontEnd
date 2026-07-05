@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/workout_plan.dart';
@@ -21,13 +22,16 @@ class WorkoutExerciseDetailScreen extends StatefulWidget {
   });
 
   @override
-  State<WorkoutExerciseDetailScreen> createState() => _WorkoutExerciseDetailScreenState();
+  State<WorkoutExerciseDetailScreen> createState() =>
+      _WorkoutExerciseDetailScreenState();
 }
 
-class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScreen> {
+class _WorkoutExerciseDetailScreenState
+    extends State<WorkoutExerciseDetailScreen> {
   bool _showTutorial = false;
   bool _tutorialLoaded = false;
-  final ExerciseCatalogService _catalogService = ExerciseCatalogService.instance;
+  final ExerciseCatalogService _catalogService =
+      ExerciseCatalogService.instance;
 
   @override
   void initState() {
@@ -44,6 +48,35 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
         _tutorialLoaded = true;
       });
     }
+  }
+
+  Future<void> _openExerciseVideo(bool isArabic) async {
+    final videoUrl = widget.exercise.videoUrl;
+    if (videoUrl == null || videoUrl.trim().isEmpty) {
+      _showVideoUnavailable(isArabic);
+      return;
+    }
+
+    final uri = Uri.tryParse(videoUrl.trim());
+    if (uri == null ||
+        !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      _showVideoUnavailable(isArabic);
+    }
+  }
+
+  void _showVideoUnavailable(bool isArabic) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isArabic
+              ? context.read<LanguageProvider>().t('exercise_video_unavailable')
+              : context
+                  .read<LanguageProvider>()
+                  .t('exercise_video_unavailable'),
+        ),
+      ),
+    );
   }
 
   String get _tutorialKey => 'exercise_seen_${widget.exercise.id}';
@@ -76,7 +109,8 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: FutureBuilder<List<Exercise>>(
-            future: provider.getExerciseAlternatives(widget.exercise.id, injuries),
+            future:
+                provider.getExerciseAlternatives(widget.exercise.id, injuries),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SizedBox(
@@ -119,7 +153,7 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                           return ListTile(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: BorderSide(color: AppColors.border),
+                              side: const BorderSide(color: AppColors.border),
                             ),
                             title: Text(
                               alt.nameEn,
@@ -134,21 +168,25 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                 color: AppColors.textSecondary,
                               ),
                             ),
-                              trailing: Icon(
-                                Directionality.of(context) == TextDirection.rtl
-                                    ? Icons.chevron_left
-                                    : Icons.chevron_right,
-                              ),
+                            trailing: Icon(
+                              Directionality.of(context) == TextDirection.rtl
+                                  ? Icons.chevron_left
+                                  : Icons.chevron_right,
+                            ),
                             onTap: () async {
+                              final scaffoldMessenger =
+                                  ScaffoldMessenger.of(this.context);
+                              final successMessage =
+                                  lang.t('exercise_substituted_successfully');
                               Navigator.pop(context);
                               final success = await provider.substituteExercise(
                                 widget.exercise.id,
                                 alt.id,
                               );
                               if (success && mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
+                                scaffoldMessenger.showSnackBar(
                                   SnackBar(
-                                    content: Text(lang.t('exercise_substituted_successfully')),
+                                    content: Text(successMessage),
                                     backgroundColor: AppColors.success,
                                   ),
                                 );
@@ -184,11 +222,15 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
     final exercise = widget.exercise;
-    final equipmentLabel = _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));
+    final equipmentLabel =
+        _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));
     final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
-    final heroImage = exercise.thumbnailUrl ?? 'assets/placeholders/splash_onboarding/workout_onboarding.png';
+    final heroImage = exercise.thumbnailUrl ??
+        'assets/placeholders/splash_onboarding/workout_onboarding.png';
     final instructions = _splitLines(
-      isArabic ? exercise.instructionsAr ?? exercise.instructions : exercise.instructionsEn ?? exercise.instructions,
+      isArabic
+          ? exercise.instructionsAr ?? exercise.instructions
+          : exercise.instructionsEn ?? exercise.instructions,
     );
     final tips = _splitLines(exercise.notes);
 
@@ -254,18 +296,20 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                               Text(
                                 '${muscleLabel.isEmpty ? '' : muscleLabel} \u2022 ${exercise.category ?? ''}',
                                 style: TextStyle(
-                                  color: AppColors.textWhite.withValues(alpha: 0.7),
+                                  color: AppColors.textWhite
+                                      .withValues(alpha: 0.7),
                                   fontSize: 12,
                                 ),
                               ),
                             ],
-                            ),
                           ),
+                        ),
                         if (exercise.difficulty != null)
                           _DifficultyBadge(label: exercise.difficulty!),
                         IconButton(
                           onPressed: _showAlternatives,
-                          icon: const Icon(Icons.swap_horiz, color: AppColors.textWhite),
+                          icon: const Icon(Icons.swap_horiz,
+                              color: AppColors.textWhite),
                         ),
                       ],
                     ),
@@ -288,27 +332,22 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(Icons.play_circle, size: 48, color: AppColors.textSecondary),
+                                    const Icon(Icons.play_circle,
+                                        size: 48,
+                                        color: AppColors.textSecondary),
                                     const SizedBox(height: 8),
                                     Text(
                                       '${isArabic ? exercise.nameAr : exercise.nameEn} ${lang.t('exercise_demo')}',
-                                      style: const TextStyle(color: AppColors.textSecondary),
+                                      style: const TextStyle(
+                                          color: AppColors.textSecondary),
                                     ),
                                     const SizedBox(height: 8),
                                     OutlinedButton.icon(
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
-                                              isArabic
-                                                ? lang.t('exercise_video_unavailable')
-                                                : lang.t('exercise_video_unavailable'),
-                                            ),
-                                          ),
-                                        );
-                                      },
+                                      onPressed: () =>
+                                          _openExerciseVideo(isArabic),
                                       icon: const Icon(Icons.play_arrow),
-                                      label: Text(lang.t('exercise_watch_video_btn')),
+                                      label: Text(
+                                          lang.t('exercise_watch_video_btn')),
                                     ),
                                   ],
                                 ),
@@ -328,7 +367,8 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                 label: lang.t('exercise_reps'),
                               ),
                               _QuickStat(
-                                value: exercise.restTime ?? lang.t('exercise_rest_default'),
+                                value: exercise.restTime ??
+                                    lang.t('exercise_rest_default'),
                                 label: lang.t('exercise_rest'),
                               ),
                             ],
@@ -345,7 +385,8 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                               unselectedLabelColor: AppColors.textSecondary,
                               indicatorColor: AppColors.primary,
                               indicatorWeight: 3,
-                              labelStyle: const TextStyle(fontWeight: FontWeight.w600),
+                              labelStyle:
+                                  const TextStyle(fontWeight: FontWeight.w600),
                               tabs: [
                                 Tab(text: lang.t('exercise_overview')),
                                 Tab(text: lang.t('exercise_instructions')),
@@ -364,11 +405,13 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                     CustomCard(
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             lang.t('exercise_equipment_needed'),
-                                            style: const TextStyle(fontWeight: FontWeight.w600),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 8),
                                           Wrap(
@@ -384,11 +427,13 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                     CustomCard(
                                       padding: const EdgeInsets.all(16),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             lang.t('exercise_muscle_groups'),
-                                            style: const TextStyle(fontWeight: FontWeight.w600),
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.w600),
                                           ),
                                           const SizedBox(height: 8),
                                           _Badge(text: muscleLabel),
@@ -399,50 +444,70 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                 ),
                                 SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 12),
                                       CustomCard(
                                         padding: const EdgeInsets.all(16),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               lang.t('exercise_step_by_step'),
-                                              style: const TextStyle(fontWeight: FontWeight.w600),
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w600),
                                             ),
                                             const SizedBox(height: 12),
                                             if (instructions.isEmpty)
-                                              Text(lang.t('exercise_no_instructions'))
+                                              Text(lang.t(
+                                                  'exercise_no_instructions'))
                                             else
-                                              ...instructions.asMap().entries.map((entry) {
+                                              ...instructions
+                                                  .asMap()
+                                                  .entries
+                                                  .map((entry) {
                                                 final idx = entry.key + 1;
                                                 final line = entry.value;
                                                 return Padding(
-                                                  padding: const EdgeInsets.only(bottom: 8),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 8),
                                                   child: Row(
-                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
                                                     children: [
                                                       Container(
                                                         width: 24,
                                                         height: 24,
-                                                        decoration: BoxDecoration(
-                                                          color: AppColors.primary,
-                                                          borderRadius: BorderRadius.circular(12),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color:
+                                                              AppColors.primary,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(12),
                                                         ),
                                                         child: Center(
                                                           child: Text(
                                                             '$idx',
-                                                            style: const TextStyle(
-                                                              color: AppColors.textWhite,
-                                                              fontWeight: FontWeight.w600,
+                                                            style:
+                                                                const TextStyle(
+                                                              color: AppColors
+                                                                  .textWhite,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .w600,
                                                               fontSize: 12,
                                                             ),
                                                           ),
                                                         ),
                                                       ),
                                                       const SizedBox(width: 8),
-                                                      Expanded(child: Text(line)),
+                                                      Expanded(
+                                                          child: Text(line)),
                                                     ],
                                                   ),
                                                 );
@@ -455,17 +520,20 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                 ),
                                 SingleChildScrollView(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       const SizedBox(height: 12),
                                       CustomCard(
                                         padding: const EdgeInsets.all(16),
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               lang.t('exercise_key_cues'),
-                                              style: const TextStyle(fontWeight: FontWeight.w600),
+                                              style: const TextStyle(
+                                                  fontWeight: FontWeight.w600),
                                             ),
                                             const SizedBox(height: 8),
                                             if (tips.isEmpty)
@@ -473,19 +541,26 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                             else
                                               ...tips.map(
                                                 (tip) => Padding(
-                                                  padding: const EdgeInsets.only(bottom: 6),
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          bottom: 6),
                                                   child: Row(
                                                     children: [
                                                       Container(
                                                         width: 6,
                                                         height: 6,
-                                                        decoration: BoxDecoration(
-                                                          color: AppColors.success,
-                                                          borderRadius: BorderRadius.circular(3),
+                                                        decoration:
+                                                            BoxDecoration(
+                                                          color:
+                                                              AppColors.success,
+                                                          borderRadius:
+                                                              BorderRadius
+                                                                  .circular(3),
                                                         ),
                                                       ),
                                                       const SizedBox(width: 8),
-                                                      Expanded(child: Text(tip)),
+                                                      Expanded(
+                                                          child: Text(tip)),
                                                     ],
                                                   ),
                                                 ),
@@ -514,7 +589,8 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
                                 child: ElevatedButton.icon(
                                   onPressed: widget.onStartExercise,
                                   icon: const Icon(Icons.play_arrow),
-                                  label: Text(lang.t('exercise_start_exercise')),
+                                  label:
+                                      Text(lang.t('exercise_start_exercise')),
                                 ),
                               ),
                             ],
@@ -551,8 +627,10 @@ class _WorkoutExerciseDetailScreenState extends State<WorkoutExerciseDetailScree
     return _localizeList(muscles, isArabic, isEquipment: false);
   }
 
-  String _localizeList(String value, bool isArabic, {required bool isEquipment}) {
-    final parts = value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
+  String _localizeList(String value, bool isArabic,
+      {required bool isEquipment}) {
+    final parts =
+        value.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
     final labels = parts.map((part) {
       return isEquipment
           ? (_catalogService.getEquipLabel(part, isArabic: isArabic) ?? part)
@@ -684,11 +762,13 @@ class _TutorialOverlay extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.info_outline, color: AppColors.primary),
+                        const Icon(Icons.info_outline,
+                            color: AppColors.primary),
                         const SizedBox(width: 8),
                         Text(
                           lang.t('exercise_tutorial_title'),
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w700),
                         ),
                       ],
                     ),
@@ -776,7 +856,8 @@ class _TutorialStep extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                style: const TextStyle(
+                    fontSize: 12, color: AppColors.textSecondary),
               ),
             ],
           ),

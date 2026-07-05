@@ -146,7 +146,12 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
         'exercises': rawExercises.asMap().entries.map((exEntry) {
           final exIndex = exEntry.key;
           final exMap = _asMap(exEntry.value) ?? const <String, dynamic>{};
+          final exerciseId = _asString(
+            exMap['exerciseId'] ?? exMap['exercise_id'] ?? exMap['ex_id'],
+          );
           return <String, dynamic>{
+            if (exerciseId != null && exerciseId.trim().isNotEmpty)
+              'exerciseId': exerciseId,
             'name': _asString(
                   exMap['name'] ??
                       exMap['exerciseName'] ??
@@ -156,6 +161,16 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                 'Exercise ${exIndex + 1}',
             'sets': _asInt(exMap['sets']) ?? 3,
             'reps': _asString(exMap['reps']) ?? '10',
+            if (_asString(exMap['nameEn'] ?? exMap['name_en']) != null)
+              'nameEn': _asString(exMap['nameEn'] ?? exMap['name_en']),
+            if (_asString(exMap['nameAr'] ?? exMap['name_ar']) != null)
+              'nameAr': _asString(exMap['nameAr'] ?? exMap['name_ar']),
+            if (_asString(exMap['restTime'] ?? exMap['rest_seconds']) != null)
+              'restTime': _asString(exMap['restTime'] ?? exMap['rest_seconds']),
+            if (_asString(exMap['tempo']) != null)
+              'tempo': _asString(exMap['tempo']),
+            if (_asString(exMap['notes']) != null)
+              'notes': _asString(exMap['notes']),
           };
         }).toList(),
       };
@@ -188,10 +203,23 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
       final dayExercises =
           (_asList(day['exercises']) ?? const <dynamic>[]).map((raw) {
         final map = _asMap(raw) ?? const <String, dynamic>{};
+        final exerciseId = _asString(
+          map['exerciseId'] ?? map['exercise_id'] ?? map['ex_id'],
+        );
         return <String, dynamic>{
+          if (exerciseId != null && exerciseId.trim().isNotEmpty)
+            'exerciseId': exerciseId,
           'name': _asString(map['name']) ?? 'Exercise',
+          if (_asString(map['nameEn'] ?? map['name_en']) != null)
+            'nameEn': _asString(map['nameEn'] ?? map['name_en']),
+          if (_asString(map['nameAr'] ?? map['name_ar']) != null)
+            'nameAr': _asString(map['nameAr'] ?? map['name_ar']),
           'sets': _asInt(map['sets']) ?? 3,
           'reps': _asString(map['reps']) ?? '10',
+          if (_asString(map['restTime'] ?? map['rest_seconds']) != null)
+            'restTime': _asString(map['restTime'] ?? map['rest_seconds']),
+          if (_asString(map['tempo']) != null) 'tempo': _asString(map['tempo']),
+          if (_asString(map['notes']) != null) 'notes': _asString(map['notes']),
         };
       }).toList();
 

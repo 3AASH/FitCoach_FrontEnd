@@ -258,11 +258,13 @@ class Exercise {
       muscleGroup: asString(json['muscleGroup']),
       equipment: asString(json['equipment']),
       difficulty: asString(json['difficulty']),
-      videoUrl: asString(json['videoUrl']),
-      thumbnailUrl: asString(json['thumbnailUrl']),
+      videoUrl: asString(json['videoUrl'] ?? json['video_url']),
+      thumbnailUrl: asString(json['thumbnailUrl'] ?? json['thumbnail_url']),
       instructions: asString(json['instructions']),
-      instructionsAr: asString(json['instructionsAr']),
-      instructionsEn: asString(json['instructionsEn']),
+      instructionsAr:
+          asString(json['instructionsAr'] ?? json['instructions_ar']),
+      instructionsEn:
+          asString(json['instructionsEn'] ?? json['instructions_en']),
       sets: _asInt(json['sets'], fallback: 0),
       reps: (json['reps'] ?? '').toString(),
       restTime: asString(json['restTime']),
