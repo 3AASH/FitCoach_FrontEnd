@@ -307,7 +307,10 @@ class Meal {
       instructionsEn: asString(json['instructionsEn']),
       imageUrl: asString(json['imageUrl']),
       order: _asInt(json['order']) ?? 0,
-      completed: asBool(json['completed']) ?? false,
+      completed: asBool(json['completed'] ??
+              json['isCompleted'] ??
+              json['is_completed']) ??
+          false,
     );
   }
 

@@ -219,7 +219,26 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                                     }
                                   }
                                 },
-                                child: Text(languageProvider.t('back')),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      isArabic
+                                          ? Icons.arrow_forward
+                                          : Icons.arrow_back,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        languageProvider.t('back'),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),

@@ -17,7 +17,8 @@ class MockAuthRepository implements AuthRepositoryBase {
   Future<AuthResponse> verifyOTP(String phoneNumber, String otp) async {
     return AuthResponse(
       token: 'mock_token',
-      user: UserProfile(id: 'mock_id', phoneNumber: phoneNumber, name: 'Test User', age: 30),
+      user: UserProfile(
+          id: 'mock_id', phoneNumber: phoneNumber, name: 'Test User', age: 30),
       isNewUser: false,
     );
   }
@@ -35,7 +36,11 @@ class MockAuthRepository implements AuthRepositoryBase {
   }) async {
     return AuthResponse(
       token: 'mock_token',
-      user: UserProfile(id: 'mock_id', phoneNumber: '+966501234567', name: 'Test User', age: 30),
+      user: UserProfile(
+          id: 'mock_id',
+          phoneNumber: '+966501234567',
+          name: 'Test User',
+          age: 30),
       isNewUser: false,
     );
   }
@@ -46,6 +51,7 @@ class MockAuthRepository implements AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   }) async {
     return AuthResponse(
       token: 'mock_token',
@@ -58,7 +64,11 @@ class MockAuthRepository implements AuthRepositoryBase {
   Future<AuthResponse> socialLogin(String provider) async {
     return AuthResponse(
       token: 'mock_token',
-      user: UserProfile(id: 'mock_id', phoneNumber: '+966501234567', name: 'Test User', age: 30),
+      user: UserProfile(
+          id: 'mock_id',
+          phoneNumber: '+966501234567',
+          name: 'Test User',
+          age: 30),
       isNewUser: false,
     );
   }
@@ -79,7 +89,8 @@ class MockAuthRepository implements AuthRepositoryBase {
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  Future<Widget> buildTestWidget({required VoidCallback onAuthenticated}) async {
+  Future<Widget> buildTestWidget(
+      {required VoidCallback onAuthenticated}) async {
     SharedPreferences.setMockInitialValues({});
     final languageProvider = LanguageProvider();
     await languageProvider.setLanguage('en');
@@ -118,9 +129,10 @@ void main() {
     await tester.tap(find.text('Continue with Email'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Email or Phone'), findsOneWidget);
+    expect(find.text('Email'), findsWidgets);
     expect(find.text('Forgot Password?'), findsOneWidget);
 
+    await tester.ensureVisible(find.text('Forgot Password?'));
     await tester.tap(find.text('Forgot Password?'));
     await tester.pumpAndSettle();
 
@@ -130,7 +142,8 @@ void main() {
     await tester.pumpAndSettle();
   });
 
-  testWidgets('sign up shows phone field and allows switch back', (tester) async {
+  testWidgets('sign up shows phone field and allows switch back',
+      (tester) async {
     await tester.pumpWidget(await buildTestWidget(onAuthenticated: () {}));
 
     await tester.tap(find.text('Continue with Email'));
@@ -147,7 +160,7 @@ void main() {
     await tester.tap(find.text('Already have an account? Sign In'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Email or Phone'), findsOneWidget);
+    expect(find.text('Email'), findsWidgets);
   });
 
   testWidgets('phone sign in shows phone input', (tester) async {

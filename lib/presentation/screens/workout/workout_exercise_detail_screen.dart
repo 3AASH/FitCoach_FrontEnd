@@ -217,6 +217,46 @@ class _WorkoutExerciseDetailScreenState
         .toList();
   }
 
+  String? _thumbnailFromVideoUrl(String? videoUrl) {
+    if (videoUrl == null || videoUrl.trim().isEmpty) return null;
+    final uri = Uri.tryParse(videoUrl.trim());
+    if (uri == null) return null;
+
+    final host = uri.host.toLowerCase();
+    if (host.contains('youtu.be')) {
+      final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+      return _youtubeThumbnail(id);
+    }
+    if (host.contains('youtube.com')) {
+      String? id = uri.queryParameters['v'];
+      final shortsIndex = uri.pathSegments.indexOf('shorts');
+      if ((id == null || id.isEmpty) &&
+          shortsIndex >= 0 &&
+          uri.pathSegments.length > shortsIndex + 1) {
+        id = uri.pathSegments[shortsIndex + 1];
+      }
+      final embedIndex = uri.pathSegments.indexOf('embed');
+      if ((id == null || id.isEmpty) &&
+          embedIndex >= 0 &&
+          uri.pathSegments.length > embedIndex + 1) {
+        id = uri.pathSegments[embedIndex + 1];
+      }
+      return _youtubeThumbnail(id);
+    }
+    if (host.contains('vimeo.com') && uri.pathSegments.isNotEmpty) {
+      final id = uri.pathSegments.last;
+      if (id.isNotEmpty) {
+        return 'https://vumbnail.com/$id.jpg';
+      }
+    }
+    return null;
+  }
+
+  String? _youtubeThumbnail(String? id) {
+    if (id == null || id.trim().isEmpty) return null;
+    return 'https://img.youtube.com/vi/${id.trim()}/hqdefault.jpg';
+  }
+
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
@@ -225,7 +265,9 @@ class _WorkoutExerciseDetailScreenState
     final equipmentLabel =
         _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));
     final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
+    final derivedVideoThumbnail = _thumbnailFromVideoUrl(exercise.videoUrl);
     final heroImage = exercise.thumbnailUrl ??
+        derivedVideoThumbnail ??
         'assets/placeholders/splash_onboarding/workout_onboarding.png';
     final instructions = _splitLines(
       isArabic
@@ -322,32 +364,60 @@ class _WorkoutExerciseDetailScreenState
                         children: [
                           CustomCard(
                             padding: EdgeInsets.zero,
-                            child: Container(
-                              height: 180,
-                              decoration: BoxDecoration(
-                                color: AppColors.surface,
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: SizedBox(
+                                height: 180,
+                                width: double.infinity,
+                                child: Stack(
+                                  fit: StackFit.expand,
                                   children: [
-                                    const Icon(Icons.play_circle,
-                                        size: 48,
-                                        color: AppColors.textSecondary),
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      '${isArabic ? exercise.nameAr : exercise.nameEn} ${lang.t('exercise_demo')}',
-                                      style: const TextStyle(
-                                          color: AppColors.textSecondary),
+                                    buildHeroImage(),
+                                    Container(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.28),
                                     ),
-                                    const SizedBox(height: 8),
-                                    OutlinedButton.icon(
-                                      onPressed: () =>
-                                          _openExerciseVideo(isArabic),
-                                      icon: const Icon(Icons.play_arrow),
-                                      label: Text(
-                                          lang.t('exercise_watch_video_btn')),
+                                    Center(
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          const Icon(
+                                            Icons.play_circle_fill,
+                                            size: 56,
+                                            color: AppColors.textWhite,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16),
+                                            child: Text(
+                                              '${isArabic ? exercise.nameAr : exercise.nameEn} ${lang.t('exercise_demo')}',
+                                              style: const TextStyle(
+                                                color: AppColors.textWhite,
+                                                fontWeight: FontWeight.w600,
+                                              ),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          OutlinedButton.icon(
+                                            onPressed: () =>
+                                                _openExerciseVideo(isArabic),
+                                            style: OutlinedButton.styleFrom(
+                                              backgroundColor: Colors.white
+                                                  .withValues(alpha: 0.92),
+                                              foregroundColor:
+                                                  AppColors.textPrimary,
+                                            ),
+                                            icon: const Icon(Icons.play_arrow),
+                                            label: Text(lang
+                                                .t('exercise_watch_video_btn')),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                   ],
                                 ),

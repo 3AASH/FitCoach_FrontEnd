@@ -25,7 +25,7 @@ class Product {
   final bool isNew;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  
+
   Product({
     required this.id,
     required this.name,
@@ -54,46 +54,105 @@ class Product {
     required this.createdAt,
     this.updatedAt,
   });
-  
+
   factory Product.fromJson(Map<String, dynamic> json) {
+    final rawName =
+        _string(json['name'] ?? json['name_en'] ?? json['nameEn']) ?? 'Product';
+    final rawCategory = _string(
+            json['category'] ?? json['category_en'] ?? json['categoryEn']) ??
+        'Store';
+    final images = _stringList(json['images']);
+    final mainImage = _string(json['main_image'] ?? json['mainImage']) ??
+        (images.isNotEmpty ? images.first : null);
+
     return Product(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      nameEn: json['name_en'] ?? json['nameEn'] as String,
-      nameAr: json['name_ar'] ?? json['nameAr'] as String,
-      description: json['description'] as String?,
-      descriptionEn: json['description_en'] ?? json['descriptionEn'] as String?,
-      descriptionAr: json['description_ar'] ?? json['descriptionAr'] as String?,
-      price: (json['price'] as num).toDouble(),
-      currency: json['currency'] as String? ?? 'SAR',
-      category: json['category'] as String,
-      categoryEn: json['category_en'] ?? json['categoryEn'] as String?,
-      categoryAr: json['category_ar'] ?? json['categoryAr'] as String?,
-      images: json['images'] != null
-          ? List<String>.from(json['images'] as List)
+      id: json['id']?.toString() ?? '',
+      name: rawName,
+      nameEn: _string(json['name_en'] ?? json['nameEn']) ?? rawName,
+      nameAr: _string(json['name_ar'] ?? json['nameAr']) ?? rawName,
+      description: _string(json['description']),
+      descriptionEn: _string(json['description_en'] ?? json['descriptionEn']),
+      descriptionAr: _string(json['description_ar'] ?? json['descriptionAr']),
+      price: _double(json['price']),
+      currency: _string(json['currency']) ?? 'SAR',
+      category: rawCategory,
+      categoryEn:
+          _string(json['category_en'] ?? json['categoryEn']) ?? rawCategory,
+      categoryAr:
+          _string(json['category_ar'] ?? json['categoryAr']) ?? rawCategory,
+      images: images.isEmpty ? null : images,
+      mainImage: mainImage,
+      inStock: _bool(json['in_stock'] ?? json['inStock']) ??
+          (_int(json['stock_quantity'] ?? json['stockQuantity']) > 0),
+      stockQuantity: _int(json['stock_quantity'] ?? json['stockQuantity']),
+      rating: json['rating'] != null
+          ? _double(json['rating'])
+          : json['average_rating'] != null
+              ? _double(json['average_rating'])
+              : null,
+      reviewCount: _int(json['review_count'] ?? json['reviewCount']),
+      specifications: json['specifications'] is Map
+          ? Map<String, dynamic>.from(json['specifications'] as Map)
           : null,
-      mainImage: json['main_image'] ?? json['mainImage'] as String?,
-      inStock: json['in_stock'] ?? json['inStock'] as bool? ?? true,
-      stockQuantity: json['stock_quantity'] ?? json['stockQuantity'] as int? ?? 0,
-      rating: json['rating'] != null ? (json['rating'] as num).toDouble() : null,
-      reviewCount: json['review_count'] ?? json['reviewCount'] as int? ?? 0,
-      specifications: json['specifications'] as Map<String, dynamic>?,
-      tags: json['tags'] != null ? List<String>.from(json['tags'] as List) : null,
+      tags:
+          _stringList(json['tags']).isEmpty ? null : _stringList(json['tags']),
       discountPercentage: json['discount_percentage'] != null
           ? (json['discount_percentage'] as num).toDouble()
           : null,
       discountedPrice: json['discounted_price'] != null
           ? (json['discounted_price'] as num).toDouble()
           : null,
-      isFeatured: json['is_featured'] ?? json['isFeatured'] as bool? ?? false,
-      isNew: json['is_new'] ?? json['isNew'] as bool? ?? false,
-      createdAt: DateTime.parse(json['created_at'] ?? json['createdAt'] as String),
+      isFeatured: _bool(json['is_featured'] ?? json['isFeatured']) ?? false,
+      isNew: _bool(json['is_new'] ?? json['isNew']) ?? false,
+      createdAt:
+          _date(json['created_at'] ?? json['createdAt']) ?? DateTime.now(),
       updatedAt: json['updated_at'] != null || json['updatedAt'] != null
-          ? DateTime.parse(json['updated_at'] ?? json['updatedAt'] as String)
+          ? _date(json['updated_at'] ?? json['updatedAt'])
           : null,
     );
   }
-  
+
+  static String? _string(dynamic value) {
+    if (value == null) return null;
+    final text = value.toString().trim();
+    return text.isEmpty ? null : text;
+  }
+
+  static double _double(dynamic value) {
+    if (value is num) return value.toDouble();
+    return double.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static int _int(dynamic value) {
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    return int.tryParse(value?.toString() ?? '') ?? 0;
+  }
+
+  static bool? _bool(dynamic value) {
+    if (value is bool) return value;
+    if (value == null) return null;
+    final text = value.toString().toLowerCase();
+    if (text == 'true' || text == '1') return true;
+    if (text == 'false' || text == '0') return false;
+    return null;
+  }
+
+  static List<String> _stringList(dynamic value) {
+    if (value is List) {
+      return value
+          .map((item) => item.toString())
+          .where((item) => item.isNotEmpty)
+          .toList();
+    }
+    return const [];
+  }
+
+  static DateTime? _date(dynamic value) {
+    if (value is DateTime) return value;
+    return DateTime.tryParse(value?.toString() ?? '');
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -124,8 +183,8 @@ class Product {
       'updated_at': updatedAt?.toIso8601String(),
     };
   }
-  
+
   double get finalPrice => discountedPrice ?? price;
-  
+
   bool get hasDiscount => discountPercentage != null && discountPercentage! > 0;
 }

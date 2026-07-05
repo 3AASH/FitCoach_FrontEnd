@@ -77,10 +77,8 @@ class _SubscriptionManagementScreenState
                         if (plans.isEmpty)
                           const _EmptyState()
                         else
-                          ...plans
-                              .map((plan) =>
-                                  _buildPlanCard(plan, languageProvider))
-                              .toList(),
+                          ...plans.map(
+                              (plan) => _buildPlanCard(plan, languageProvider)),
                         const SizedBox(height: 24),
                         if (plans.isNotEmpty) ...[
                           Text(
@@ -352,6 +350,10 @@ class _SubscriptionManagementScreenState
     final metadata = plan.metadata;
     final messagesLimit = metadata['messagesLimit'];
     final videoCallsLimit = metadata['videoCallsLimit'];
+    final displayName = _displayPlanName(plan);
+    final description = plan.description.trim().isEmpty
+        ? _fallbackPlanDescription(plan)
+        : plan.description;
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 16),
@@ -368,7 +370,7 @@ class _SubscriptionManagementScreenState
                       children: [
                         Expanded(
                           child: Text(
-                            plan.name,
+                            displayName,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
@@ -380,7 +382,7 @@ class _SubscriptionManagementScreenState
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
-                              color: AppColors.success.withOpacity(0.12),
+                              color: AppColors.success.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: Text(
@@ -396,7 +398,7 @@ class _SubscriptionManagementScreenState
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      plan.description,
+                      description,
                       style: const TextStyle(
                         fontSize: 13,
                         color: AppColors.textSecondary,
@@ -529,10 +531,12 @@ class _SubscriptionManagementScreenState
           onSubmit: (payload) async {
             final provider = context.read<SubscriptionPlanProvider>();
             final success = await provider.savePlan(payload);
-            if (!mounted) return success;
 
             if (success) {
-              Navigator.of(sheetContext).pop();
+              if (sheetContext.mounted) {
+                Navigator.of(sheetContext).pop();
+              }
+              if (!mounted) return success;
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
@@ -540,7 +544,7 @@ class _SubscriptionManagementScreenState
                   backgroundColor: AppColors.success,
                 ),
               );
-            } else {
+            } else if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content:
@@ -599,6 +603,47 @@ class _SubscriptionManagementScreenState
       ),
     );
   }
+
+  String _displayPlanName(SubscriptionPlan plan) {
+    final rawName = plan.name.trim();
+    final normalizedName = rawName.toLowerCase().replaceAll(' ', '_');
+    final tier = (plan.metadata['tier'] ?? plan.metadata['subscriptionTier'])
+        ?.toString()
+        .toLowerCase();
+    final candidate = tier ?? normalizedName;
+
+    if (rawName.isEmpty ||
+        rawName == plan.id ||
+        normalizedName == 'freemium' ||
+        normalizedName == 'free' ||
+        normalizedName == 'premium' ||
+        normalizedName == 'smart_premium') {
+      switch (candidate) {
+        case 'freemium':
+        case 'free':
+          return 'Free Starter';
+        case 'premium':
+          return 'Premium Coaching';
+        case 'smart_premium':
+          return 'Smart Premium';
+      }
+    }
+
+    return rawName
+        .replaceAll('_', ' ')
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
+  }
+
+  String _fallbackPlanDescription(SubscriptionPlan plan) {
+    final name = _displayPlanName(plan);
+    if (plan.isFree) {
+      return '$name access with limited coaching and starter content.';
+    }
+    return '$name access with expanded coaching, workouts, and nutrition features.';
+  }
 }
 
 class _MetricChip extends StatelessWidget {
@@ -648,7 +693,7 @@ class _ErrorBanner extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.error.withOpacity(0.1),
+        color: AppColors.error.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
@@ -683,7 +728,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         children: [
           Icon(Icons.auto_graph,
-              size: 72, color: AppColors.textDisabled.withOpacity(0.7)),
+              size: 72, color: AppColors.textDisabled.withValues(alpha: 0.7)),
           const SizedBox(height: 16),
           Text(
             languageProvider.t('subscription_admin_empty_title'),

@@ -50,7 +50,8 @@ class _StoreScreenState extends State<StoreScreen> {
       'originalPrice': 69.99,
       'discount': 15,
       'category': 'Protein',
-      'image': 'https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=400',
+      'image':
+          'https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?w=400',
       'rating': 4.8,
       'reviews': 1247,
       'inStock': true,
@@ -65,7 +66,8 @@ class _StoreScreenState extends State<StoreScreen> {
       'descriptionAr': 'كرياتين نقي لزيادة القوة.',
       'price': 29.99,
       'category': 'Pre-Workout',
-      'image': 'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400',
+      'image':
+          'https://images.unsplash.com/photo-1593095948071-474c5cc2989d?w=400',
       'rating': 4.9,
       'reviews': 892,
       'inStock': true,
@@ -79,7 +81,8 @@ class _StoreScreenState extends State<StoreScreen> {
       'descriptionAr': 'مزيج بي سي إيه إيه لدعم التعافي.',
       'price': 39.99,
       'category': 'Recovery',
-      'image': 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
+      'image':
+          'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400',
       'rating': 4.6,
       'reviews': 654,
       'inStock': true,
@@ -95,7 +98,8 @@ class _StoreScreenState extends State<StoreScreen> {
       'originalPrice': 49.99,
       'discount': 10,
       'category': 'Pre-Workout',
-      'image': 'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=400',
+      'image':
+          'https://images.unsplash.com/photo-1556909212-d5b604d0c90d?w=400',
       'rating': 4.7,
       'reviews': 423,
       'inStock': false,
@@ -109,7 +113,8 @@ class _StoreScreenState extends State<StoreScreen> {
       'descriptionAr': 'دعم يومي للفيتامينات والمعادن.',
       'price': 24.99,
       'category': 'Vitamins',
-      'image': 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400',
+      'image':
+          'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400',
       'rating': 4.5,
       'reviews': 332,
       'inStock': true,
@@ -123,7 +128,8 @@ class _StoreScreenState extends State<StoreScreen> {
       'descriptionAr': 'تركيبة حرارية لإدارة الوزن.',
       'price': 49.99,
       'category': 'Fat Burners',
-      'image': 'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400',
+      'image':
+          'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=400',
       'rating': 4.3,
       'reviews': 267,
       'inStock': true,
@@ -151,7 +157,8 @@ class _StoreScreenState extends State<StoreScreen> {
     _loadIntroFlag();
 
     if (!DemoConfig.isDemo) {
-      Future.microtask(() {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
         final storeProvider = context.read<StoreProvider>();
         storeProvider.loadCategories();
         storeProvider.loadProducts();
@@ -242,8 +249,12 @@ class _StoreScreenState extends State<StoreScreen> {
               .toString()
               .toLowerCase()
               .contains(_searchQuery.toLowerCase()) ||
-          product['brand'].toString().toLowerCase().contains(_searchQuery.toLowerCase());
-      final matchesCategory = _selectedCategory == 'all' || product['category'] == _selectedCategory;
+          product['brand']
+              .toString()
+              .toLowerCase()
+              .contains(_searchQuery.toLowerCase());
+      final matchesCategory = _selectedCategory == 'all' ||
+          product['category'] == _selectedCategory;
       return matchesSearch && matchesCategory;
     }).toList();
 
@@ -289,7 +300,8 @@ class _StoreScreenState extends State<StoreScreen> {
                       Expanded(
                         child: TabBarView(
                           children: [
-                            _buildProductsTab(filteredProducts, languageProvider, isArabic),
+                            _buildProductsTab(
+                                filteredProducts, languageProvider, isArabic),
                             _buildCartTab(languageProvider, isArabic),
                             _buildOrdersTab(languageProvider),
                           ],
@@ -315,7 +327,8 @@ class _StoreScreenState extends State<StoreScreen> {
 
     List<Product> products = storeProvider.products;
     if (_selectedCategory != 'all') {
-      products = products.where((p) => p.category == _selectedCategory).toList();
+      products =
+          products.where((p) => p.category == _selectedCategory).toList();
     }
     if (_searchQuery.trim().isNotEmpty) {
       final q = _searchQuery.trim().toLowerCase();
@@ -363,12 +376,14 @@ class _StoreScreenState extends State<StoreScreen> {
                           ],
                         ),
                       ),
-                      if (storeProvider.isLoading && storeProvider.products.isEmpty)
+                      if (storeProvider.isLoading &&
+                          storeProvider.products.isEmpty)
                         const LinearProgressIndicator(minHeight: 2),
                       Expanded(
                         child: TabBarView(
                           children: [
-                            _buildBackendProductsTab(products, categories, storeProvider, lang, isArabic),
+                            _buildBackendProductsTab(products, categories,
+                                storeProvider, lang, isArabic),
                             _buildBackendCartTab(storeProvider, lang, isArabic),
                             _buildBackendOrdersTab(storeProvider, lang),
                           ],
@@ -397,7 +412,8 @@ class _StoreScreenState extends State<StoreScreen> {
         _buildBackendCategoryFilters(categories, storeProvider, lang),
         Expanded(
           child: products.isEmpty
-              ? _buildEmptyState(lang, isArabic, messageKey: 'store_no_products')
+              ? _buildEmptyState(lang, isArabic,
+                  messageKey: 'store_no_products')
               : GridView.builder(
                   padding: const EdgeInsets.all(16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -465,24 +481,28 @@ class _StoreScreenState extends State<StoreScreen> {
     bool isArabic,
   ) {
     final inStock = product.inStock;
-    final imageUrl = product.mainImage ?? (product.images?.isNotEmpty == true ? product.images!.first : null);
+    final imageUrl = product.mainImage ??
+        (product.images?.isNotEmpty == true ? product.images!.first : null);
 
     return CustomCard(
       padding: EdgeInsets.zero,
-      onTap: () => _showBackendProductDetail(product, lang, isArabic, storeProvider),
+      onTap: () =>
+          _showBackendProductDetail(product, lang, isArabic, storeProvider),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Stack(
             children: [
               ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(12)),
                 child: imageUrl == null
                     ? Container(
                         height: 140,
                         width: double.infinity,
                         color: AppColors.surface,
-                        child: const Icon(Icons.image_not_supported, color: AppColors.textDisabled),
+                        child: const Icon(Icons.image_not_supported,
+                            color: AppColors.textDisabled),
                       )
                     : Image.network(
                         imageUrl,
@@ -496,7 +516,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.error,
                       borderRadius: BorderRadius.circular(12),
@@ -512,7 +533,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.secondary.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(12),
@@ -528,12 +550,14 @@ class _StoreScreenState extends State<StoreScreen> {
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.black.withValues(alpha: 0.5),
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(12)),
                     ),
                     child: Center(
                       child: Text(
                         lang.t('out_of_stock'),
-                        style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            color: Colors.white, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -548,30 +572,37 @@ class _StoreScreenState extends State<StoreScreen> {
                 children: [
                   Text(
                     product.category,
-                    style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                        fontSize: 11, color: AppColors.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isArabic ? product.nameAr : product.nameEn,
-                    style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                        fontSize: 14, fontWeight: FontWeight.w600),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: AppColors.warning, size: 14),
+                      const Icon(Icons.star,
+                          color: AppColors.warning, size: 14),
                       const SizedBox(width: 4),
                       Text(
                         '${(product.rating ?? 0).toStringAsFixed(1)}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textSecondary),
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${lang.t('reviews_count', args: {'count': '${product.reviewCount}'})}',
-                        style: const TextStyle(fontSize: 12, color: AppColors.textDisabled),
+                        '${lang.t('reviews_count', args: {
+                              'count': '${product.reviewCount}'
+                            })}',
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textDisabled),
                       ),
                     ],
                   ),
@@ -591,12 +622,14 @@ class _StoreScreenState extends State<StoreScreen> {
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
                         onPressed: inStock
                             ? () async {
-                                final ok = await storeProvider.addToCart(product, 1);
+                                final ok =
+                                    await storeProvider.addToCart(product, 1);
                                 if (!mounted) return;
                                 if (ok) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(lang.t('store_added_to_cart')),
+                                      content:
+                                          Text(lang.t('store_added_to_cart')),
                                       backgroundColor: AppColors.success,
                                       duration: const Duration(seconds: 1),
                                     ),
@@ -604,7 +637,8 @@ class _StoreScreenState extends State<StoreScreen> {
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(storeProvider.error ?? lang.t('error_generic')),
+                                      content: Text(storeProvider.error ??
+                                          lang.t('error_generic')),
                                       backgroundColor: AppColors.error,
                                     ),
                                   );
@@ -632,7 +666,8 @@ class _StoreScreenState extends State<StoreScreen> {
     bool isArabic,
     StoreProvider storeProvider,
   ) {
-    final imageUrl = product.mainImage ?? (product.images?.isNotEmpty == true ? product.images!.first : null);
+    final imageUrl = product.mainImage ??
+        (product.images?.isNotEmpty == true ? product.images!.first : null);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -670,7 +705,8 @@ class _StoreScreenState extends State<StoreScreen> {
                           height: 250,
                           width: double.infinity,
                           color: AppColors.surface,
-                          child: const Icon(Icons.image_not_supported, color: AppColors.textDisabled),
+                          child: const Icon(Icons.image_not_supported,
+                              color: AppColors.textDisabled),
                         )
                       : Image.network(
                           imageUrl,
@@ -682,7 +718,8 @@ class _StoreScreenState extends State<StoreScreen> {
                 const SizedBox(height: 24),
                 Text(
                   isArabic ? product.nameAr : product.nameEn,
-                  style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -691,31 +728,42 @@ class _StoreScreenState extends State<StoreScreen> {
                     const SizedBox(width: 4),
                     Text(
                       '${(product.rating ?? 0).toStringAsFixed(1)}',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${lang.t('reviews_count', args: {'count': '${product.reviewCount}'})}',
-                      style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                      '${lang.t('reviews_count', args: {
+                            'count': '${product.reviewCount}'
+                          })}',
+                      style: const TextStyle(
+                          fontSize: 14, color: AppColors.textSecondary),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Text(
                   '${product.finalPrice.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                  style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: AppColors.primary),
+                  style: const TextStyle(
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.primary),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   lang.t('description'),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   isArabic
                       ? (product.descriptionAr ?? product.description ?? '')
                       : (product.descriptionEn ?? product.description ?? ''),
-                  style: const TextStyle(fontSize: 15, color: AppColors.textSecondary, height: 1.5),
+                  style: const TextStyle(
+                      fontSize: 15,
+                      color: AppColors.textSecondary,
+                      height: 1.5),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -724,13 +772,20 @@ class _StoreScreenState extends State<StoreScreen> {
                     text: lang.t('add_to_cart'),
                     onPressed: product.inStock
                         ? () async {
-                            final ok = await storeProvider.addToCart(product, 1);
+                            final navigator = Navigator.of(context);
+                            final messenger = ScaffoldMessenger.of(context);
+                            final ok =
+                                await storeProvider.addToCart(product, 1);
                             if (!mounted) return;
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
+                            navigator.pop();
+                            messenger.showSnackBar(
                               SnackBar(
-                                content: Text(ok ? lang.t('store_added_to_cart') : (storeProvider.error ?? lang.t('error_generic'))),
-                                backgroundColor: ok ? AppColors.success : AppColors.error,
+                                content: Text(ok
+                                    ? lang.t('store_added_to_cart')
+                                    : (storeProvider.error ??
+                                        lang.t('error_generic'))),
+                                backgroundColor:
+                                    ok ? AppColors.success : AppColors.error,
                                 duration: const Duration(seconds: 1),
                               ),
                             );
@@ -746,7 +801,8 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 
-  Widget _buildBackendCartTab(StoreProvider storeProvider, LanguageProvider lang, bool isArabic) {
+  Widget _buildBackendCartTab(
+      StoreProvider storeProvider, LanguageProvider lang, bool isArabic) {
     final cartItems = storeProvider.cart.values.toList();
     if (cartItems.isEmpty) {
       return _buildEmptyState(lang, isArabic, messageKey: 'cart_empty');
@@ -759,7 +815,10 @@ class _StoreScreenState extends State<StoreScreen> {
       children: [
         ...cartItems.map((item) {
           final product = item.product;
-          final imageUrl = product.mainImage ?? (product.images?.isNotEmpty == true ? product.images!.first : null);
+          final imageUrl = product.mainImage ??
+              (product.images?.isNotEmpty == true
+                  ? product.images!.first
+                  : null);
           return CustomCard(
             margin: const EdgeInsets.only(bottom: 12),
             child: Row(
@@ -771,7 +830,8 @@ class _StoreScreenState extends State<StoreScreen> {
                           width: 60,
                           height: 60,
                           color: AppColors.surface,
-                          child: const Icon(Icons.image_not_supported, color: AppColors.textDisabled),
+                          child: const Icon(Icons.image_not_supported,
+                              color: AppColors.textDisabled),
                         )
                       : Image.network(
                           imageUrl,
@@ -798,12 +858,14 @@ class _StoreScreenState extends State<StoreScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () => storeProvider.updateCartQuantity(product.id, item.quantity - 1),
+                      onPressed: () => storeProvider.updateCartQuantity(
+                          product.id, item.quantity - 1),
                     ),
                     Text('${item.quantity}'),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () => storeProvider.updateCartQuantity(product.id, item.quantity + 1),
+                      onPressed: () => storeProvider.updateCartQuantity(
+                          product.id, item.quantity + 1),
                     ),
                   ],
                 ),
@@ -815,7 +877,8 @@ class _StoreScreenState extends State<StoreScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(lang.t('total'), style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text(lang.t('total'),
+                style: const TextStyle(fontWeight: FontWeight.bold)),
             Text(
               '${total.toStringAsFixed(2)} ${lang.t('currency_sar')}',
               style: const TextStyle(fontWeight: FontWeight.bold),
@@ -833,13 +896,15 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 
-  Widget _buildBackendOrdersTab(StoreProvider storeProvider, LanguageProvider lang) {
+  Widget _buildBackendOrdersTab(
+      StoreProvider storeProvider, LanguageProvider lang) {
     final orders = storeProvider.orders;
     if (storeProvider.isLoading && orders.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
     if (orders.isEmpty) {
-      return _buildEmptyState(lang, lang.isArabic, messageKey: 'store_no_orders');
+      return _buildEmptyState(lang, lang.isArabic,
+          messageKey: 'store_no_orders');
     }
 
     Map<String, dynamic> toUiOrder(Order order) {
@@ -880,7 +945,8 @@ class _StoreScreenState extends State<StoreScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(order['id'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(order['id'],
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(
                       _statusLabel(order['status'], lang),
@@ -900,10 +966,12 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 
-  void _checkoutBackend(StoreProvider storeProvider, LanguageProvider lang, bool isArabic) {
+  void _checkoutBackend(
+      StoreProvider storeProvider, LanguageProvider lang, bool isArabic) {
     final cartItems = storeProvider.cart.values.map((ci) {
       final p = ci.product;
-      final imageUrl = p.mainImage ?? (p.images?.isNotEmpty == true ? p.images!.first : null);
+      final imageUrl = p.mainImage ??
+          (p.images?.isNotEmpty == true ? p.images!.first : null);
       return <String, dynamic>{
         'id': p.id,
         'nameEn': p.nameEn,
@@ -916,12 +984,12 @@ class _StoreScreenState extends State<StoreScreen> {
 
     Navigator.of(context)
         .push<StoreCheckoutResult>(
-          MaterialPageRoute(
-            builder: (_) => StoreCheckoutScreen(
-              cartItems: cartItems,
-            ),
-          ),
-        )
+      MaterialPageRoute(
+        builder: (_) => StoreCheckoutScreen(
+          cartItems: cartItems,
+        ),
+      ),
+    )
         .then((result) async {
       if (!mounted || result == null) return;
 
@@ -936,12 +1004,14 @@ class _StoreScreenState extends State<StoreScreen> {
         ),
       );
 
-      final controller = _tabController ?? DefaultTabController.maybeOf(context);
+      final controller =
+          _tabController ?? DefaultTabController.maybeOf(context);
       controller?.animateTo(2);
     });
   }
 
-  Widget _buildHeader(LanguageProvider lang, int cartItemCount, BuildContext tabContext) {
+  Widget _buildHeader(
+      LanguageProvider lang, int cartItemCount, BuildContext tabContext) {
     final isRTL = Directionality.of(tabContext) == TextDirection.rtl;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
@@ -958,7 +1028,8 @@ class _StoreScreenState extends State<StoreScreen> {
           Row(
             children: [
               IconButton(
-                icon: Icon(isRTL ? Icons.arrow_forward : Icons.arrow_back, color: Colors.white),
+                icon: Icon(isRTL ? Icons.arrow_forward : Icons.arrow_back,
+                    color: Colors.white),
                 onPressed: _handleBack,
               ),
               const SizedBox(width: 8),
@@ -989,7 +1060,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   IconButton(
                     icon: const Icon(Icons.shopping_cart, color: Colors.white),
                     onPressed: () {
-                      final controller = _tabController ?? DefaultTabController.maybeOf(tabContext);
+                      final controller = _tabController ??
+                          DefaultTabController.maybeOf(tabContext);
                       controller?.animateTo(1);
                     },
                   ),
@@ -1003,10 +1075,12 @@ class _StoreScreenState extends State<StoreScreen> {
                           color: AppColors.error,
                           shape: BoxShape.circle,
                         ),
-                        constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                        constraints:
+                            const BoxConstraints(minWidth: 18, minHeight: 18),
                         child: Text(
                           '$cartItemCount',
-                          style: const TextStyle(color: Colors.white, fontSize: 10),
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 10),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -1046,7 +1120,8 @@ class _StoreScreenState extends State<StoreScreen> {
         _buildCategoryFilters(lang, isArabic),
         Expanded(
           child: products.isEmpty
-              ? _buildEmptyState(lang, isArabic, messageKey: 'store_no_products')
+              ? _buildEmptyState(lang, isArabic,
+                  messageKey: 'store_no_products')
               : GridView.builder(
                   padding: const EdgeInsets.all(16),
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -1075,7 +1150,8 @@ class _StoreScreenState extends State<StoreScreen> {
     }
     final total = _cartItems.fold<double>(
       0,
-      (sum, item) => sum + (item['price'] as double) * (item['quantity'] as int),
+      (sum, item) =>
+          sum + (item['price'] as double) * (item['quantity'] as int),
     );
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -1112,12 +1188,14 @@ class _StoreScreenState extends State<StoreScreen> {
                   children: [
                     IconButton(
                       icon: const Icon(Icons.remove_circle_outline),
-                      onPressed: () => _updateQuantity(item['id'], item['quantity'] - 1),
+                      onPressed: () =>
+                          _updateQuantity(item['id'], item['quantity'] - 1),
                     ),
                     Text('${item['quantity']}'),
                     IconButton(
                       icon: const Icon(Icons.add_circle_outline),
-                      onPressed: () => _updateQuantity(item['id'], item['quantity'] + 1),
+                      onPressed: () =>
+                          _updateQuantity(item['id'], item['quantity'] + 1),
                     ),
                   ],
                 ),
@@ -1152,7 +1230,8 @@ class _StoreScreenState extends State<StoreScreen> {
 
   Widget _buildOrdersTab(LanguageProvider lang) {
     if (_orders.isEmpty) {
-      return _buildEmptyState(lang, lang.isArabic, messageKey: 'store_no_orders');
+      return _buildEmptyState(lang, lang.isArabic,
+          messageKey: 'store_no_orders');
     }
     return ListView.builder(
       padding: const EdgeInsets.all(16),
@@ -1170,7 +1249,8 @@ class _StoreScreenState extends State<StoreScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(order['id'], style: const TextStyle(fontWeight: FontWeight.bold)),
+                    Text(order['id'],
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(
                       _statusLabel(order['status'], lang),
@@ -1200,7 +1280,9 @@ class _StoreScreenState extends State<StoreScreen> {
         minChildSize: 0.5,
         maxChildSize: 0.92,
         builder: (context, scrollController) {
-          final items = (order['items'] as List?)?.cast<Map<String, dynamic>>() ?? const <Map<String, dynamic>>[];
+          final items =
+              (order['items'] as List?)?.cast<Map<String, dynamic>>() ??
+                  const <Map<String, dynamic>>[];
           final subtotal = (order['subtotal'] as num?)?.toDouble();
           final shipping = (order['shipping'] as num?)?.toDouble();
           final tax = (order['tax'] as num?)?.toDouble();
@@ -1228,20 +1310,25 @@ class _StoreScreenState extends State<StoreScreen> {
                 const SizedBox(height: 16),
                 Text(
                   order['id'].toString(),
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  _statusLabel(order['status']?.toString() ?? 'processing', lang),
+                  _statusLabel(
+                      order['status']?.toString() ?? 'processing', lang),
                   style: const TextStyle(color: AppColors.textSecondary),
                 ),
                 const SizedBox(height: 16),
                 if (items.isNotEmpty) ...[
-                  Text(lang.t('checkout_items'), style: const TextStyle(fontWeight: FontWeight.w700)),
+                  Text(lang.t('checkout_items'),
+                      style: const TextStyle(fontWeight: FontWeight.w700)),
                   const SizedBox(height: 10),
                   ...items.map((item) {
                     final isArabic = lang.isArabic;
-                    final name = isArabic ? (item['nameAr'] ?? item['nameEn']) : (item['nameEn'] ?? item['nameAr']);
+                    final name = isArabic
+                        ? (item['nameAr'] ?? item['nameEn'])
+                        : (item['nameEn'] ?? item['nameAr']);
                     final price = (item['price'] as num).toDouble();
                     final qty = item['quantity'] as int;
                     return Padding(
@@ -1262,11 +1349,15 @@ class _StoreScreenState extends State<StoreScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(name.toString(), maxLines: 2, overflow: TextOverflow.ellipsis),
+                                Text(name.toString(),
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 2),
                                 Text(
                                   '${qty} × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                                  style: const TextStyle(
+                                      color: AppColors.textSecondary,
+                                      fontSize: 12),
                                 ),
                               ],
                             ),
@@ -1281,7 +1372,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   child: Column(
                     children: [
                       if (subtotal != null)
-                        _summaryRow(lang.t('subtotal'), '${subtotal.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
+                        _summaryRow(lang.t('subtotal'),
+                            '${subtotal.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
                       if (shipping != null)
                         _summaryRow(
                           lang.t('shipping_fee'),
@@ -1290,7 +1382,8 @@ class _StoreScreenState extends State<StoreScreen> {
                               : '${shipping.toStringAsFixed(2)} ${lang.t('currency_sar')}',
                         ),
                       if (tax != null)
-                        _summaryRow(lang.t('tax_vat'), '${tax.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
+                        _summaryRow(lang.t('tax_vat'),
+                            '${tax.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
                       const Divider(height: 20),
                       _summaryRow(
                         lang.t('total'),
@@ -1424,7 +1517,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   top: 8,
                   left: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.error,
                       borderRadius: BorderRadius.circular(12),
@@ -1440,7 +1534,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   top: 8,
                   right: 8,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
                       color: AppColors.secondary.withValues(alpha: 0.9),
                       borderRadius: BorderRadius.circular(12),
@@ -1499,7 +1594,8 @@ class _StoreScreenState extends State<StoreScreen> {
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.star, color: AppColors.warning, size: 14),
+                      const Icon(Icons.star,
+                          color: AppColors.warning, size: 14),
                       const SizedBox(width: 4),
                       Text(
                         '${product['rating']}',
@@ -1510,7 +1606,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${lang.t('reviews_count', args: {'count': '${product['reviews']}'})}',
+                        '${lang.t('reviews_count', args: {
+                              'count': '${product['reviews']}'
+                            })}',
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textDisabled,
@@ -1569,7 +1667,8 @@ class _StoreScreenState extends State<StoreScreen> {
     }
   }
 
-  Widget _buildEmptyState(LanguageProvider lang, bool isArabic, {String? messageKey}) {
+  Widget _buildEmptyState(LanguageProvider lang, bool isArabic,
+      {String? messageKey}) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1581,7 +1680,9 @@ class _StoreScreenState extends State<StoreScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            messageKey != null ? lang.t(messageKey) : lang.t('store_no_products'),
+            messageKey != null
+                ? lang.t(messageKey)
+                : lang.t('store_no_products'),
             style: const TextStyle(
               fontSize: 18,
               color: AppColors.textSecondary,
@@ -1598,7 +1699,8 @@ class _StoreScreenState extends State<StoreScreen> {
     bool isArabic,
   ) {
     setState(() {
-      final existingIndex = _cartItems.indexWhere((item) => item['id'] == product['id']);
+      final existingIndex =
+          _cartItems.indexWhere((item) => item['id'] == product['id']);
       if (existingIndex >= 0) {
         _cartItems[existingIndex]['quantity'] =
             (_cartItems[existingIndex]['quantity'] as int) + 1;
@@ -1695,7 +1797,9 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${lang.t('reviews_count', args: {'count': '${product['reviews']}'})}',
+                      '${lang.t('reviews_count', args: {
+                            'count': '${product['reviews']}'
+                          })}',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -1722,7 +1826,9 @@ class _StoreScreenState extends State<StoreScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  isArabic ? product['descriptionAr'] : product['descriptionEn'],
+                  isArabic
+                      ? product['descriptionAr']
+                      : product['descriptionEn'],
                   style: const TextStyle(
                     fontSize: 15,
                     color: AppColors.textSecondary,
@@ -1753,12 +1859,12 @@ class _StoreScreenState extends State<StoreScreen> {
   void _checkout(LanguageProvider lang, bool isArabic) {
     Navigator.of(context)
         .push<StoreCheckoutResult>(
-          MaterialPageRoute(
-            builder: (_) => StoreCheckoutScreen(
-              cartItems: List<Map<String, dynamic>>.from(_cartItems),
-            ),
-          ),
-        )
+      MaterialPageRoute(
+        builder: (_) => StoreCheckoutScreen(
+          cartItems: List<Map<String, dynamic>>.from(_cartItems),
+        ),
+      ),
+    )
         .then((result) {
       if (!mounted || result == null) return;
 
@@ -1774,7 +1880,8 @@ class _StoreScreenState extends State<StoreScreen> {
         ),
       );
 
-      final controller = _tabController ?? DefaultTabController.maybeOf(context);
+      final controller =
+          _tabController ?? DefaultTabController.maybeOf(context);
       controller?.animateTo(2);
     });
   }

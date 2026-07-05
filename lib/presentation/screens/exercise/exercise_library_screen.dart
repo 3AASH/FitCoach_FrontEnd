@@ -258,13 +258,15 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         _formatEquip(exercise['equipmentList'] as List<dynamic>, isArabic);
     final musclesLabel =
         _formatMuscles(exercise['muscleList'] as List<dynamic>, isArabic);
+    final thumbnail = _resolveThumbnail(
+        exercise['thumbnail'] as String?, exercise['videoUrl'] as String?);
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
       onTap: () => _showExerciseDetail(exercise, isArabic),
       child: Row(
         children: [
           // Thumbnail
-          _buildThumbnail(exercise['thumbnail'] as String?, 80, 80),
+          _buildThumbnail(thumbnail, 80, 80),
 
           const SizedBox(width: 16),
 
@@ -419,6 +421,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     final instructions = isArabic
         ? (exercise['instructionsAr'] as List<dynamic>)
         : (exercise['instructions'] as List<dynamic>);
+    final thumbnail = _resolveThumbnail(
+        exercise['thumbnail'] as String?, exercise['videoUrl'] as String?);
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -428,9 +433,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         minChildSize: 0.5,
         maxChildSize: 0.9,
         builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: SingleChildScrollView(
             controller: scrollController,
@@ -456,7 +461,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   alignment: Alignment.center,
                   children: [
                     _buildThumbnail(
-                      exercise['thumbnail'] as String?,
+                      thumbnail,
                       double.infinity,
                       200,
                       borderRadius: 12,
@@ -708,6 +713,49 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         errorBuilder: (_, __, ___) => placeholder,
       ),
     );
+  }
+
+  String? _resolveThumbnail(String? thumbnailUrl, String? videoUrl) {
+    final direct = thumbnailUrl?.trim();
+    if (direct != null && direct.isNotEmpty) return direct;
+    return _thumbnailFromVideoUrl(videoUrl);
+  }
+
+  String? _thumbnailFromVideoUrl(String? videoUrl) {
+    if (videoUrl == null || videoUrl.trim().isEmpty) return null;
+    final uri = Uri.tryParse(videoUrl.trim());
+    if (uri == null) return null;
+    final host = uri.host.toLowerCase();
+    if (host.contains('youtu.be')) {
+      final id = uri.pathSegments.isNotEmpty ? uri.pathSegments.first : null;
+      return _youtubeThumbnail(id);
+    }
+    if (host.contains('youtube.com')) {
+      String? id = uri.queryParameters['v'];
+      final shortsIndex = uri.pathSegments.indexOf('shorts');
+      if ((id == null || id.isEmpty) &&
+          shortsIndex >= 0 &&
+          uri.pathSegments.length > shortsIndex + 1) {
+        id = uri.pathSegments[shortsIndex + 1];
+      }
+      final embedIndex = uri.pathSegments.indexOf('embed');
+      if ((id == null || id.isEmpty) &&
+          embedIndex >= 0 &&
+          uri.pathSegments.length > embedIndex + 1) {
+        id = uri.pathSegments[embedIndex + 1];
+      }
+      return _youtubeThumbnail(id);
+    }
+    if (host.contains('vimeo.com') && uri.pathSegments.isNotEmpty) {
+      final id = uri.pathSegments.last;
+      if (id.isNotEmpty) return 'https://vumbnail.com/$id.jpg';
+    }
+    return null;
+  }
+
+  String? _youtubeThumbnail(String? id) {
+    if (id == null || id.trim().isEmpty) return null;
+    return 'https://img.youtube.com/vi/${id.trim()}/hqdefault.jpg';
   }
 
   Future<void> _openVideo(String? videoUrl, bool isArabic) async {

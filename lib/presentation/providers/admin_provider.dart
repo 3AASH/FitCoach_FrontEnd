@@ -27,6 +27,7 @@ class AdminProvider extends ChangeNotifier {
   List<AdminCoach> _coaches = [];
   List<AdminExercise> _exercises = [];
   List<AdminWorkoutTemplate> _workoutTemplates = [];
+  List<Map<String, dynamic>> _nutritionMealTemplates = [];
   RevenueAnalytics? _revenueAnalytics;
   List<AuditLog> _auditLogs = [];
 
@@ -41,6 +42,8 @@ class AdminProvider extends ChangeNotifier {
   List<AdminCoach> get coaches => _coaches;
   List<AdminExercise> get exercises => _exercises;
   List<AdminWorkoutTemplate> get workoutTemplates => _workoutTemplates;
+  List<Map<String, dynamic>> get nutritionMealTemplates =>
+      _nutritionMealTemplates;
   List<AdminCoach> get pendingCoaches =>
       _coaches.where((c) => c.isPending).toList();
   void _upsertCoach(AdminCoach coach) {
@@ -768,6 +771,83 @@ class AdminProvider extends ChangeNotifier {
 
     try {
       await _repository.refreshWorkoutTemplateUsers(planId);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionMealTemplates({
+    String? mealType,
+    bool? active,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _nutritionMealTemplates = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionMealTemplates(
+              mealType: mealType,
+              active: active,
+            );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> getNutritionMealTemplate(
+      String templateId) async {
+    try {
+      return await _repository.getNutritionMealTemplate(templateId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> saveNutritionMealTemplate(Map<String, dynamic> template) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.saveNutritionMealTemplate(template);
+      }
+      await loadNutritionMealTemplates();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> importNutritionMealTemplatesFromFile(String filePath) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.importNutritionMealTemplatesFromFile(filePath);
+      }
+      await loadNutritionMealTemplates();
       _isLoading = false;
       notifyListeners();
       return true;

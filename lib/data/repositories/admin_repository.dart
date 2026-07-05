@@ -589,6 +589,84 @@ class AdminRepository {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getNutritionMealTemplates({
+    String? mealType,
+    bool? active,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-meal-templates',
+        queryParameters: {
+          if (mealType != null && mealType.trim().isNotEmpty)
+            'mealType': mealType,
+          if (active != null) 'active': active,
+        },
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asList(data['templates'] ?? data['data'])
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to get nutrition meal templates'));
+    }
+  }
+
+  Future<Map<String, dynamic>> getNutritionMealTemplate(
+      String templateId) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-meal-templates/$templateId',
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['template']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get nutrition meal template'));
+    }
+  }
+
+  Future<Map<String, dynamic>> saveNutritionMealTemplate(
+      Map<String, dynamic> template) async {
+    final templateId =
+        (template['template_id'] ?? template['templateId'] ?? template['id'])
+            ?.toString();
+    if (templateId == null || templateId.trim().isEmpty) {
+      throw Exception('Nutrition meal template_id is required');
+    }
+    try {
+      final response = await _dio.put(
+        '/admin/nutrition-meal-templates/$templateId',
+        data: template,
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to save nutrition meal template'));
+    }
+  }
+
+  Future<Map<String, dynamic>> importNutritionMealTemplatesFromFile(
+      String filePath) async {
+    try {
+      final formData = FormData.fromMap({
+        'file': await MultipartFile.fromFile(filePath),
+      });
+      final response = await _dio.post(
+        '/admin/nutrition-meal-templates/import',
+        data: formData,
+        options: await _getUploadAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to import nutrition meal templates'));
+    }
+  }
+
   /// Get revenue analytics
   Future<RevenueAnalytics> getRevenueAnalytics({
     String period = 'month',

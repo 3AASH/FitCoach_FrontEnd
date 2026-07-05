@@ -62,7 +62,7 @@ class LanguageProvider with ChangeNotifier {
             ? rawFallback
             : null;
 
-    String text = current ?? fallback ?? key;
+    String text = current ?? fallback ?? _humanizeKey(key);
 
     if (args != null) {
       args.forEach((key, value) {
@@ -75,6 +75,15 @@ class LanguageProvider with ChangeNotifier {
 
   String t(String key, {Map<String, String>? args}) =>
       translate(key, args: args);
+
+  String _humanizeKey(String key) {
+    return key
+        .replaceAll('_', ' ')
+        .split(' ')
+        .where((part) => part.trim().isNotEmpty)
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
+  }
 
   static final Map<String, String> _englishTranslations = {
     'app_name': 'FitCoach+',
@@ -92,6 +101,9 @@ class LanguageProvider with ChangeNotifier {
     'confirm': 'Confirm',
     'delete': 'Delete',
     'details': 'Details',
+    'date': 'Date',
+    'items': 'Items',
+    'quantity': 'Quantity',
     'refresh': 'Refresh',
     'dismiss': 'Dismiss',
     'processing': 'Processing...',
@@ -105,6 +117,7 @@ class LanguageProvider with ChangeNotifier {
     'payment_method_credit_card': 'Credit Card',
     'payment_method_tap': 'Tap Payments',
     'loading': 'Loading...',
+    'error_generic': 'Something went wrong. Please try again.',
     'error': 'An error occurred',
     'unknown': 'Unknown',
     'splash_headline_en': 'Your Fitness Journey Starts Now',
@@ -209,6 +222,8 @@ class LanguageProvider with ChangeNotifier {
     'admin_copy_credentials': 'Copy credentials',
     'admin_credentials_copied': 'Credentials copied',
     'admin_create_coach_failed': 'Failed to create coach',
+    'admin_user_title': 'User',
+    'admin_users_title': 'Users',
     'admin_users_search_hint': 'Search...',
     'admin_users_filter_tier': 'Tier',
     'admin_users_filter_status': 'Status',
@@ -283,7 +298,8 @@ class LanguageProvider with ChangeNotifier {
     'cannot_join_call': 'You cannot join this call yet',
     'appointment_details': 'Appointment Details',
     'cancel_appointment': 'Cancel Appointment',
-    'cancel_appointment_confirm': 'Are you sure you want to cancel this appointment?',
+    'cancel_appointment_confirm':
+        'Are you sure you want to cancel this appointment?',
     'cancel_appointment_success': 'Appointment cancelled successfully',
     'cancel_appointment_failed': 'Failed to cancel appointment',
     'reschedule_appointment': 'Reschedule',
@@ -669,6 +685,27 @@ class LanguageProvider with ChangeNotifier {
     'subscription_admin_empty_title': 'No plans yet',
     'subscription_admin_empty_subtitle':
         'Create your first plan to power comparisons.',
+    'subscription_admin_modal_create_title': 'Create subscription plan',
+    'subscription_admin_modal_edit_title': 'Edit subscription plan',
+    'subscription_admin_form_plan_name': 'Plan name',
+    'subscription_admin_form_name_required': 'Plan name is required',
+    'subscription_admin_form_plan_description': 'Plan description',
+    'subscription_admin_form_monthly_price': 'Monthly price',
+    'subscription_admin_form_price_required': 'Price is required',
+    'subscription_admin_form_invalid_amount': 'Enter a valid amount',
+    'subscription_admin_form_yearly_price_optional': 'Yearly price (optional)',
+    'subscription_admin_form_currency': 'Currency',
+    'subscription_admin_form_badge_optional': 'Badge (optional)',
+    'subscription_admin_form_accent_color': 'Accent color',
+    'subscription_admin_form_recommended_toggle': 'Mark as recommended',
+    'subscription_admin_form_messages_limit': 'Coach messages limit',
+    'subscription_admin_form_video_limit': 'Video call limit',
+    'subscription_admin_form_features': 'Plan features',
+    'subscription_admin_form_add_feature': 'Add feature',
+    'subscription_admin_form_feature_label': 'Feature label',
+    'subscription_admin_form_feature_value': 'Feature value',
+    'subscription_admin_form_saving': 'Saving...',
+    'subscription_admin_form_save': 'Save plan',
     'subscription_empty_title': 'Plans coming soon',
     'subscription_empty_subtitle':
         'Your admin is still configuring paid plans. Try again later.',
@@ -1213,6 +1250,7 @@ class LanguageProvider with ChangeNotifier {
     'add_to_cart': 'Add to Cart',
     'buy_now': 'Buy Now',
     'out_of_stock': 'Out of Stock',
+    'in_stock': 'In stock',
     'currency_sar': 'SAR',
     'reviews_count': '({count} reviews)',
     'cart_empty': 'Cart is empty',
@@ -1239,7 +1277,8 @@ class LanguageProvider with ChangeNotifier {
     'checkout_payment_method': 'Payment method',
     'payment_method_card': 'Credit / Debit Card',
     'payment_method_cod': 'Cash on delivery',
-    'checkout_cod_only_note': 'Pay in cash when your order arrives. Online payment is coming soon.',
+    'checkout_cod_only_note':
+        'Pay in cash when your order arrives. Online payment is coming soon.',
     'checkout_card_number': 'Card number',
     'checkout_card_name': 'Name on card',
     'checkout_card_expiry': 'Expiry (MM/YY)',
@@ -1258,10 +1297,25 @@ class LanguageProvider with ChangeNotifier {
     'free': 'Free',
     'order_success_title': 'Order placed',
     'order_success_message': 'Your order has been placed successfully.',
+    'order_confirmation_title': 'Order confirmation',
+    'order_track_delivery': 'Track delivery',
+    'order_view_details': 'View details',
     'order_id': 'Order ID',
     'order_success_toast': 'Order created successfully',
     'ok': 'OK',
     'description': 'Description',
+    'store_order_continue_shopping': 'Continue shopping',
+    'store_order_details_title': 'Order details',
+    'store_order_items': 'Order items',
+    'store_order_payment_method': 'Payment method',
+    'store_order_shipping_to': 'Shipping to',
+    'store_order_status': 'Order status',
+    'store_order_contact_support': 'Contact support',
+    'store_order_track_package': 'Track package',
+    'store_product_details': 'Product details',
+    'store_product_highlights': 'Highlights',
+    'store_product_nutrition': 'Nutrition facts',
+    'store_product_specs': 'Specifications',
     'store_intro_title': 'Ash Store',
     'store_intro_subtitle': 'Premium fitness gear and supplements',
     'store_intro_feature1_title': 'Curated Products',
@@ -1624,6 +1678,7 @@ class LanguageProvider with ChangeNotifier {
     'admin_tab_store': 'المتجر',
     'admin_tab_logs': 'السجلات',
 
+    'admin_user_title': 'مستخدم',
     'admin_users_title': 'المستخدمون',
 
     'admin_coaches_title': 'المدربون',
@@ -2090,6 +2145,27 @@ class LanguageProvider with ChangeNotifier {
     'subscription_admin_delete_failure': 'فشل حذف الخطة',
     'subscription_admin_empty_title': 'لا توجد خطط بعد',
     'subscription_admin_empty_subtitle': 'أنشئ أول خطة لبدء المقارنات.',
+    'subscription_admin_modal_create_title': 'إنشاء خطة اشتراك',
+    'subscription_admin_modal_edit_title': 'تعديل خطة الاشتراك',
+    'subscription_admin_form_plan_name': 'اسم الخطة',
+    'subscription_admin_form_name_required': 'اسم الخطة مطلوب',
+    'subscription_admin_form_plan_description': 'وصف الخطة',
+    'subscription_admin_form_monthly_price': 'السعر الشهري',
+    'subscription_admin_form_price_required': 'السعر مطلوب',
+    'subscription_admin_form_invalid_amount': 'أدخل مبلغاً صحيحاً',
+    'subscription_admin_form_yearly_price_optional': 'السعر السنوي (اختياري)',
+    'subscription_admin_form_currency': 'العملة',
+    'subscription_admin_form_badge_optional': 'الشارة (اختياري)',
+    'subscription_admin_form_accent_color': 'لون التمييز',
+    'subscription_admin_form_recommended_toggle': 'تمييز كخطة موصى بها',
+    'subscription_admin_form_messages_limit': 'حد رسائل المدرب',
+    'subscription_admin_form_video_limit': 'حد مكالمات الفيديو',
+    'subscription_admin_form_features': 'مميزات الخطة',
+    'subscription_admin_form_add_feature': 'إضافة ميزة',
+    'subscription_admin_form_feature_label': 'اسم الميزة',
+    'subscription_admin_form_feature_value': 'قيمة الميزة',
+    'subscription_admin_form_saving': 'جارٍ الحفظ...',
+    'subscription_admin_form_save': 'حفظ الخطة',
     'subscription_empty_title': 'الخطط قيد الإعداد',
     'subscription_empty_subtitle':
         'لا تزال الإدارة تضبط الخطط المدفوعة. حاول مرة أخرى لاحقاً.',
@@ -2105,6 +2181,9 @@ class LanguageProvider with ChangeNotifier {
     'confirm': 'تأكيد',
     'delete': 'حذف',
     'details': 'التفاصيل',
+    'date': 'التاريخ',
+    'items': 'العناصر',
+    'quantity': 'الكمية',
     'refresh': 'تحديث',
     'retry': 'إعادة المحاولة',
     'session': 'جلسة',
@@ -2114,6 +2193,7 @@ class LanguageProvider with ChangeNotifier {
     'time_just_now': 'الآن',
     'dismiss': 'إخفاء',
     'processing': 'جاري المعالجة...',
+    'error_generic': 'حدث خطأ. حاول مرة أخرى.',
     'payment_method_credit_card': 'بطاقة ائتمان',
     'payment_method_tap': 'تاب بايمنتس',
     'save': 'حفظ',
@@ -2580,6 +2660,7 @@ class LanguageProvider with ChangeNotifier {
     'store_status_shipped': 'تم الشحن',
     'store_status_delivered': 'تم التوصيل',
     'store_status_cancelled': 'ملغي',
+    'in_stock': 'متوفر',
     'out_of_stock': 'نفذ المخزون',
     'currency_sar': 'ر.س',
     'reviews_count': '({count} تقييم)',
@@ -2607,7 +2688,8 @@ class LanguageProvider with ChangeNotifier {
     'checkout_payment_method': 'طريقة الدفع',
     'payment_method_card': 'بطاقة ائتمان / خصم',
     'payment_method_cod': 'الدفع عند الاستلام',
-    'checkout_cod_only_note': 'ادفع نقداً عند استلام طلبك. الدفع الإلكتروني متاح قريباً.',
+    'checkout_cod_only_note':
+        'ادفع نقداً عند استلام طلبك. الدفع الإلكتروني متاح قريباً.',
     'checkout_card_number': 'رقم البطاقة',
     'checkout_card_name': 'الاسم على البطاقة',
     'checkout_card_expiry': 'الانتهاء (شهر/سنة)',
@@ -2626,10 +2708,25 @@ class LanguageProvider with ChangeNotifier {
     'free': 'مجاني',
     'order_success_title': 'تم إنشاء الطلب',
     'order_success_message': 'تم إنشاء طلبك بنجاح.',
+    'order_confirmation_title': 'تأكيد الطلب',
+    'order_track_delivery': 'تتبع التوصيل',
+    'order_view_details': 'عرض التفاصيل',
     'order_id': 'رقم الطلب',
     'order_success_toast': 'تم إنشاء الطلب بنجاح',
     'ok': 'حسناً',
     'description': 'الوصف',
+    'store_order_continue_shopping': 'متابعة التسوق',
+    'store_order_details_title': 'تفاصيل الطلب',
+    'store_order_items': 'عناصر الطلب',
+    'store_order_payment_method': 'طريقة الدفع',
+    'store_order_shipping_to': 'الشحن إلى',
+    'store_order_status': 'حالة الطلب',
+    'store_order_contact_support': 'تواصل مع الدعم',
+    'store_order_track_package': 'تتبع الشحنة',
+    'store_product_details': 'تفاصيل المنتج',
+    'store_product_highlights': 'المميزات',
+    'store_product_nutrition': 'القيم الغذائية',
+    'store_product_specs': 'المواصفات',
     'sign_in': 'تسجيل الدخول',
     'sign_in_subtitle': 'سجل الدخول إلى حسابك',
     'sign_up': 'إنشاء حساب',

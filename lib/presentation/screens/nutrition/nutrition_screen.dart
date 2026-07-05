@@ -43,7 +43,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
     super.initState();
     _loadIntroFlag();
     _loadPreferencesFlag();
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final provider = context.read<NutritionProvider>();
       provider.loadActivePlan();
       provider.checkTrialStatus();
@@ -72,10 +73,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Future<void> _loadPreferencesFlag() async {
-    final prefs = await SharedPreferences.getInstance();
     final authUserId = context.read<AuthProvider>().user?.id;
     final userId =
         authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
+    final prefs = await SharedPreferences.getInstance();
     if (userId == null) {
       if (mounted) {
         setState(() {
@@ -99,11 +100,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Future<void> _completePreferences(Map<String, dynamic> preferences) async {
-    final prefs = await SharedPreferences.getInstance();
     final authUserId = context.read<AuthProvider>().user?.id;
+    final nutritionProvider = context.read<NutritionProvider>();
     final userId =
         authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
     if (userId == null) return;
+    final prefs = await SharedPreferences.getInstance();
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
     final prefsKey = 'nutrition_preferences_$userId';
@@ -114,8 +116,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final repository = NutritionRepository();
       await repository.generatePlan(preferences);
       if (mounted) {
-        final provider = context.read<NutritionProvider>();
-        await provider.loadActivePlan();
+        await nutritionProvider.loadActivePlan();
       }
     }
     if (mounted) {
