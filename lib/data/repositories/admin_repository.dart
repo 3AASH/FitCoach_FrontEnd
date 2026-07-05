@@ -155,6 +155,7 @@ class AdminRepository {
     String? subscriptionTier,
     String? status,
     String? coachId,
+    String? role,
     int limit = 50,
     int offset = 0,
   }) async {
@@ -167,6 +168,7 @@ class AdminRepository {
         if (subscriptionTier != null) 'subscriptionTier': subscriptionTier,
         if (status != null) 'status': status,
         if (coachId != null) 'coachId': coachId,
+        if (role != null) 'role': role,
       };
 
       final response = await _dio.get(

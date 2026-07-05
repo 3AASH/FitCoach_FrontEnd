@@ -73,13 +73,14 @@ class MessagingRepository {
       _socket = io.io(
         ApiConfig.socketUrl,
         <String, dynamic>{
-          'transports': ['websocket'],
+          'transports': ['websocket', 'polling'],
           'autoConnect': false,
           'forceNew': false,
           'reconnection': true,
-          'reconnectionAttempts': 999999,
+          'reconnectionAttempts': 5,
           'reconnectionDelay': 1000,
           'reconnectionDelayMax': 5000,
+          'timeout': 8000,
           'auth': {'token': token},
         },
       );

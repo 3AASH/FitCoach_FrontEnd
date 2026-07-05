@@ -635,6 +635,9 @@ class WorkoutRepository {
           .map((ex) => Exercise.fromJson(ex as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
+      if (e.response?.statusCode == 404) {
+        return [];
+      }
       throw Exception(
           e.response?.data['message'] ?? 'Failed to load alternatives');
     }
@@ -916,7 +919,8 @@ class WorkoutRepository {
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
       final data = e.response?.data;
-      final body = data is Map<String, dynamic> ? data : const <String, dynamic>{};
+      final body =
+          data is Map<String, dynamic> ? data : const <String, dynamic>{};
       throw InBodyUploadException(
         body['message']?.toString() ?? 'Failed to upload image',
         statusCode: e.response?.statusCode,

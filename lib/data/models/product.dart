@@ -1,3 +1,5 @@
+import '../../core/config/api_config.dart';
+
 class Product {
   final String id;
   final String name;
@@ -61,9 +63,10 @@ class Product {
     final rawCategory = _string(
             json['category'] ?? json['category_en'] ?? json['categoryEn']) ??
         'Store';
-    final images = _stringList(json['images']);
-    final mainImage = _string(json['main_image'] ?? json['mainImage']) ??
-        (images.isNotEmpty ? images.first : null);
+    final images = _stringList(json['images']).map(_assetUrl).nonNulls.toList();
+    final mainImage =
+        _assetUrl(_string(json['main_image'] ?? json['mainImage'])) ??
+            (images.isNotEmpty ? images.first : null);
 
     return Product(
       id: json['id']?.toString() ?? '',
@@ -146,6 +149,23 @@ class Product {
           .toList();
     }
     return const [];
+  }
+
+  static String? _assetUrl(String? value) {
+    final text = _string(value);
+    if (text == null) return null;
+
+    final uri = Uri.tryParse(text);
+    if (uri != null && uri.hasScheme) return text;
+
+    if (text.startsWith('/')) {
+      final baseUri = Uri.parse(ApiConfig.baseUrl);
+      return baseUri
+          .replace(path: text, query: null, fragment: null)
+          .toString();
+    }
+
+    return text;
   }
 
   static DateTime? _date(dynamic value) {

@@ -94,9 +94,15 @@ class AdminProvider extends ChangeNotifier {
     String? subscriptionTier,
     String? status,
     String? coachId,
+    String? role,
   }) async {
     if (DemoConfig.isDemo) {
-      _users = DemoData.adminUsers();
+      final users = DemoData.adminUsers();
+      if (role == 'admins') {
+        _users = users.where((user) => user.role == 'admin').toList();
+      } else {
+        _users = users.where((user) => user.role != 'admin').toList();
+      }
       _error = null;
       _usersError = null;
       _isLoading = false;
@@ -114,6 +120,7 @@ class AdminProvider extends ChangeNotifier {
         subscriptionTier: subscriptionTier,
         status: status,
         coachId: coachId,
+        role: role,
       );
       _usersError = null;
       _isLoading = false;
@@ -316,7 +323,6 @@ class AdminProvider extends ChangeNotifier {
         phoneNumber: phoneNumber,
         password: password,
       );
-      await loadUsers();
       _isLoading = false;
       notifyListeners();
       return result;

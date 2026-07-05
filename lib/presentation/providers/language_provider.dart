@@ -231,6 +231,8 @@ class LanguageProvider with ChangeNotifier {
     'admin_password_min': 'Password must be at least 6 characters',
     'admin_user_title': 'User',
     'admin_users_title': 'Users',
+    'admin_user_role_customers': 'Customers',
+    'admin_user_role_admins': 'Admins',
     'admin_users_search_hint': 'Search...',
     'admin_users_filter_tier': 'Tier',
     'admin_users_filter_status': 'Status',
@@ -1839,6 +1841,8 @@ class LanguageProvider with ChangeNotifier {
     'admin_password_optional_hint':
         'اتركها فارغة لاستخدام كلمة المرور الافتراضية.',
     'admin_password_min': 'كلمة المرور يجب ألا تقل عن 6 أحرف',
+    'admin_user_role_customers': 'العملاء',
+    'admin_user_role_admins': 'المديرون',
     'admin_users_search_hint': 'بحث...',
     'admin_users_filter_tier': 'الباقة',
     'admin_users_filter_status': 'الحالة',

@@ -18,6 +18,7 @@ class AdminUsersScreen extends StatefulWidget {
 
 class _AdminUsersScreenState extends State<AdminUsersScreen> {
   final TextEditingController _searchController = TextEditingController();
+  String _roleFilter = 'customers';
   String? _tierFilter;
   String? _statusFilter;
 
@@ -33,8 +34,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final adminProvider = context.read<AdminProvider>();
     adminProvider.loadUsers(
       search: _searchController.text.isNotEmpty ? _searchController.text : null,
-      subscriptionTier: _tierFilter,
+      subscriptionTier: _roleFilter == 'customers' ? _tierFilter : null,
       status: _statusFilter,
+      role: _roleFilter,
     );
   }
 
@@ -58,7 +60,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           IconButton(
             tooltip: lang.t('admin_create_admin_action'),
             icon: const Icon(Icons.admin_panel_settings),
-            onPressed: () => _showCreateAdminDialog(lang),
+            onPressed: _roleFilter == 'admins'
+                ? () => _showCreateAdminDialog(lang)
+                : null,
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -102,46 +106,80 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 ),
 
                 const SizedBox(height: 12),
-
-                // Filters
                 Row(
                   children: [
                     Expanded(
-                      child: DropdownButtonFormField<String?>(
-                        value: _tierFilter,
-                        decoration: InputDecoration(
-                          labelText: lang.t('admin_users_filter_tier'),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            value: null,
-                            child: Text(lang.t('admin_filter_all')),
-                          ),
-                          DropdownMenuItem(
-                            value: 'freemium',
-                            child: Text(lang.t('admin_tier_freemium')),
-                          ),
-                          DropdownMenuItem(
-                            value: 'premium',
-                            child: Text(lang.t('admin_tier_premium')),
-                          ),
-                          DropdownMenuItem(
-                            value: 'smart_premium',
-                            child: Text(lang.t('admin_tier_smart_premium')),
-                          ),
-                        ],
-                        onChanged: (value) {
+                      child: ChoiceChip(
+                        selected: _roleFilter == 'customers',
+                        label: Text(lang.t('admin_user_role_customers')),
+                        onSelected: (_) {
                           setState(() {
-                            _tierFilter = value;
+                            _roleFilter = 'customers';
                           });
                           _loadUsers();
                         },
                       ),
                     ),
                     const SizedBox(width: 12),
+                    Expanded(
+                      child: ChoiceChip(
+                        selected: _roleFilter == 'admins',
+                        label: Text(lang.t('admin_user_role_admins')),
+                        onSelected: (_) {
+                          setState(() {
+                            _roleFilter = 'admins';
+                            _tierFilter = null;
+                          });
+                          _loadUsers();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 12),
+
+                // Filters
+                Row(
+                  children: [
+                    if (_roleFilter == 'customers') ...[
+                      Expanded(
+                        child: DropdownButtonFormField<String?>(
+                          value: _tierFilter,
+                          decoration: InputDecoration(
+                            labelText: lang.t('admin_users_filter_tier'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(lang.t('admin_filter_all')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'freemium',
+                              child: Text(lang.t('admin_tier_freemium')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'premium',
+                              child: Text(lang.t('admin_tier_premium')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'smart_premium',
+                              child: Text(lang.t('admin_tier_smart_premium')),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _tierFilter = value;
+                            });
+                            _loadUsers();
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
                     Expanded(
                       child: DropdownButtonFormField<String?>(
                         value: _statusFilter,
