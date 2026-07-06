@@ -268,25 +268,39 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       appBar: appBar,
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.2,
-              child: Image.asset(
-                'assets/placeholders/splash_onboarding/workout_onboarding.png',
-                fit: BoxFit.cover,
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF071915),
+                    Color(0xFF12362D),
+                    Color(0xFF0B1F1B),
+                  ],
+                ),
               ),
             ),
           ),
           Positioned.fill(
-            child: Container(
+            child: Image.asset(
+              'assets/placeholders/splash_onboarding/workout_onboarding.png',
+              fit: BoxFit.cover,
+              color: Colors.black.withValues(alpha: 0.18),
+              colorBlendMode: BlendMode.darken,
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.workoutBackground.withValues(alpha: 0.92),
-                    AppColors.workoutBackground.withValues(alpha: 0.97),
-                    AppColors.workoutBackground,
+                    AppColors.workoutBackground.withValues(alpha: 0.28),
+                    AppColors.workoutBackground.withValues(alpha: 0.62),
+                    AppColors.workoutBackground.withValues(alpha: 0.86),
                   ],
                 ),
               ),
@@ -1486,7 +1500,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       builder: (context) => AlertDialog(
         title: Text(lang.t('substitute_exercise')),
         content: FutureBuilder<List<Exercise>>(
-          future: provider.getExerciseAlternatives(exercise.id, userInjuries),
+          future: provider.getExerciseAlternatives(
+            exercise.exerciseId ?? exercise.id,
+            userInjuries,
+          ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

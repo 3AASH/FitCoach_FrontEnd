@@ -110,8 +110,10 @@ class _WorkoutExerciseDetailScreenState
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: FutureBuilder<List<Exercise>>(
-            future:
-                provider.getExerciseAlternatives(widget.exercise.id, injuries),
+            future: provider.getExerciseAlternatives(
+              widget.exercise.exerciseId ?? widget.exercise.id,
+              injuries,
+            ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SizedBox(

@@ -7,7 +7,6 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../account/account_screen.dart';
 import 'admin_users_screen.dart';
-import 'admin_coaches_screen.dart';
 import 'admin_revenue_screen.dart';
 import 'admin_audit_logs_screen.dart';
 import 'admin_exercises_screen.dart';
@@ -156,7 +155,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.people,
                         color: AppColors.primary,
                         onTap: () {
-                          _pushAdminScreen(const AdminUsersScreen());
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'customers'),
+                          );
                         },
                       ),
                     ),
@@ -168,7 +169,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.people_alt,
                         color: AppColors.success,
                         onTap: () {
-                          _pushAdminScreen(const AdminUsersScreen());
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'customers'),
+                          );
                         },
                       ),
                     ),
@@ -186,7 +189,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.sports,
                         color: AppColors.secondary,
                         onTap: () {
-                          _pushAdminScreen(const AdminCoachesScreen());
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'coaches'),
+                          );
                         },
                       ),
                     ),
@@ -199,7 +204,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.fitness_center,
                         color: AppColors.accent,
                         onTap: () {
-                          _pushAdminScreen(const AdminCoachesScreen());
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'coaches'),
+                          );
                         },
                       ),
                     ),
@@ -424,21 +431,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           title: 'Customers',
           subtitle: 'View, suspend, assign coaches, and edit subscriptions.',
           color: AppColors.primary,
-          onTap: () => _pushAdminScreen(const AdminUsersScreen()),
+          onTap: () => _pushAdminScreen(
+            const AdminUsersScreen(initialRole: 'customers'),
+          ),
         ),
         _buildAdminActionTile(
           icon: Icons.sports,
           title: 'Coaches',
           subtitle: 'Approve, create, suspend, and update coach accounts.',
           color: AppColors.secondary,
-          onTap: () => _pushAdminScreen(const AdminCoachesScreen()),
+          onTap: () => _pushAdminScreen(
+            const AdminUsersScreen(initialRole: 'coaches'),
+          ),
         ),
         _buildAdminActionTile(
           icon: Icons.admin_panel_settings,
-          title: 'Admin Profile',
-          subtitle: 'Open the admin account, permissions, and settings view.',
+          title: 'Admins',
+          subtitle: 'Create admin accounts and manage platform admins.',
           color: AppColors.accent,
-          onTap: () => _pushAdminScreen(const AccountScreen()),
+          onTap: () => _pushAdminScreen(
+            const AdminUsersScreen(initialRole: 'admins'),
+          ),
         ),
       ],
     );

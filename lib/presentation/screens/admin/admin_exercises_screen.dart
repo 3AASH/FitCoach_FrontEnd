@@ -124,6 +124,7 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                               final exercise = provider.exercises[index];
                               return _ExerciseAdminCard(
                                 exercise: exercise,
+                                availableExercises: provider.exercises,
                                 onEdit: () => _openEditor(exercise: exercise),
                                 onUploadVideo: () => _uploadVideo(exercise),
                                 onDelete: () => _confirmDelete(exercise),
@@ -206,12 +207,14 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
 
 class _ExerciseAdminCard extends StatelessWidget {
   final AdminExercise exercise;
+  final List<AdminExercise> availableExercises;
   final VoidCallback onEdit;
   final VoidCallback onUploadVideo;
   final VoidCallback onDelete;
 
   const _ExerciseAdminCard({
     required this.exercise,
+    required this.availableExercises,
     required this.onEdit,
     required this.onUploadVideo,
     required this.onDelete,
@@ -226,6 +229,7 @@ class _ExerciseAdminCard extends StatelessWidget {
     ].join(' • ');
     final alternativesCount =
         exercise.alternativesCount ?? exercise.alternatives.length;
+    final alternativeLabels = _alternativeLabels();
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -260,10 +264,10 @@ class _ExerciseAdminCard extends StatelessWidget {
                       ),
                     ),
                   ],
-                  if (exercise.alternatives.isNotEmpty) ...[
+                  if (alternativeLabels.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      'Swaps: ${exercise.alternatives.take(3).join(', ')}${exercise.alternatives.length > 3 ? ' +' : ''}',
+                      'Swaps: ${alternativeLabels.take(3).join(', ')}${alternativeLabels.length > 3 ? ' +' : ''}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -318,6 +322,19 @@ class _ExerciseAdminCard extends StatelessWidget {
       ),
     );
   }
+
+  List<String> _alternativeLabels() {
+    final byKey = <String, AdminExercise>{};
+    for (final item in availableExercises) {
+      byKey[item.id] = item;
+      final exId = item.exId;
+      if (exId != null && exId.trim().isNotEmpty) {
+        byKey[exId] = item;
+      }
+    }
+
+    return exercise.alternatives.map((id) => byKey[id]?.nameEn ?? id).toList();
+  }
 }
 
 class _ExerciseEditorSheet extends StatefulWidget {
@@ -360,7 +377,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         TextEditingController(text: exercise?.muscleGroups.join(', ') ?? '');
     _equipment =
         TextEditingController(text: exercise?.equipment.join(', ') ?? '');
-    _selectedAlternatives = {...(exercise?.alternatives ?? const [])};
+    _selectedAlternatives = {
+      ...(exercise?.alternatives ?? const []).map(_canonicalAlternativeKey),
+    };
     _videoUrl = TextEditingController(text: exercise?.videoUrl ?? '');
     _thumbnailUrl = TextEditingController(text: exercise?.thumbnailUrl ?? '');
     _instructions = TextEditingController(text: exercise?.instructions ?? '');
@@ -518,13 +537,20 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         .toList();
   }
 
-  String _exerciseKey(AdminExercise exercise) => exercise.exId ?? exercise.id;
+  String _exerciseKey(AdminExercise exercise) => exercise.id;
+
+  String _canonicalAlternativeKey(String id) => _exerciseByKey[id]?.id ?? id;
 
   Map<String, AdminExercise> get _exerciseByKey {
-    return {
-      for (final exercise in widget.availableExercises)
-        _exerciseKey(exercise): exercise,
-    };
+    final byKey = <String, AdminExercise>{};
+    for (final exercise in widget.availableExercises) {
+      byKey[exercise.id] = exercise;
+      final exId = exercise.exId;
+      if (exId != null && exId.trim().isNotEmpty) {
+        byKey[exId] = exercise;
+      }
+    }
+    return byKey;
   }
 
   List<AdminExercise> get _selectableExercises {

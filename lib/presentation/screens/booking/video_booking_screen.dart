@@ -35,6 +35,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
   CoachProfile? _coachProfile;
   bool _isCoachLoading = false;
   String? _coachError;
+  String? _loadedCoachId;
 
   final Map<String, List<String>> _availableSlotsByDate = {};
   bool _isSlotsLoading = false;
@@ -71,8 +72,24 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       if (coachId == null || coachId.isEmpty) {
         return;
       }
-      await _loadCoachProfile(coachId);
-      await _prefetchInitialSlots(coachId);
+      await _syncAssignedCoach(coachId, forceReload: true);
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (DemoConfig.isDemo) {
+      return;
+    }
+    final coachId = context.watch<AuthProvider>().user?.coachId;
+    if (coachId == null || coachId.isEmpty || coachId == _loadedCoachId) {
+      return;
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _syncAssignedCoach(coachId, forceReload: true);
+      }
     });
   }
 
@@ -827,6 +844,31 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         });
       }
     }
+  }
+
+  Future<void> _syncAssignedCoach(
+    String coachId, {
+    bool forceReload = false,
+  }) async {
+    if (!forceReload && coachId == _loadedCoachId) {
+      return;
+    }
+
+    setState(() {
+      _loadedCoachId = coachId;
+      _coachProfile = null;
+      _coachError = null;
+      _availableSlotsByDate.clear();
+      _selectedDate = null;
+      _selectedTime = null;
+      _slotsError = null;
+    });
+
+    await _loadCoachProfile(coachId);
+    if (!mounted) {
+      return;
+    }
+    await _prefetchInitialSlots(coachId);
   }
 
   Future<void> _prefetchInitialSlots(String coachId) async {

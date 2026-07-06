@@ -3,9 +3,11 @@ import 'package:fitapp/core/config/demo_config.dart';
 import 'package:fitapp/data/demo/demo_data.dart';
 import 'package:fitapp/data/repositories/auth_repository.dart';
 import 'package:fitapp/data/models/user_profile.dart';
+import 'package:fitapp/data/services/push_notification_registration_service.dart';
 
 class AuthProvider extends ChangeNotifier {
   final AuthRepositoryBase _repository;
+  final PushNotificationRegistrationService? _pushNotifications;
 
   bool _isAuthenticated = false;
   bool _isLoading = false;
@@ -15,7 +17,10 @@ class AuthProvider extends ChangeNotifier {
   String? _phoneFieldError;
   String? _lastPhoneNumber;
 
-  AuthProvider(this._repository) {
+  AuthProvider(
+    this._repository, {
+    PushNotificationRegistrationService? pushNotifications,
+  }) : _pushNotifications = pushNotifications {
     if (!DemoConfig.isDemo) {
       _checkAuthStatus();
     }
@@ -59,6 +64,7 @@ class AuthProvider extends ChangeNotifier {
         if (userProfile != null) {
           _user = userProfile;
           _isAuthenticated = true;
+          _registerPushNotifications();
         }
       }
     } catch (e) {
@@ -140,6 +146,7 @@ class AuthProvider extends ChangeNotifier {
 
       // Store token
       await _repository.storeToken(authResponse.token);
+      _registerPushNotifications();
 
       _isLoading = false;
       notifyListeners();
@@ -178,6 +185,7 @@ class AuthProvider extends ChangeNotifier {
 
       // Store token
       await _repository.storeToken(authResponse.token);
+      _registerPushNotifications();
 
       _isLoading = false;
       notifyListeners();
@@ -222,6 +230,7 @@ class AuthProvider extends ChangeNotifier {
 
       // Store token
       await _repository.storeToken(authResponse.token);
+      _registerPushNotifications();
 
       _isLoading = false;
       notifyListeners();
@@ -254,6 +263,7 @@ class AuthProvider extends ChangeNotifier {
 
       // Store token
       await _repository.storeToken(authResponse.token);
+      _registerPushNotifications();
 
       _isLoading = false;
       notifyListeners();
@@ -274,6 +284,10 @@ class AuthProvider extends ChangeNotifier {
     }
     _error = error.toString();
     _phoneFieldError = _error!.toLowerCase().contains('phone') ? _error : null;
+  }
+
+  void _registerPushNotifications() {
+    _pushNotifications?.registerCurrentDevice().catchError((_) {});
   }
 
   // Refresh user data
