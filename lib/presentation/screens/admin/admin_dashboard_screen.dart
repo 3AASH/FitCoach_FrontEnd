@@ -7,11 +7,11 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../account/account_screen.dart';
 import 'admin_users_screen.dart';
-import 'admin_coaches_screen.dart';
 import 'admin_revenue_screen.dart';
 import 'admin_audit_logs_screen.dart';
 import 'admin_exercises_screen.dart';
 import 'admin_workout_templates_screen.dart';
+import 'admin_nutrition_templates_screen.dart';
 import 'store_management_screen.dart';
 import 'subscription_management_screen.dart';
 
@@ -48,23 +48,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         index: _selectedIndex,
         children: [
           _buildDashboardTab(languageProvider, isArabic),
-          const AdminUsersScreen(),
-          const AdminCoachesScreen(),
-          const AdminRevenueScreen(),
-          const SubscriptionManagementScreen(),
-          const AdminExercisesScreen(),
-          const AdminWorkoutTemplatesScreen(),
-          const StoreManagementScreen(),
-          const AdminAuditLogsScreen(),
+          _buildPeopleHub(languageProvider),
+          _buildFitnessHub(languageProvider),
+          _buildBusinessHub(languageProvider),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+        onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textDisabled,
@@ -75,35 +66,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.people),
-            label: languageProvider.t('admin_tab_users'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.sports),
-            label: languageProvider.t('admin_tab_coaches'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.attach_money),
-            label: languageProvider.t('admin_tab_revenue'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.credit_card),
-            label: languageProvider.t('admin_tab_subscriptions'),
+            label: isArabic ? 'Users' : 'Users',
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.fitness_center),
-            label: isArabic ? 'Exercises' : 'Exercises',
+            label: isArabic ? 'Fitness' : 'Fitness',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.view_week),
-            label: isArabic ? 'Workouts' : 'Workouts',
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.store),
-            label: languageProvider.t('admin_tab_store'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.history),
-            label: languageProvider.t('admin_tab_logs'),
+            icon: const Icon(Icons.business_center),
+            label: isArabic ? 'Business' : 'Business',
           ),
         ],
       ),
@@ -184,7 +155,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.people,
                         color: AppColors.primary,
                         onTap: () {
-                          setState(() => _selectedIndex = 1);
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'customers'),
+                          );
                         },
                       ),
                     ),
@@ -196,7 +169,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.people_alt,
                         color: AppColors.success,
                         onTap: () {
-                          setState(() => _selectedIndex = 1);
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'customers'),
+                          );
                         },
                       ),
                     ),
@@ -214,7 +189,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.sports,
                         color: AppColors.secondary,
                         onTap: () {
-                          setState(() => _selectedIndex = 2);
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'coaches'),
+                          );
                         },
                       ),
                     ),
@@ -227,7 +204,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.fitness_center,
                         color: AppColors.accent,
                         onTap: () {
-                          setState(() => _selectedIndex = 2);
+                          _pushAdminScreen(
+                            const AdminUsersScreen(initialRole: 'coaches'),
+                          );
                         },
                       ),
                     ),
@@ -246,7 +225,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         icon: Icons.attach_money,
                         color: AppColors.success,
                         onTap: () {
-                          setState(() => _selectedIndex = 3);
+                          _pushAdminScreen(const AdminRevenueScreen());
                         },
                       ),
                     ),
@@ -300,7 +279,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        sub.subscriptionTier,
+                                        _displayTier(sub.subscriptionTier),
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.w500,
@@ -410,16 +389,242 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   }
 
   Color _getTierColor(String tier) {
-    switch (tier) {
-      case 'Basic':
+    switch (tier.toLowerCase()) {
+      case 'basic':
+      case 'freemium':
         return AppColors.primary;
-      case 'Premium':
+      case 'premium':
         return AppColors.secondary;
-      case 'Pro':
+      case 'pro':
+      case 'smart_premium':
         return AppColors.accent;
       default:
         return AppColors.textSecondary;
     }
+  }
+
+  String _displayTier(String tier) {
+    switch (tier.toLowerCase()) {
+      case 'freemium':
+        return 'Free';
+      case 'premium':
+        return 'Premium';
+      case 'smart_premium':
+        return 'Smart Premium';
+      default:
+        return tier
+            .replaceAll('_', ' ')
+            .split(' ')
+            .where((part) => part.isNotEmpty)
+            .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+            .join(' ');
+    }
+  }
+
+  Widget _buildPeopleHub(LanguageProvider languageProvider) {
+    return _buildHubTab(
+      title: 'Users',
+      subtitle: 'Manage customers, coaches, and admin access points.',
+      children: [
+        _buildAdminActionTile(
+          icon: Icons.person_outline,
+          title: 'Customers',
+          subtitle: 'View, suspend, assign coaches, and edit subscriptions.',
+          color: AppColors.primary,
+          onTap: () => _pushAdminScreen(
+            const AdminUsersScreen(initialRole: 'customers'),
+          ),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.sports,
+          title: 'Coaches',
+          subtitle: 'Approve, create, suspend, and update coach accounts.',
+          color: AppColors.secondary,
+          onTap: () => _pushAdminScreen(
+            const AdminUsersScreen(initialRole: 'coaches'),
+          ),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.admin_panel_settings,
+          title: 'Admins',
+          subtitle: 'Create admin accounts and manage platform admins.',
+          color: AppColors.accent,
+          onTap: () => _pushAdminScreen(
+            const AdminUsersScreen(initialRole: 'admins'),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFitnessHub(LanguageProvider languageProvider) {
+    return _buildHubTab(
+      title: 'Fitness Plans',
+      subtitle: 'Manage the content used for user workout and nutrition plans.',
+      children: [
+        _buildAdminActionTile(
+          icon: Icons.fitness_center,
+          title: 'Exercise Library',
+          subtitle: 'Edit exercises, videos, thumbnails, and instructions.',
+          color: AppColors.primary,
+          onTap: () => _pushAdminScreen(const AdminExercisesScreen()),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.view_week,
+          title: 'Workout Templates',
+          subtitle: 'Import JSON or edit workout combinations one by one.',
+          color: AppColors.secondary,
+          onTap: () => _pushAdminScreen(const AdminWorkoutTemplatesScreen()),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.restaurant_menu,
+          title: 'Nutrition Templates',
+          subtitle:
+              'Import JSON or edit meal templates used in generated plans.',
+          color: AppColors.success,
+          onTap: () => _pushAdminScreen(const AdminNutritionTemplatesScreen()),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildBusinessHub(LanguageProvider languageProvider) {
+    return _buildHubTab(
+      title: 'Business',
+      subtitle: 'Manage subscriptions, revenue, store operations, and logs.',
+      children: [
+        _buildAdminActionTile(
+          icon: Icons.credit_card,
+          title: 'Subscription Plans',
+          subtitle: 'Edit package names, prices, features, and requests.',
+          color: AppColors.primary,
+          onTap: () => _pushAdminScreen(const SubscriptionManagementScreen()),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.attach_money,
+          title: 'Revenue',
+          subtitle: 'Review payment and subscription performance.',
+          color: AppColors.success,
+          onTap: () => _pushAdminScreen(const AdminRevenueScreen()),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.store,
+          title: 'Store',
+          subtitle: 'Manage store products and order operations.',
+          color: AppColors.secondary,
+          onTap: () => _pushAdminScreen(const StoreManagementScreen()),
+        ),
+        _buildAdminActionTile(
+          icon: Icons.history,
+          title: 'Audit Logs',
+          subtitle: 'Review important admin and platform activity.',
+          color: AppColors.warning,
+          onTap: () => _pushAdminScreen(const AdminAuditLogsScreen()),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHubTab({
+    required String title,
+    required String subtitle,
+    required List<Widget> children,
+  }) {
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.account_circle),
+                onPressed: () => _pushAdminScreen(const AccountScreen()),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ...children,
+        ],
+      ),
+    );
+  }
+
+  Widget _buildAdminActionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return CustomCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: color),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  style: const TextStyle(
+                    color: AppColors.textSecondary,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right, color: AppColors.textDisabled),
+        ],
+      ),
+    );
+  }
+
+  void _pushAdminScreen(Widget screen) {
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => screen),
+    );
   }
 
   // ignore: unused_element

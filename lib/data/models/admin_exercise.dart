@@ -9,6 +9,8 @@ class AdminExercise {
   final String? difficulty;
   final List<String> muscleGroups;
   final List<String> equipment;
+  final List<String> alternatives;
+  final int? alternativesCount;
   final String? videoUrl;
   final String? thumbnailUrl;
   final String? instructions;
@@ -24,12 +26,23 @@ class AdminExercise {
     this.difficulty,
     this.muscleGroups = const [],
     this.equipment = const [],
+    this.alternatives = const [],
+    this.alternativesCount,
     this.videoUrl,
     this.thumbnailUrl,
     this.instructions,
   });
 
   factory AdminExercise.fromJson(Map<String, dynamic> json) {
+    final parsedAlternatives = _stringList(
+      json['alternatives'] ?? json['alternative_exercises'] ?? json['swapOptions'],
+    );
+    final parsedAlternativeCount = _int(
+      json['alternatives_count'] ??
+          json['alternative_count'] ??
+          json['swapOptionsCount'],
+    );
+
     return AdminExercise(
       id: _string(json['id']) ?? _string(json['ex_id']) ?? '',
       exId: _string(json['ex_id'] ?? json['exId']),
@@ -43,6 +56,9 @@ class AdminExercise {
       difficulty: _string(json['difficulty']),
       muscleGroups: _stringList(json['muscle_groups'] ?? json['muscleGroups']),
       equipment: _stringList(json['equipment']),
+      alternatives: parsedAlternatives,
+      alternativesCount: parsedAlternativeCount ??
+          (parsedAlternatives.isNotEmpty ? parsedAlternatives.length : null),
       videoUrl: _string(json['video_url'] ?? json['videoUrl']),
       thumbnailUrl: _string(json['thumbnail_url'] ?? json['thumbnailUrl']),
       instructions: _string(json['instructions'] ?? json['instructions_en']),
@@ -62,6 +78,7 @@ class AdminExercise {
       if (_nonEmpty(difficulty) != null) 'difficulty': _nonEmpty(difficulty),
       'muscleGroups': muscleGroups,
       'equipment': equipment,
+      'alternatives': alternatives,
       if (_nonEmpty(videoUrl) != null) 'videoUrl': _nonEmpty(videoUrl),
       if (_nonEmpty(thumbnailUrl) != null)
         'thumbnailUrl': _nonEmpty(thumbnailUrl),
@@ -81,6 +98,8 @@ class AdminExercise {
     String? difficulty,
     List<String>? muscleGroups,
     List<String>? equipment,
+    List<String>? alternatives,
+    int? alternativesCount,
     String? videoUrl,
     String? thumbnailUrl,
     String? instructions,
@@ -96,11 +115,15 @@ class AdminExercise {
       difficulty: difficulty ?? this.difficulty,
       muscleGroups: muscleGroups ?? this.muscleGroups,
       equipment: equipment ?? this.equipment,
+      alternatives: alternatives ?? this.alternatives,
+      alternativesCount: alternativesCount ?? this.alternativesCount,
       videoUrl: videoUrl ?? this.videoUrl,
       thumbnailUrl: thumbnailUrl ?? this.thumbnailUrl,
       instructions: instructions ?? this.instructions,
     );
   }
+
+  bool get hasAlternatives => (alternativesCount ?? alternatives.length) > 0;
 
   static String? _string(dynamic value) {
     if (value == null) return null;
@@ -128,5 +151,11 @@ class AdminExercise {
           .toList();
     }
     return const [];
+  }
+
+  static int? _int(dynamic value) {
+    if (value == null) return null;
+    if (value is num) return value.toInt();
+    return int.tryParse(value.toString());
   }
 }

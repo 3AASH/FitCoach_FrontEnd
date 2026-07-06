@@ -267,7 +267,8 @@ class AuthRepository implements AuthRepositoryBase {
         if (errors is List && errors.isNotEmpty) {
           final first = errors.first;
           if (first is Map<String, dynamic>) {
-            final errorMessage = first['msg'] ?? first['message'] ?? first['error'];
+            final errorMessage =
+                first['msg'] ?? first['message'] ?? first['error'];
             if (errorMessage is String && errorMessage.trim().isNotEmpty) {
               return errorMessage;
             }
@@ -358,6 +359,7 @@ class AuthRepository implements AuthRepositoryBase {
   // Logout
   @override
   Future<void> logout() async {
+    Object? logoutError;
     try {
       final token = await getStoredToken();
       if (token != null) {
@@ -366,8 +368,13 @@ class AuthRepository implements AuthRepositoryBase {
           options: Options(headers: {'Authorization': 'Bearer $token'}),
         );
       }
-      await _secureStorage.delete(key: _tokenKey);
     } catch (e) {
+      logoutError = e;
+    } finally {
+      await _secureStorage.delete(key: _tokenKey);
+    }
+
+    if (logoutError != null) {
       throw Exception('Failed to logout');
     }
   }

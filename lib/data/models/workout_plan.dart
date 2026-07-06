@@ -184,6 +184,7 @@ class WorkoutDay {
 
 class Exercise {
   final String id;
+  final String? exerciseId;
   final String name;
   final String nameAr;
   final String nameEn;
@@ -208,6 +209,7 @@ class Exercise {
 
   Exercise({
     required this.id,
+    this.exerciseId,
     required this.name,
     required this.nameAr,
     required this.nameEn,
@@ -251,6 +253,9 @@ class Exercise {
         .toString();
     return Exercise(
       id: (json['id'] ?? '').toString(),
+      exerciseId: asString(
+        json['exerciseId'] ?? json['exercise_id'] ?? json['ex_id'],
+      ),
       name: resolvedName,
       nameAr: nameAr,
       nameEn: nameEn,
@@ -280,6 +285,7 @@ class Exercise {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
+      'exerciseId': exerciseId,
       'name': name,
       'nameAr': nameAr,
       'nameEn': nameEn,
@@ -322,6 +328,7 @@ class Exercise {
   }) {
     return Exercise(
       id: id,
+      exerciseId: exerciseId,
       name: name ?? this.name,
       nameAr: nameAr ?? this.nameAr,
       nameEn: nameEn ?? this.nameEn,

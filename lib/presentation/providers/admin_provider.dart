@@ -27,6 +27,7 @@ class AdminProvider extends ChangeNotifier {
   List<AdminCoach> _coaches = [];
   List<AdminExercise> _exercises = [];
   List<AdminWorkoutTemplate> _workoutTemplates = [];
+  List<Map<String, dynamic>> _nutritionMealTemplates = [];
   RevenueAnalytics? _revenueAnalytics;
   List<AuditLog> _auditLogs = [];
 
@@ -41,6 +42,8 @@ class AdminProvider extends ChangeNotifier {
   List<AdminCoach> get coaches => _coaches;
   List<AdminExercise> get exercises => _exercises;
   List<AdminWorkoutTemplate> get workoutTemplates => _workoutTemplates;
+  List<Map<String, dynamic>> get nutritionMealTemplates =>
+      _nutritionMealTemplates;
   List<AdminCoach> get pendingCoaches =>
       _coaches.where((c) => c.isPending).toList();
   void _upsertCoach(AdminCoach coach) {
@@ -91,9 +94,15 @@ class AdminProvider extends ChangeNotifier {
     String? subscriptionTier,
     String? status,
     String? coachId,
+    String? role,
   }) async {
     if (DemoConfig.isDemo) {
-      _users = DemoData.adminUsers();
+      final users = DemoData.adminUsers();
+      if (role == 'admins') {
+        _users = users.where((user) => user.role == 'admin').toList();
+      } else {
+        _users = users.where((user) => user.role != 'admin').toList();
+      }
       _error = null;
       _usersError = null;
       _isLoading = false;
@@ -111,6 +120,7 @@ class AdminProvider extends ChangeNotifier {
         subscriptionTier: subscriptionTier,
         status: status,
         coachId: coachId,
+        role: role,
       );
       _usersError = null;
       _isLoading = false;
@@ -270,6 +280,57 @@ class AdminProvider extends ChangeNotifier {
       _isLoading = false;
       notifyListeners();
       return false;
+    }
+  }
+
+  Future<AdminCreationResult?> createAdmin({
+    required String fullName,
+    required String email,
+    String? phoneNumber,
+    String? password,
+  }) async {
+    if (DemoConfig.isDemo) {
+      final now = DateTime.now();
+      final admin = AdminUser(
+        id: 'admin_${now.microsecondsSinceEpoch}',
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        subscriptionTier: 'freemium',
+        isActive: true,
+        createdAt: now,
+      );
+      _users.insert(0, admin);
+      notifyListeners();
+      return AdminCreationResult(
+        admin: admin,
+        credentials: CoachCredentials(
+          email: email,
+          defaultPassword:
+              password?.trim().isNotEmpty == true ? password!.trim() : '123456',
+        ),
+      );
+    }
+
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final result = await _repository.createAdmin(
+        fullName: fullName,
+        email: email,
+        phoneNumber: phoneNumber,
+        password: password,
+      );
+      _isLoading = false;
+      notifyListeners();
+      return result;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return null;
     }
   }
 
@@ -570,6 +631,8 @@ class AdminProvider extends ChangeNotifier {
                       .map((item) => item.trim())
                       .where((item) => item.isNotEmpty)
                       .toList(),
+                  alternatives: exercise.alternatives,
+                  alternativesCount: exercise.alternatives.length,
                   videoUrl: exercise.videoUrl,
                   thumbnailUrl: exercise.thumbnailUrl,
                   instructions: exercise.instructions,
@@ -768,6 +831,83 @@ class AdminProvider extends ChangeNotifier {
 
     try {
       await _repository.refreshWorkoutTemplateUsers(planId);
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionMealTemplates({
+    String? mealType,
+    bool? active,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _nutritionMealTemplates = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionMealTemplates(
+              mealType: mealType,
+              active: active,
+            );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> getNutritionMealTemplate(
+      String templateId) async {
+    try {
+      return await _repository.getNutritionMealTemplate(templateId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> saveNutritionMealTemplate(Map<String, dynamic> template) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.saveNutritionMealTemplate(template);
+      }
+      await loadNutritionMealTemplates();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> importNutritionMealTemplatesFromFile(String filePath) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.importNutritionMealTemplatesFromFile(filePath);
+      }
+      await loadNutritionMealTemplates();
       _isLoading = false;
       notifyListeners();
       return true;

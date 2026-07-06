@@ -4,6 +4,7 @@ class AdminUser {
   final String? email;
   final String? phoneNumber;
   final String? profilePhotoUrl;
+  final String role;
   final String subscriptionTier;
   final bool isActive;
   final String? coachId;
@@ -17,6 +18,7 @@ class AdminUser {
     this.email,
     this.phoneNumber,
     this.profilePhotoUrl,
+    this.role = 'user',
     required this.subscriptionTier,
     required this.isActive,
     this.coachId,
@@ -39,6 +41,7 @@ class AdminUser {
       profilePhotoUrl: _asNullableString(json['profile_photo_url'] ??
           json['profilePhotoUrl'] ??
           json['avatar']),
+      role: _asString(json['role'], fallback: 'user'),
       subscriptionTier: _asString(
         json['subscription_tier'] ?? json['subscriptionTier'] ?? json['tier'],
         fallback: 'freemium',
@@ -71,6 +74,7 @@ class AdminUser {
       'email': email,
       'phone_number': phoneNumber,
       'profile_photo_url': profilePhotoUrl,
+      'role': role,
       'subscription_tier': subscriptionTier,
       'is_active': isActive,
       'coach_id': coachId,

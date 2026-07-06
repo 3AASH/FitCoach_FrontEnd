@@ -40,7 +40,16 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
   final _stateController = TextEditingController();
   final _zipController = TextEditingController();
   final _notesController = TextEditingController();
-  final _countryController = TextEditingController();
+  String _selectedCountryCode = 'SA';
+
+  static const List<Map<String, String>> _countryOptions = [
+    {'code': 'SA', 'labelKey': 'checkout_country_sa'},
+    {'code': 'AE', 'labelKey': 'checkout_country_ae'},
+    {'code': 'KW', 'labelKey': 'checkout_country_kw'},
+    {'code': 'QA', 'labelKey': 'checkout_country_qa'},
+    {'code': 'BH', 'labelKey': 'checkout_country_bh'},
+    {'code': 'OM', 'labelKey': 'checkout_country_om'},
+  ];
 
   // Payment
   // Cash on delivery is the only payment method until online payment is
@@ -57,14 +66,14 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     _stateController.dispose();
     _zipController.dispose();
     _notesController.dispose();
-    _countryController.dispose();
     super.dispose();
   }
 
   double get _subtotal {
     return widget.cartItems.fold<double>(
       0,
-      (sum, item) => sum + (item['price'] as num).toDouble() * (item['quantity'] as int),
+      (sum, item) =>
+          sum + (item['price'] as num).toDouble() * (item['quantity'] as int),
     );
   }
 
@@ -84,7 +93,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     if (_fullNameController.text.trim().isEmpty ||
         _emailController.text.trim().isEmpty ||
         _phoneController.text.trim().isEmpty ||
-        _addressController.text.trim().isEmpty) {
+        _addressController.text.trim().isEmpty ||
+        _cityController.text.trim().isEmpty) {
       _showError(lang.t('checkout_fill_required'));
       return false;
     }
@@ -136,10 +146,18 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       _cityController.text.trim(),
       _stateController.text.trim(),
       _zipController.text.trim(),
-      _countryController.text.trim().isEmpty ? lang.t('checkout_country_default') : _countryController.text.trim(),
+      _countryLabel(lang),
     ].where((p) => p.isNotEmpty).toList();
 
     return parts.join(', ');
+  }
+
+  String _countryLabel(LanguageProvider lang) {
+    final option = _countryOptions.firstWhere(
+      (country) => country['code'] == _selectedCountryCode,
+      orElse: () => _countryOptions.first,
+    );
+    return lang.t(option['labelKey']!);
   }
 
   String _mapBackendStatusToUi(String status) {
@@ -179,7 +197,9 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
 
     try {
       final shippingAddress = _buildShippingAddressString(lang);
-      final notes = _notesController.text.trim().isEmpty ? null : _notesController.text.trim();
+      final notes = _notesController.text.trim().isEmpty
+          ? null
+          : _notesController.text.trim();
 
       // Preferred: use StoreProvider (backend + cart clearing) in non-demo mode.
       if (!DemoConfig.isDemo) {
@@ -228,6 +248,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               'city': _cityController.text.trim(),
               'state': _stateController.text.trim(),
               'zip': _zipController.text.trim(),
+              'country': _countryLabel(lang),
               'notes': _notesController.text.trim(),
             },
             'paymentMethod': 'cod',
@@ -291,6 +312,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
             'city': _cityController.text.trim(),
             'state': _stateController.text.trim(),
             'zip': _zipController.text.trim(),
+            'country': _countryLabel(lang),
             'notes': _notesController.text.trim(),
           },
           'paymentMethod': 'cod',
@@ -324,6 +346,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
           'city': _cityController.text.trim(),
           'state': _stateController.text.trim(),
           'zip': _zipController.text.trim(),
+          'country': _countryLabel(lang),
           'notes': _notesController.text.trim(),
         },
         'paymentMethod': 'cod',
@@ -372,9 +395,6 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
-
-    // Keep a stable value in the disabled field.
-    _countryController.text = lang.t('checkout_country_default');
 
     return Scaffold(
       body: SafeArea(
@@ -491,7 +511,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                     ? const Icon(Icons.check, color: Colors.white, size: 18)
                     : Text(
                         '${index + 1}',
-                        style: TextStyle(color: textColor, fontWeight: FontWeight.w700),
+                        style: TextStyle(
+                            color: textColor, fontWeight: FontWeight.w700),
                       ),
               ),
             ),
@@ -501,7 +522,9 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: isActive || isComplete ? AppColors.textPrimary : AppColors.textSecondary,
+                color: isActive || isComplete
+                    ? AppColors.textPrimary
+                    : AppColors.textSecondary,
               ),
             ),
           ],
@@ -626,12 +649,27 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                   ),
                   const SizedBox(width: 12),
                   Expanded(
-                    child: _field(
-                      lang: lang,
-                      controller: _countryController,
-                      labelKey: 'checkout_country',
-                      icon: Icons.public,
-                      enabled: false,
+                    child: DropdownButtonFormField<String>(
+                      initialValue: _selectedCountryCode,
+                      decoration: InputDecoration(
+                        labelText: lang.t('checkout_country'),
+                        prefixIcon: const Icon(Icons.public),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        filled: true,
+                        fillColor: AppColors.surface,
+                      ),
+                      items: _countryOptions.map((country) {
+                        return DropdownMenuItem<String>(
+                          value: country['code'],
+                          child: Text(lang.t(country['labelKey']!)),
+                        );
+                      }).toList(),
+                      onChanged: (value) {
+                        if (value == null) return;
+                        setState(() => _selectedCountryCode = value);
+                      },
                     ),
                   ),
                 ],
@@ -676,10 +714,12 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               // shown as the single, pre-selected option.
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.payments_outlined, color: AppColors.primary),
+                leading: const Icon(Icons.payments_outlined,
+                    color: AppColors.primary),
                 title: Text(lang.t('payment_method_cod')),
                 subtitle: Text(lang.t('checkout_cod_only_note')),
-                trailing: const Icon(Icons.check_circle, color: AppColors.success),
+                trailing:
+                    const Icon(Icons.check_circle, color: AppColors.success),
               ),
             ],
           ),
@@ -707,7 +747,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(lang.t('checkout_shipping_to'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(lang.t('checkout_shipping_to'),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               Text(_fullNameController.text.trim()),
               const SizedBox(height: 2),
@@ -715,7 +756,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               const SizedBox(height: 2),
               Text(_phoneController.text.trim()),
               const SizedBox(height: 12),
-              Text(lang.t('checkout_payment_method'), style: const TextStyle(fontWeight: FontWeight.w700)),
+              Text(lang.t('checkout_payment_method'),
+                  style: const TextStyle(fontWeight: FontWeight.w700)),
               const SizedBox(height: 8),
               Text(
                 _paymentMethod == StorePaymentMethod.card
@@ -743,7 +785,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
             borderRadius: BorderRadius.circular(36),
             border: Border.all(color: AppColors.success.withValues(alpha: 0.3)),
           ),
-          child: const Icon(Icons.check_circle, color: AppColors.success, size: 40),
+          child: const Icon(Icons.check_circle,
+              color: AppColors.success, size: 40),
         ),
         const SizedBox(height: 12),
         Text(
@@ -781,35 +824,32 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(lang.t('checkout_items'), style: const TextStyle(fontWeight: FontWeight.w700)),
+          Text(lang.t('checkout_items'),
+              style: const TextStyle(fontWeight: FontWeight.w700)),
           const SizedBox(height: 12),
           ...widget.cartItems.map((item) {
-            final name = isArabic ? (item['nameAr'] ?? item['nameEn']) : (item['nameEn'] ?? item['nameAr']);
+            final name = isArabic
+                ? (item['nameAr'] ?? item['nameEn'])
+                : (item['nameEn'] ?? item['nameAr']);
             final price = (item['price'] as num).toDouble();
             final qty = item['quantity'] as int;
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Row(
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: Image.network(
-                      item['image'] as String,
-                      width: 46,
-                      height: 46,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                  _buildProductThumbnail(item['image']),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(name.toString(), maxLines: 2, overflow: TextOverflow.ellipsis),
+                        Text(name.toString(),
+                            maxLines: 2, overflow: TextOverflow.ellipsis),
                         const SizedBox(height: 2),
                         Text(
-                          '${qty} × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          '$qty x ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
+                          style: const TextStyle(
+                              color: AppColors.textSecondary, fontSize: 12),
                         ),
                       ],
                     ),
@@ -820,6 +860,33 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
           }),
         ],
       ),
+    );
+  }
+
+  Widget _buildProductThumbnail(dynamic imageValue) {
+    final imageUrl = imageValue?.toString().trim() ?? '';
+    final fallback = Container(
+      width: 46,
+      height: 46,
+      color: AppColors.surface,
+      child: const Icon(
+        Icons.image_not_supported_outlined,
+        color: AppColors.textDisabled,
+        size: 22,
+      ),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(8),
+      child: imageUrl.isEmpty
+          ? fallback
+          : Image.network(
+              imageUrl,
+              width: 46,
+              height: 46,
+              fit: BoxFit.cover,
+              errorBuilder: (_, __, ___) => fallback,
+            ),
     );
   }
 
@@ -844,14 +911,16 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     return CustomCard(
       child: Column(
         children: [
-          row(lang.t('subtotal'), '${_subtotal.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
+          row(lang.t('subtotal'),
+              '${_subtotal.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
           row(
             lang.t('shipping_fee'),
             _shipping == 0
                 ? lang.t('free')
                 : '${_shipping.toStringAsFixed(2)} ${lang.t('currency_sar')}',
           ),
-          row(lang.t('tax_vat'), '${_tax.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
+          row(lang.t('tax_vat'),
+              '${_tax.toStringAsFixed(2)} ${lang.t('currency_sar')}'),
           const Divider(height: 20),
           row(
             lang.t('total'),

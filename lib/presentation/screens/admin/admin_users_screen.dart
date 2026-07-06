@@ -7,9 +7,16 @@ import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/admin_user.dart';
 import '../../../data/models/admin_coach.dart';
+import '../../../data/repositories/admin_repository.dart';
+import 'admin_coaches_screen.dart';
 
 class AdminUsersScreen extends StatefulWidget {
-  const AdminUsersScreen({super.key});
+  const AdminUsersScreen({
+    super.key,
+    this.initialRole = 'customers',
+  });
+
+  final String initialRole;
 
   @override
   State<AdminUsersScreen> createState() => _AdminUsersScreenState();
@@ -17,23 +24,35 @@ class AdminUsersScreen extends StatefulWidget {
 
 class _AdminUsersScreenState extends State<AdminUsersScreen> {
   final TextEditingController _searchController = TextEditingController();
+  late String _roleFilter;
   String? _tierFilter;
   String? _statusFilter;
 
   @override
   void initState() {
     super.initState();
+    _roleFilter = widget.initialRole;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadUsers();
+      _loadDirectory();
     });
   }
 
-  void _loadUsers() {
+  void _loadDirectory() {
     final adminProvider = context.read<AdminProvider>();
+    if (_roleFilter == 'coaches') {
+      adminProvider.loadCoaches(
+        search:
+            _searchController.text.isNotEmpty ? _searchController.text : null,
+        status: _statusFilter,
+      );
+      return;
+    }
+
     adminProvider.loadUsers(
       search: _searchController.text.isNotEmpty ? _searchController.text : null,
-      subscriptionTier: _tierFilter,
+      subscriptionTier: _roleFilter == 'customers' ? _tierFilter : null,
       status: _statusFilter,
+      role: _roleFilter,
     );
   }
 
@@ -48,15 +67,24 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final adminProvider = context.watch<AdminProvider>();
     final lang = languageProvider;
-    final usersError = adminProvider.usersError;
+    final directoryError = _roleFilter == 'coaches'
+        ? adminProvider.coachesError
+        : adminProvider.usersError;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_users_title')),
         actions: [
           IconButton(
+            tooltip: lang.t('admin_create_admin_action'),
+            icon: const Icon(Icons.admin_panel_settings),
+            onPressed: _roleFilter == 'admins'
+                ? () => _showCreateAdminDialog(lang)
+                : null,
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadUsers,
+            onPressed: _loadDirectory,
           ),
         ],
       ),
@@ -78,7 +106,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
-                              _loadUsers();
+                              _loadDirectory();
                             },
                           )
                         : null,
@@ -89,10 +117,56 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   onChanged: (value) {
                     Future.delayed(const Duration(milliseconds: 500), () {
                       if (_searchController.text == value) {
-                        _loadUsers();
+                        _loadDirectory();
                       }
                     });
                   },
+                ),
+
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        selected: _roleFilter == 'customers',
+                        label: Text(lang.t('admin_user_role_customers')),
+                        onSelected: (_) {
+                          setState(() {
+                            _roleFilter = 'customers';
+                          });
+                          _loadDirectory();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ChoiceChip(
+                        selected: _roleFilter == 'coaches',
+                        label: Text(lang.t('admin_user_role_coaches')),
+                        onSelected: (_) {
+                          setState(() {
+                            _roleFilter = 'coaches';
+                            _tierFilter = null;
+                          });
+                          _loadDirectory();
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ChoiceChip(
+                        selected: _roleFilter == 'admins',
+                        label: Text(lang.t('admin_user_role_admins')),
+                        onSelected: (_) {
+                          setState(() {
+                            _roleFilter = 'admins';
+                            _tierFilter = null;
+                          });
+                          _loadDirectory();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
 
                 const SizedBox(height: 12),
@@ -100,42 +174,44 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 // Filters
                 Row(
                   children: [
-                    Expanded(
-                      child: DropdownButtonFormField<String?>(
-                        value: _tierFilter,
-                        decoration: InputDecoration(
-                          labelText: lang.t('admin_users_filter_tier'),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                    if (_roleFilter == 'customers') ...[
+                      Expanded(
+                        child: DropdownButtonFormField<String?>(
+                          value: _tierFilter,
+                          decoration: InputDecoration(
+                            labelText: lang.t('admin_users_filter_tier'),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
+                          items: [
+                            DropdownMenuItem(
+                              value: null,
+                              child: Text(lang.t('admin_filter_all')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'freemium',
+                              child: Text(lang.t('admin_tier_freemium')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'premium',
+                              child: Text(lang.t('admin_tier_premium')),
+                            ),
+                            DropdownMenuItem(
+                              value: 'smart_premium',
+                              child: Text(lang.t('admin_tier_smart_premium')),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              _tierFilter = value;
+                            });
+                            _loadDirectory();
+                          },
                         ),
-                        items: [
-                          DropdownMenuItem(
-                            value: null,
-                            child: Text(lang.t('admin_filter_all')),
-                          ),
-                          DropdownMenuItem(
-                            value: 'freemium',
-                            child: Text(lang.t('admin_tier_freemium')),
-                          ),
-                          DropdownMenuItem(
-                            value: 'premium',
-                            child: Text(lang.t('admin_tier_premium')),
-                          ),
-                          DropdownMenuItem(
-                            value: 'smart_premium',
-                            child: Text(lang.t('admin_tier_smart_premium')),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            _tierFilter = value;
-                          });
-                          _loadUsers();
-                        },
                       ),
-                    ),
-                    const SizedBox(width: 12),
+                      const SizedBox(width: 12),
+                    ],
                     Expanded(
                       child: DropdownButtonFormField<String?>(
                         value: _statusFilter,
@@ -163,12 +239,23 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           setState(() {
                             _statusFilter = value;
                           });
-                          _loadUsers();
+                          _loadDirectory();
                         },
                       ),
                     ),
                   ],
                 ),
+                if (_roleFilter == 'admins') ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      onPressed: () => _showCreateAdminDialog(lang),
+                      icon: const Icon(Icons.admin_panel_settings),
+                      label: Text(lang.t('admin_create_admin_action')),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -177,7 +264,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           Expanded(
             child: adminProvider.isLoading
                 ? const Center(child: CircularProgressIndicator())
-                : usersError != null
+                : directoryError != null
                     ? Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -186,53 +273,183 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 size: 64, color: AppColors.error),
                             const SizedBox(height: 16),
                             Text(
-                              usersError,
+                              directoryError,
                               textAlign: TextAlign.center,
                               style: const TextStyle(color: AppColors.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
-                              onPressed: _loadUsers,
+                              onPressed: _loadDirectory,
                               child: Text(lang.t('retry')),
                             ),
                           ],
                         ),
                       )
-                    : adminProvider.users.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.people_outline,
-                                  size: 64,
-                                  color: AppColors.textDisabled,
+                    : _roleFilter == 'coaches'
+                        ? _buildCoachDirectory(adminProvider, lang)
+                        : adminProvider.users.isEmpty
+                            ? Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.people_outline,
+                                      size: 64,
+                                      color: AppColors.textDisabled,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Text(
+                                      lang.t('admin_users_empty'),
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const SizedBox(height: 16),
-                                Text(
-                                  lang.t('admin_users_empty'),
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    color: AppColors.textSecondary,
-                                  ),
+                              )
+                            : RefreshIndicator(
+                                onRefresh: () async => _loadDirectory(),
+                                child: ListView.builder(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 16),
+                                  itemCount: adminProvider.users.length,
+                                  itemBuilder: (context, index) {
+                                    final user = adminProvider.users[index];
+                                    return _buildUserCard(user, lang);
+                                  },
                                 ),
-                              ],
-                            ),
-                          )
-                        : RefreshIndicator(
-                            onRefresh: () async => _loadUsers(),
-                            child: ListView.builder(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16),
-                              itemCount: adminProvider.users.length,
-                              itemBuilder: (context, index) {
-                                final user = adminProvider.users[index];
-                                return _buildUserCard(user, lang);
-                              },
-                            ),
-                          ),
+                              ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCoachDirectory(
+      AdminProvider adminProvider, LanguageProvider lang) {
+    if (adminProvider.coaches.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.sports_outlined,
+              size: 64,
+              color: AppColors.textDisabled,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              lang.t('admin_coaches_empty'),
+              style: const TextStyle(
+                fontSize: 18,
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async => _loadDirectory(),
+      child: ListView.builder(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: adminProvider.coaches.length,
+        itemBuilder: (context, index) {
+          final coach = adminProvider.coaches[index];
+          return _buildCoachCard(coach, lang);
+        },
+      ),
+    );
+  }
+
+  Widget _buildCoachCard(AdminCoach coach, LanguageProvider lang) {
+    final status = coach.effectiveStatus;
+    final statusColor = status == 'active'
+        ? AppColors.success
+        : status == 'pending'
+            ? AppColors.warning
+            : AppColors.error;
+
+    return CustomCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: ListTile(
+        contentPadding: const EdgeInsets.all(12),
+        leading: CircleAvatar(
+          radius: 28,
+          backgroundColor: AppColors.secondary.withValues(alpha: 0.12),
+          backgroundImage: coach.profilePhotoUrl != null
+              ? NetworkImage(coach.profilePhotoUrl!)
+              : null,
+          child: coach.profilePhotoUrl == null
+              ? Text(
+                  coach.initials,
+                  style: const TextStyle(
+                    color: AppColors.secondary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                )
+              : null,
+        ),
+        title: Text(
+          coach.fullName,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w700),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (coach.email != null)
+              Text(
+                coach.email!,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                _buildMiniBadge(
+                  coach.isApproved
+                      ? lang.t('admin_status_approved')
+                      : lang.t('admin_status_pending'),
+                  coach.isApproved ? AppColors.success : AppColors.warning,
+                ),
+                _buildMiniBadge(status, statusColor),
+                _buildMiniBadge(
+                  '${coach.clientCount} ${lang.t('admin_clients_label')}',
+                  AppColors.primary,
+                ),
+              ],
+            ),
+          ],
+        ),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const AdminCoachesScreen()),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMiniBadge(String label, Color color) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(
+          color: AppColors.textWhite,
+          fontSize: 10,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     );
   }
@@ -623,7 +840,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       ),
                     );
                     await context.read<AdminProvider>().loadCoaches();
-                    _loadUsers();
+                    _loadDirectory();
                   }
                 },
                 child: Text(lang.t('save')),
@@ -674,6 +891,162 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       }
     }
     return null;
+  }
+
+  void _showCreateAdminDialog(LanguageProvider lang) {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController();
+    final emailController = TextEditingController();
+    final phoneController = TextEditingController();
+    final passwordController = TextEditingController();
+    bool saving = false;
+
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            title: Text(lang.t('admin_create_admin_title')),
+            content: Form(
+              key: formKey,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nameController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('admin_full_name_label'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      validator: (value) =>
+                          value == null || value.trim().isEmpty
+                              ? lang.t('admin_full_name_required')
+                              : null,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: emailController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('email'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        final email = value?.trim() ?? '';
+                        if (email.isEmpty) {
+                          return lang.t('admin_email_required');
+                        }
+                        if (!email.contains('@') || !email.contains('.')) {
+                          return lang.t('admin_invalid_email');
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: phoneController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('admin_phone_optional'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      keyboardType: TextInputType.phone,
+                    ),
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: passwordController,
+                      decoration: InputDecoration(
+                        labelText: lang.t('admin_password_optional'),
+                        helperText: lang.t('admin_password_optional_hint'),
+                        border: const OutlineInputBorder(),
+                      ),
+                      obscureText: true,
+                      validator: (value) {
+                        final password = value?.trim() ?? '';
+                        if (password.isNotEmpty && password.length < 6) {
+                          return lang.t('admin_password_min');
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: saving ? null : () => Navigator.pop(dialogContext),
+                child: Text(lang.t('cancel')),
+              ),
+              ElevatedButton(
+                onPressed: saving
+                    ? null
+                    : () async {
+                        if (!(formKey.currentState?.validate() ?? false)) {
+                          return;
+                        }
+                        setDialogState(() => saving = true);
+                        final dialogNavigator = Navigator.of(dialogContext);
+                        final messenger = ScaffoldMessenger.of(context);
+                        final adminProvider = context.read<AdminProvider>();
+                        final result = await adminProvider.createAdmin(
+                          fullName: nameController.text.trim(),
+                          email: emailController.text.trim(),
+                          phoneNumber: phoneController.text.trim(),
+                          password: passwordController.text.trim(),
+                        );
+                        if (!mounted) return;
+                        dialogNavigator.pop();
+                        if (result == null) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(adminProvider.error ??
+                                  lang.t('admin_create_admin_failed')),
+                              backgroundColor: AppColors.error,
+                            ),
+                          );
+                          return;
+                        }
+                        _loadDirectory();
+                        _showAdminCredentialsDialog(result, lang);
+                      },
+                child: Text(saving
+                    ? lang.t('admin_sending')
+                    : lang.t('admin_create_admin_action')),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _showAdminCredentialsDialog(
+      AdminCreationResult result, LanguageProvider lang) {
+    final credentials = result.credentials;
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(lang.t('admin_admin_created_success')),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                '${lang.t('email')}: ${credentials?.email ?? result.admin.email ?? ''}'),
+            const SizedBox(height: 8),
+            Text(
+                '${lang.t('password')}: ${credentials?.defaultPassword ?? '123456'}'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(lang.t('ok')),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showSuspendUserDialog(AdminUser user, LanguageProvider lang) {
@@ -730,7 +1103,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     backgroundColor: AppColors.success,
                   ),
                 );
-                _loadUsers();
+                _loadDirectory();
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
@@ -768,7 +1141,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     backgroundColor: AppColors.success,
                   ),
                 );
-                _loadUsers();
+                _loadDirectory();
               }
             },
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),

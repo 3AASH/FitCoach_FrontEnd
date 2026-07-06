@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/repositories/workout_repository.dart';
 import '../../../data/services/exercise_catalog_service.dart';
 import '../../providers/language_provider.dart';
@@ -258,13 +259,15 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         _formatEquip(exercise['equipmentList'] as List<dynamic>, isArabic);
     final musclesLabel =
         _formatMuscles(exercise['muscleList'] as List<dynamic>, isArabic);
+    final thumbnail = _resolveThumbnail(
+        exercise['thumbnail'] as String?, exercise['videoUrl'] as String?);
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
       onTap: () => _showExerciseDetail(exercise, isArabic),
       child: Row(
         children: [
           // Thumbnail
-          _buildThumbnail(exercise['thumbnail'] as String?, 80, 80),
+          _buildThumbnail(thumbnail, 80, 80),
 
           const SizedBox(width: 16),
 
@@ -419,6 +422,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     final instructions = isArabic
         ? (exercise['instructionsAr'] as List<dynamic>)
         : (exercise['instructions'] as List<dynamic>);
+    final thumbnail = _resolveThumbnail(
+        exercise['thumbnail'] as String?, exercise['videoUrl'] as String?);
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -428,9 +434,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         minChildSize: 0.5,
         maxChildSize: 0.9,
         builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: theme.cardColor,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: SingleChildScrollView(
             controller: scrollController,
@@ -456,7 +462,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   alignment: Alignment.center,
                   children: [
                     _buildThumbnail(
-                      exercise['thumbnail'] as String?,
+                      thumbnail,
                       double.infinity,
                       200,
                       borderRadius: 12,
@@ -707,6 +713,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         fit: BoxFit.cover,
         errorBuilder: (_, __, ___) => placeholder,
       ),
+    );
+  }
+
+  String? _resolveThumbnail(String? thumbnailUrl, String? videoUrl) {
+    return VideoThumbnailResolver.resolve(
+      thumbnailUrl: thumbnailUrl,
+      videoUrl: videoUrl,
     );
   }
 

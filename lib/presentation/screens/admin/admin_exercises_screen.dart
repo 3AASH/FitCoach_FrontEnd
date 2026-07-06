@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/admin_exercise.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
@@ -123,6 +124,7 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                               final exercise = provider.exercises[index];
                               return _ExerciseAdminCard(
                                 exercise: exercise,
+                                availableExercises: provider.exercises,
                                 onEdit: () => _openEditor(exercise: exercise),
                                 onUploadVideo: () => _uploadVideo(exercise),
                                 onDelete: () => _confirmDelete(exercise),
@@ -138,10 +140,14 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
   }
 
   Future<void> _openEditor({AdminExercise? exercise}) async {
+    final availableExercises = context.read<AdminProvider>().exercises;
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _ExerciseEditorSheet(exercise: exercise),
+      builder: (_) => _ExerciseEditorSheet(
+        exercise: exercise,
+        availableExercises: availableExercises,
+      ),
     );
   }
 
@@ -201,12 +207,14 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
 
 class _ExerciseAdminCard extends StatelessWidget {
   final AdminExercise exercise;
+  final List<AdminExercise> availableExercises;
   final VoidCallback onEdit;
   final VoidCallback onUploadVideo;
   final VoidCallback onDelete;
 
   const _ExerciseAdminCard({
     required this.exercise,
+    required this.availableExercises,
     required this.onEdit,
     required this.onUploadVideo,
     required this.onDelete,
@@ -219,6 +227,9 @@ class _ExerciseAdminCard extends StatelessWidget {
       if (exercise.muscleGroups.isNotEmpty) exercise.muscleGroups.join(', '),
       if (exercise.equipment.isNotEmpty) exercise.equipment.join(', '),
     ].join(' • ');
+    final alternativesCount =
+        exercise.alternativesCount ?? exercise.alternatives.length;
+    final alternativeLabels = _alternativeLabels();
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -227,7 +238,8 @@ class _ExerciseAdminCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            _ExerciseThumb(url: exercise.thumbnailUrl),
+            _ExerciseThumb(
+                url: exercise.thumbnailUrl, videoUrl: exercise.videoUrl),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -252,6 +264,18 @@ class _ExerciseAdminCard extends StatelessWidget {
                       ),
                     ),
                   ],
+                  if (alternativeLabels.isNotEmpty) ...[
+                    const SizedBox(height: 4),
+                    Text(
+                      'Swaps: ${alternativeLabels.take(3).join(', ')}${alternativeLabels.length > 3 ? ' +' : ''}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8,
@@ -261,6 +285,17 @@ class _ExerciseAdminCard extends StatelessWidget {
                         _Badge(label: exercise.difficulty!),
                       if (exercise.videoUrl != null)
                         const _Badge(label: 'Video'),
+                      _Badge(
+                        label: exercise.hasAlternatives
+                            ? 'Swaps $alternativesCount'
+                            : 'No swaps',
+                        background: exercise.hasAlternatives
+                            ? AppColors.success.withValues(alpha: 0.14)
+                            : AppColors.surface,
+                        foreground: exercise.hasAlternatives
+                            ? AppColors.success
+                            : AppColors.textSecondary,
+                      ),
                     ],
                   ),
                 ],
@@ -287,12 +322,29 @@ class _ExerciseAdminCard extends StatelessWidget {
       ),
     );
   }
+
+  List<String> _alternativeLabels() {
+    final byKey = <String, AdminExercise>{};
+    for (final item in availableExercises) {
+      byKey[item.id] = item;
+      final exId = item.exId;
+      if (exId != null && exId.trim().isNotEmpty) {
+        byKey[exId] = item;
+      }
+    }
+
+    return exercise.alternatives.map((id) => byKey[id]?.nameEn ?? id).toList();
+  }
 }
 
 class _ExerciseEditorSheet extends StatefulWidget {
   final AdminExercise? exercise;
+  final List<AdminExercise> availableExercises;
 
-  const _ExerciseEditorSheet({this.exercise});
+  const _ExerciseEditorSheet({
+    this.exercise,
+    required this.availableExercises,
+  });
 
   @override
   State<_ExerciseEditorSheet> createState() => _ExerciseEditorSheetState();
@@ -310,6 +362,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
   late final TextEditingController _videoUrl;
   late final TextEditingController _thumbnailUrl;
   late final TextEditingController _instructions;
+  late final Set<String> _selectedAlternatives;
 
   @override
   void initState() {
@@ -324,6 +377,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         TextEditingController(text: exercise?.muscleGroups.join(', ') ?? '');
     _equipment =
         TextEditingController(text: exercise?.equipment.join(', ') ?? '');
+    _selectedAlternatives = {
+      ...(exercise?.alternatives ?? const []).map(_canonicalAlternativeKey),
+    };
     _videoUrl = TextEditingController(text: exercise?.videoUrl ?? '');
     _thumbnailUrl = TextEditingController(text: exercise?.thumbnailUrl ?? '');
     _instructions = TextEditingController(text: exercise?.instructions ?? '');
@@ -389,6 +445,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                 _field(_difficulty, 'Difficulty'),
                 _field(_muscles, 'Muscle groups, comma separated'),
                 _field(_equipment, 'Equipment, comma separated'),
+                _buildSwapSelector(),
                 _field(_videoUrl, 'Video URL'),
                 _field(_thumbnailUrl, 'Thumbnail URL'),
                 _field(_instructions, 'Instructions', maxLines: 4),
@@ -433,6 +490,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     if (!_formKey.currentState!.validate()) return;
 
     final base = widget.exercise;
+    final videoUrl = _emptyToNull(_videoUrl.text);
+    final thumbnailUrl = _emptyToNull(_thumbnailUrl.text) ??
+        VideoThumbnailResolver.fromVideoUrl(videoUrl);
     final exercise = AdminExercise(
       id: base?.id ?? '',
       exId: _emptyToNull(_exId.text),
@@ -442,8 +502,10 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
       difficulty: _emptyToNull(_difficulty.text),
       muscleGroups: _csv(_muscles.text),
       equipment: _csv(_equipment.text),
-      videoUrl: _emptyToNull(_videoUrl.text),
-      thumbnailUrl: _emptyToNull(_thumbnailUrl.text),
+      alternatives: _selectedAlternatives.toList()..sort(),
+      alternativesCount: _selectedAlternatives.length,
+      videoUrl: videoUrl,
+      thumbnailUrl: thumbnailUrl,
       instructions: _emptyToNull(_instructions.text),
     );
 
@@ -474,16 +536,190 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         .where((item) => item.isNotEmpty)
         .toList();
   }
+
+  String _exerciseKey(AdminExercise exercise) => exercise.id;
+
+  String _canonicalAlternativeKey(String id) => _exerciseByKey[id]?.id ?? id;
+
+  Map<String, AdminExercise> get _exerciseByKey {
+    final byKey = <String, AdminExercise>{};
+    for (final exercise in widget.availableExercises) {
+      byKey[exercise.id] = exercise;
+      final exId = exercise.exId;
+      if (exId != null && exId.trim().isNotEmpty) {
+        byKey[exId] = exercise;
+      }
+    }
+    return byKey;
+  }
+
+  List<AdminExercise> get _selectableExercises {
+    final currentId = widget.exercise?.id;
+    final currentExId = widget.exercise?.exId;
+    return widget.availableExercises.where((exercise) {
+      return exercise.id != currentId && exercise.exId != currentExId;
+    }).toList()
+      ..sort(
+          (a, b) => a.nameEn.toLowerCase().compareTo(b.nameEn.toLowerCase()));
+  }
+
+  Widget _buildSwapSelector() {
+    final byKey = _exerciseByKey;
+    final selected = _selectedAlternatives.toList()..sort();
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InputDecorator(
+        decoration: const InputDecoration(
+          labelText: 'Swap alternatives',
+          border: OutlineInputBorder(),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (selected.isEmpty)
+              const Text(
+                'No swap exercises selected',
+                style: TextStyle(color: AppColors.textSecondary),
+              )
+            else
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: selected.map((id) {
+                  final exercise = byKey[id];
+                  return InputChip(
+                    label: Text(exercise?.nameEn ?? id),
+                    onDeleted: () {
+                      setState(() => _selectedAlternatives.remove(id));
+                    },
+                  );
+                }).toList(),
+              ),
+            const SizedBox(height: 12),
+            OutlinedButton.icon(
+              onPressed: _openSwapPicker,
+              icon: const Icon(Icons.swap_horiz),
+              label: const Text('Choose from exercise library'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openSwapPicker() async {
+    final options = _selectableExercises;
+    final draft = {..._selectedAlternatives};
+    String query = '';
+
+    final result = await showDialog<Set<String>>(
+      context: context,
+      builder: (dialogContext) {
+        return StatefulBuilder(
+          builder: (context, setDialogState) {
+            final normalizedQuery = query.trim().toLowerCase();
+            final filtered = normalizedQuery.isEmpty
+                ? options
+                : options.where((exercise) {
+                    final key = _exerciseKey(exercise).toLowerCase();
+                    return exercise.nameEn
+                            .toLowerCase()
+                            .contains(normalizedQuery) ||
+                        (exercise.nameAr ?? '')
+                            .toLowerCase()
+                            .contains(normalizedQuery) ||
+                        key.contains(normalizedQuery);
+                  }).toList();
+
+            return AlertDialog(
+              title: const Text('Choose swap exercises'),
+              content: SizedBox(
+                width: double.maxFinite,
+                height: 460,
+                child: Column(
+                  children: [
+                    TextField(
+                      decoration: const InputDecoration(
+                        prefixIcon: Icon(Icons.search),
+                        labelText: 'Search exercises',
+                        border: OutlineInputBorder(),
+                      ),
+                      onChanged: (value) {
+                        setDialogState(() => query = value);
+                      },
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: filtered.isEmpty
+                          ? const Center(child: Text('No exercises found'))
+                          : ListView.builder(
+                              itemCount: filtered.length,
+                              itemBuilder: (context, index) {
+                                final exercise = filtered[index];
+                                final key = _exerciseKey(exercise);
+                                final selected = draft.contains(key);
+                                return CheckboxListTile(
+                                  value: selected,
+                                  title: Text(exercise.nameEn),
+                                  subtitle: Text([
+                                    if (exercise.exId != null) exercise.exId!,
+                                    if (exercise.muscleGroups.isNotEmpty)
+                                      exercise.muscleGroups.join(', '),
+                                  ].join(' • ')),
+                                  onChanged: (value) {
+                                    setDialogState(() {
+                                      if (value == true) {
+                                        draft.add(key);
+                                      } else {
+                                        draft.remove(key);
+                                      }
+                                    });
+                                  },
+                                );
+                              },
+                            ),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: const Text('Cancel'),
+                ),
+                FilledButton(
+                  onPressed: () => Navigator.pop(dialogContext, draft),
+                  child: const Text('Apply'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+
+    if (result == null) return;
+    setState(() {
+      _selectedAlternatives
+        ..clear()
+        ..addAll(result);
+    });
+  }
 }
 
 class _ExerciseThumb extends StatelessWidget {
   final String? url;
+  final String? videoUrl;
 
-  const _ExerciseThumb({this.url});
+  const _ExerciseThumb({this.url, this.videoUrl});
 
   @override
   Widget build(BuildContext context) {
-    final imageUrl = url;
+    final imageUrl = VideoThumbnailResolver.resolve(
+      thumbnailUrl: url,
+      videoUrl: videoUrl,
+    );
     if (imageUrl == null || imageUrl.isEmpty) {
       return _placeholder();
     }
@@ -514,21 +750,27 @@ class _ExerciseThumb extends StatelessWidget {
 
 class _Badge extends StatelessWidget {
   final String label;
+  final Color? background;
+  final Color? foreground;
 
-  const _Badge({required this.label});
+  const _Badge({
+    required this.label,
+    this.background,
+    this.foreground,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.1),
+        color: background ?? AppColors.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          color: AppColors.primary,
+        style: TextStyle(
+          color: foreground ?? AppColors.primary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),

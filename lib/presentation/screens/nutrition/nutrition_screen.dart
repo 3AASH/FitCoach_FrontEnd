@@ -42,12 +42,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
   void initState() {
     super.initState();
     _loadIntroFlag();
-    _loadPreferencesFlag();
-    Future.microtask(() {
-      final provider = context.read<NutritionProvider>();
-      provider.loadActivePlan();
-      provider.checkTrialStatus();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _loadNutritionState();
     });
+  }
+
+  Future<void> _loadNutritionState() async {
+    final provider = context.read<NutritionProvider>();
+    await provider.loadActivePlan();
+    await provider.checkTrialStatus();
+    if (!mounted) return;
+    await _loadPreferencesFlag(hasPlan: provider.activePlan != null);
   }
 
   Future<void> _loadIntroFlag() async {
@@ -71,11 +77,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
   }
 
-  Future<void> _loadPreferencesFlag() async {
-    final prefs = await SharedPreferences.getInstance();
+  Future<void> _loadPreferencesFlag({bool hasPlan = false}) async {
     final authUserId = context.read<AuthProvider>().user?.id;
     final userId =
         authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
+    final prefs = await SharedPreferences.getInstance();
     if (userId == null) {
       if (mounted) {
         setState(() {
@@ -87,6 +93,19 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
+
+    if (hasPlan) {
+      await prefs.setBool(completedKey, true);
+      await prefs.setBool(pendingKey, false);
+      if (mounted) {
+        setState(() {
+          _showPreferencesIntake = false;
+          _preferencesLoaded = true;
+        });
+      }
+      return;
+    }
+
     final pending = prefs.getBool(pendingKey) ?? false;
     final completed = prefs.getBool(completedKey) ?? false;
 
@@ -99,11 +118,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Future<void> _completePreferences(Map<String, dynamic> preferences) async {
-    final prefs = await SharedPreferences.getInstance();
     final authUserId = context.read<AuthProvider>().user?.id;
+    final nutritionProvider = context.read<NutritionProvider>();
     final userId =
         authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
     if (userId == null) return;
+    final prefs = await SharedPreferences.getInstance();
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
     final prefsKey = 'nutrition_preferences_$userId';
@@ -114,8 +134,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final repository = NutritionRepository();
       await repository.generatePlan(preferences);
       if (mounted) {
-        final provider = context.read<NutritionProvider>();
-        await provider.loadActivePlan();
+        await nutritionProvider.loadActivePlan();
       }
     }
     if (mounted) {
@@ -644,7 +663,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.lock_outline,
                 size: 80,
                 color: AppColors.warning,
@@ -694,7 +713,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.restaurant_outlined,
               size: 80,
               color: AppColors.textDisabled,
@@ -727,7 +746,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             OutlinedButton.icon(
               onPressed: () => setState(() => _showPreferencesIntake = true),
               icon: const Icon(Icons.auto_awesome),
-              label: Text('Generate/Refresh plan'),
+              label: const Text('Generate/Refresh plan'),
             ),
           ],
         ),
@@ -1157,7 +1176,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 ],
               ),
             );
-          }).toList(),
+          }),
 
           if (meal.foods.length > 3) ...[
             const SizedBox(height: 4),
@@ -1286,7 +1305,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       ],
                     ),
                   );
-                }).toList(),
+                }),
 
                 const SizedBox(height: 24),
 
@@ -1346,7 +1365,7 @@ class _MacroRingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
-    final strokeWidth = 8.0;
+    const strokeWidth = 8.0;
 
     // Background circle
     final bgPaint = Paint()

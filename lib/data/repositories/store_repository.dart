@@ -101,6 +101,15 @@ class StoreRepository {
 
   /// Get product categories
   Future<List<String>> getCategories() async {
+    final categories = await getCategoryDetails();
+    return categories
+        .map((category) => category['name']?.toString() ?? '')
+        .where((name) => name.isNotEmpty)
+        .toList();
+  }
+
+  /// Get product categories with metadata
+  Future<List<Map<String, dynamic>>> getCategoryDetails() async {
     try {
       final headers = await _getHeaders();
 
@@ -115,17 +124,22 @@ class StoreRepository {
       return categories
           .map((category) {
             if (category is String) {
-              return category;
+              return <String, dynamic>{'id': category, 'name': category};
             }
             if (category is Map<String, dynamic>) {
               final name = category['name'] ?? category['category'];
-              if (name is String && name.isNotEmpty) {
-                return name;
+              if (name is String && name.trim().isNotEmpty) {
+                return {
+                  ...category,
+                  'id': category['id'] ?? name,
+                  'name': name,
+                  'count': category['product_count'] ?? category['count'] ?? 0,
+                };
               }
             }
             return null;
           })
-          .whereType<String>()
+          .whereType<Map<String, dynamic>>()
           .toList();
     } on DioException catch (e) {
       throw Exception(
@@ -273,6 +287,33 @@ class StoreRepository {
     }
   }
 
+  /// Admin: update order status
+  Future<Map<String, dynamic>> updateOrderStatusAdmin({
+    required String orderId,
+    required String status,
+    String? trackingNumber,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+
+      final response = await _dio.put(
+        '/orders/$orderId/status',
+        data: {
+          'status': status,
+          if (trackingNumber != null && trackingNumber.trim().isNotEmpty)
+            'trackingNumber': trackingNumber.trim(),
+        },
+        options: Options(headers: headers),
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      return data['order'] as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update order status');
+    }
+  }
+
   /// Submit product review
   Future<void> submitReview({
     required String productId,
@@ -391,6 +432,33 @@ class StoreRepository {
     }
   }
 
+  /// Admin: upload product photo and make it the primary image.
+  Future<Map<String, dynamic>> uploadProductPhotoAdmin({
+    required String productId,
+    required String filePath,
+  }) async {
+    try {
+      final token = await _getToken();
+      final formData = FormData.fromMap({
+        'image': await MultipartFile.fromFile(filePath),
+      });
+      final response = await _dio.post(
+        '/admin/products/$productId/photo',
+        data: formData,
+        options: Options(
+          headers: {
+            if (token != null) 'Authorization': 'Bearer $token',
+          },
+        ),
+      );
+
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to upload product photo');
+    }
+  }
+
   /// Admin: delete product
   Future<void> deleteProductAdmin(String productId) async {
     try {
@@ -402,6 +470,54 @@ class StoreRepository {
     } on DioException catch (e) {
       throw Exception(
           e.response?.data['message'] ?? 'Failed to delete product');
+    }
+  }
+
+  /// Admin: create product category
+  Future<Map<String, dynamic>> createCategoryAdmin(String name) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await _dio.post(
+        '/admin/product-categories',
+        data: {'name': name},
+        options: Options(headers: headers),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to save category');
+    }
+  }
+
+  /// Admin: update product category
+  Future<Map<String, dynamic>> updateCategoryAdmin({
+    required String categoryId,
+    required String name,
+  }) async {
+    try {
+      final headers = await _getHeaders();
+      final response = await _dio.put(
+        '/admin/product-categories/$categoryId',
+        data: {'name': name},
+        options: Options(headers: headers),
+      );
+      return response.data as Map<String, dynamic>;
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to update category');
+    }
+  }
+
+  /// Admin: delete product category
+  Future<void> deleteCategoryAdmin(String categoryId) async {
+    try {
+      final headers = await _getHeaders();
+      await _dio.delete(
+        '/admin/product-categories/$categoryId',
+        options: Options(headers: headers),
+      );
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to delete category');
     }
   }
 

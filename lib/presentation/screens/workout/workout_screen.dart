@@ -196,7 +196,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               children: [
                 Text(
                   title,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontWeight: FontWeight.w600,
                     color: AppColors.textPrimary,
                   ),
@@ -259,6 +259,59 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
+  Widget _buildWorkoutScreenShell({
+    PreferredSizeWidget? appBar,
+    required Widget child,
+  }) {
+    return Scaffold(
+      backgroundColor: AppColors.workoutBackground,
+      appBar: appBar,
+      body: Stack(
+        children: [
+          const Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    Color(0xFF071915),
+                    Color(0xFF12362D),
+                    Color(0xFF0B1F1B),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned.fill(
+            child: Image.asset(
+              'assets/placeholders/splash_onboarding/workout_onboarding.png',
+              fit: BoxFit.cover,
+              color: Colors.black.withValues(alpha: 0.18),
+              colorBlendMode: BlendMode.darken,
+            ),
+          ),
+          Positioned.fill(
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.workoutBackground.withValues(alpha: 0.28),
+                    AppColors.workoutBackground.withValues(alpha: 0.62),
+                    AppColors.workoutBackground.withValues(alpha: 0.86),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SafeArea(child: child),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
@@ -277,21 +330,19 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         !workoutProvider.hasLoadedCalendar &&
         !hasPlan;
     if (initialPlanLoading || initialCalendarLoading) {
-      return const Scaffold(
-        backgroundColor: AppColors.workoutBackground,
-        body: Center(
+      return _buildWorkoutScreenShell(
+        child: const Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
 
     if (workoutProvider.error != null && !hasPlan) {
-      return Scaffold(
-        backgroundColor: AppColors.workoutBackground,
+      return _buildWorkoutScreenShell(
         appBar: AppBar(
           title: Text(languageProvider.t('workout')),
         ),
-        body: Center(
+        child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
             child: Column(
@@ -330,16 +381,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     if (!hasPlan &&
         workoutProvider.hasLoadedCalendar &&
         workoutProvider.calendarPlan == null) {
-      return Scaffold(
-        backgroundColor: AppColors.workoutBackground,
+      return _buildWorkoutScreenShell(
         appBar: AppBar(
           title: Text(languageProvider.t('workout')),
         ),
-        body: Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.fitness_center_outlined,
                 size: 80,
                 color: AppColors.textDisabled,
@@ -367,16 +417,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     }
 
     if (workoutProvider.activePlan == null) {
-      return Scaffold(
-        backgroundColor: AppColors.workoutBackground,
+      return _buildWorkoutScreenShell(
         appBar: AppBar(
           title: Text(languageProvider.t('workout')),
         ),
-        body: Center(
+        child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
+              const Icon(
                 Icons.fitness_center_outlined,
                 size: 80,
                 color: AppColors.textDisabled,
@@ -422,65 +471,62 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     final workoutProgress =
         totalExercises == 0 ? 0.0 : completedExercises / totalExercises;
 
-    return Scaffold(
-      backgroundColor: AppColors.workoutBackground,
-      body: SafeArea(
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 560),
-            child: SingleChildScrollView(
-              padding: EdgeInsets.fromLTRB(
-                16,
-                12,
-                16,
-                32 + MediaQuery.of(context).padding.bottom,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildWorkoutHeroHeader(
-                    plan,
+    return _buildWorkoutScreenShell(
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              12,
+              16,
+              32 + MediaQuery.of(context).padding.bottom,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildWorkoutHeroHeader(
+                  plan,
+                  currentDay,
+                  languageProvider,
+                  completedExercises,
+                  totalExercises,
+                  workoutProgress,
+                  isArabic,
+                ),
+                const SizedBox(height: 14),
+                _buildWorkoutCalendarSections(
+                  workoutProvider,
+                  languageProvider,
+                  isArabic,
+                ),
+                const SizedBox(height: 14),
+                _buildWorkoutSummaryCard(
+                  plan,
+                  currentDay,
+                  languageProvider,
+                  workoutProgress,
+                  isArabic,
+                ),
+                const SizedBox(height: 14),
+                if (currentDay != null && currentDay.exercises.isNotEmpty)
+                  _buildExerciseList(
                     currentDay,
-                    languageProvider,
-                    completedExercises,
-                    totalExercises,
-                    workoutProgress,
-                    isArabic,
-                  ),
-                  const SizedBox(height: 14),
-                  _buildWorkoutCalendarSections(
                     workoutProvider,
                     languageProvider,
                     isArabic,
-                  ),
-                  const SizedBox(height: 14),
-                  _buildWorkoutSummaryCard(
-                    plan,
-                    currentDay,
-                    languageProvider,
-                    workoutProgress,
-                    isArabic,
-                  ),
-                  const SizedBox(height: 14),
-                  if (currentDay != null && currentDay.exercises.isNotEmpty)
-                    _buildExerciseList(
-                      currentDay,
-                      workoutProvider,
-                      languageProvider,
-                      isArabic,
-                    )
-                  else
-                    CustomCard(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        languageProvider.t('workout_select_day'),
-                        style: const TextStyle(color: AppColors.textSecondary),
-                        textAlign: TextAlign.center,
-                      ),
+                  )
+                else
+                  CustomCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      languageProvider.t('workout_select_day'),
+                      style: const TextStyle(color: AppColors.textSecondary),
+                      textAlign: TextAlign.center,
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -1454,7 +1500,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       builder: (context) => AlertDialog(
         title: Text(lang.t('substitute_exercise')),
         content: FutureBuilder<List<Exercise>>(
-          future: provider.getExerciseAlternatives(exercise.id, userInjuries),
+          future: provider.getExerciseAlternatives(
+            exercise.exerciseId ?? exercise.id,
+            userInjuries,
+          ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: CircularProgressIndicator());

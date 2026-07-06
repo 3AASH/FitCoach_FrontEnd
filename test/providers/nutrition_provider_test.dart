@@ -222,6 +222,20 @@ void main() {
       expect(meal['completed'], true);
     });
 
+    test('Meal.fromJson should parse backend isCompleted flag', () {
+      final meal = Meal.fromJson({
+        'id': 'meal_backend',
+        'name': 'Backend Meal',
+        'type': 'lunch',
+        'time': '13:00',
+        'foods': [],
+        'calories': 450,
+        'isCompleted': true,
+      });
+
+      expect(meal.completed, true);
+    });
+
     test('getMealProgress should calculate completion percentage', () async {
       await nutritionProvider.loadActivePlan();
 

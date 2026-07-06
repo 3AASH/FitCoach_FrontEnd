@@ -27,7 +27,9 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
   String? _selectedLocation;
 
   Future<void> _submitIntake() async {
-    if (_selectedGender == null || _selectedGoal == null || _selectedLocation == null) {
+    if (_selectedGender == null ||
+        _selectedGoal == null ||
+        _selectedLocation == null) {
       _showError(context.read<LanguageProvider>().t('intake_incomplete'));
       return;
     }
@@ -104,7 +106,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  const Icon(Icons.auto_awesome, color: AppColors.primary, size: 20),
+                                  const Icon(Icons.auto_awesome,
+                                      color: AppColors.primary, size: 20),
                                   const SizedBox(width: 8),
                                   Text(
                                     languageProvider.t('intake_first_title'),
@@ -118,20 +121,23 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                             ),
                             Text(
                               '${_currentStep + 1}/3',
-                              style: const TextStyle(color: AppColors.textSecondary),
+                              style: const TextStyle(
+                                  color: AppColors.textSecondary),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           languageProvider.t('intake_first_subtitle'),
-                          style: const TextStyle(color: AppColors.textSecondary),
+                          style:
+                              const TextStyle(color: AppColors.textSecondary),
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
                           value: (_currentStep + 1) / 3,
                           backgroundColor: AppColors.surface,
-                          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              AppColors.primary),
                         ),
                         const SizedBox(height: 24),
                         _buildCurrentStep(languageProvider),
@@ -140,10 +146,31 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                           children: [
                             Expanded(
                               child: OutlinedButton(
-                                onPressed: _currentStep > 0 ? () {
-                                  setState(() => _currentStep--);
-                                } : widget.onSkip,
-                                child: Text(languageProvider.t('back')),
+                                onPressed: _currentStep > 0
+                                    ? () {
+                                        setState(() => _currentStep--);
+                                      }
+                                    : widget.onSkip,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(
+                                      isArabic
+                                          ? Icons.arrow_forward
+                                          : Icons.arrow_back,
+                                      size: 18,
+                                    ),
+                                    const SizedBox(width: 6),
+                                    Flexible(
+                                      child: Text(
+                                        languageProvider.t('back'),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -153,7 +180,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                     ? null
                                     : () {
                                         if (!_canProceedToNext()) {
-                                          _showError(languageProvider.t('intake_select_option'));
+                                          _showError(languageProvider
+                                              .t('intake_select_option'));
                                           return;
                                         }
                                         if (_currentStep < 2) {
@@ -168,20 +196,27 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                         width: 20,
                                         child: CircularProgressIndicator(
                                           strokeWidth: 2,
-                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                  Colors.white),
                                         ),
                                       )
                                     : Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Text(
                                             _currentStep == 2
-                                                ? languageProvider.t('intake_first_complete')
-                                                : languageProvider.t('continue'),
+                                                ? languageProvider
+                                                    .t('intake_first_complete')
+                                                : languageProvider
+                                                    .t('continue'),
                                           ),
                                           const SizedBox(width: 6),
                                           Icon(
-                                            isArabic ? Icons.arrow_back : Icons.arrow_forward,
+                                            isArabic
+                                                ? Icons.arrow_back
+                                                : Icons.arrow_forward,
                                             size: 18,
                                           ),
                                         ],
@@ -320,7 +355,9 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.08) : Colors.white,
+          color: isSelected
+              ? AppColors.primary.withValues(alpha: 0.08)
+              : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : AppColors.border,

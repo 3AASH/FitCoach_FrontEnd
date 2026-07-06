@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -33,6 +34,7 @@ import 'data/repositories/appointment_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'data/repositories/subscription_plan_repository.dart';
 import 'data/repositories/booking_repository.dart';
+import 'data/services/push_notification_registration_service.dart';
 import 'data/demo/repositories/demo_workout_repository.dart';
 import 'data/demo/repositories/demo_messaging_repository.dart';
 import 'data/demo/repositories/demo_subscription_plan_repository.dart';
@@ -43,6 +45,11 @@ void main() async {
 
   // Initialize Hive for local storage
   await Hive.initFlutter();
+  try {
+    await Firebase.initializeApp();
+  } catch (_) {
+    // Push notifications are optional; app startup should not depend on FCM.
+  }
 
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
@@ -119,6 +126,9 @@ class FitCoachApp extends StatelessWidget {
         Provider<BookingRepository>(
           create: (_) => BookingRepository(),
         ),
+        Provider<PushNotificationRegistrationService>(
+          create: (_) => PushNotificationRegistrationService(),
+        ),
         Provider<StoreRepository>(
           create: (_) => StoreRepository(),
         ),
@@ -136,9 +146,16 @@ class FitCoachApp extends StatelessWidget {
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
           create: (context) => AuthProvider(
             context.read<AuthRepository>(),
+            pushNotifications:
+                context.read<PushNotificationRegistrationService>(),
           ),
           update: (context, authRepo, previous) =>
-              previous ?? AuthProvider(authRepo),
+              previous ??
+              AuthProvider(
+                authRepo,
+                pushNotifications:
+                    context.read<PushNotificationRegistrationService>(),
+              ),
         ),
         ChangeNotifierProxyProvider<AuthProvider, VideoCallProvider>(
           create: (_) => VideoCallProvider(),
