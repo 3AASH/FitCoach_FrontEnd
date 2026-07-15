@@ -8,6 +8,13 @@ import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 
+String _humanizeSnakeCase(String value) {
+  return value
+      .split('_')
+      .map((word) => word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
+      .join(' ');
+}
+
 class AdminExercisesScreen extends StatefulWidget {
   const AdminExercisesScreen({super.key});
 
@@ -224,8 +231,8 @@ class _ExerciseAdminCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final subtitle = [
       if (exercise.exId != null) exercise.exId!,
-      if (exercise.muscleGroups.isNotEmpty) exercise.muscleGroups.join(', '),
-      if (exercise.equipment.isNotEmpty) exercise.equipment.join(', '),
+      if (exercise.muscleGroups.isNotEmpty) exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
+      if (exercise.equipment.isNotEmpty) exercise.equipment.map(_humanizeSnakeCase).join(', '),
     ].join(' • ');
     final alternativesCount =
         exercise.alternativesCount ?? exercise.alternatives.length;
@@ -661,12 +668,18 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                                 final selected = draft.contains(key);
                                 return CheckboxListTile(
                                   value: selected,
-                                  title: Text(exercise.nameEn),
+                                  title: Text(
+                                    exercise.nameEn,
+                                    style: const TextStyle(color: AppColors.textPrimary),
+                                  ),
                                   subtitle: Text([
-                                    if (exercise.exId != null) exercise.exId!,
                                     if (exercise.muscleGroups.isNotEmpty)
-                                      exercise.muscleGroups.join(', '),
-                                  ].join(' • ')),
+                                      exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
+                                    if (exercise.equipment.isNotEmpty)
+                                      exercise.equipment.map(_humanizeSnakeCase).join(', '),
+                                  ].join(' • '),
+                                    style: const TextStyle(color: AppColors.textSecondary),
+                                  ),
                                   onChanged: (value) {
                                     setDialogState(() {
                                       if (value == true) {
