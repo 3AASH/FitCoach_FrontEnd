@@ -192,6 +192,20 @@ class WorkoutProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Reset the selected day back to the plan's current/"today" day.
+  void goToCurrentDay() {
+    if (_activePlan?.days == null || _activePlan!.days!.isEmpty) return;
+    final currentDayNumber = _activePlan!.currentDayNumber;
+    if (currentDayNumber != null) {
+      final index =
+          _activePlan!.days!.indexWhere((d) => d.dayNumber == currentDayNumber);
+      _currentDayIndex = index >= 0 ? index : 0;
+    } else {
+      _currentDayIndex = 0;
+    }
+    notifyListeners();
+  }
+
   Future<bool> completeExercise(String exerciseId) async {
     if (_demoConfig.isDemo) {
       _completedExercises[exerciseId] = true;
