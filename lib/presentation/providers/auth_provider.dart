@@ -159,6 +159,42 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  // Reset password via phone OTP, then log the user in
+  Future<bool> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    _phoneFieldError = null;
+    notifyListeners();
+
+    try {
+      final authResponse = await _repository.resetPassword(
+        phoneNumber: phoneNumber,
+        otpCode: otpCode,
+        newPassword: newPassword,
+      );
+
+      _token = authResponse.token;
+      _user = authResponse.user;
+      _isAuthenticated = true;
+
+      await _repository.storeToken(authResponse.token);
+      _registerPushNotifications();
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _setAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // Login with email or phone
   Future<bool> loginWithEmailOrPhone({
     required String emailOrPhone,

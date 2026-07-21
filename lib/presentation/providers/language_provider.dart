@@ -406,6 +406,13 @@ class LanguageProvider with ChangeNotifier {
     'auth_forgot_password_desc':
         'Enter your email or phone and we will send a reset link',
     'auth_reset_link_sent': 'Reset link sent',
+    'auth_reset_password_phone_desc':
+        'Enter your phone number and we will text you a verification code',
+    'auth_new_password': 'New Password',
+    'auth_reset_password_action': 'Reset Password',
+    'auth_reset_success': 'Password reset. You are now signed in.',
+    'auth_passwords_no_match': 'Passwords do not match',
+    'auth_password_too_short': 'Password must be at least 8 characters',
     'auth_send': 'Send',
     'auth_send_code': 'Send code',
     'auth_signup_code_sent_help':
@@ -1986,6 +1993,13 @@ class LanguageProvider with ChangeNotifier {
     'auth_forgot_password_desc':
         'أدخل البريد الإلكتروني أو رقم الهاتف لإرسال رابط إعادة التعيين',
     'auth_reset_link_sent': 'تم إرسال رابط إعادة التعيين',
+    'auth_reset_password_phone_desc':
+        'أدخل رقم هاتفك وسنرسل لك رمز التحقق عبر رسالة نصية',
+    'auth_new_password': 'كلمة المرور الجديدة',
+    'auth_reset_password_action': 'إعادة تعيين كلمة المرور',
+    'auth_reset_success': 'تمت إعادة تعيين كلمة المرور. تم تسجيل دخولك الآن.',
+    'auth_passwords_no_match': 'كلمتا المرور غير متطابقتين',
+    'auth_password_too_short': 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل',
     'auth_send': 'إرسال',
     'auth_send_code': 'إرسال الرمز',
     'auth_signup_code_sent_help':
