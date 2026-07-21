@@ -23,6 +23,11 @@ class AuthRepositoryException implements Exception {
 abstract class AuthRepositoryBase {
   Future<void> requestOTP(String phoneNumber);
   Future<AuthResponse> verifyOTP(String phoneNumber, String otpCode);
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  });
   Future<AuthResponse> loginWithEmailOrPhone({
     required String emailOrPhone,
     required String password,
@@ -120,6 +125,33 @@ class AuthRepository implements AuthRepositoryBase {
           user: user, token: token, isNewUser: data['isNewUser'] ?? false);
     } on DioException catch (e) {
       throw _buildAuthException(e, fallback: 'Failed to verify OTP');
+    }
+  }
+
+  // Reset password via phone OTP
+  @override
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '$_authBasePath/reset-password',
+        data: {
+          'phoneNumber': phoneNumber,
+          'otpCode': otpCode,
+          'newPassword': newPassword,
+        },
+      );
+
+      final data = response.data as Map<String, dynamic>;
+      final user = UserProfile.fromJson(data['user'] as Map<String, dynamic>);
+      final token = data['token'] as String;
+
+      return AuthResponse(user: user, token: token, isNewUser: false);
+    } on DioException catch (e) {
+      throw _buildAuthException(e, fallback: 'Failed to reset password');
     }
   }
 
