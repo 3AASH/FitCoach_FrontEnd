@@ -31,12 +31,14 @@ class _WorkoutExerciseDetailScreenState
     extends State<WorkoutExerciseDetailScreen> {
   bool _showTutorial = false;
   bool _tutorialLoaded = false;
+  late Exercise _exercise;
   final ExerciseCatalogService _catalogService =
       ExerciseCatalogService.instance;
 
   @override
   void initState() {
     super.initState();
+    _exercise = widget.exercise;
     _loadTutorialFlag();
   }
 
@@ -52,7 +54,7 @@ class _WorkoutExerciseDetailScreenState
   }
 
   Future<void> _openExerciseVideo(bool isArabic) async {
-    final videoUrl = widget.exercise.videoUrl;
+    final videoUrl = _exercise.videoUrl;
     if (videoUrl == null || videoUrl.trim().isEmpty) {
       _showVideoUnavailable(isArabic);
       return;
@@ -80,7 +82,7 @@ class _WorkoutExerciseDetailScreenState
     );
   }
 
-  String get _tutorialKey => 'exercise_seen_${widget.exercise.id}';
+  String get _tutorialKey => 'exercise_seen_${_exercise.id}';
 
   Future<void> _dismissTutorial() async {
     final prefs = await SharedPreferences.getInstance();
@@ -111,7 +113,7 @@ class _WorkoutExerciseDetailScreenState
           padding: const EdgeInsets.all(16),
           child: FutureBuilder<List<Exercise>>(
             future: provider.getExerciseAlternatives(
-              widget.exercise.exerciseId ?? widget.exercise.id,
+              _exercise.exerciseId ?? _exercise.id,
               injuries,
             ),
             builder: (context, snapshot) {
@@ -183,7 +185,7 @@ class _WorkoutExerciseDetailScreenState
                                   lang.t('exercise_substituted_successfully');
                               Navigator.pop(context);
                               final success = await provider.substituteExercise(
-                                widget.exercise.id,
+                                _exercise.id,
                                 alt.id,
                               );
                               if (success && mounted) {
@@ -228,7 +230,24 @@ class _WorkoutExerciseDetailScreenState
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
-    final exercise = widget.exercise;
+    final provider = context.watch<WorkoutProvider>();
+    // Find the current exercise in the active plan so the UI updates
+    // after substitution without needing to pop back.
+    Exercise exercise = widget.exercise;
+    final plan = provider.activePlan;
+    if (plan != null) {
+      for (final day in plan.days ?? []) {
+        for (final ex in day.exercises) {
+          if (ex.id == widget.exercise.id) {
+            _exercise = ex;
+            exercise = ex;
+            break;
+          }
+        }
+      }
+    } else {
+      exercise = _exercise;
+    }
     final equipmentLabel =
         _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));
     final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);

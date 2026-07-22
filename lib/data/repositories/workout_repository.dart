@@ -625,9 +625,9 @@ class WorkoutRepository {
     List<String> userInjuries,
   ) async {
     try {
-      final response = await _dio.post(
-        '/exercises/$exerciseId/alternatives',
-        data: {'injuries': userInjuries},
+      final response = await _dio.get(
+        '/exercises/alternatives/$exerciseId',
+        queryParameters: {'injuries': userInjuries.join(',')},
         options: await _getAuthOptions(),
       );
 

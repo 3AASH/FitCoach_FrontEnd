@@ -12,7 +12,7 @@ class PushNotificationRegistrationService {
     Dio? dio,
     FirebaseMessaging? messaging,
     FlutterSecureStorage? secureStorage,
-  })  : _dio = dio ??
+  }) : _dio = dio ??
             Dio(
               BaseOptions(
                 baseUrl: ApiConfig.baseUrl,
@@ -22,11 +22,24 @@ class PushNotificationRegistrationService {
                 contentType: ApiConfig.contentType,
               ),
             ),
-        _messaging = messaging ?? FirebaseMessaging.instance,
-        _secureStorage = secureStorage ?? const FlutterSecureStorage();
+        _secureStorage = secureStorage ?? const FlutterSecureStorage() {
+    if (messaging != null) {
+      _messaging = messaging;
+    } else {
+      _messaging = _resolveMessaging();
+    }
+  }
+
+  static FirebaseMessaging? _resolveMessaging() {
+    try {
+      return FirebaseMessaging.instance;
+    } catch (_) {
+      return null;
+    }
+  }
 
   final Dio _dio;
-  final FirebaseMessaging _messaging;
+  late final FirebaseMessaging? _messaging;
   final FlutterSecureStorage _secureStorage;
   bool _tokenRefreshListenerRegistered = false;
 
@@ -35,15 +48,18 @@ class PushNotificationRegistrationService {
   Future<void> registerCurrentDevice() async {
     if (kIsWeb) return;
 
+    final messaging = _messaging;
+    if (messaging == null) return;
+
     final authToken = await _secureStorage.read(key: _tokenKey);
     if (authToken == null || authToken.isEmpty) return;
 
-    final settings = await _messaging.requestPermission();
+    final settings = await messaging.requestPermission();
     if (settings.authorizationStatus == AuthorizationStatus.denied) {
       return;
     }
 
-    final deviceToken = await _messaging.getToken();
+    final deviceToken = await messaging.getToken();
     if (deviceToken == null || deviceToken.isEmpty) return;
 
     try {
@@ -54,7 +70,7 @@ class PushNotificationRegistrationService {
 
     if (_tokenRefreshListenerRegistered) return;
     _tokenRefreshListenerRegistered = true;
-    _messaging.onTokenRefresh.listen((refreshedToken) {
+    messaging.onTokenRefresh.listen((refreshedToken) {
       if (refreshedToken.isEmpty) return;
       _registerToken(authToken, refreshedToken).catchError((_) {});
     });
