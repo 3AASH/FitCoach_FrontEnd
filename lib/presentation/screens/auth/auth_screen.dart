@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/international_phone_input.dart';
+import 'forgot_password_screen.dart';
 
 enum AuthStep { choose, phone, otp, email, emailSignup }
 
@@ -519,48 +520,14 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _handleBackgroundImageError(Object exception, StackTrace? stackTrace) {}
 
-  void _showForgotPasswordDialog() {
-    final languageProvider = context.read<LanguageProvider>();
-    final controller = TextEditingController();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(languageProvider.t('auth_forgot_password_title')),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(languageProvider.t('auth_forgot_password_desc')),
-            const SizedBox(height: 12),
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
-                labelText: languageProvider.t('auth_email_or_phone'),
-                border: const OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.emailAddress,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(languageProvider.t('auth_cancel')),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(languageProvider.t('auth_reset_link_sent')),
-                  backgroundColor: AppColors.success,
-                ),
-              );
-            },
-            child: Text(languageProvider.t('auth_send')),
-          ),
-        ],
-      ),
+  Future<void> _openForgotPassword() async {
+    final result = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
     );
+    if (result == true && mounted) {
+      widget.onAuthenticated();
+    }
   }
 
   @override
@@ -864,7 +831,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                   child: TextButton(
                                     onPressed: isBusy
                                         ? null
-                                        : _showForgotPasswordDialog,
+                                        : _openForgotPassword,
                                     child: Text(
                                       languageProvider
                                           .t('auth_forgot_password'),
