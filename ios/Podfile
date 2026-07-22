@@ -46,12 +46,14 @@ post_install do |installer|
       # permission_handler (iOS) compiles each permission behind a macro. Without
       # these, Permission.camera/microphone .request() returns denied WITHOUT ever
       # prompting iOS (no entry appears in Settings). Enable the ones the app uses.
+      # NOTE: PERMISSION_LOCATION is intentionally NOT set — the app never uses
+      # device geolocation, and compiling it in triggers App Store rejection
+      # 90683 (missing NSLocationAlwaysAndWhenInUseUsageDescription).
       config.build_settings['GCC_PREPROCESSOR_DEFINITIONS'] ||= [
         '$(inherited)',
         'PERMISSION_CAMERA=1',
         'PERMISSION_MICROPHONE=1',
         'PERMISSION_PHOTOS=1',
-        'PERMISSION_LOCATION=1',
         'PERMISSION_NOTIFICATIONS=1',
       ]
     end
@@ -77,6 +79,22 @@ post_install do |installer|
     if content != patched
       File.write(swift_package, patched)
       puts "[Podfile] Patched FlutterGeneratedPluginSwiftPackage min iOS to 16.0"
+    end
+  end
+
+  # Strip bitcode from the vendored TwilioVideo framework. Apple rejects App
+  # Store uploads containing bitcode (error 90482). CocoaPods re-extracts the
+  # xcframework on every pod install, so re-strip here each time.
+  twilio_bin = File.join(
+    File.dirname(__FILE__),
+    'Pods', 'TwilioVideo', 'TwilioVideo.xcframework',
+    'ios-arm64', 'TwilioVideo.framework', 'TwilioVideo',
+  )
+  if File.exist?(twilio_bin)
+    system('xcrun', 'bitcode_strip', twilio_bin, '-r', '-o', "#{twilio_bin}.stripped")
+    if File.exist?("#{twilio_bin}.stripped")
+      File.rename("#{twilio_bin}.stripped", twilio_bin)
+      puts "[Podfile] Stripped bitcode from TwilioVideo.framework"
     end
   end
 end

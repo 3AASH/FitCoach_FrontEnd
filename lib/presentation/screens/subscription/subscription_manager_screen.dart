@@ -62,7 +62,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        planProvider.error!,
+                        tr('error_generic'),
                         style: const TextStyle(color: AppColors.error),
                       ),
                     ),

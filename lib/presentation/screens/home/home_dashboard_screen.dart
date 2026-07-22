@@ -2193,7 +2193,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildWorkoutTab() {
-    return WorkoutScreen(isActive: _selectedIndex == 1);
+    return WorkoutScreen(
+      isActive: _selectedIndex == 1,
+      onBack: () => setState(() => _selectedIndex = 0),
+    );
   }
 
   Widget _buildNutritionTab() {

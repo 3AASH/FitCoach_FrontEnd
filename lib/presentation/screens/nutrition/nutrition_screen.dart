@@ -9,7 +9,6 @@ import '../../../data/models/nutrition_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/auth_provider.dart';
-import '../../providers/workout_provider.dart';
 import '../../widgets/custom_card.dart';
 import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
@@ -1137,13 +1136,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     : (value) async {
                         if (value != true) return;
                         final provider = context.read<NutritionProvider>();
-                        final success = await provider
-                            .logMeal(meal.id, {'completed': true});
-                        if (!success || !mounted) return;
-                        await Future.wait([
-                          context.read<NutritionProvider>().loadActivePlan(),
-                          context.read<WorkoutProvider>().loadActivePlan(),
-                        ]);
+                        // logMeal already updates local state + notifies;
+                        // no full reload needed (avoids full-screen spinner).
+                        await provider.logMeal(meal.id, {'completed': true});
                       },
               ),
             ],

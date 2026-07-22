@@ -20,10 +20,12 @@ import './workout_exercise_detail_screen.dart';
 
 class WorkoutScreen extends StatefulWidget {
   final bool isActive;
+  final VoidCallback? onBack;
 
   const WorkoutScreen({
     super.key,
     this.isActive = true,
+    this.onBack,
   });
 
   @override
@@ -558,7 +560,19 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+              IconButton(
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                onPressed: () {
+                  if (widget.onBack != null) {
+                    widget.onBack!();
+                  } else {
+                    Navigator.maybePop(context);
+                  }
+                },
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: FittedBox(
@@ -577,24 +591,30 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   ),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.calendar_today,
-                        size: 14, color: Colors.white),
-                    const SizedBox(width: 6),
-                    Text(
-                      lang.t('today'),
-                      style: const TextStyle(color: Colors.white, fontSize: 14),
-                    ),
-                  ],
+              InkWell(
+                borderRadius: BorderRadius.circular(10),
+                onTap: () =>
+                    context.read<WorkoutProvider>().goToCurrentDay(),
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.calendar_today,
+                          size: 14, color: Colors.white),
+                      const SizedBox(width: 6),
+                      Text(
+                        lang.t('today'),
+                        style:
+                            const TextStyle(color: Colors.white, fontSize: 14),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -852,17 +872,20 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   ),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F1F5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  difficultyLabel,
-                  style:
-                      const TextStyle(fontSize: 15, color: Color(0xFF2A2C3A)),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF0F1F5),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    difficultyLabel,
+                    style:
+                        const TextStyle(fontSize: 15, color: Color(0xFF2A2C3A)),
+                  ),
                 ),
               ),
             ],
