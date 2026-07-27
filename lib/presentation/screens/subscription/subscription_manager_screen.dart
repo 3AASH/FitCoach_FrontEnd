@@ -247,7 +247,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
               ),
               if (plan.yearlyPrice != null && plan.yearlyPrice! > 0)
                 Padding(
-                  padding: const EdgeInsets.only(left: 8, bottom: 2),
+                  padding: const EdgeInsetsDirectional.only(start: 8, bottom: 2),
                   child: Text(
                     tr(
                       'subscription_yearly_price_label',

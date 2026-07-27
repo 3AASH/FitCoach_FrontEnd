@@ -1086,7 +1086,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   fontWeight: FontWeight.w600,
                   color: Color(0xFF2A2C3A),
                 ),
-                textAlign: TextAlign.right,
+                textAlign: TextAlign.end,
               ),
             ),
           ],
