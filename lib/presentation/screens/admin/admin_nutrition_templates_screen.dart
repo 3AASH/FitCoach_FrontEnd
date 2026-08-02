@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../../../core/constants/colors.dart';
 import '../../providers/admin_provider.dart';
+import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 
 class AdminNutritionTemplatesScreen extends StatefulWidget {
@@ -56,18 +57,19 @@ class _AdminNutritionTemplatesScreenState
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
     final templates = provider.nutritionMealTemplates;
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nutrition Templates'),
+        title: Text(lang.t('admin_nutrition_templates_title')),
         actions: [
           IconButton(
-            tooltip: 'Import JSON',
+            tooltip: lang.t('admin_import_json'),
             onPressed: _importJsonFile,
             icon: const Icon(Icons.upload_file),
           ),
           IconButton(
-            tooltip: 'Refresh',
+            tooltip: lang.t('refresh'),
             onPressed: _refresh,
             icon: const Icon(Icons.refresh),
           ),
@@ -76,7 +78,7 @@ class _AdminNutritionTemplatesScreenState
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _openEditor(),
         icon: const Icon(Icons.add),
-        label: const Text('New'),
+        label: Text(lang.t('admin_new_template')),
       ),
       body: SafeArea(
         child: RefreshIndicator(
@@ -219,6 +221,11 @@ class _NutritionTemplateEditorSheet extends StatefulWidget {
 
 class _NutritionTemplateEditorSheetState
     extends State<_NutritionTemplateEditorSheet> {
+  // The editor sheet builds its parts in separate methods, so read the provider here
+  // rather than threading it through each one.
+  String _tr(String key) =>
+      Provider.of<LanguageProvider>(context, listen: false).translate(key);
+
   final TextEditingController _jsonController = TextEditingController();
   String? _error;
 
@@ -267,8 +274,8 @@ class _NutritionTemplateEditorSheetState
             children: [
               Row(
                 children: [
-                  const Expanded(
-                    child: Text('Nutrition Template JSON',
+                  Expanded(
+                    child: Text(_tr('admin_nutrition_template_json'),
                         style: AppTextStyles.h2),
                   ),
                   IconButton(
@@ -291,9 +298,9 @@ class _NutritionTemplateEditorSheetState
                 maxLines: 24,
                 minLines: 16,
                 keyboardType: TextInputType.multiline,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: 'Paste or edit one nutrition meal template JSON',
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: _tr('admin_nutrition_template_json_hint'),
                 ),
                 style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
               ),
@@ -301,7 +308,7 @@ class _NutritionTemplateEditorSheetState
               FilledButton.icon(
                 onPressed: _save,
                 icon: const Icon(Icons.save),
-                label: const Text('Save Template'),
+                label: Text(_tr('admin_save_template')),
               ),
             ],
           ),

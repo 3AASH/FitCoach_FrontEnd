@@ -164,7 +164,8 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: Text(lang.t('delete')),
-        content: Text('Delete ${exercise.nameEn}?'),
+        content: Text(lang.t('admin_delete_exercise_confirm',
+            args: {'name': exercise.nameEn})),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -358,6 +359,12 @@ class _ExerciseEditorSheet extends StatefulWidget {
 }
 
 class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
+  // This sheet builds its parts in separate methods, so each one would otherwise have
+  // to thread the provider through.
+  String _tr(String key, {Map<String, String>? args}) =>
+      Provider.of<LanguageProvider>(context, listen: false)
+          .translate(key, args: args);
+
   final _formKey = GlobalKey<FormState>();
   late final TextEditingController _exId;
   late final TextEditingController _nameEn;
@@ -585,9 +592,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (selected.isEmpty)
-              const Text(
-                'No swap exercises selected',
-                style: TextStyle(color: AppColors.textSecondary),
+              Text(
+                _tr('admin_no_swap_exercises_selected'),
+                style: const TextStyle(color: AppColors.textSecondary),
               )
             else
               Wrap(
@@ -607,7 +614,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
             OutlinedButton.icon(
               onPressed: _openSwapPicker,
               icon: const Icon(Icons.swap_horiz),
-              label: const Text('Choose from exercise library'),
+              label: Text(_tr('admin_choose_from_exercise_library')),
             ),
           ],
         ),
@@ -640,7 +647,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                   }).toList();
 
             return AlertDialog(
-              title: const Text('Choose swap exercises'),
+              title: Text(_tr('admin_choose_swap_exercises')),
               content: SizedBox(
                 width: double.maxFinite,
                 height: 460,
@@ -659,7 +666,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                     const SizedBox(height: 12),
                     Expanded(
                       child: filtered.isEmpty
-                          ? const Center(child: Text('No exercises found'))
+                          ? Center(child: Text(_tr('admin_no_exercises_found')))
                           : ListView.builder(
                               itemCount: filtered.length,
                               itemBuilder: (context, index) {
@@ -699,11 +706,11 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.pop(dialogContext),
-                  child: const Text('Cancel'),
+                  child: Text(_tr('cancel')),
                 ),
                 FilledButton(
                   onPressed: () => Navigator.pop(dialogContext, draft),
-                  child: const Text('Apply'),
+                  child: Text(_tr('admin_apply')),
                 ),
               ],
             );

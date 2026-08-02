@@ -296,9 +296,9 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                   if (!_isEditable)
                     Card(
                       color: AppColors.warning.withValues(alpha: 0.12),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Text('Plan is not editable for this account.'),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(lang.t('coach_plan_editor_locked')),
                       ),
                     ),
                   TextField(
@@ -337,7 +337,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                       TextButton.icon(
                         onPressed: _isEditable ? _addDay : null,
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Day'),
+                        label: Text(lang.t('coach_plan_editor_add_day')),
                       ),
                     ],
                   ),
@@ -462,7 +462,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                     ? () => _addExercise(dayIndex)
                                     : null,
                                 icon: const Icon(Icons.add),
-                                label: const Text('Add Exercise'),
+                                label: Text(lang.t('coach_plan_editor_add_exercise')),
                               ),
                             )
                           ],

@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../data/repositories/rating_repository.dart';
+import '../../providers/language_provider.dart';
 import '../../providers/video_call_provider.dart';
 import '../../widgets/rating_modal.dart';
 
@@ -59,6 +60,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   StreamSubscription<VideoTrackInfo>? _trackSub;
   StreamSubscription<String>? _errorsSub;
 
+  // Text on this screen is also reached from async callbacks and from stream handlers,
+  // not only from build(), so read the provider without listening.
+  String _tr(String key, {Map<String, String>? args}) =>
+      Provider.of<LanguageProvider>(context, listen: false)
+          .translate(key, args: args);
+
   @override
   void initState() {
     super.initState();
@@ -76,8 +83,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       final permissionsGranted = await _requestPermissions();
       if (!permissionsGranted) {
         setState(() {
-          _errorMessage =
-              'Camera and microphone access is required. Enable them for this app in Settings, then rejoin.';
+          _errorMessage = _tr('video_call_permission_required');
           _isLoading = false;
         });
         return;
@@ -87,7 +93,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       final joinStatus = await provider.canJoinCall(widget.appointmentId);
       if (joinStatus == null || joinStatus['canJoin'] != true) {
         setState(() {
-          _errorMessage = joinStatus?['reason'] ?? 'Unable to join call right now';
+          // `reason` comes from the backend already worded for the user.
+          _errorMessage =
+              joinStatus?['reason'] ?? _tr('video_call_cannot_join_now');
           _isLoading = false;
         });
         return;
@@ -97,7 +105,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       final callData = await provider.startCall(widget.appointmentId);
       if (callData == null) {
         setState(() {
-          _errorMessage = 'Failed to start call. Please try again.';
+          _errorMessage = _tr('video_call_start_failed');
           _isLoading = false;
         });
         return;
@@ -110,7 +118,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
       if (token == null || roomName == null) {
         setState(() {
-          _errorMessage = 'Call configuration is incomplete.';
+          _errorMessage = _tr('video_call_config_incomplete');
           _isLoading = false;
         });
         return;
@@ -118,8 +126,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
       await _connectToRoom(token, roomName);
     } catch (e) {
+      // The exception text is for the log, not for the user: it is English, it is not
+      // actionable, and this screen is the video call gate.
+      debugPrint('Video call initialization error: $e');
+      if (!mounted) return;
       setState(() {
-        _errorMessage = 'Error: ${e.toString()}';
+        _errorMessage = _tr('video_call_start_failed');
         _isLoading = false;
       });
     }
@@ -177,7 +189,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           case TwilioVideoEvent.connectionFailure:
             if (!mounted) return;
             setState(() {
-              _errorMessage = 'Failed to connect to the call.';
+              _errorMessage = _tr('video_call_connect_failed');
               _isLoading = false;
             });
             break;
@@ -219,7 +231,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       debugPrint('Twilio connect error: $e');
       if (!mounted) return;
       setState(() {
-        _errorMessage = 'Failed to initialize video call: ${e.toString()}';
+        _errorMessage = _tr('video_call_connect_failed');
         _isLoading = false;
       });
     }
@@ -309,15 +321,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Thanks for your feedback.'),
+        SnackBar(
+          content: Text(_tr('video_call_rating_thanks')),
         ),
       );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Could not submit rating.'),
+        SnackBar(
+          content: Text(_tr('video_call_rating_failed')),
         ),
       );
     }
@@ -351,7 +363,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               const CircularProgressIndicator(color: Colors.white),
               const SizedBox(height: 20),
               Text(
-                'Connecting to call...',
+                _tr('video_call_connecting'),
                 style: TextStyle(color: Colors.white, fontSize: 16),
               ),
             ],
@@ -380,7 +392,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: const Text('Go Back'),
+                child: Text(_tr('back')),
               ),
             ],
           ),
@@ -529,7 +541,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // Mute button
           _buildControlButton(
             icon: _isMuted ? Icons.mic_off : Icons.mic,
-            label: _isMuted ? 'Unmute' : 'Mute',
+            label: _isMuted ? _tr('video_call_unmute') : _tr('video_call_mute'),
             color: _isMuted ? Colors.red : Colors.white,
             backgroundColor: _isMuted ? Colors.white : Colors.black54,
             onPressed: _toggleMute,
@@ -538,7 +550,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // Camera toggle button
           _buildControlButton(
             icon: _isCameraOff ? Icons.videocam_off : Icons.videocam,
-            label: _isCameraOff ? 'Camera Off' : 'Camera On',
+            label: _isCameraOff
+                ? _tr('video_call_camera_off')
+                : _tr('video_call_camera_on'),
             color: _isCameraOff ? Colors.red : Colors.white,
             backgroundColor: _isCameraOff ? Colors.white : Colors.black54,
             onPressed: _toggleCamera,
@@ -547,7 +561,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // End call button
           _buildControlButton(
             icon: Icons.call_end,
-            label: 'End Call',
+            label: _tr('video_call_end'),
             color: Colors.white,
             backgroundColor: Colors.red,
             onPressed: () => _showEndCallDialog(),
@@ -557,7 +571,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // Switch camera button
           _buildControlButton(
             icon: Icons.switch_camera,
-            label: 'Switch',
+            label: _tr('video_call_switch_camera'),
             color: Colors.white,
             backgroundColor: Colors.black54,
             onPressed: _switchCamera,
@@ -566,7 +580,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // Speaker button
           _buildControlButton(
             icon: Icons.volume_up,
-            label: 'Speaker',
+            label: _tr('video_call_speaker'),
             color: Colors.white,
             backgroundColor: Colors.black54,
             onPressed: () {
@@ -622,12 +636,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('End Call'),
-        content: const Text('Are you sure you want to end this call?'),
+        title: Text(_tr('video_call_end')),
+        content: Text(_tr('video_call_end_confirm')),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
+            child: Text(_tr('cancel')),
           ),
           TextButton(
             onPressed: () {
@@ -635,7 +649,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               _endCall();
             },
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('End Call'),
+            child: Text(_tr('video_call_end')),
           ),
         ],
       ),
