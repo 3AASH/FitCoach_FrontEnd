@@ -745,7 +745,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             OutlinedButton.icon(
               onPressed: () => setState(() => _showPreferencesIntake = true),
               icon: const Icon(Icons.auto_awesome),
-              label: const Text('Generate/Refresh plan'),
+              label: Text(lang.t('nutrition_generate_plan')),
             ),
           ],
         ),

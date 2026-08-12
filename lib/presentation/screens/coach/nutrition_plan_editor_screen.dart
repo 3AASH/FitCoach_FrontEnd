@@ -288,9 +288,9 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                   if (!_isEditable)
                     Card(
                       color: AppColors.warning.withValues(alpha: 0.12),
-                      child: const Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Text('Plan is not editable for this account.'),
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Text(lang.t('coach_plan_editor_locked')),
                       ),
                     ),
                   Text(
@@ -356,7 +356,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                       TextButton.icon(
                         onPressed: _isEditable ? _addDay : null,
                         icon: const Icon(Icons.add),
-                        label: const Text('Add Day'),
+                        label: Text(lang.t('coach_plan_editor_add_day')),
                       ),
                     ],
                   ),
@@ -484,7 +484,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                     ? () => _addMeal(dayIndex)
                                     : null,
                                 icon: const Icon(Icons.add),
-                                label: const Text('Add Meal'),
+                                label: Text(lang.t('coach_plan_editor_add_meal')),
                               ),
                             ),
                           ],

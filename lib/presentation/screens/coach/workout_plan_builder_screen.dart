@@ -267,7 +267,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                 final day = index + 1;
                 final isSelected = _daysPerWeek == day;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsetsDirectional.only(end: 8),
                   child: GestureDetector(
                     onTap: () {
                       setState(() {
