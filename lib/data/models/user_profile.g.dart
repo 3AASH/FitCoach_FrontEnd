@@ -38,13 +38,14 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       fitnessScoreUpdatedBy: fields[18] as String?,
       fitnessScoreLastUpdated: fields[19] as DateTime?,
       role: fields[20] as String,
+      hasPassword: fields[21] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, UserProfile obj) {
     writer
-      ..writeByte(21)
+      ..writeByte(22)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -86,7 +87,9 @@ class UserProfileAdapter extends TypeAdapter<UserProfile> {
       ..writeByte(19)
       ..write(obj.fitnessScoreLastUpdated)
       ..writeByte(20)
-      ..write(obj.role);
+      ..write(obj.role)
+      ..writeByte(21)
+      ..write(obj.hasPassword);
   }
 
   @override
