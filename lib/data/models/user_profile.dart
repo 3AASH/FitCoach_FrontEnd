@@ -67,6 +67,14 @@ class UserProfile {
   @HiveField(20)
   final String role;
 
+  /// Whether the account can confirm a destructive action with a password.
+  /// Accounts created through phone OTP have none and confirm with a code.
+  ///
+  /// Nullable on purpose: a profile cached before this field existed has no
+  /// value for it, and a non-nullable read would throw on that record.
+  @HiveField(21)
+  final bool? hasPassword;
+
   UserProfile({
     required this.id,
     required this.name,
@@ -89,6 +97,7 @@ class UserProfile {
     this.fitnessScoreUpdatedBy,
     this.fitnessScoreLastUpdated,
     this.role = 'user',
+    this.hasPassword,
   });
 
   factory UserProfile.fromJson(Map<String, dynamic> json) {
@@ -137,6 +146,8 @@ class UserProfile {
               ? DateTime.parse(source['fitness_score_last_updated'] as String)
               : null,
       role: source['role'] as String? ?? 'user',
+      hasPassword:
+          source['hasPassword'] as bool? ?? source['has_password'] as bool?,
     );
   }
 
@@ -174,6 +185,7 @@ class UserProfile {
       'fitnessScoreUpdatedBy': fitnessScoreUpdatedBy,
       'fitnessScoreLastUpdated': fitnessScoreLastUpdated?.toIso8601String(),
       'role': role,
+      'hasPassword': hasPassword,
     };
   }
 
@@ -223,6 +235,7 @@ class UserProfile {
       fitnessScoreLastUpdated:
           fitnessScoreLastUpdated ?? this.fitnessScoreLastUpdated,
       role: role,
+      hasPassword: hasPassword,
     );
   }
 

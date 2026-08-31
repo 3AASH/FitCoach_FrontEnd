@@ -14,6 +14,9 @@ import '../progress/progress_screen.dart';
 import '../inbody/inbody_input_screen.dart';
 import '../profile/profile_edit_screen.dart';
 import '../settings/notification_settings_screen.dart';
+import '../settings/change_password_screen.dart';
+import '../settings/change_mobile_screen.dart';
+import '../settings/delete_account_screen.dart';
 import 'payment_management_screen.dart';
 
 class AccountScreen extends StatefulWidget {
@@ -719,6 +722,34 @@ class _AccountScreenState extends State<AccountScreen> {
                   );
                 },
               ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.lock_outline,
+                    color: AppColors.textSecondary),
+                title: Text(languageProvider.t('change_password_title')),
+                trailing:
+                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const ChangePasswordScreen()),
+                  );
+                },
+              ),
+              const Divider(height: 1),
+              ListTile(
+                leading: const Icon(Icons.phone_iphone,
+                    color: AppColors.textSecondary),
+                title: Text(languageProvider.t('change_mobile_title')),
+                trailing:
+                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                        builder: (_) => const ChangeMobileScreen()),
+                  );
+                },
+              ),
             ],
           ),
         ),
@@ -783,6 +814,25 @@ class _AccountScreenState extends State<AccountScreen> {
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.error),
               padding: const EdgeInsets.symmetric(vertical: 16),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        // Required by App Store guideline 5.1.1(v): an account created in the
+        // app must be deletable from inside the app.
+        SizedBox(
+          width: double.infinity,
+          child: TextButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const DeleteAccountScreen()),
+              );
+            },
+            icon: const Icon(Icons.delete_forever,
+                color: AppColors.error, size: 20),
+            label: Text(
+              languageProvider.t('delete_account_title'),
+              style: const TextStyle(color: AppColors.error),
             ),
           ),
         ),

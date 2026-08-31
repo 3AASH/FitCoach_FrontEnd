@@ -205,17 +205,64 @@ class UserRepository {
     }
   }
 
-  // Delete account
-  Future<void> deleteAccount(String password) async {
+  // Send a confirmation code to the number on file. Accounts created through
+  // phone OTP have no password, so this is the only identity step they have.
+  Future<void> requestDeleteAccountOtp() async {
+    try {
+      await _dio.post(
+        '/settings/delete-account/request-otp',
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to send code');
+    }
+  }
+
+  // Delete account. Supply the password when the account has one, otherwise the
+  // code from requestDeleteAccountOtp.
+  Future<void> deleteAccount({String? password, String? otpCode}) async {
     try {
       await _dio.delete(
         '/settings/delete-account',
-        data: {'password': password},
+        data: {
+          if (password != null) 'password': password,
+          if (otpCode != null) 'otpCode': otpCode,
+        },
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
       throw Exception(
           e.response?.data['message'] ?? 'Failed to delete account');
+    }
+  }
+
+  // Send a confirmation code to the NEW number, which is what proves the user
+  // holds it.
+  Future<void> requestMobileChangeOtp(String newPhoneNumber) async {
+    try {
+      await _dio.post(
+        '/settings/change-mobile/request-otp',
+        data: {'newPhoneNumber': newPhoneNumber},
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to send code');
+    }
+  }
+
+  Future<void> confirmMobileChange({
+    required String newPhoneNumber,
+    required String otpCode,
+  }) async {
+    try {
+      await _dio.post(
+        '/settings/change-mobile/confirm',
+        data: {'newPhoneNumber': newPhoneNumber, 'otpCode': otpCode},
+        options: await _getAuthOptions(),
+      );
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to change phone number');
     }
   }
 
