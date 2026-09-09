@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/presentation/providers/auth_provider.dart';
+import 'package:fitapp/presentation/providers/auth_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:fitapp/data/repositories/auth_repository.dart';
@@ -30,6 +30,27 @@ class MockAuthRepository implements AuthRepositoryBase {
       );
     }
     throw Exception('Invalid OTP');
+  }
+
+  @override
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    if (otpCode != '1234') {
+      throw Exception('Invalid OTP');
+    }
+    return AuthResponse(
+      token: 'mock_token',
+      user: UserProfile(
+        id: 'mock_id',
+        phoneNumber: phoneNumber,
+        name: 'Test User',
+        age: 30,
+      ),
+      isNewUser: false,
+    );
   }
 
   @override
@@ -71,6 +92,7 @@ class MockAuthRepository implements AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   }) async {
     return AuthResponse(
       token: 'mock_token',

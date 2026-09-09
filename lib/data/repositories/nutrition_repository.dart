@@ -29,6 +29,41 @@ class NutritionRepository {
     );
   }
 
+  Future<NutritionAccessStatus> getAccessStatus() async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/access-status',
+        options: await _getAuthOptions(),
+      );
+
+      return NutritionAccessStatus.fromJson(
+        _asMap(response.data) ?? const <String, dynamic>{},
+      );
+    } on DioException catch (e) {
+      final message = _readErrorMessage(e.response?.data);
+      throw Exception(message ?? 'Failed to get nutrition access status');
+    }
+  }
+
+  Future<NutritionIntakeRequirements> getIntakeRequirements({
+    String planType = 'starter',
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/intake/requirements',
+        queryParameters: {'planType': planType},
+        options: await _getAuthOptions(),
+      );
+
+      return NutritionIntakeRequirements.fromJson(
+        _asMap(response.data) ?? const <String, dynamic>{},
+      );
+    } on DioException catch (e) {
+      final message = _readErrorMessage(e.response?.data);
+      throw Exception(message ?? 'Failed to get nutrition intake requirements');
+    }
+  }
+
   // Get active nutrition plan
   Future<NutritionPlan?> getActivePlan() async {
     try {
@@ -132,16 +167,18 @@ class NutritionRepository {
   Future<Map<String, dynamic>> generatePlan(
       Map<String, dynamic> preferences) async {
     try {
+      final options = await _getAuthOptions();
+      options.validateStatus = (status) => status != null && status < 500;
       final response = await _dio.post(
         '/nutrition/generate',
         data: preferences,
-        options: await _getAuthOptions(),
+        options: options,
       );
 
-      return response.data as Map<String, dynamic>;
+      return _asMap(response.data) ?? const <String, dynamic>{};
     } on DioException catch (e) {
-      throw Exception(
-          e.response?.data['message'] ?? 'Failed to generate nutrition plan');
+      final message = _readErrorMessage(e.response?.data);
+      throw Exception(message ?? 'Failed to generate nutrition plan');
     }
   }
 

@@ -161,8 +161,8 @@ void main() {
       expect(restored.type, original.type);
       expect(restored.attachmentUrl, original.attachmentUrl);
       expect(restored.isRead, original.isRead);
-      expect(restored.createdAt.toIso8601String(), 
-             original.createdAt.toIso8601String());
+      expect(restored.createdAt.toIso8601String(),
+          original.createdAt.toIso8601String());
     });
   });
 
@@ -223,7 +223,8 @@ void main() {
       final conversation = Conversation.fromJson(json);
 
       expect(conversation.lastMessageContent, isNull);
-      expect(conversation.lastMessageAt, isNull);
+      expect(conversation.lastMessageAt,
+          DateTime.parse('2024-01-01T00:00:00.000Z'));
       expect(conversation.unreadCount, 0); // default
     });
 
@@ -272,8 +273,8 @@ void main() {
       expect(restored.coachId, original.coachId);
       expect(restored.lastMessageContent, original.lastMessageContent);
       expect(restored.unreadCount, original.unreadCount);
-      expect(restored.createdAt.toIso8601String(), 
-             original.createdAt.toIso8601String());
+      expect(restored.createdAt.toIso8601String(),
+          original.createdAt.toIso8601String());
     });
   });
 

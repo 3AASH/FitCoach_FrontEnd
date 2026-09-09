@@ -183,6 +183,7 @@ class _AppState extends State<App> {
       case 'nutrition':
         return NutritionScreen(
           onBack: () => _navigateToScreen('home'),
+          onOpenWorkout: () => _navigateToScreen('workout'),
         );
 
       case 'coach':

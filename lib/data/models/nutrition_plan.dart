@@ -207,6 +207,114 @@ class NutritionTodayProgress {
       };
 }
 
+class NutritionAccessStatus {
+  final bool hasAccess;
+  final bool requiresFirstWorkout;
+  final String? tier;
+  final String? reason;
+  final String? message;
+  final String? messageAr;
+  final Map<String, dynamic>? action;
+  final DateTime? trialStartedAt;
+  final DateTime? trialExpiresAt;
+  final int? daysRemaining;
+  final bool isTrialActive;
+
+  NutritionAccessStatus({
+    required this.hasAccess,
+    this.requiresFirstWorkout = false,
+    this.tier,
+    this.reason,
+    this.message,
+    this.messageAr,
+    this.action,
+    this.trialStartedAt,
+    this.trialExpiresAt,
+    this.daysRemaining,
+    this.isTrialActive = false,
+  });
+
+  factory NutritionAccessStatus.fromJson(Map<String, dynamic> json) {
+    final source = _asMap(json['access']) ?? json;
+    return NutritionAccessStatus(
+      hasAccess: asBool(source['hasAccess'] ?? source['has_access']) ?? false,
+      requiresFirstWorkout: asBool(source['requiresFirstWorkout'] ??
+              source['requires_first_workout']) ??
+          false,
+      tier: asString(source['tier']),
+      reason: asString(source['reason']),
+      message: asString(source['message']),
+      messageAr: asString(source['messageAr'] ?? source['message_ar']),
+      action: _asMap(source['action']),
+      trialStartedAt:
+          _asDateTime(source['trialStartedAt'] ?? source['trial_started_at']),
+      trialExpiresAt:
+          _asDateTime(source['trialExpiresAt'] ?? source['trial_expires_at']),
+      daysRemaining:
+          _asInt(source['daysRemaining'] ?? source['days_remaining']),
+      isTrialActive:
+          asBool(source['isTrialActive'] ?? source['is_trial_active']) ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'hasAccess': hasAccess,
+        'requiresFirstWorkout': requiresFirstWorkout,
+        'tier': tier,
+        'reason': reason,
+        'message': message,
+        'messageAr': messageAr,
+        'action': action,
+        'trialStartedAt': trialStartedAt?.toIso8601String(),
+        'trialExpiresAt': trialExpiresAt?.toIso8601String(),
+        'daysRemaining': daysRemaining,
+        'isTrialActive': isTrialActive,
+      };
+}
+
+class NutritionIntakeRequirements {
+  final String planType;
+  final List<String> missingFields;
+  final List<Map<String, dynamic>> questions;
+  final Map<String, dynamic>? context;
+  final NutritionAccessStatus? access;
+
+  NutritionIntakeRequirements({
+    required this.planType,
+    required this.missingFields,
+    required this.questions,
+    this.context,
+    this.access,
+  });
+
+  bool get isComplete => missingFields.isEmpty;
+
+  factory NutritionIntakeRequirements.fromJson(Map<String, dynamic> json) {
+    final missing = _asList(json['missingFields'] ?? json['missing_fields']) ??
+        const <dynamic>[];
+    final rawQuestions = _asList(json['questions']) ?? const <dynamic>[];
+    return NutritionIntakeRequirements(
+      planType: asString(json['planType'] ?? json['plan_type']) ?? 'starter',
+      missingFields: missing.map((item) => item.toString()).toList(),
+      questions: rawQuestions
+          .map((item) => _asMap(item) ?? <String, dynamic>{'field': '$item'})
+          .toList(),
+      context: _asMap(json['context']),
+      access: json['access'] != null
+          ? NutritionAccessStatus.fromJson(_asMap(json['access']) ?? const {})
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'planType': planType,
+        'missingFields': missingFields,
+        'questions': questions,
+        'context': context,
+        'access': access?.toJson(),
+      };
+}
+
 class DayMealPlan {
   final String id;
   final String dayName;

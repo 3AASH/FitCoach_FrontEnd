@@ -330,7 +330,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
               final index = entry.key;
               final day = entry.value;
               return _buildWorkoutDayCard(day, index, languageProvider);
-            }).toList(),
+            }),
 
             const SizedBox(height: 32),
 
@@ -393,7 +393,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
               child: Center(
                 child: Column(
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.fitness_center,
                       size: 40,
                       color: AppColors.textDisabled,
@@ -436,7 +436,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                   },
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );

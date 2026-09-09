@@ -720,6 +720,175 @@ class AdminRepository {
     }
   }
 
+  Future<Map<String, dynamic>> importNutritionEngineSeed({
+    String? packageRoot,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/admin/nutrition-engine/import',
+        data: {
+          if (packageRoot != null && packageRoot.trim().isNotEmpty)
+            'packageRoot': packageRoot.trim(),
+        },
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to import nutrition engine seed'));
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getNutritionEngineImports() async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-engine/imports',
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asList(data['imports'] ?? data['data'])
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to get nutrition engine imports'));
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getNutritionEngineRecipes({
+    String? search,
+    String? validationStatus,
+    bool? active,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-engine/recipes',
+        queryParameters: {
+          'limit': limit,
+          'offset': offset,
+          if (search != null && search.trim().isNotEmpty)
+            'search': search.trim(),
+          if (validationStatus != null && validationStatus.trim().isNotEmpty)
+            'validationStatus': validationStatus.trim(),
+          if (active != null) 'active': active,
+        },
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asList(data['recipes'] ?? data['data'])
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to get nutrition engine recipes'));
+    }
+  }
+
+  Future<Map<String, dynamic>> getNutritionEngineRecipe(String recipeId) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-engine/recipes/${Uri.encodeComponent(recipeId)}',
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['recipe']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get nutrition engine recipe'));
+    }
+  }
+
+  Future<Map<String, dynamic>> saveNutritionEngineRecipe(
+      Map<String, dynamic> recipe) async {
+    final recipeId = (recipe['recipe_id'] ?? recipe['recipeId'])?.toString();
+    if (recipeId == null || recipeId.trim().isEmpty) {
+      throw Exception('Nutrition engine recipe_id is required');
+    }
+    try {
+      final response = await _dio.put(
+        '/admin/nutrition-engine/recipes/${Uri.encodeComponent(recipeId)}',
+        data: recipe,
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to save nutrition engine recipe'));
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getNutritionEnginePlans({
+    String? planType,
+    String? market,
+    int? calorieBand,
+    String? macroProfile,
+    String? validationStatus,
+    int limit = 100,
+    int offset = 0,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-engine/plans',
+        queryParameters: {
+          'limit': limit,
+          'offset': offset,
+          if (planType != null && planType.trim().isNotEmpty)
+            'planType': planType.trim(),
+          if (market != null && market.trim().isNotEmpty)
+            'market': market.trim(),
+          if (calorieBand != null) 'calorieBand': calorieBand,
+          if (macroProfile != null && macroProfile.trim().isNotEmpty)
+            'macroProfile': macroProfile.trim(),
+          if (validationStatus != null && validationStatus.trim().isNotEmpty)
+            'validationStatus': validationStatus.trim(),
+        },
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asList(data['plans'] ?? data['data'])
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get nutrition engine plans'));
+    }
+  }
+
+  Future<Map<String, dynamic>> getNutritionEnginePlan(String planId) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-engine/plans/${Uri.encodeComponent(planId)}',
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['plan']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to get nutrition engine plan'));
+    }
+  }
+
+  Future<Map<String, dynamic>> saveNutritionEnginePlan(
+      Map<String, dynamic> plan) async {
+    final planId = (plan['plan_id'] ?? plan['planId'])?.toString();
+    if (planId == null || planId.trim().isEmpty) {
+      throw Exception('Nutrition engine plan_id is required');
+    }
+    try {
+      final response = await _dio.put(
+        '/admin/nutrition-engine/plans/${Uri.encodeComponent(planId)}',
+        data: plan,
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          _readableError(e, fallback: 'Failed to save nutrition engine plan'));
+    }
+  }
+
   /// Get revenue analytics
   Future<RevenueAnalytics> getRevenueAnalytics({
     String period = 'month',

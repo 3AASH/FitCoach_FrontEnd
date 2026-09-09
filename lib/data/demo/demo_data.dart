@@ -1246,7 +1246,7 @@ class DemoData {
 
   static List<SubscriptionPlan> subscriptionPlans() {
     return [
-      SubscriptionPlan(
+      const SubscriptionPlan(
         id: 'freemium',
         name: 'Freemium',
         description: 'Starter access with guided onboarding and essential chat quotas.',
@@ -1255,11 +1255,11 @@ class DemoData {
         currency: 'SAR',
         badge: 'Starter',
         accentColor: '#CBD5F5',
-        metadata: const {
+        metadata: {
           'messagesLimit': 20,
           'videoCallsLimit': 1,
         },
-        features: const [
+        features: [
           SubscriptionPlanFeature(
             id: 'feat_workouts_lite',
             label: 'Workout Library',
@@ -1286,7 +1286,7 @@ class DemoData {
           ),
         ],
       ),
-      SubscriptionPlan(
+      const SubscriptionPlan(
         id: 'premium',
         name: 'Premium',
         description: 'On-demand messaging, adaptive programming, and priority support.',
@@ -1296,11 +1296,11 @@ class DemoData {
         badge: 'Most Popular',
         accentColor: '#7C3AED',
         isRecommended: true,
-        metadata: const {
+        metadata: {
           'messagesLimit': 200,
           'videoCallsLimit': 4,
         },
-        features: const [
+        features: [
           SubscriptionPlanFeature(
             id: 'feat_workouts_custom',
             label: 'Workout Library',
@@ -1345,7 +1345,7 @@ class DemoData {
           ),
         ],
       ),
-      SubscriptionPlan(
+      const SubscriptionPlan(
         id: 'smart_premium',
         name: 'Smart Premium',
         description: 'Unlimited concierge coaching with advanced automation for pros.',
@@ -1354,11 +1354,11 @@ class DemoData {
         currency: 'SAR',
         badge: 'Elite',
         accentColor: '#EC4899',
-        metadata: const {
+        metadata: {
           'messagesLimit': -1,
           'videoCallsLimit': 12,
         },
-        features: const [
+        features: [
           SubscriptionPlanFeature(
             id: 'feat_workouts_elite',
             label: 'Workout Library',

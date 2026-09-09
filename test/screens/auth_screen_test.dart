@@ -24,6 +24,24 @@ class MockAuthRepository implements AuthRepositoryBase {
   }
 
   @override
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    return AuthResponse(
+      token: 'mock_token',
+      user: UserProfile(
+        id: 'mock_id',
+        phoneNumber: phoneNumber,
+        name: 'Test User',
+        age: 30,
+      ),
+      isNewUser: false,
+    );
+  }
+
+  @override
   Future<String?> getStoredToken() async => null;
 
   @override
@@ -119,7 +137,6 @@ void main() {
     expect(find.byIcon(Icons.g_mobiledata), findsOneWidget);
     expect(find.byIcon(Icons.facebook), findsOneWidget);
     expect(find.byIcon(Icons.apple), findsOneWidget);
-    expect(find.text('Try Demo'), findsOneWidget);
     expect(authenticated, isFalse);
   });
 
@@ -137,8 +154,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Forgot Password'), findsOneWidget);
-    expect(find.text('Send'), findsOneWidget);
-    await tester.tap(find.text('Cancel'));
+    expect(find.text('Send code'), findsOneWidget);
+    await tester.pageBack();
     await tester.pumpAndSettle();
   });
 

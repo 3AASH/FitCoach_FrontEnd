@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
@@ -338,7 +338,7 @@ class _NutritionPlanBuilderScreenState
             ),
             const SizedBox(height: 12),
 
-            ..._meals.map((meal) => _buildMealCard(meal, lang)).toList(),
+            ..._meals.map((meal) => _buildMealCard(meal, lang)),
 
             const SizedBox(height: 32),
 
@@ -448,7 +448,7 @@ class _NutritionPlanBuilderScreenState
                   },
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );

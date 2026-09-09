@@ -106,23 +106,23 @@ InputDecoration getFocusedInputDecoration({
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: BorderSide(color: AppColors.border, width: 1),
+      borderSide: const BorderSide(color: AppColors.border, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: BorderSide(color: AppColors.border, width: 1),
+      borderSide: const BorderSide(color: AppColors.border, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: BorderSide(color: AppColors.ring, width: 2),
+      borderSide: const BorderSide(color: AppColors.ring, width: 2),
     ),
     errorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: BorderSide(color: AppColors.error, width: 1),
+      borderSide: const BorderSide(color: AppColors.error, width: 1),
     ),
     focusedErrorBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: BorderSide(color: AppColors.error, width: 2),
+      borderSide: const BorderSide(color: AppColors.error, width: 2),
     ),
     disabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
