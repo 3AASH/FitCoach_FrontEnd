@@ -287,6 +287,10 @@ class WorkoutProvider extends ChangeNotifier {
       );
     }).toList();
 
+    return _copyPlanWithDays(plan, updatedDays);
+  }
+
+  WorkoutPlan _copyPlanWithDays(WorkoutPlan plan, List<WorkoutDay> days) {
     return WorkoutPlan(
       id: plan.id,
       userId: plan.userId,
@@ -297,7 +301,7 @@ class WorkoutProvider extends ChangeNotifier {
       descriptionAr: plan.descriptionAr,
       planData: plan.planData,
       notes: plan.notes,
-      days: updatedDays,
+      days: days,
       startDate: plan.startDate,
       endDate: plan.endDate,
       isActive: plan.isActive,
@@ -369,10 +373,12 @@ class WorkoutProvider extends ChangeNotifier {
   }
 
   Future<bool> substituteExercise(
-    String originalExerciseId,
-    String newExerciseId,
-  ) async {
+      String originalExerciseId, String newExerciseId,
+      {Exercise? replacement}) async {
     if (_demoConfig.isDemo) {
+      if (replacement != null) {
+        _replaceExerciseInActivePlan(originalExerciseId, replacement);
+      }
       _error = null;
       notifyListeners();
       return true;
@@ -382,12 +388,67 @@ class WorkoutProvider extends ChangeNotifier {
         originalExerciseId,
         newExerciseId,
       );
+      if (replacement != null) {
+        _replaceExerciseInActivePlan(originalExerciseId, replacement);
+        notifyListeners();
+      }
       await loadActivePlan();
       return true;
     } catch (e) {
       _error = e.toString();
       notifyListeners();
       return false;
+    }
+  }
+
+  void _replaceExerciseInActivePlan(
+    String originalExerciseId,
+    Exercise replacement,
+  ) {
+    final plan = _activePlan;
+    final days = plan?.days;
+    if (plan == null || days == null) return;
+
+    var replaced = false;
+    final updatedDays = days.map((day) {
+      final updatedExercises = day.exercises.map((exercise) {
+        if (exercise.id != originalExerciseId &&
+            exercise.exerciseId != originalExerciseId) {
+          return exercise;
+        }
+        replaced = true;
+        return exercise.copyWith(
+          exerciseId: replacement.exerciseId ?? replacement.id,
+          name: replacement.name,
+          nameAr: replacement.nameAr,
+          nameEn: replacement.nameEn,
+          category: replacement.category,
+          muscleGroup: replacement.muscleGroup,
+          equipment: replacement.equipment,
+          difficulty: replacement.difficulty,
+          videoUrl: replacement.videoUrl,
+          thumbnailUrl: replacement.thumbnailUrl,
+          instructions: replacement.instructions,
+          instructionsAr: replacement.instructionsAr,
+          instructionsEn: replacement.instructionsEn,
+          notes: replacement.notes,
+        );
+      }).toList();
+      return WorkoutDay(
+        id: day.id,
+        dayName: day.dayName,
+        dayNameAr: day.dayNameAr,
+        dayNumber: day.dayNumber,
+        exercises: updatedExercises,
+        notes: day.notes,
+        isCompleted: day.isCompleted,
+        completedExercises: day.completedExercises,
+        totalExercises: day.totalExercises,
+      );
+    }).toList();
+
+    if (replaced) {
+      _activePlan = _copyPlanWithDays(plan, updatedDays);
     }
   }
 

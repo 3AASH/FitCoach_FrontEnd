@@ -680,77 +680,90 @@ class _AccountScreenState extends State<AccountScreen> {
         const SizedBox(height: 12),
         CustomCard(
           padding: EdgeInsets.zero,
-          child: Column(
-            children: [
-              ListTile(
-                leading: const Icon(Icons.language, color: AppColors.primary),
-                title: Text(languageProvider.t('account_language')),
-                subtitle: Text(isArabic
-                    ? languageProvider.t('arabic')
-                    : languageProvider.t('english')),
-                trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
-                onTap: () =>
-                    _showLanguageDialog(context, languageProvider, isArabic),
+          child: ListTileTheme(
+            data: theme.listTileTheme.copyWith(
+              textColor: AppColors.textPrimary,
+              iconColor: AppColors.textPrimary,
+              titleTextStyle: AppTextStyles.body.copyWith(
+                color: AppColors.textPrimary,
               ),
-              const Divider(height: 1),
-              SwitchListTile(
-                secondary: const Icon(Icons.dark_mode, color: AppColors.accent),
-                title: Text(languageProvider.t('account_dark_mode')),
-                subtitle: Text(
-                  languageProvider.t('account_dark_mode_subtitle'),
+              subtitleTextStyle: AppTextStyles.small.copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.language, color: AppColors.primary),
+                  title: Text(languageProvider.t('account_language')),
+                  subtitle: Text(isArabic
+                      ? languageProvider.t('arabic')
+                      : languageProvider.t('english')),
+                  trailing:
+                      Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                  onTap: () =>
+                      _showLanguageDialog(context, languageProvider, isArabic),
                 ),
-                value: themeProvider.isDarkMode,
-                onChanged: (value) {
-                  themeProvider.toggleTheme();
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading:
-                    const Icon(Icons.notifications, color: AppColors.warning),
-                title:
-                    Text(languageProvider.t('account_notification_settings')),
-                subtitle: Text(languageProvider
-                    .t('account_notification_settings_subtitle')),
-                trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) => const NotificationSettingsScreen()),
-                  );
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.lock_outline,
-                    color: AppColors.textSecondary),
-                title: Text(languageProvider.t('change_password_title')),
-                trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) => const ChangePasswordScreen()),
-                  );
-                },
-              ),
-              const Divider(height: 1),
-              ListTile(
-                leading: const Icon(Icons.phone_iphone,
-                    color: AppColors.textSecondary),
-                title: Text(languageProvider.t('change_mobile_title')),
-                trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                        builder: (_) => const ChangeMobileScreen()),
-                  );
-                },
-              ),
-            ],
+                const Divider(height: 1),
+                SwitchListTile(
+                  secondary:
+                      const Icon(Icons.dark_mode, color: AppColors.accent),
+                  title: Text(languageProvider.t('account_dark_mode')),
+                  subtitle: Text(
+                    languageProvider.t('account_dark_mode_subtitle'),
+                  ),
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) {
+                    themeProvider.toggleTheme();
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading:
+                      const Icon(Icons.notifications, color: AppColors.warning),
+                  title:
+                      Text(languageProvider.t('account_notification_settings')),
+                  subtitle: Text(languageProvider
+                      .t('account_notification_settings_subtitle')),
+                  trailing:
+                      Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const NotificationSettingsScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.lock_outline,
+                      color: AppColors.textSecondary),
+                  title: Text(languageProvider.t('change_password_title')),
+                  trailing:
+                      Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ChangePasswordScreen()),
+                    );
+                  },
+                ),
+                const Divider(height: 1),
+                ListTile(
+                  leading: const Icon(Icons.phone_iphone,
+                      color: AppColors.textSecondary),
+                  title: Text(languageProvider.t('change_mobile_title')),
+                  trailing:
+                      Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                  onTap: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                          builder: (_) => const ChangeMobileScreen()),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ),
         if (_showHelpCenter) ...[

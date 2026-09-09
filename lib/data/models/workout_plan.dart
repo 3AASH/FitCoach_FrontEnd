@@ -311,6 +311,7 @@ class Exercise {
   }
 
   Exercise copyWith({
+    String? exerciseId,
     String? name,
     String? nameAr,
     String? nameEn,
@@ -328,7 +329,7 @@ class Exercise {
   }) {
     return Exercise(
       id: id,
-      exerciseId: exerciseId,
+      exerciseId: exerciseId ?? this.exerciseId,
       name: name ?? this.name,
       nameAr: nameAr ?? this.nameAr,
       nameEn: nameEn ?? this.nameEn,

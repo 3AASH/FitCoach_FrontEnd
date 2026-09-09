@@ -17,6 +17,7 @@ class QuotaIndicator extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final quotaProvider = context.watch<QuotaProvider>();
     final languageProvider = context.watch<LanguageProvider>();
     final translator = languageProvider.t;
@@ -102,7 +103,9 @@ class QuotaIndicator extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.05),
+        color: isDark
+            ? AppColors.surfaceDarkRaised
+            : color.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.2)),
       ),
@@ -122,10 +125,12 @@ class QuotaIndicator extends StatelessWidget {
                   isMessage
                       ? translator('messages_remaining_label')
                       : translator('video_calls_remaining_label'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: isDark
+                        ? AppColors.textPrimaryDark
+                        : AppColors.textPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -153,9 +158,11 @@ class QuotaIndicator extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '/ $limit',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.textSecondary,
+                  color: isDark
+                      ? AppColors.textSecondaryDark
+                      : AppColors.textSecondary,
                 ),
               ),
             ],
@@ -165,7 +172,7 @@ class QuotaIndicator extends StatelessWidget {
             borderRadius: BorderRadius.circular(4),
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: theme.cardColor,
+              backgroundColor: isDark ? AppColors.surfaceDark : theme.cardColor,
               valueColor: AlwaysStoppedAnimation<Color>(color),
               minHeight: 8,
             ),

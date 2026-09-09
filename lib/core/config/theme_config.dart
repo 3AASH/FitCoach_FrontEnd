@@ -77,7 +77,7 @@ class AppThemeConfig {
           borderRadius: BorderRadius.circular(AppRadius.medium),
           borderSide: BorderSide(color: AppColors.error, width: 2),
         ),
-        labelStyle: AppTextStyles.label,
+        labelStyle: AppTextStyles.label.copyWith(color: AppColors.textPrimary),
         hintStyle: AppTextStyles.body.copyWith(color: AppColors.textDisabled),
         errorStyle: AppTextStyles.small.copyWith(color: AppColors.error),
       ),
@@ -179,9 +179,17 @@ class AppThemeConfig {
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.secondary,
         selectedColor: AppColors.primary,
-        labelStyle: AppTextStyles.small.copyWith(
-          color: AppColors.secondaryForeground,
-        ),
+        labelStyle: WidgetStateTextStyle.resolveWith((states) {
+          if (states.contains(WidgetState.disabled)) {
+            return AppTextStyles.small.copyWith(color: AppColors.textDisabled);
+          }
+          if (states.contains(WidgetState.selected)) {
+            return AppTextStyles.small.copyWith(color: Colors.white);
+          }
+          return AppTextStyles.small.copyWith(
+            color: AppColors.secondaryForeground,
+          );
+        }),
         side: BorderSide.none,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.small),
@@ -283,6 +291,9 @@ class AppThemeConfig {
         labelLarge: AppTextStyles.label,
         labelMedium: AppTextStyles.labelSmall,
         labelSmall: AppTextStyles.small,
+      ).apply(
+        bodyColor: AppColors.textPrimary,
+        displayColor: AppColors.textPrimary,
       ),
 
       // Tooltip theme
@@ -300,7 +311,10 @@ class AppThemeConfig {
       // List tile theme
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        titleTextStyle: AppTextStyles.body,
+        textColor: AppColors.textPrimary,
+        titleTextStyle: AppTextStyles.body.copyWith(
+          color: AppColors.textPrimary,
+        ),
         subtitleTextStyle: AppTextStyles.small.copyWith(
           color: AppColors.textSecondary,
         ),
@@ -394,6 +408,7 @@ class AppThemeConfig {
       ),
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        textColor: AppColors.textPrimary,
         titleTextStyle: AppTextStyles.body.copyWith(
           color: AppColors.textPrimary,
         ),

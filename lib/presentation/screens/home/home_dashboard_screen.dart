@@ -209,6 +209,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ),
           ),
         ),
+        if (Theme.of(context).brightness == Brightness.dark)
+          Positioned.fill(
+            child: ColoredBox(
+              color: Colors.black.withValues(alpha: 0.45),
+            ),
+          ),
         SafeArea(
           child: RefreshIndicator(
             onRefresh: _loadData,
@@ -909,7 +915,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.3,
+      childAspectRatio: 1.15,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       children: items.map(_buildNavigationCardCompact).toList(),
@@ -917,6 +923,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildNavigationCardCompact(_HomeNavItem item) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardColor = isDark
+        ? AppColors.surfaceDarkRaised
+        : item.locked
+            ? AppColors.accent.withValues(alpha: 0.12)
+            : item.background ?? AppColors.surface;
+    final titleColor =
+        isDark ? AppColors.textPrimaryDark : AppColors.textPrimary;
+    final descriptionColor =
+        isDark ? AppColors.textSecondaryDark : AppColors.textSecondary;
+
     return InkWell(
       onTap: () {
         if (item.locked) {
@@ -932,9 +949,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: item.locked
-              ? AppColors.accent.withValues(alpha: 0.12)
-              : item.background ?? AppColors.surface,
+          color: cardColor,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: item.locked
@@ -997,19 +1012,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const SizedBox(height: 8),
             Text(
               item.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: titleColor,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 2),
             Text(
               item.description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: descriptionColor,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -1026,7 +1041,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 child: Text(
                   item.lockedLabel,
                   style: AppTextStyles.small.copyWith(
-                    color: AppColors.textPrimary,
+                    color: titleColor,
                     fontSize: 10,
                   ),
                 ),
@@ -1267,19 +1282,24 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildUpgradeCard(LanguageProvider lang, bool isArabic) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.secondary,
-            AppColors.primaryLight.withValues(alpha: 0.2)
-          ],
+          colors: isDark
+              ? [AppColors.surfaceDarkRaised, AppColors.surfaceDark]
+              : [
+                  AppColors.secondary,
+                  AppColors.primaryLight.withValues(alpha: 0.2),
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary),
+        border: Border.all(
+          color: isDark ? AppColors.secondaryForeground : AppColors.secondary,
+        ),
       ),
       child: Column(
         children: [
@@ -1290,14 +1310,18 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             lang.t('home_unlock_premium'),
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           Text(
             lang.t('home_premium_desc'),
-            style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.small.copyWith(
+              color: isDark
+                  ? AppColors.textSecondaryDark
+                  : AppColors.textSecondary,
+            ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -1786,15 +1810,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildQuotaSection(LanguageProvider lang, bool isArabic) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           lang.t('monthly_quota'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: isDark ? AppColors.textPrimaryDark : AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 12),

@@ -186,9 +186,28 @@ class _WorkoutExerciseDetailScreenState
                               Navigator.pop(context);
                               final success = await provider.substituteExercise(
                                 _exercise.id,
-                                alt.id,
+                                alt.exerciseId ?? alt.id,
+                                replacement: alt,
                               );
                               if (success && mounted) {
+                                setState(() {
+                                  _exercise = _exercise.copyWith(
+                                    exerciseId: alt.exerciseId ?? alt.id,
+                                    name: alt.name,
+                                    nameAr: alt.nameAr,
+                                    nameEn: alt.nameEn,
+                                    category: alt.category,
+                                    muscleGroup: alt.muscleGroup,
+                                    equipment: alt.equipment,
+                                    difficulty: alt.difficulty,
+                                    videoUrl: alt.videoUrl,
+                                    thumbnailUrl: alt.thumbnailUrl,
+                                    instructions: alt.instructions,
+                                    instructionsAr: alt.instructionsAr,
+                                    instructionsEn: alt.instructionsEn,
+                                    notes: alt.notes,
+                                  );
+                                });
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
                                     content: Text(successMessage),
@@ -233,7 +252,7 @@ class _WorkoutExerciseDetailScreenState
     final provider = context.watch<WorkoutProvider>();
     // Find the current exercise in the active plan so the UI updates
     // after substitution without needing to pop back.
-    Exercise exercise = widget.exercise;
+    Exercise exercise = _exercise;
     final plan = provider.activePlan;
     if (plan != null) {
       for (final day in plan.days ?? []) {
@@ -245,8 +264,6 @@ class _WorkoutExerciseDetailScreenState
           }
         }
       }
-    } else {
-      exercise = _exercise;
     }
     final equipmentLabel =
         _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));

@@ -564,7 +564,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                icon:
+                    const Icon(Icons.arrow_back, color: Colors.white, size: 18),
                 onPressed: () {
                   if (widget.onBack != null) {
                     widget.onBack!();
@@ -593,8 +594,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
               InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap: () =>
-                    context.read<WorkoutProvider>().goToCurrentDay(),
+                onTap: () => context.read<WorkoutProvider>().goToCurrentDay(),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -1559,7 +1559,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       Navigator.pop(context);
                       final success = await provider.substituteExercise(
                         exercise.id,
-                        alt.id,
+                        alt.exerciseId ?? alt.id,
+                        replacement: alt,
                       );
 
                       if (success && mounted) {
