@@ -1683,6 +1683,12 @@ class LanguageProvider with ChangeNotifier {
     'plan_editor_fat': 'Fat',
     'plan_editor_slot': 'Slot',
     'plan_editor_recipe_id': 'Recipe ID',
+    'plan_editor_cuisine': 'Cuisine',
+    'plan_editor_prep_time_minutes': 'Prep time (min)',
+    'plan_editor_ingredients': 'Ingredients',
+    'plan_editor_add_ingredient': 'Add ingredient',
+    'plan_editor_ingredient_name': 'Ingredient name',
+    'plan_editor_grams': 'Grams',
     'plan_editor_variant_id': 'Variant ID',
     'plan_editor_plan_type': 'Plan type',
     'plan_editor_market': 'Market',
@@ -1700,6 +1706,8 @@ class LanguageProvider with ChangeNotifier {
     'plan_editor_include_coach_edited_users': 'Include coach-edited user plans',
     'plan_editor_protect_coach_edited_hint':
         'Off protects plans that coaches customized for users.',
+    'plan_editor_advanced_template_json_only':
+        'This is an advanced/premium template with multiple program variations. Edit it as JSON to avoid losing data.',
     'plan_editor_no_workout_templates': 'No workout templates found',
     'plan_editor_no_engine_meals': 'No nutrition engine meals found',
     'plan_editor_no_engine_plans': 'No nutrition engine plans found',
@@ -1875,6 +1883,12 @@ class LanguageProvider with ChangeNotifier {
     'plan_editor_fat': 'الدهون',
     'plan_editor_slot': 'نوع الوجبة',
     'plan_editor_recipe_id': 'معرف الوصفة',
+    'plan_editor_cuisine': 'المطبخ',
+    'plan_editor_prep_time_minutes': 'وقت التحضير (دقيقة)',
+    'plan_editor_ingredients': 'المكونات',
+    'plan_editor_add_ingredient': 'إضافة مكون',
+    'plan_editor_ingredient_name': 'اسم المكون',
+    'plan_editor_grams': 'الجرامات',
     'plan_editor_variant_id': 'معرف الخيار',
     'plan_editor_plan_type': 'نوع الخطة',
     'plan_editor_market': 'السوق',
@@ -1893,6 +1907,8 @@ class LanguageProvider with ChangeNotifier {
         'تضمين خطط المستخدمين المعدلة من المدرب',
     'plan_editor_protect_coach_edited_hint':
         'عند إيقافه تبقى الخطط التي خصصها المدربون للمستخدمين محمية.',
+    'plan_editor_advanced_template_json_only':
+        'هذا قالب متقدم/بريميوم يحتوي على عدة برامج متغيرة. عدّله بصيغة JSON لتجنب فقدان البيانات.',
     'plan_editor_no_workout_templates': 'لا توجد قوالب تمرين',
     'plan_editor_no_engine_meals': 'لا توجد وجبات محرك التغذية',
     'plan_editor_no_engine_plans': 'لا توجد خطط محرك التغذية',

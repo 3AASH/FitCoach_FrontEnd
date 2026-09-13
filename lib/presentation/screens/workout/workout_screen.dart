@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_calendar.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../../data/models/user_profile.dart';
@@ -1354,6 +1355,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Text(isCompleted ? 'Done' : 'Start'),
           );
 
+          final thumbnail = _buildExerciseThumbnail(exercise);
+
           final details = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1449,7 +1452,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                details,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    thumbnail,
+                    const SizedBox(width: 12),
+                    Expanded(child: details),
+                  ],
+                ),
                 const SizedBox(height: 10),
                 Align(alignment: Alignment.centerRight, child: actionButton),
               ],
@@ -1459,6 +1469,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              thumbnail,
+              const SizedBox(width: 12),
               Expanded(child: details),
               const SizedBox(width: 12),
               actionButton,
@@ -1479,6 +1491,42 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       return _catalogService.getMuscleLabel(part, isArabic: isArabic) ?? part;
     }).toList();
     return labels.join(', ');
+  }
+
+  Widget _buildExerciseThumbnail(Exercise exercise) {
+    final resolved = VideoThumbnailResolver.resolve(
+      thumbnailUrl: exercise.thumbnailUrl,
+      videoUrl: exercise.videoUrl,
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 64,
+        height: 64,
+        child: resolved == null
+            ? Container(
+                color: const Color(0xFFE8EAF0),
+                child: const Icon(
+                  Icons.fitness_center,
+                  color: Color(0xFF6C6F83),
+                  size: 26,
+                ),
+              )
+            : Image.network(
+                resolved,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: const Color(0xFFE8EAF0),
+                  child: const Icon(
+                    Icons.fitness_center,
+                    color: Color(0xFF6C6F83),
+                    size: 26,
+                  ),
+                ),
+              ),
+      ),
+    );
   }
 
   void _openExerciseSession(WorkoutDay day, int startIndex) {

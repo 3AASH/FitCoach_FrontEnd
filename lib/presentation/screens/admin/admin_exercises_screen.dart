@@ -229,6 +229,9 @@ class _ExerciseAdminCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
+    final displayName = lang.isArabic && (exercise.nameAr?.isNotEmpty == true)
+        ? exercise.nameAr!
+        : exercise.nameEn;
     final subtitle = [
       if (exercise.exId != null) exercise.exId!,
       if (exercise.muscleGroups.isNotEmpty)
@@ -255,7 +258,7 @@ class _ExerciseAdminCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    exercise.nameEn,
+                    displayName,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,

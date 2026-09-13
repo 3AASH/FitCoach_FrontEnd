@@ -222,8 +222,11 @@ class _WorkoutExerciseDetailScreenState
         .toList();
   }
 
-  String? _thumbnailFromVideoUrl(String? videoUrl) {
-    return VideoThumbnailResolver.fromVideoUrl(videoUrl);
+  String? _resolveHeroThumbnail(String? thumbnailUrl, String? videoUrl) {
+    return VideoThumbnailResolver.resolve(
+      thumbnailUrl: thumbnailUrl,
+      videoUrl: videoUrl,
+    );
   }
 
   @override
@@ -251,9 +254,10 @@ class _WorkoutExerciseDetailScreenState
     final equipmentLabel =
         _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));
     final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
-    final derivedVideoThumbnail = _thumbnailFromVideoUrl(exercise.videoUrl);
-    final heroImage = exercise.thumbnailUrl ??
-        derivedVideoThumbnail ??
+    final heroImage = _resolveHeroThumbnail(
+          exercise.thumbnailUrl,
+          exercise.videoUrl,
+        ) ??
         'assets/placeholders/splash_onboarding/workout_onboarding.png';
     final instructions = _splitLines(
       isArabic

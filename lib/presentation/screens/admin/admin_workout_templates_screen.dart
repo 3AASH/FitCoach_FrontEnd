@@ -197,6 +197,9 @@ class _TemplateCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
+    final displayName = lang.isArabic && (template.nameAr?.isNotEmpty == true)
+        ? template.nameAr!
+        : (template.nameEn ?? template.planId);
     final subtitle = [
       template.type,
       if (template.goal != null) template.goal!,
@@ -219,7 +222,7 @@ class _TemplateCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    template.nameEn ?? template.planId,
+                    displayName,
                     style: const TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 16,
@@ -279,6 +282,10 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
   final TextEditingController _trainingDaysController = TextEditingController();
   final TextEditingController _weeksController = TextEditingController();
   List<Map<String, dynamic>> _sessions = <Map<String, dynamic>>[];
+  // Preserve untouched template fields when saving from structured mode.
+  late Map<String, dynamic> _rawTemplate;
+  // Advanced templates require JSON mode because sessions are nested in `programs`.
+  late bool _isAdvancedTemplate;
   bool _jsonMode = false;
   bool _includeCoachEdited = false;
   String? _error;
@@ -310,6 +317,10 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
             }
           ]
         };
+    _rawTemplate = Map<String, dynamic>.from(initial);
+    _isAdvancedTemplate = _rawTemplate['programs'] is Map &&
+        (_rawTemplate['programs'] as Map).isNotEmpty;
+    _jsonMode = _isAdvancedTemplate;
     _jsonController.text = const JsonEncoder.withIndent('  ').convert(initial);
     _loadStructured(initial);
   }
@@ -365,10 +376,19 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                     style: const TextStyle(color: AppColors.error),
                   ),
                 ),
+              if (_isAdvancedTemplate)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    _tr('plan_editor_advanced_template_json_only'),
+                    style: const TextStyle(color: AppColors.warning),
+                  ),
+                ),
               SegmentedButton<bool>(
                 segments: [
                   ButtonSegment(
                     value: false,
+                    enabled: !_isAdvancedTemplate,
                     icon: const Icon(Icons.view_week),
                     label: Text(_tr('plan_editor_plan')),
                   ),
@@ -380,10 +400,22 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                 ],
                 selected: {_jsonMode},
                 onSelectionChanged: (selection) {
+                  if (_isAdvancedTemplate && !selection.first) return;
                   setState(() {
                     if (selection.first) {
                       _jsonController.text = const JsonEncoder.withIndent('  ')
                           .convert(_buildTemplate());
+                    } else {
+                      // Re-sync structured fields from the JSON editor when possible.
+                      try {
+                        final parsed = jsonDecode(_jsonController.text);
+                        if (parsed is Map<String, dynamic>) {
+                          _rawTemplate = parsed;
+                          _loadStructured(parsed);
+                        }
+                      } catch (_) {
+                        // Leave the structured fields untouched if the JSON is invalid.
+                      }
                     }
                     _jsonMode = selection.first;
                   });
@@ -673,36 +705,43 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
   }
 
   Map<String, dynamic> _buildTemplate() {
-    return <String, dynamic>{
-      'plan_id': _planIdController.text.trim(),
-      'type': _typeController.text.trim(),
-      if (_goalController.text.trim().isNotEmpty)
-        'goal': _goalController.text.trim(),
-      if (_locationController.text.trim().isNotEmpty)
-        'location': _locationController.text.trim(),
-      'training_days':
-          int.tryParse(_trainingDaysController.text.trim()) ?? _sessions.length,
-      'weeks': int.tryParse(_weeksController.text.trim()) ?? 4,
-      'name_en': _nameController.text.trim(),
-      'sessions': _sessions.asMap().entries.map((entry) {
-        final index = entry.key;
-        final session = entry.value;
-        return <String, dynamic>{
-          'day': index + 1,
-          'name_en': _stringValue(session['name_en'] ?? session['name'],
-              fallback: 'Day ${index + 1}'),
-          'work': (_asList(session['work']) ?? const <dynamic>[]).map((raw) {
-            final exercise = _asMap(raw) ?? const <String, dynamic>{};
-            return <String, dynamic>{
-              'ex_id': _stringValue(exercise['ex_id']),
-              'name_en': _stringValue(exercise['name_en'] ?? exercise['name']),
-              'sets': int.tryParse(_stringValue(exercise['sets'])) ?? 3,
-              'reps': _stringValue(exercise['reps'], fallback: '10'),
-            };
-          }).toList(),
-        };
-      }).toList(),
-    };
+    // Merge edits into the original template so hidden fields are not dropped.
+    final merged = Map<String, dynamic>.from(_rawTemplate);
+    merged['plan_id'] = _planIdController.text.trim();
+    merged['type'] = _typeController.text.trim();
+    if (_goalController.text.trim().isNotEmpty) {
+      merged['goal'] = _goalController.text.trim();
+    }
+    if (_locationController.text.trim().isNotEmpty) {
+      merged['location'] = _locationController.text.trim();
+    }
+    merged['training_days'] =
+        int.tryParse(_trainingDaysController.text.trim()) ?? _sessions.length;
+    merged['weeks'] = int.tryParse(_weeksController.text.trim()) ?? 4;
+    merged['name_en'] = _nameController.text.trim();
+    merged['sessions'] = _sessions.asMap().entries.map((entry) {
+      final index = entry.key;
+      final session = entry.value;
+      return <String, dynamic>{
+        'day': index + 1,
+        'name_en': _stringValue(session['name_en'] ?? session['name'],
+            fallback: 'Day ${index + 1}'),
+        if (_stringValue(session['name_ar']).isNotEmpty)
+          'name_ar': _stringValue(session['name_ar']),
+        'work': (_asList(session['work']) ?? const <dynamic>[]).map((raw) {
+          final exercise = _asMap(raw) ?? const <String, dynamic>{};
+          return <String, dynamic>{
+            'ex_id': _stringValue(exercise['ex_id']),
+            'name_en': _stringValue(exercise['name_en'] ?? exercise['name']),
+            if (_stringValue(exercise['name_ar']).isNotEmpty)
+              'name_ar': _stringValue(exercise['name_ar']),
+            'sets': int.tryParse(_stringValue(exercise['sets'])) ?? 3,
+            'reps': _stringValue(exercise['reps'], fallback: '10'),
+          };
+        }).toList(),
+      };
+    }).toList();
+    return merged;
   }
 
   void _addSession() {

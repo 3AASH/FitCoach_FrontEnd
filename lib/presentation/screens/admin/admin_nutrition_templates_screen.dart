@@ -264,18 +264,9 @@ class _AdminNutritionTemplatesScreenState
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
-      builder: (_) => _JsonEditorSheet(
-        title: context
-            .read<LanguageProvider>()
-            .t('plan_editor_engine_meal_json_title'),
-        hint: context
-            .read<LanguageProvider>()
-            .t('plan_editor_engine_meal_json_hint'),
-        initialJson: fullRecipe,
-        defaultJson: null,
+      builder: (_) => _NutritionRecipeEditorSheet(
+        initialRecipe: fullRecipe,
         onSave: context.read<AdminProvider>().saveNutritionEngineRecipe,
-        successMessage:
-            context.read<LanguageProvider>().t('plan_editor_engine_meal_saved'),
       ),
     );
   }
@@ -379,7 +370,9 @@ class _NutritionEngineRecipeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final recipeId = _stringValue(recipe['recipe_id']);
-    final name = _firstText([recipe['name_en'], recipeId]);
+    final name = lang.isArabic
+        ? _firstText([recipe['name_ar'], recipe['name_en'], recipeId])
+        : _firstText([recipe['name_en'], recipeId]);
     final markets = _listText(recipe['market_tags']);
     final mealTypes = _listText(recipe['meal_types']);
     final status = _stringValue(recipe['validation_status']);
@@ -772,6 +765,480 @@ class _JsonEditorSheetState extends State<_JsonEditorSheet> {
       SnackBar(
         content: Text(ok
             ? widget.successMessage
+            : providerError ??
+                context.read<LanguageProvider>().t('plan_editor_save_failed')),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
+      ),
+    );
+    if (ok) Navigator.pop(context);
+  }
+}
+
+class _NutritionRecipeEditorSheet extends StatefulWidget {
+  final Map<String, dynamic> initialRecipe;
+  final _JsonSaveCallback onSave;
+
+  const _NutritionRecipeEditorSheet({
+    required this.initialRecipe,
+    required this.onSave,
+  });
+
+  @override
+  State<_NutritionRecipeEditorSheet> createState() =>
+      _NutritionRecipeEditorSheetState();
+}
+
+class _NutritionRecipeEditorSheetState
+    extends State<_NutritionRecipeEditorSheet> {
+  final TextEditingController _jsonController = TextEditingController();
+  final TextEditingController _recipeIdController = TextEditingController();
+  final TextEditingController _nameEnController = TextEditingController();
+  final TextEditingController _nameArController = TextEditingController();
+  final TextEditingController _mealTypesController = TextEditingController();
+  final TextEditingController _cuisineController = TextEditingController();
+  final TextEditingController _prepTimeController = TextEditingController();
+  final TextEditingController _difficultyController = TextEditingController();
+  final TextEditingController _caloriesController = TextEditingController();
+  final TextEditingController _proteinController = TextEditingController();
+  final TextEditingController _carbsController = TextEditingController();
+  final TextEditingController _fatController = TextEditingController();
+  List<MapEntry<String, TextEditingController>> _ingredients = [];
+  // Preserve untouched recipe fields when saving from structured mode.
+  late Map<String, dynamic> _rawRecipe;
+  bool _jsonMode = false;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _rawRecipe = Map<String, dynamic>.from(widget.initialRecipe);
+    _jsonController.text =
+        const JsonEncoder.withIndent('  ').convert(_rawRecipe);
+    _loadStructured(_rawRecipe);
+  }
+
+  @override
+  void dispose() {
+    _jsonController.dispose();
+    _recipeIdController.dispose();
+    _nameEnController.dispose();
+    _nameArController.dispose();
+    _mealTypesController.dispose();
+    _cuisineController.dispose();
+    _prepTimeController.dispose();
+    _difficultyController.dispose();
+    _caloriesController.dispose();
+    _proteinController.dispose();
+    _carbsController.dispose();
+    _fatController.dispose();
+    for (final entry in _ingredients) {
+      entry.value.dispose();
+    }
+    super.dispose();
+  }
+
+  void _loadStructured(Map<String, dynamic> recipe) {
+    _recipeIdController.text = _stringValue(recipe['recipe_id']);
+    _nameEnController.text = _stringValue(recipe['name_en']);
+    _nameArController.text = _stringValue(recipe['name_ar']);
+    _mealTypesController.text =
+        (_asList(recipe['meal_types']) ?? const []).join(', ');
+    _cuisineController.text = _stringValue(recipe['cuisine']);
+    _prepTimeController.text =
+        _stringValue(recipe['prep_time_min'], fallback: '10');
+    _difficultyController.text =
+        _stringValue(recipe['difficulty'], fallback: 'easy');
+    final nutrition = _asMap(recipe['base_nutrition']) ?? const {};
+    _caloriesController.text =
+        _stringValue(nutrition['calories'], fallback: '0');
+    _proteinController.text =
+        _stringValue(nutrition['protein_g'], fallback: '0');
+    _carbsController.text = _stringValue(nutrition['carbs_g'], fallback: '0');
+    _fatController.text = _stringValue(nutrition['fat_g'], fallback: '0');
+
+    for (final entry in _ingredients) {
+      entry.value.dispose();
+    }
+    final ingredients = _asMap(recipe['ingredients_base_g']) ?? const {};
+    _ingredients = ingredients.entries
+        .map((entry) => MapEntry(
+              entry.key,
+              TextEditingController(text: _stringValue(entry.value)),
+            ))
+        .toList();
+  }
+
+  Map<String, dynamic> _buildRecipe() {
+    final merged = Map<String, dynamic>.from(_rawRecipe);
+    merged['recipe_id'] = _recipeIdController.text.trim();
+    merged['name_en'] = _nameEnController.text.trim();
+    merged['name_ar'] = _nameArController.text.trim();
+    merged['meal_types'] = _mealTypesController.text
+        .split(',')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    merged['cuisine'] = _cuisineController.text.trim();
+    merged['prep_time_min'] = int.tryParse(_prepTimeController.text.trim());
+    merged['difficulty'] = _difficultyController.text.trim();
+    merged['base_nutrition'] = {
+      'calories': num.tryParse(_caloriesController.text.trim()) ?? 0,
+      'protein_g': num.tryParse(_proteinController.text.trim()) ?? 0,
+      'carbs_g': num.tryParse(_carbsController.text.trim()) ?? 0,
+      'fat_g': num.tryParse(_fatController.text.trim()) ?? 0,
+    };
+    merged['ingredients_base_g'] = {
+      for (final entry in _ingredients)
+        if (entry.key.trim().isNotEmpty)
+          entry.key.trim(): num.tryParse(entry.value.text.trim()) ?? 0,
+    };
+    return merged;
+  }
+
+  void _addIngredient() {
+    setState(() {
+      _ingredients.add(MapEntry('', TextEditingController(text: '0')));
+    });
+  }
+
+  void _removeIngredient(int index) {
+    setState(() {
+      _ingredients[index].value.dispose();
+      _ingredients.removeAt(index);
+    });
+  }
+
+  void _renameIngredient(int index, String name) {
+    final controller = _ingredients[index].value;
+    setState(() {
+      _ingredients[index] = MapEntry(name, controller);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final inset = MediaQuery.of(context).viewInsets.bottom;
+    final lang = context.watch<LanguageProvider>();
+    return Padding(
+      padding: EdgeInsets.only(bottom: inset),
+      child: DraggableScrollableSheet(
+        expand: false,
+        initialChildSize: 0.94,
+        minChildSize: 0.5,
+        maxChildSize: 0.98,
+        builder: (context, scrollController) => Material(
+          color: Theme.of(context).cardColor,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          child: ListView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(16),
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      lang.t('plan_editor_engine_meal_json_title'),
+                      style: AppTextStyles.h2,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: lang.t('plan_editor_close'),
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              if (_error != null)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    _error!,
+                    style: const TextStyle(color: AppColors.error),
+                  ),
+                ),
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment(
+                    value: false,
+                    icon: const Icon(Icons.ramen_dining),
+                    label: Text(lang.t('plan_editor_plan')),
+                  ),
+                  ButtonSegment(
+                    value: true,
+                    icon: const Icon(Icons.data_object),
+                    label: Text(lang.t('plan_editor_json')),
+                  ),
+                ],
+                selected: {_jsonMode},
+                onSelectionChanged: (selection) {
+                  setState(() {
+                    if (selection.first) {
+                      _jsonController.text = const JsonEncoder.withIndent('  ')
+                          .convert(_buildRecipe());
+                    } else {
+                      try {
+                        final parsed = jsonDecode(_jsonController.text);
+                        if (parsed is Map<String, dynamic>) {
+                          _rawRecipe = parsed;
+                          _loadStructured(parsed);
+                        }
+                      } catch (_) {
+                        // Keep current structured values if JSON parsing fails.
+                      }
+                    }
+                    _jsonMode = selection.first;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              if (_jsonMode)
+                TextField(
+                  controller: _jsonController,
+                  maxLines: 24,
+                  minLines: 16,
+                  keyboardType: TextInputType.multiline,
+                  decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
+                    hintText: lang.t('plan_editor_engine_meal_json_hint'),
+                  ),
+                  style:
+                      const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                )
+              else
+                _buildRecipeEditor(lang),
+              const SizedBox(height: 16),
+              FilledButton.icon(
+                onPressed: _save,
+                icon: const Icon(Icons.save),
+                label: Text(lang.t('plan_editor_save_json')),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRecipeEditor(LanguageProvider lang) {
+    return Column(
+      children: [
+        TextField(
+          controller: _recipeIdController,
+          decoration: InputDecoration(
+            labelText: lang.t('plan_editor_recipe_id'),
+            border: const OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _nameEnController,
+                decoration: InputDecoration(
+                  labelText: lang.t('admin_exercise_english_name'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _nameArController,
+                decoration: InputDecoration(
+                  labelText: lang.t('admin_exercise_arabic_name'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _mealTypesController,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_slot'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _cuisineController,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_cuisine'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _prepTimeController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_prep_time_minutes'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: TextField(
+                controller: _difficultyController,
+                decoration: InputDecoration(
+                  labelText: lang.t('admin_exercise_difficulty'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _caloriesController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_calories'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _proteinController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_protein'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _carbsController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_carbs'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: TextField(
+                controller: _fatController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: lang.t('plan_editor_fat'),
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                lang.t('plan_editor_ingredients'),
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ),
+            TextButton.icon(
+              onPressed: _addIngredient,
+              icon: const Icon(Icons.add),
+              label: Text(lang.t('plan_editor_add_ingredient')),
+            ),
+          ],
+        ),
+        ..._ingredients.asMap().entries.map((entry) {
+          final index = entry.key;
+          final ingredient = entry.value;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: TextFormField(
+                    initialValue: ingredient.key,
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_ingredient_name'),
+                      border: const OutlineInputBorder(),
+                    ),
+                    onChanged: (value) => _renameIngredient(index, value),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: ingredient.value,
+                    keyboardType: TextInputType.number,
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_grams'),
+                      border: const OutlineInputBorder(),
+                    ),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => _removeIngredient(index),
+                  icon: const Icon(Icons.remove_circle_outline,
+                      color: AppColors.error),
+                ),
+              ],
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  Future<void> _save() async {
+    setState(() => _error = null);
+    Map<String, dynamic> payload;
+    try {
+      if (_jsonMode) {
+        final parsed = jsonDecode(_jsonController.text);
+        if (parsed is! Map<String, dynamic>) {
+          throw FormatException(
+            context.read<LanguageProvider>().t('plan_editor_error_json_object'),
+          );
+        }
+        payload = parsed;
+      } else {
+        payload = _buildRecipe();
+      }
+    } catch (error) {
+      setState(() => _error = error.toString());
+      return;
+    }
+
+    final ok = await widget.onSave(payload);
+    if (!mounted) return;
+    final providerError = context.read<AdminProvider>().error;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? context
+                .read<LanguageProvider>()
+                .t('plan_editor_engine_meal_saved')
             : providerError ??
                 context.read<LanguageProvider>().t('plan_editor_save_failed')),
         backgroundColor: ok ? AppColors.success : AppColors.error,
