@@ -589,7 +589,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
         children: [
           _buildMacroProgress(provider.activePlan!, lang, isArabic),
           const SizedBox(height: 20),
-          _buildCalorieCounter(provider.activePlan!, lang, isArabic),
+          _buildCalorieCounter(
+            provider.activePlan!,
+            provider.todayProgress,
+            lang,
+            isArabic,
+          ),
         ],
       ),
     );
@@ -1112,10 +1117,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   Widget _buildCalorieCounter(
     NutritionPlan plan,
+    NutritionTodayProgress? todayProgress,
     LanguageProvider lang,
     bool isArabic,
   ) {
-    final progress = plan.todayProgress;
+    final progress = todayProgress ?? plan.todayProgress;
     final consumed = (progress?.consumedCalories ?? 0).round();
     final target =
         (progress?.targetCalories ?? plan.dailyCalories ?? 0).round();
@@ -1214,7 +1220,48 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
+  String _localizedMealName(Meal meal, bool isArabic) {
+    final localized = isArabic ? meal.nameAr : meal.nameEn;
+    return localized.trim().isNotEmpty ? localized : meal.name;
+  }
+
+  String _localizedFoodName(FoodItem food, bool isArabic) {
+    final localized = isArabic ? food.nameAr : food.nameEn;
+    if (localized.trim().isNotEmpty) return localized;
+    return food.name.trim().isNotEmpty ? food.name : '-';
+  }
+
+  String _formatQuantity(FoodItem food) {
+    final amount = food.quantity % 1 == 0
+        ? food.quantity.round().toString()
+        : food.quantity.toStringAsFixed(1);
+    return '$amount${food.unit}';
+  }
+
+  String _macroLine(Meal meal, LanguageProvider lang) {
+    return '${lang.t('protein')} ${meal.macros.protein.round()}g - '
+        '${lang.t('carbs')} ${meal.macros.carbs.round()}g - '
+        '${lang.t('fats')} ${meal.macros.fats.round()}g';
+  }
+
+  String _foodMacroLine(FoodItem food, LanguageProvider lang) {
+    return '${lang.t('protein')} ${food.macros.protein.round()}g - '
+        '${lang.t('carbs')} ${food.macros.carbs.round()}g - '
+        '${lang.t('fats')} ${food.macros.fats.round()}g';
+  }
+
+  String _mealInstructions(Meal meal, bool isArabic) {
+    final text = isArabic
+        ? (meal.instructionsAr ?? meal.instructions ?? meal.instructionsEn)
+        : (meal.instructionsEn ?? meal.instructions ?? meal.instructionsAr);
+    if (text != null && text.trim().isNotEmpty) return text;
+    return isArabic
+        ? 'لا توجد مكونات/تفاصيل متاحة'
+        : 'No ingredients/details available';
+  }
+
   Widget _buildMealCard(Meal meal, LanguageProvider lang, bool isArabic) {
+    final mealName = _localizedMealName(meal, isArabic);
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -1241,7 +1288,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      meal.name,
+                      mealName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1250,6 +1297,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _macroLine(meal, lang),
                       style: const TextStyle(
                         fontSize: 12,
                         color: AppColors.textSecondary,
@@ -1296,7 +1351,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '${isArabic ? food.nameAr : food.nameEn} (${food.quantity}${food.unit})',
+                      '${_localizedFoodName(food, isArabic)} (${_formatQuantity(food)})',
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,
@@ -1360,6 +1415,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   void _showMealDetail(Meal meal, LanguageProvider lang, bool isArabic) {
+    final mealName = _localizedMealName(meal, isArabic);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1394,16 +1450,35 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
                 // Meal name
                 Text(
-                  meal.name,
+                  mealName,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
+                const SizedBox(height: 8),
+                Text(
+                  '${meal.calories} ${lang.t('cal_unit')} - ${_macroLine(meal, lang)}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+
                 const SizedBox(height: 24),
 
                 // All food items
+                if (meal.foods.isEmpty)
+                  Text(
+                    isArabic
+                        ? 'لا توجد مكونات/تفاصيل متاحة'
+                        : 'No ingredients/details available',
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
                 ...meal.foods.map((food) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -1415,7 +1490,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                isArabic ? food.nameAr : food.nameEn,
+                                _localizedFoodName(food, isArabic),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -1423,7 +1498,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${food.quantity}${food.unit} • ${food.calories} ${lang.t('cal_unit')}',
+                                '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')} - ${_foodMacroLine(food, lang)}',
                                 style: const TextStyle(
                                   fontSize: 14,
                                   color: AppColors.textSecondary,
@@ -1448,24 +1523,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  (isArabic
-                                  ? (meal.instructionsAr ??
-                                      meal.instructions ??
-                                      meal.instructionsEn)
-                                  : (meal.instructionsEn ??
-                                      meal.instructions ??
-                                      meal.instructionsAr))
-                              ?.trim()
-                              .isNotEmpty ==
-                          true
-                      ? (isArabic
-                          ? (meal.instructionsAr ??
-                              meal.instructions ??
-                              meal.instructionsEn)
-                          : (meal.instructionsEn ??
-                              meal.instructions ??
-                              meal.instructionsAr))!
-                      : 'No ingredients/details available',
+                  _mealInstructions(meal, isArabic),
                   style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.textSecondary,

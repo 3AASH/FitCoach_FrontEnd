@@ -11,7 +11,8 @@ import '../../widgets/custom_card.dart';
 String _humanizeSnakeCase(String value) {
   return value
       .split('_')
-      .map((word) => word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
+      .map((word) =>
+          word.isEmpty ? word : '${word[0].toUpperCase()}${word.substring(1)}')
       .join(' ');
 }
 
@@ -51,11 +52,10 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
   Widget build(BuildContext context) {
     final provider = context.watch<AdminProvider>();
     final lang = context.watch<LanguageProvider>();
-    final isArabic = lang.isArabic;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isArabic ? 'Exercise Library' : 'Exercise Library'),
+        title: Text(lang.t('home_exercise_library')),
         actions: [
           IconButton(
             tooltip: lang.t('refresh'),
@@ -79,9 +79,7 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                 textInputAction: TextInputAction.search,
                 onSubmitted: (_) => _refresh(),
                 decoration: InputDecoration(
-                  hintText: isArabic
-                      ? 'Search by ID or name'
-                      : 'Search by ID or name',
+                  hintText: lang.t('admin_exercise_search_hint'),
                   prefixIcon: const Icon(Icons.search),
                   suffixIcon: _searchController.text.isEmpty
                       ? null
@@ -230,10 +228,13 @@ class _ExerciseAdminCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
     final subtitle = [
       if (exercise.exId != null) exercise.exId!,
-      if (exercise.muscleGroups.isNotEmpty) exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
-      if (exercise.equipment.isNotEmpty) exercise.equipment.map(_humanizeSnakeCase).join(', '),
+      if (exercise.muscleGroups.isNotEmpty)
+        exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
+      if (exercise.equipment.isNotEmpty)
+        exercise.equipment.map(_humanizeSnakeCase).join(', '),
     ].join(' • ');
     final alternativesCount =
         exercise.alternativesCount ?? exercise.alternatives.length;
@@ -275,7 +276,7 @@ class _ExerciseAdminCard extends StatelessWidget {
                   if (alternativeLabels.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
-                      'Swaps: ${alternativeLabels.take(3).join(', ')}${alternativeLabels.length > 3 ? ' +' : ''}',
+                      '${lang.t('admin_exercise_swap_alternatives')}: ${alternativeLabels.take(3).join(', ')}${alternativeLabels.length > 3 ? ' +' : ''}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
@@ -292,11 +293,12 @@ class _ExerciseAdminCard extends StatelessWidget {
                       if (exercise.difficulty != null)
                         _Badge(label: exercise.difficulty!),
                       if (exercise.videoUrl != null)
-                        const _Badge(label: 'Video'),
+                        _Badge(label: lang.t('video')),
                       _Badge(
                         label: exercise.hasAlternatives
-                            ? 'Swaps $alternativesCount'
-                            : 'No swaps',
+                            ? lang.t('admin_exercise_swaps_count',
+                                args: {'count': '$alternativesCount'})
+                            : lang.t('admin_exercise_no_swaps'),
                         background: exercise.hasAlternatives
                             ? AppColors.success.withValues(alpha: 0.14)
                             : AppColors.surface,
@@ -310,17 +312,17 @@ class _ExerciseAdminCard extends StatelessWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Edit',
+              tooltip: lang.t('edit'),
               onPressed: onEdit,
               icon: const Icon(Icons.edit),
             ),
             IconButton(
-              tooltip: 'Upload video',
+              tooltip: lang.t('admin_exercise_upload_video'),
               onPressed: onUploadVideo,
               icon: const Icon(Icons.video_call),
             ),
             IconButton(
-              tooltip: 'Delete',
+              tooltip: lang.t('delete'),
               onPressed: onDelete,
               color: AppColors.error,
               icon: const Icon(Icons.delete_outline),
@@ -440,8 +442,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                     Expanded(
                       child: Text(
                         widget.exercise == null
-                            ? 'Create Exercise'
-                            : 'Edit Exercise',
+                            ? lang.t('admin_exercise_create_title')
+                            : lang.t('admin_exercise_edit_title'),
                         style: AppTextStyles.h2,
                       ),
                     ),
@@ -452,17 +454,19 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                _field(_nameEn, 'English name', required: true),
-                _field(_exId, 'Exercise ID used by templates'),
-                _field(_nameAr, 'Arabic name'),
-                _field(_category, 'Category'),
-                _field(_difficulty, 'Difficulty'),
-                _field(_muscles, 'Muscle groups, comma separated'),
-                _field(_equipment, 'Equipment, comma separated'),
+                _field(_nameEn, _tr('admin_exercise_english_name'),
+                    required: true),
+                _field(_exId, _tr('admin_exercise_template_id')),
+                _field(_nameAr, _tr('admin_exercise_arabic_name')),
+                _field(_category, _tr('admin_exercise_category')),
+                _field(_difficulty, _tr('admin_exercise_difficulty')),
+                _field(_muscles, _tr('admin_exercise_muscles')),
+                _field(_equipment, _tr('admin_exercise_equipment')),
                 _buildSwapSelector(),
-                _field(_videoUrl, 'Video URL'),
-                _field(_thumbnailUrl, 'Thumbnail URL'),
-                _field(_instructions, 'Instructions', maxLines: 4),
+                _field(_videoUrl, _tr('admin_exercise_video_url')),
+                _field(_thumbnailUrl, _tr('admin_exercise_thumbnail_url')),
+                _field(_instructions, _tr('admin_exercise_instructions'),
+                    maxLines: 4),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: _save,
@@ -584,9 +588,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: InputDecorator(
-        decoration: const InputDecoration(
-          labelText: 'Swap alternatives',
-          border: OutlineInputBorder(),
+        decoration: InputDecoration(
+          labelText: _tr('admin_exercise_swap_alternatives'),
+          border: const OutlineInputBorder(),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -654,10 +658,10 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                 child: Column(
                   children: [
                     TextField(
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(Icons.search),
-                        labelText: 'Search exercises',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search),
+                        labelText: _tr('admin_exercise_search_exercises'),
+                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (value) {
                         setDialogState(() => query = value);
@@ -677,15 +681,22 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                                   value: selected,
                                   title: Text(
                                     exercise.nameEn,
-                                    style: const TextStyle(color: AppColors.textPrimary),
+                                    style: const TextStyle(
+                                        color: AppColors.textPrimary),
                                   ),
-                                  subtitle: Text([
-                                    if (exercise.muscleGroups.isNotEmpty)
-                                      exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
-                                    if (exercise.equipment.isNotEmpty)
-                                      exercise.equipment.map(_humanizeSnakeCase).join(', '),
-                                  ].join(' • '),
-                                    style: const TextStyle(color: AppColors.textSecondary),
+                                  subtitle: Text(
+                                    [
+                                      if (exercise.muscleGroups.isNotEmpty)
+                                        exercise.muscleGroups
+                                            .map(_humanizeSnakeCase)
+                                            .join(', '),
+                                      if (exercise.equipment.isNotEmpty)
+                                        exercise.equipment
+                                            .map(_humanizeSnakeCase)
+                                            .join(', '),
+                                    ].join(' • '),
+                                    style: const TextStyle(
+                                        color: AppColors.textSecondary),
                                   ),
                                   onChanged: (value) {
                                     setDialogState(() {

@@ -16,6 +16,7 @@ class MealDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
+    final mealName = _localizedMealName(meal, isArabic);
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +51,7 @@ class MealDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            meal.name,
+                            mealName,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -84,6 +85,15 @@ class MealDetailScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
+          if (meal.foods.isEmpty)
+            CustomCard(
+              child: Text(
+                isArabic
+                    ? 'لا توجد مكونات/تفاصيل متاحة'
+                    : 'No ingredients/details available',
+                style: const TextStyle(color: AppColors.textSecondary),
+              ),
+            ),
           ...meal.foods.map(
             (food) => CustomCard(
               margin: const EdgeInsets.only(bottom: 8),
@@ -92,9 +102,9 @@ class MealDetailScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 leading:
                     const Icon(Icons.restaurant_menu, color: AppColors.primary),
-                title: Text(isArabic ? food.nameAr : food.nameEn),
+                title: Text(_localizedFoodName(food, isArabic)),
                 subtitle: Text(
-                  '${food.quantity}${food.unit} • ${food.calories} ${lang.t('cal_unit')}',
+                  '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')}',
                 ),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -134,7 +144,9 @@ class MealDetailScreen extends StatelessWidget {
                       : (meal.instructionsEn ??
                           meal.instructions ??
                           meal.instructionsAr))!
-                  : 'No ingredients/details available',
+                  : (isArabic
+                      ? 'لا توجد مكونات/تفاصيل متاحة'
+                      : 'No ingredients/details available'),
               style: const TextStyle(height: 1.5),
             ),
           ),
@@ -148,6 +160,24 @@ class MealDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _localizedMealName(Meal meal, bool isArabic) {
+    final localized = isArabic ? meal.nameAr : meal.nameEn;
+    return localized.trim().isNotEmpty ? localized : meal.name;
+  }
+
+  String _localizedFoodName(FoodItem food, bool isArabic) {
+    final localized = isArabic ? food.nameAr : food.nameEn;
+    if (localized.trim().isNotEmpty) return localized;
+    return food.name.trim().isNotEmpty ? food.name : '-';
+  }
+
+  String _formatQuantity(FoodItem food) {
+    final amount = food.quantity % 1 == 0
+        ? food.quantity.round().toString()
+        : food.quantity.toStringAsFixed(1);
+    return '$amount${food.unit}';
   }
 
   Color _mealColor(String type) {

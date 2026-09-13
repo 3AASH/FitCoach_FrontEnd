@@ -794,13 +794,19 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> saveWorkoutTemplate(Map<String, dynamic> template) async {
+  Future<bool> saveWorkoutTemplate(
+    Map<String, dynamic> template, {
+    bool includeCoachEdited = false,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _repository.saveWorkoutTemplate(template);
+      await _repository.saveWorkoutTemplate(
+        template,
+        includeCoachEdited: includeCoachEdited,
+      );
       await loadWorkoutTemplates();
       _isLoading = false;
       notifyListeners();
@@ -832,13 +838,19 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> refreshWorkoutTemplateUsers(String planId) async {
+  Future<bool> refreshWorkoutTemplateUsers(
+    String planId, {
+    bool includeCoachEdited = false,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _repository.refreshWorkoutTemplateUsers(planId);
+      await _repository.refreshWorkoutTemplateUsers(
+        planId,
+        includeCoachEdited: includeCoachEdited,
+      );
       _isLoading = false;
       notifyListeners();
       return true;
@@ -1025,14 +1037,20 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> saveNutritionEnginePlan(Map<String, dynamic> plan) async {
+  Future<bool> saveNutritionEnginePlan(
+    Map<String, dynamic> plan, {
+    bool includeCoachEdited = false,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
       if (!DemoConfig.isDemo) {
-        await _repository.saveNutritionEnginePlan(plan);
+        await _repository.saveNutritionEnginePlan(
+          plan,
+          includeCoachEdited: includeCoachEdited,
+        );
       }
       await loadNutritionEnginePlans();
       _isLoading = false;

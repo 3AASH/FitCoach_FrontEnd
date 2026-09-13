@@ -592,7 +592,9 @@ class AdminRepository {
   }
 
   Future<Map<String, dynamic>> saveWorkoutTemplate(
-      Map<String, dynamic> template) async {
+    Map<String, dynamic> template, {
+    bool includeCoachEdited = false,
+  }) async {
     final planId = template['plan_id']?.toString();
     if (planId == null || planId.trim().isEmpty) {
       throw Exception('Workout template plan_id is required');
@@ -600,7 +602,10 @@ class AdminRepository {
     try {
       final response = await _dio.put(
         '/admin/workout-templates/$planId',
-        data: template,
+        data: {
+          'template': template,
+          'includeCoachEdited': includeCoachEdited,
+        },
         options: await _getAuthOptions(),
       );
       return _asMap(response.data) ?? const <String, dynamic>{};
@@ -629,10 +634,15 @@ class AdminRepository {
   }
 
   Future<Map<String, dynamic>> refreshWorkoutTemplateUsers(
-      String planId) async {
+    String planId, {
+    bool includeCoachEdited = false,
+  }) async {
     try {
       final response = await _dio.post(
         '/admin/workout-templates/$planId/refresh-users',
+        data: {
+          'includeCoachEdited': includeCoachEdited,
+        },
         options: await _getAuthOptions(),
       );
       return _asMap(response.data) ?? const <String, dynamic>{};
@@ -871,7 +881,9 @@ class AdminRepository {
   }
 
   Future<Map<String, dynamic>> saveNutritionEnginePlan(
-      Map<String, dynamic> plan) async {
+    Map<String, dynamic> plan, {
+    bool includeCoachEdited = false,
+  }) async {
     final planId = (plan['plan_id'] ?? plan['planId'])?.toString();
     if (planId == null || planId.trim().isEmpty) {
       throw Exception('Nutrition engine plan_id is required');
@@ -879,7 +891,10 @@ class AdminRepository {
     try {
       final response = await _dio.put(
         '/admin/nutrition-engine/plans/${Uri.encodeComponent(planId)}',
-        data: plan,
+        data: {
+          'plan': plan,
+          'includeCoachEdited': includeCoachEdited,
+        },
         options: await _getAuthOptions(),
       );
       return _asMap(response.data) ?? const <String, dynamic>{};

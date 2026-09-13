@@ -398,6 +398,13 @@ class Meal {
 
   factory Meal.fromJson(Map<String, dynamic> json) {
     final fallbackName = resolveMealName(json);
+    final foodsSource = _asList(json['foods']) ?? _asList(json['ingredients']);
+    final macrosSource = _asMap(json['macros']) ??
+        <String, dynamic>{
+          'protein': json['protein'] ?? json['protein_g'],
+          'carbs': json['carbs'] ?? json['carbs_g'],
+          'fats': json['fats'] ?? json['fat'] ?? json['fat_g'],
+        };
     return Meal(
       id: asString(json['id']) ?? '',
       name: fallbackName,
@@ -405,16 +412,18 @@ class Meal {
       nameEn: asString(json['nameEn'] ?? json['name_en']) ?? fallbackName,
       type: asString(json['type']) ?? '',
       time: asString(json['time']) ?? '',
-      foods: (_asList(json['foods']) ?? const [])
+      foods: (foodsSource ?? const [])
           .map((food) => FoodItem.fromJson(_asMap(food) ?? const {}))
           .toList(),
-      macros: MacroTargets.fromJson(_asMap(json['macros']) ?? const {}),
+      macros: MacroTargets.fromJson(macrosSource),
       calories: _asInt(json['calories']) ?? 0,
       instructions: asString(json['instructions']),
-      instructionsAr: asString(json['instructionsAr']),
-      instructionsEn: asString(json['instructionsEn']),
-      imageUrl: asString(json['imageUrl']),
-      order: _asInt(json['order']) ?? 0,
+      instructionsAr:
+          asString(json['instructionsAr'] ?? json['instructions_ar']),
+      instructionsEn:
+          asString(json['instructionsEn'] ?? json['instructions_en']),
+      imageUrl: asString(json['imageUrl'] ?? json['image_url']),
+      order: _asInt(json['order'] ?? json['order_index']) ?? 0,
       completed: asBool(json['completed'] ??
               json['isCompleted'] ??
               json['is_completed']) ??
@@ -588,18 +597,25 @@ class FoodItem {
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
+    final fallbackName =
+        asString(json['name'] ?? json['nameEn'] ?? json['name_en']) ?? '';
+    final quantity = _asDouble(
+      json['quantity'] ?? json['grams'] ?? json['amount'],
+    );
+    final macrosSource = _asMap(json['macros']) ??
+        <String, dynamic>{
+          'protein': json['protein'] ?? json['protein_g'],
+          'carbs': json['carbs'] ?? json['carbs_g'],
+          'fats': json['fats'] ?? json['fat'] ?? json['fat_g'],
+        };
     return FoodItem(
       id: asString(json['id']) ?? '',
-      name: asString(json['name']) ?? '',
-      nameAr: asString(json['nameAr'] ?? json['name_ar']) ??
-          asString(json['name']) ??
-          '',
-      nameEn: asString(json['nameEn'] ?? json['name_en']) ??
-          asString(json['name']) ??
-          '',
-      quantity: _asDouble(json['quantity']),
-      unit: asString(json['unit']) ?? '',
-      macros: MacroTargets.fromJson(_asMap(json['macros']) ?? const {}),
+      name: fallbackName,
+      nameAr: asString(json['nameAr'] ?? json['name_ar']) ?? fallbackName,
+      nameEn: asString(json['nameEn'] ?? json['name_en']) ?? fallbackName,
+      quantity: quantity,
+      unit: asString(json['unit']) ?? (quantity > 0 ? 'g' : ''),
+      macros: MacroTargets.fromJson(macrosSource),
       calories: _asInt(json['calories']) ?? 0,
     );
   }
@@ -631,9 +647,9 @@ class MacroTargets {
 
   factory MacroTargets.fromJson(Map<String, dynamic> json) {
     return MacroTargets(
-      protein: _asDouble(json['protein']),
-      carbs: _asDouble(json['carbs']),
-      fats: _asDouble(json['fats']),
+      protein: _asDouble(json['protein'] ?? json['protein_g']),
+      carbs: _asDouble(json['carbs'] ?? json['carbs_g']),
+      fats: _asDouble(json['fats'] ?? json['fat'] ?? json['fat_g']),
     );
   }
 
