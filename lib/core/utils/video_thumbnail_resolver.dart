@@ -1,6 +1,13 @@
 import '../config/api_config.dart';
 
 class VideoThumbnailResolver {
+  static String? resolveDemo({String? thumbnailUrl, String? videoUrl}) {
+    final video = assetUrl(videoUrl);
+    final path = video == null ? null : Uri.tryParse(video)?.path.toLowerCase();
+    if (path != null && path.endsWith('.gif')) return video;
+    return resolve(thumbnailUrl: thumbnailUrl, videoUrl: videoUrl);
+  }
+
   static String? resolve({String? thumbnailUrl, String? videoUrl}) {
     final direct = thumbnailUrl?.trim();
     if (direct != null && direct.isNotEmpty) {

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_plan.dart';
@@ -163,7 +164,7 @@ class _WorkoutExerciseSessionScreenState
   Exercise get currentExercise => widget.exercises[_currentIndex];
 
   Widget _buildExerciseDemo(Exercise exercise, LanguageProvider lang) {
-    final resolved = VideoThumbnailResolver.resolve(
+    final resolved = VideoThumbnailResolver.resolveDemo(
       thumbnailUrl: exercise.thumbnailUrl,
       videoUrl: exercise.videoUrl,
     );
@@ -188,7 +189,7 @@ class _WorkoutExerciseSessionScreenState
     return Image.network(
       resolved,
       width: double.infinity,
-      fit: BoxFit.cover,
+      fit: BoxFit.contain,
       errorBuilder: (_, __, ___) => Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -327,7 +328,25 @@ class _WorkoutExerciseSessionScreenState
                               color: AppColors.surface,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: _buildExerciseDemo(currentExercise, lang),
+                            child: InkWell(
+                              onTap: () async {
+                                final url = VideoThumbnailResolver.assetUrl(
+                                  currentExercise.videoUrl ??
+                                      currentExercise.thumbnailUrl,
+                                );
+                                if (url == null) return;
+                                final opened = await launchUrl(Uri.parse(url),
+                                    mode: LaunchMode.externalApplication);
+                                if (!opened && context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(lang
+                                            .t('exercise_video_unavailable'))),
+                                  );
+                                }
+                              },
+                              child: _buildExerciseDemo(currentExercise, lang),
+                            ),
                           ),
                         ),
                         if (_isResting) ...[

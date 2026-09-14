@@ -5,6 +5,13 @@ import '../../data/repositories/nutrition_repository.dart';
 import '../../data/models/nutrition_plan.dart';
 
 class NutritionProvider extends ChangeNotifier {
+  DateTime? _selectedDate;
+  DateTime get selectedDate => _selectedDate ?? DateTime.now();
+  String dateKey(DateTime date) => date.toIso8601String().substring(0, 10);
+  Future<void> selectDate(DateTime date) async {
+    _selectedDate = dateKey(date) == dateKey(DateTime.now()) ? null : date;
+    await loadActivePlan();
+  }
   final NutritionRepository _repository;
 
   NutritionPlan? _activePlan;
@@ -64,8 +71,8 @@ class NutritionProvider extends ChangeNotifier {
       return days.first.dayNumber;
     }
 
-    final diff = DateTime.now()
-        .difference(DateTime(start.year, start.month, start.day))
+    final diff = DateTime.utc(selectedDate.year, selectedDate.month, selectedDate.day)
+        .difference(DateTime.utc(start.year, start.month, start.day))
         .inDays;
     final normalized = (diff % days.length) + 1;
     return normalized;
@@ -90,7 +97,7 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> get dailyMealPlan {
-    final meals = _activePlan?.meals ?? [];
+    final meals = getMealsForToday();
     return meals
         .map((meal) => {
               'id': meal.id,
@@ -110,7 +117,7 @@ class NutritionProvider extends ChangeNotifier {
         'fat': _todayProgress!.consumedFats,
       };
     }
-    final meals = _activePlan?.meals ?? [];
+    final meals = getMealsForToday().where((meal) => meal.completed);
     double calories = 0;
     double protein = 0;
     double carbs = 0;
@@ -174,7 +181,9 @@ class NutritionProvider extends ChangeNotifier {
         return;
       }
 
-      final plan = await _repository.getActivePlan();
+      final plan = _selectedDate == null
+          ? await _repository.getActivePlan()
+          : await _repository.getPlanForDate(_selectedDate!);
       _activePlan = plan;
       _todayProgress = plan?.todayProgress;
     } catch (e) {
@@ -307,10 +316,19 @@ class NutritionProvider extends ChangeNotifier {
       return true;
     }
     try {
-      final response = await _repository.logMeal(mealId, data);
+      final meal = _activePlan?.meals?.where((item) => item.id == mealId).firstOrNull;
+      final logDate = meal?.scheduledDate ?? selectedDate;
+      if (meal?.canLog == false || dateKey(logDate).compareTo(dateKey(DateTime.now())) > 0) {
+        return false;
+      }
+      final response = await _repository.logMeal(mealId, {
+        ...data,
+        'logDate': dateKey(logDate),
+        'timezoneOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+      });
       final progressMap =
           _asMap(response['todayProgress'] ?? response['today_progress']);
-      if (progressMap != null) {
+      if (progressMap != null && dateKey(logDate) == dateKey(selectedDate)) {
         _todayProgress = NutritionTodayProgress.fromJson(progressMap);
       }
       _markMealCompletedLocal(mealId);

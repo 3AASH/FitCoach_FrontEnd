@@ -210,6 +210,7 @@ class NutritionTodayProgress {
 class NutritionAccessStatus {
   final bool hasAccess;
   final bool requiresFirstWorkout;
+  final bool requiresIntakes;
   final String? tier;
   final String? reason;
   final String? message;
@@ -223,6 +224,7 @@ class NutritionAccessStatus {
   NutritionAccessStatus({
     required this.hasAccess,
     this.requiresFirstWorkout = false,
+    this.requiresIntakes = false,
     this.tier,
     this.reason,
     this.message,
@@ -238,6 +240,7 @@ class NutritionAccessStatus {
     final source = _asMap(json['access']) ?? json;
     return NutritionAccessStatus(
       hasAccess: asBool(source['hasAccess'] ?? source['has_access']) ?? false,
+      requiresIntakes: asBool(source['requiresIntakes']) ?? false,
       requiresFirstWorkout: asBool(source['requiresFirstWorkout'] ??
               source['requires_first_workout']) ??
           false,
@@ -260,6 +263,7 @@ class NutritionAccessStatus {
   Map<String, dynamic> toJson() => {
         'hasAccess': hasAccess,
         'requiresFirstWorkout': requiresFirstWorkout,
+        'requiresIntakes': requiresIntakes,
         'tier': tier,
         'reason': reason,
         'message': message,
@@ -362,6 +366,8 @@ class DayMealPlan {
 }
 
 class Meal {
+  final DateTime? scheduledDate;
+  final bool canLog;
   final String id;
   final String name;
   final String nameAr;
@@ -379,6 +385,8 @@ class Meal {
   bool completed;
 
   Meal({
+    this.scheduledDate,
+    this.canLog = true,
     required this.id,
     required this.name,
     required this.nameAr,
@@ -406,6 +414,8 @@ class Meal {
           'fats': json['fats'] ?? json['fat'] ?? json['fat_g'],
         };
     return Meal(
+      scheduledDate: _asDateTime(json['scheduledDate']),
+      canLog: asBool(json['canLog']) ?? true,
       id: asString(json['id']) ?? '',
       name: fallbackName,
       nameAr: asString(json['nameAr'] ?? json['name_ar']) ?? fallbackName,
@@ -448,6 +458,8 @@ class Meal {
       'imageUrl': imageUrl,
       'order': order,
       'completed': completed,
+      'scheduledDate': scheduledDate?.toIso8601String(),
+      'canLog': canLog,
     };
   }
 }

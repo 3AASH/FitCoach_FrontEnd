@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
 
 class NutritionPreferencesIntakeScreen extends StatefulWidget {
-  final void Function(Map<String, dynamic> preferences) onComplete;
+  final FutureOr<void> Function(Map<String, dynamic> preferences) onComplete;
+  final bool editMode;
   final VoidCallback onBack;
   final List<String>? missingFields;
   final List<Map<String, dynamic>>? questions;
@@ -18,6 +20,7 @@ class NutritionPreferencesIntakeScreen extends StatefulWidget {
     this.questions,
     this.context,
     this.planType = 'starter',
+    this.editMode = false,
   });
 
   @override
@@ -39,11 +42,40 @@ class _NutritionPreferencesIntakeScreenState
   int _mealsPerDay = 3;
   final Set<String> _dietaryExclusions = {'none'};
   final Set<String> _medicalFlags = {'none'};
+  final Set<String> _dislikedFoods = {};
+  bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final saved = widget.context ?? <String, dynamic>{};
+    _sex = saved['sex']?.toString() ?? _sex;
+    _goal = saved['goal']?.toString() ?? _goal;
+    _dailyMovement = saved['daily_movement']?.toString() ?? _dailyMovement;
+    _mealsPerDay = (saved['meals_per_day'] as num?)?.toInt() ?? 3;
+    _ageController.text = saved['age']?.toString() ?? '';
+    _heightController.text = saved['height_cm']?.toString() ?? '';
+    _weightController.text = saved['weight_kg']?.toString() ?? '';
+    _trainingDaysController.text = saved['training_days_per_week']?.toString() ?? '';
+    if (saved['dietary_exclusions'] is List && (saved['dietary_exclusions'] as List).isNotEmpty) {
+      _dietaryExclusions..clear()..addAll((saved['dietary_exclusions'] as List).map((e) => e.toString()));
+    }
+    if (saved['disliked_foods'] is List) {
+      _dislikedFoods.addAll((saved['disliked_foods'] as List).map((e) => e.toString()));
+    }
+    if (saved['medical_nutrition_safety_screen'] is Map) {
+      final flags = (saved['medical_nutrition_safety_screen'] as Map).entries
+          .where((e) => e.value == true && e.key != 'screen_completed').map((e) => e.key.toString());
+      if (flags.isNotEmpty) _medicalFlags..clear()..addAll(flags);
+    }
+  }
 
   List<String> get _fields {
     final fields = widget.missingFields ?? const <String>[];
-    if (fields.isNotEmpty) return fields;
-    return const ['dietary_exclusions'];
+    return {...fields, 'dietary_exclusions', 'disliked_foods',
+      if (widget.editMode) 'daily_movement',
+      if (widget.editMode && widget.planType != 'starter') 'meals_per_day',
+    }.toList();
   }
 
   @override
@@ -59,11 +91,13 @@ class _NutritionPreferencesIntakeScreenState
 
   bool _needsAny(List<String> fields) => fields.any(_needs);
 
-  void _submit() {
+  Future<void> _submit() async {
+    if (_saving) return;
     if (!_formKey.currentState!.validate()) return;
 
     final payload = <String, dynamic>{
       'plan_type': widget.planType,
+      'disliked_foods': _dislikedFoods.where((food) => food != 'none').toList(),
     };
 
     if (_needsAny(const ['sex', 'gender'])) {
@@ -97,7 +131,7 @@ class _NutritionPreferencesIntakeScreenState
     if (_needs('medical_nutrition_safety_screen')) {
       payload['medical_nutrition_safety_screen'] =
           _medicalFlags.where((flag) => flag != 'none').isEmpty
-              ? <String, dynamic>{}
+              ? <String, dynamic>{'screen_completed': true}
               : {
                   for (final flag
                       in _medicalFlags.where((flag) => flag != 'none'))
@@ -105,14 +139,18 @@ class _NutritionPreferencesIntakeScreenState
                 };
     }
 
-    widget.onComplete(payload);
+    setState(() => _saving = true);
+    try {
+      await widget.onComplete(payload);
+    } finally {
+      if (mounted) setState(() => _saving = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
-    final progress = _fields.isEmpty ? 1.0 : 0.5;
 
     return Scaffold(
       appBar: AppBar(
@@ -132,7 +170,6 @@ class _NutritionPreferencesIntakeScreenState
               style: const TextStyle(color: Colors.black54),
             ),
             const SizedBox(height: 12),
-            LinearProgressIndicator(value: progress, minHeight: 6),
             const SizedBox(height: 20),
             if (_needsAny(const [
               'sex',
@@ -147,6 +184,16 @@ class _NutritionPreferencesIntakeScreenState
             if (_needs('daily_movement')) _buildDailyMovementSection(isArabic),
             if (_needs('dietary_exclusions'))
               _buildDietaryExclusionsSection(isArabic),
+            _Section(title: isArabic ? 'أطعمة لا تفضلها' : 'Foods to avoid', children: [
+              _buildMultiSelect(options: [
+                _Option('chicken', isArabic ? 'دجاج' : 'Chicken'),
+                _Option('beef', isArabic ? 'لحم بقري' : 'Beef'),
+                _Option('tuna', isArabic ? 'تونة' : 'Tuna'),
+                _Option('egg', isArabic ? 'بيض' : 'Eggs'),
+                _Option('oats', isArabic ? 'شوفان' : 'Oats'),
+                _Option('lentils', isArabic ? 'عدس' : 'Lentils'),
+              ], selection: _dislikedFoods),
+            ]),
             if (_needs('meals_per_day')) _buildMealsPerDaySection(isArabic),
             if (_needs('medical_nutrition_safety_screen'))
               _buildMedicalSafetySection(isArabic),
@@ -171,7 +218,7 @@ class _NutritionPreferencesIntakeScreenState
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _submit,
+                    onPressed: _saving ? null : _submit,
                     child: Text(lang.t('nutrition_intake_complete')),
                   ),
                 ),
@@ -267,12 +314,14 @@ class _NutritionPreferencesIntakeScreenState
         _buildMultiSelect(
           options: [
             _Option('none', _copy('none', isArabic)),
-            _Option('food_allergy', _copy('foodAllergy', isArabic)),
+            _Option('nuts', isArabic ? 'مكسرات' : 'Nuts'),
+            _Option('soy', isArabic ? 'صويا' : 'Soy'),
+            _Option('eggs', isArabic ? 'بيض' : 'Eggs'),
+            _Option('fish', isArabic ? 'سمك' : 'Fish'),
             _Option('dairy_lactose', _copy('dairy', isArabic)),
             _Option('gluten', _copy('gluten', isArabic)),
             _Option('vegetarian', _copy('vegetarian', isArabic)),
             _Option('vegan', _copy('vegan', isArabic)),
-            _Option('other_intolerance', _copy('intolerance', isArabic)),
             _Option('personal_religious', _copy('religious', isArabic)),
           ],
           selection: _dietaryExclusions,
@@ -408,7 +457,7 @@ class _NutritionPreferencesIntakeScreenState
                     }
                   } else {
                     selection.remove(option.value);
-                    if (selection.isEmpty) selection.add('none');
+                    if (selection.isEmpty && options.any((option) => option.value == 'none')) selection.add('none');
                   }
                 });
               },

@@ -54,13 +54,15 @@ class _WorkoutExerciseDetailScreenState
   }
 
   Future<void> _openExerciseVideo(bool isArabic) async {
-    final videoUrl = _exercise.videoUrl;
+    final videoUrl = _exercise.videoUrl?.trim().isNotEmpty == true
+        ? _exercise.videoUrl
+        : _exercise.thumbnailUrl;
     if (videoUrl == null || videoUrl.trim().isEmpty) {
       _showVideoUnavailable(isArabic);
       return;
     }
 
-    final uri = Uri.tryParse(videoUrl.trim());
+    final uri = Uri.tryParse(VideoThumbnailResolver.assetUrl(videoUrl.trim())!);
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
@@ -223,7 +225,7 @@ class _WorkoutExerciseDetailScreenState
   }
 
   String? _resolveHeroThumbnail(String? thumbnailUrl, String? videoUrl) {
-    return VideoThumbnailResolver.resolve(
+    return VideoThumbnailResolver.resolveDemo(
       thumbnailUrl: thumbnailUrl,
       videoUrl: videoUrl,
     );
@@ -268,11 +270,12 @@ class _WorkoutExerciseDetailScreenState
 
     Widget buildHeroImage() {
       if (heroImage.startsWith('assets/')) {
-        return Image.asset(heroImage, fit: BoxFit.cover);
+        return Image.asset(heroImage, fit: BoxFit.contain);
       }
       return Image.network(
         heroImage,
-        fit: BoxFit.cover,
+        key: const ValueKey('exercise-detail-demo'),
+        fit: BoxFit.contain,
         errorBuilder: (_, __, ___) => Image.asset(
           'assets/placeholders/splash_onboarding/workout_onboarding.png',
           fit: BoxFit.cover,
@@ -285,12 +288,8 @@ class _WorkoutExerciseDetailScreenState
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned.fill(
-              child: Opacity(
-                opacity: 0.8,
-                child: buildHeroImage(),
-              ),
-            ),
+            const Positioned.fill(
+                child: ColoredBox(color: AppColors.background)),
             SafeArea(
               child: Column(
                 children: [
@@ -352,65 +351,16 @@ class _WorkoutExerciseDetailScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomCard(
-                            padding: EdgeInsets.zero,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
+                          Material(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              onTap: () => _openExerciseVideo(isArabic),
                               child: SizedBox(
-                                height: 180,
+                                height: 220,
                                 width: double.infinity,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    buildHeroImage(),
-                                    Container(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.28),
-                                    ),
-                                    Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.play_circle_fill,
-                                            size: 56,
-                                            color: AppColors.textWhite,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16),
-                                            child: Text(
-                                              '${isArabic ? exercise.nameAr : exercise.nameEn} ${lang.t('exercise_demo')}',
-                                              style: const TextStyle(
-                                                color: AppColors.textWhite,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          OutlinedButton.icon(
-                                            onPressed: () =>
-                                                _openExerciseVideo(isArabic),
-                                            style: OutlinedButton.styleFrom(
-                                              backgroundColor: Colors.white
-                                                  .withValues(alpha: 0.92),
-                                              foregroundColor:
-                                                  AppColors.textPrimary,
-                                            ),
-                                            icon: const Icon(Icons.play_arrow),
-                                            label: Text(lang
-                                                .t('exercise_watch_video_btn')),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                child: buildHeroImage(),
                               ),
                             ),
                           ),

@@ -14,6 +14,8 @@ import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
 import '../../../data/repositories/nutrition_repository.dart';
 import '../subscription/subscription_manager_screen.dart';
+import '../intake/first_intake_screen.dart';
+import '../intake/second_intake_screen.dart';
 
 class NutritionScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -33,6 +35,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
   bool _showIntro = false;
   bool _introLoaded = false;
   bool _showPreferencesIntake = false;
+  bool _editingPreferences = false;
+  List<Map<String, dynamic>> _nutritionHistory = [];
   bool _preferencesLoaded = false;
 
   Future<void> _handleBack() async {
@@ -72,6 +76,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
 
     await _loadPreferencesFlag(hasPlan: provider.activePlan != null);
+    final history = await NutritionRepository().getNutritionHistory();
+    if (mounted) setState(() => _nutritionHistory = history);
   }
 
   Future<void> _loadIntroFlag() async {
@@ -198,7 +204,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         await prefs.setBool(pendingKey, false);
 
         if (mounted) {
-          await nutritionProvider.loadActivePlan();
+          await nutritionProvider.selectDate(DateTime.now());
         }
 
         if (status == 'professional_review_required' && mounted) {
@@ -263,11 +269,36 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
     // Locked for non-premium tiers
     if (!canAccess) {
+      if (nutritionProvider.accessStatus?.requiresIntakes == true) {
+        void completed() {
+          Navigator.of(context).pop();
+          _loadNutritionState();
+        }
+        return Scaffold(
+          appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
+          body: Center(child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              Text(nutritionProvider.accessMessage(isArabic: isArabic) ?? '', textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => authProvider.user?.hasCompletedFirstIntake != true
+                      ? FirstIntakeScreen(onComplete: completed, onSkip: () => Navigator.of(context).pop())
+                      : SecondIntakeScreen(onComplete: completed),
+                )),
+                child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
+              ),
+            ]),
+          )),
+        );
+      }
       return _buildLockedAccess(languageProvider, isArabic);
     }
 
     if (_showPreferencesIntake) {
       return NutritionPreferencesIntakeScreen(
+        editMode: _editingPreferences,
         missingFields: nutritionProvider.intakeRequirements?.missingFields,
         questions: nutritionProvider.intakeRequirements?.questions,
         context: nutritionProvider.intakeRequirements?.context,
@@ -352,8 +383,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             IconButton(
                               icon: const Icon(Icons.settings,
                                   color: Colors.white),
-                              onPressed: () =>
-                                  setState(() => _showPreferencesIntake = true),
+                              onPressed: () async {
+                                await nutritionProvider.loadIntakeRequirements(
+                                  planType: subscriptionTier.toLowerCase() == 'freemium' ? 'starter' : 'professional');
+                                if (mounted) setState(() {
+                                  _editingPreferences = true;
+                                  _showPreferencesIntake = true;
+                                });
+                              },
                               tooltip: languageProvider
                                   .t('nutrition_edit_preferences'),
                             ),
@@ -494,10 +531,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
         children: [
           _buildMacroBreakdownGrid(lang, provider),
           const SizedBox(height: 20),
-          Text(
-            lang.t('todays_meals'),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
+          Row(children: [
+            Expanded(child: Text(MaterialLocalizations.of(context).formatFullDate(provider.selectedDate))),
+            IconButton(icon: const Icon(Icons.calendar_month),
+              tooltip: isArabic ? 'اختيار اليوم' : 'Select date',
+              onPressed: () async {
+                final date = await showDatePicker(context: context,
+                  initialDate: provider.selectedDate,
+                  firstDate: DateTime(2020), lastDate: DateTime.now());
+                if (date != null) await provider.selectDate(date);
+              }),
+          ]),
           const SizedBox(height: 12),
           ...(meals.map(
             (meal) => _buildMealCard(
@@ -595,6 +639,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
             lang,
             isArabic,
           ),
+          const SizedBox(height: 20),
+          Text(isArabic ? 'السجل اليومي' : 'Daily history',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          ..._nutritionHistory.map((day) => ListTile(
+            title: Text(day['date'].toString().substring(0, 10)),
+            subtitle: Text('${day['protein']} ${lang.t('protein')} | ${day['carbs']} ${lang.t('carbs')} | ${day['fat']} ${lang.t('fats')}'),
+            trailing: Text('${day['calories']} ${lang.t('cal_unit')}'),
+            onTap: () => provider.selectDate(DateTime.parse(day['date'].toString())),
+          )),
         ],
       ),
     );
@@ -1321,14 +1374,22 @@ class _NutritionScreenState extends State<NutritionScreen> {
               ),
               Checkbox(
                 value: meal.completed,
-                onChanged: meal.completed
+                onChanged: meal.completed || !meal.canLog
                     ? null
                     : (value) async {
                         if (value != true) return;
                         final provider = context.read<NutritionProvider>();
                         // logMeal already updates local state + notifies;
                         // no full reload needed (avoids full-screen spinner).
-                        await provider.logMeal(meal.id, {'completed': true});
+                        final success = await provider.logMeal(meal.id, {'completed': true});
+                        if (!mounted) return;
+                        if (!success) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(provider.error ?? (isArabic ? 'تعذر تسجيل الوجبة' : 'Could not log meal'))));
+                        } else {
+                          final history = await NutritionRepository().getNutritionHistory();
+                          if (mounted) setState(() => _nutritionHistory = history);
+                        }
                       },
               ),
             ],

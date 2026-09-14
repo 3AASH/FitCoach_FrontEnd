@@ -65,10 +65,16 @@ class NutritionRepository {
   }
 
   // Get active nutrition plan
-  Future<NutritionPlan?> getActivePlan() async {
+  Future<NutritionPlan?> getActivePlan() => getPlanForDate(DateTime.now());
+
+  Future<NutritionPlan?> getPlanForDate(DateTime date) async {
     try {
       final response = await _dio.get(
         '/nutrition/plan',
+        queryParameters: {
+          'date': date.toIso8601String().substring(0, 10),
+          'timezoneOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+        },
         options: await _getAuthOptions(),
       );
 
