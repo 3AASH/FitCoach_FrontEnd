@@ -303,7 +303,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                     controller: _caloriesController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: lang.t('calories'),
+                      labelText: lang.t('plan_editor_calories'),
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -315,7 +315,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           controller: _proteinController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: lang.t('protein'),
+                            labelText: lang.t('plan_editor_protein'),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -326,7 +326,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           controller: _carbsController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: lang.t('carbs'),
+                            labelText: lang.t('plan_editor_carbs'),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -337,7 +337,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           controller: _fatsController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: lang.t('fat'),
+                            labelText: lang.t('plan_editor_fat'),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -381,7 +381,10 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                         'Day ${dayIndex + 1}',
                                     enabled: _isEditable,
                                     decoration: InputDecoration(
-                                      labelText: 'Day ${dayIndex + 1} Name',
+                                      labelText: lang.t(
+                                        'plan_editor_day_name',
+                                        args: {'day': '${dayIndex + 1}'},
+                                      ),
                                     ),
                                     onChanged: (value) =>
                                         _days[dayIndex]['dayName'] = value,
@@ -414,8 +417,10 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                               initialValue:
                                                   _asString(meal['name']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Meal name'),
+                                              decoration: InputDecoration(
+                                                labelText: lang
+                                                    .t('plan_editor_meal_name'),
+                                              ),
                                               onChanged: (value) => _updateMeal(
                                                   dayIndex,
                                                   mealIndex,
@@ -441,8 +446,10 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                               initialValue:
                                                   _asString(meal['time']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Time'),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    lang.t('plan_editor_time'),
+                                              ),
                                               onChanged: (value) => _updateMeal(
                                                   dayIndex,
                                                   mealIndex,
@@ -460,8 +467,11 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                               enabled: _isEditable,
                                               keyboardType:
                                                   TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Calories'),
+                                              decoration: InputDecoration(
+                                                labelText: lang.t(
+                                                  'plan_editor_calories',
+                                                ),
+                                              ),
                                               onChanged: (value) => _updateMeal(
                                                 dayIndex,
                                                 mealIndex,
@@ -484,7 +494,8 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                     ? () => _addMeal(dayIndex)
                                     : null,
                                 icon: const Icon(Icons.add),
-                                label: Text(lang.t('coach_plan_editor_add_meal')),
+                                label:
+                                    Text(lang.t('coach_plan_editor_add_meal')),
                               ),
                             ),
                           ],

@@ -177,7 +177,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     if (_roleFilter == 'customers') ...[
                       Expanded(
                         child: DropdownButtonFormField<String?>(
-                          value: _tierFilter,
+                          initialValue: _tierFilter,
                           decoration: InputDecoration(
                             labelText: lang.t('admin_users_filter_tier'),
                             border: OutlineInputBorder(
@@ -214,7 +214,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     ],
                     Expanded(
                       child: DropdownButtonFormField<String?>(
-                        value: _statusFilter,
+                        initialValue: _statusFilter,
                         decoration: InputDecoration(
                           labelText: lang.t('admin_users_filter_status'),
                           border: OutlineInputBorder(
@@ -292,7 +292,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Icon(
+                                    const Icon(
                                       Icons.people_outline,
                                       size: 64,
                                       color: AppColors.textDisabled,
@@ -333,7 +333,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
+            const Icon(
               Icons.sports_outlined,
               size: 64,
               color: AppColors.textDisabled,
@@ -755,7 +755,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
-                    value: selectedTier,
+                    initialValue: selectedTier,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_users_filter_tier'),
                       border: const OutlineInputBorder(),
@@ -776,7 +776,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String?>(
-                    value: selectedCoachId,
+                    initialValue: selectedCoachId,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_coach_label'),
                       border: const OutlineInputBorder(),
@@ -820,9 +820,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               ),
               ElevatedButton(
                 onPressed: () async {
+                  final adminProvider = this.context.read<AdminProvider>();
+                  final messenger = ScaffoldMessenger.of(this.context);
                   Navigator.pop(context);
 
-                  final adminProvider = context.read<AdminProvider>();
                   final success = await adminProvider.updateUser(
                     user.id,
                     fullName: nameController.text,
@@ -833,13 +834,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   );
 
                   if (success && mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
+                    messenger.showSnackBar(
                       SnackBar(
                         content: Text(lang.t('admin_user_updated_success')),
                         backgroundColor: AppColors.success,
                       ),
                     );
-                    await context.read<AdminProvider>().loadCoaches();
+                    await adminProvider.loadCoaches();
                     _loadDirectory();
                   }
                 },
@@ -1081,7 +1082,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           ElevatedButton(
             onPressed: () async {
               if (reasonController.text.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
                     content: Text(lang.t('admin_suspend_reason_required')),
                     backgroundColor: AppColors.error,
@@ -1090,14 +1091,15 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 return;
               }
 
+              final adminProvider = this.context.read<AdminProvider>();
+              final messenger = ScaffoldMessenger.of(this.context);
               Navigator.pop(context);
 
-              final adminProvider = context.read<AdminProvider>();
               final success = await adminProvider.suspendUser(
                   user.id, reasonController.text);
 
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(lang.t('admin_user_suspended_success')),
                     backgroundColor: AppColors.success,
@@ -1129,13 +1131,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final adminProvider = this.context.read<AdminProvider>();
+              final messenger = ScaffoldMessenger.of(this.context);
               Navigator.pop(context);
 
-              final adminProvider = context.read<AdminProvider>();
               final success = await adminProvider.deleteUser(user.id);
 
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(lang.t('admin_user_deleted_success')),
                     backgroundColor: AppColors.success,

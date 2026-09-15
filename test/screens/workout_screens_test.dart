@@ -21,14 +21,48 @@ Exercise _buildExercise() {
     sets: 3,
     reps: '12',
     restTime: '60s',
-    thumbnailUrl: 'assets/placeholders/splash_onboarding/workout_onboarding.png',
+    thumbnailUrl:
+        'assets/placeholders/splash_onboarding/workout_onboarding.png',
   );
 }
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('WorkoutIntroScreen renders correctly', (WidgetTester tester) async {
+  testWidgets('details loads the GIF before Start even with an old thumbnail',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({});
+    var started = false;
+    final exercise = _buildExercise().copyWith(
+      videoUrl: 'https://example.com/push_up.gif?version=2',
+    );
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LanguageProvider()),
+          ChangeNotifierProvider(
+              create: (_) => WorkoutProvider(FakeWorkoutRepository())),
+        ],
+        child: MaterialApp(
+          home: WorkoutExerciseDetailScreen(
+            exercise: exercise,
+            onStartExercise: () => started = true,
+          ),
+        ),
+      ),
+    );
+    final preview = find.byKey(const ValueKey('exercise-detail-demo'));
+    expect(preview, findsOneWidget);
+    final image = tester.widget<Image>(preview);
+    expect((image.image as NetworkImage).url,
+        'https://example.com/push_up.gif?version=2');
+    expect(image.fit, BoxFit.contain);
+    expect(tester.getSize(preview).height, 220);
+    expect(started, isFalse);
+  });
+
+  testWidgets('WorkoutIntroScreen renders correctly',
+      (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
     await tester.pumpWidget(
       ChangeNotifierProvider(
@@ -42,7 +76,8 @@ void main() {
     expect(find.byType(WorkoutIntroScreen), findsOneWidget);
   });
 
-  testWidgets('WorkoutExerciseSessionScreen renders correctly', (WidgetTester tester) async {
+  testWidgets('WorkoutExerciseSessionScreen renders correctly',
+      (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
     final exercises = [_buildExercise()];
 
@@ -50,7 +85,8 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => LanguageProvider()),
-          ChangeNotifierProvider(create: (_) => WorkoutProvider(FakeWorkoutRepository())),
+          ChangeNotifierProvider(
+              create: (_) => WorkoutProvider(FakeWorkoutRepository())),
         ],
         child: MaterialApp(
           home: WorkoutExerciseSessionScreen(
@@ -65,7 +101,8 @@ void main() {
     expect(find.byType(WorkoutExerciseSessionScreen), findsOneWidget);
   });
 
-  testWidgets('WorkoutExerciseDetailScreen renders correctly', (WidgetTester tester) async {
+  testWidgets('WorkoutExerciseDetailScreen renders correctly',
+      (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
     final exercise = _buildExercise();
 
@@ -73,7 +110,8 @@ void main() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => LanguageProvider()),
-          ChangeNotifierProvider(create: (_) => WorkoutProvider(FakeWorkoutRepository())),
+          ChangeNotifierProvider(
+              create: (_) => WorkoutProvider(FakeWorkoutRepository())),
         ],
         child: MaterialApp(
           home: WorkoutExerciseDetailScreen(
@@ -85,5 +123,12 @@ void main() {
     );
 
     expect(find.byType(WorkoutExerciseDetailScreen), findsOneWidget);
+    // The preview is the only exercise image, never a full-screen background.
+    final imageFinder = find.byType(Image);
+    expect(imageFinder, findsOneWidget);
+    expect(tester.widget<Image>(imageFinder).fit, BoxFit.contain);
+    expect(tester.getSize(imageFinder).height, 220);
+    expect(find.ancestor(of: imageFinder, matching: find.byType(InkWell)),
+        findsOneWidget);
   });
 }

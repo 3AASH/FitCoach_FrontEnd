@@ -732,7 +732,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       );
       return;
     }
-    final uri = Uri.tryParse(videoUrl.trim());
+    final resolvedUrl = VideoThumbnailResolver.assetUrl(videoUrl);
+    final uri = Uri.tryParse(resolvedUrl?.trim() ?? '');
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;

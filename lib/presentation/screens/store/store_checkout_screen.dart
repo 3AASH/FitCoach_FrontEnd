@@ -651,6 +651,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedCountryCode,
+                      isExpanded: true,
                       decoration: InputDecoration(
                         labelText: lang.t('checkout_country'),
                         prefixIcon: const Icon(Icons.public),
@@ -663,7 +664,10 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                       items: _countryOptions.map((country) {
                         return DropdownMenuItem<String>(
                           value: country['code'],
-                          child: Text(lang.t(country['labelKey']!)),
+                          child: Text(
+                            lang.t(country['labelKey']!),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         );
                       }).toList(),
                       onChanged: (value) {

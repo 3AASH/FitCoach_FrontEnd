@@ -1,8 +1,17 @@
+import '../config/api_config.dart';
+
 class VideoThumbnailResolver {
+  static String? resolveDemo({String? thumbnailUrl, String? videoUrl}) {
+    final video = assetUrl(videoUrl);
+    final path = video == null ? null : Uri.tryParse(video)?.path.toLowerCase();
+    if (path != null && path.endsWith('.gif')) return video;
+    return resolve(thumbnailUrl: thumbnailUrl, videoUrl: videoUrl);
+  }
+
   static String? resolve({String? thumbnailUrl, String? videoUrl}) {
     final direct = thumbnailUrl?.trim();
     if (direct != null && direct.isNotEmpty) {
-      return direct;
+      return assetUrl(direct);
     }
     return fromVideoUrl(videoUrl);
   }
@@ -10,6 +19,11 @@ class VideoThumbnailResolver {
   static String? fromVideoUrl(String? videoUrl) {
     if (videoUrl == null || videoUrl.trim().isEmpty) return null;
     final raw = videoUrl.trim();
+    final asset = assetUrl(raw);
+    if (asset != null &&
+        (raw.startsWith('/') || raw.toLowerCase().endsWith('.gif'))) {
+      return asset;
+    }
     final uri = Uri.tryParse(raw);
     if (uri == null) return null;
 
@@ -44,13 +58,15 @@ class VideoThumbnailResolver {
       }
     }
 
-    if (host.contains('cloudinary.com') && uri.path.contains('/video/upload/')) {
+    if (host.contains('cloudinary.com') &&
+        uri.path.contains('/video/upload/')) {
       final videoPath = uri.path;
       final transformedPath = videoPath.replaceFirst(
         '/video/upload/',
         '/video/upload/so_1/',
       );
-      final jpgPath = transformedPath.replaceFirst(RegExp(r'\.[a-zA-Z0-9]{2,5}$'), '.jpg');
+      final jpgPath =
+          transformedPath.replaceFirst(RegExp(r'\.[a-zA-Z0-9]{2,5}$'), '.jpg');
       return uri.replace(path: jpgPath).toString();
     }
 
@@ -59,11 +75,26 @@ class VideoThumbnailResolver {
         path.endsWith('.mov') ||
         path.endsWith('.webm') ||
         path.endsWith('.m4v')) {
-      final jpgPath = uri.path.replaceFirst(RegExp(r'\.[a-zA-Z0-9]{2,5}$'), '.jpg');
+      final jpgPath =
+          uri.path.replaceFirst(RegExp(r'\.[a-zA-Z0-9]{2,5}$'), '.jpg');
       return uri.replace(path: jpgPath).toString();
     }
 
     return null;
+  }
+
+  static String? assetUrl(String? url) {
+    if (url == null || url.trim().isEmpty) return null;
+    final raw = url.trim();
+    final uri = Uri.tryParse(raw);
+    if (uri != null && uri.hasScheme) return raw;
+    if (!raw.startsWith('/')) return raw;
+
+    final base = Uri.tryParse(ApiConfig.baseUrl);
+    if (base == null) return raw;
+    return Uri.parse('${base.scheme}://${base.authority}')
+        .resolve(raw)
+        .toString();
   }
 
   static String? _youtubeThumbnail(String? id) {

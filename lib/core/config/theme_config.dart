@@ -10,7 +10,7 @@ class AppThemeConfig {
       useMaterial3: true,
 
       // Color scheme matching React CSS variables
-      colorScheme: ColorScheme.light(
+      colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
         onPrimary: Colors.white,
         secondary: AppColors.secondary,
@@ -34,7 +34,7 @@ class AppThemeConfig {
         titleTextStyle: AppTextStyles.h3.copyWith(
           color: AppColors.textPrimary,
         ),
-        iconTheme: IconThemeData(
+        iconTheme: const IconThemeData(
           color: AppColors.textPrimary,
         ),
       ),
@@ -46,7 +46,7 @@ class AppThemeConfig {
         shadowColor: Colors.black.withValues(alpha: 0.05),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          side: BorderSide(color: AppColors.border, width: 1),
+          side: const BorderSide(color: AppColors.border, width: 1),
         ),
         margin: EdgeInsets.zero,
       ),
@@ -59,23 +59,23 @@ class AppThemeConfig {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          borderSide: BorderSide(color: AppColors.border, width: 1),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          borderSide: BorderSide(color: AppColors.border, width: 1),
+          borderSide: const BorderSide(color: AppColors.border, width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          borderSide: BorderSide(color: AppColors.ring, width: 2),
+          borderSide: const BorderSide(color: AppColors.ring, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          borderSide: BorderSide(color: AppColors.error, width: 1),
+          borderSide: const BorderSide(color: AppColors.error, width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          borderSide: BorderSide(color: AppColors.error, width: 2),
+          borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
         labelStyle: AppTextStyles.label,
         hintStyle: AppTextStyles.body.copyWith(color: AppColors.textDisabled),
@@ -103,7 +103,7 @@ class AppThemeConfig {
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.textPrimary,
           elevation: 0,
-          side: BorderSide(color: AppColors.border, width: 1),
+          side: const BorderSide(color: AppColors.border, width: 1),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppRadius.small),
           ),
@@ -138,7 +138,7 @@ class AppThemeConfig {
       ),
 
       // Bottom navigation bar theme
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.background,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textDisabled,
@@ -190,7 +190,7 @@ class AppThemeConfig {
       ),
 
       // Divider theme
-      dividerTheme: DividerThemeData(
+      dividerTheme: const DividerThemeData(
         color: AppColors.border,
         thickness: 1,
         space: 1,
@@ -221,7 +221,7 @@ class AppThemeConfig {
           return Colors.transparent;
         }),
         checkColor: WidgetStateProperty.all(Colors.white),
-        side: BorderSide(color: AppColors.border, width: 2),
+        side: const BorderSide(color: AppColors.border, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
         ),
@@ -248,7 +248,7 @@ class AppThemeConfig {
       ),
 
       // Progress indicator theme
-      progressIndicatorTheme: ProgressIndicatorThemeData(
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppColors.primary,
         linearTrackColor: AppColors.surface,
         circularTrackColor: AppColors.surface,
@@ -262,13 +262,13 @@ class AppThemeConfig {
       ),
 
       // Icon theme
-      iconTheme: IconThemeData(
+      iconTheme: const IconThemeData(
         color: AppColors.textPrimary,
         size: 24,
       ),
 
       // Typography
-      textTheme: TextTheme(
+      textTheme: const TextTheme(
         displayLarge: AppTextStyles.h1,
         displayMedium: AppTextStyles.h2,
         displaySmall: AppTextStyles.h3,
@@ -351,7 +351,7 @@ class AppThemeConfig {
         ),
         margin: EdgeInsets.zero,
       ),
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         backgroundColor: AppColors.surfaceDarkRaised,
         selectedItemColor: AppColors.primaryLight,
         unselectedItemColor: AppColors.textSecondaryDark,

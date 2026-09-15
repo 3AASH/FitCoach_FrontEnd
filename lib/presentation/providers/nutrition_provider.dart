@@ -5,6 +5,13 @@ import '../../data/repositories/nutrition_repository.dart';
 import '../../data/models/nutrition_plan.dart';
 
 class NutritionProvider extends ChangeNotifier {
+  DateTime? _selectedDate;
+  DateTime get selectedDate => _selectedDate ?? DateTime.now();
+  String dateKey(DateTime date) => date.toIso8601String().substring(0, 10);
+  Future<void> selectDate(DateTime date) async {
+    _selectedDate = dateKey(date) == dateKey(DateTime.now()) ? null : date;
+    await loadActivePlan();
+  }
   final NutritionRepository _repository;
 
   NutritionPlan? _activePlan;
@@ -14,8 +21,8 @@ class NutritionProvider extends ChangeNotifier {
   int _trialDaysRemaining = 0;
   bool _hasTrialExpired = false;
   NutritionTodayProgress? _todayProgress;
-
-  static const int freemiumTrialDays = 14;
+  NutritionAccessStatus? _accessStatus;
+  NutritionIntakeRequirements? _intakeRequirements;
 
   NutritionProvider(this._repository);
 
@@ -26,6 +33,18 @@ class NutritionProvider extends ChangeNotifier {
   int get trialDaysRemaining => _trialDaysRemaining;
   bool get hasTrialExpired => _hasTrialExpired;
   NutritionTodayProgress? get todayProgress => _todayProgress;
+  NutritionAccessStatus? get accessStatus => _accessStatus;
+  NutritionIntakeRequirements? get intakeRequirements => _intakeRequirements;
+  bool get requiresFirstWorkout => _accessStatus?.requiresFirstWorkout == true;
+  bool get hasNutritionAccess => _accessStatus?.hasAccess ?? false;
+  bool get requiresNutritionIntake =>
+      _intakeRequirements != null && !_intakeRequirements!.isComplete;
+  String? accessMessage({bool isArabic = false}) {
+    if (_accessStatus == null) return null;
+    return isArabic
+        ? (_accessStatus!.messageAr ?? _accessStatus!.message)
+        : (_accessStatus!.message ?? _accessStatus!.messageAr);
+  }
 
   Map<String, dynamic> get macroTargets {
     final targets = _activePlan?.macroTargets;
@@ -52,8 +71,8 @@ class NutritionProvider extends ChangeNotifier {
       return days.first.dayNumber;
     }
 
-    final diff = DateTime.now()
-        .difference(DateTime(start.year, start.month, start.day))
+    final diff = DateTime.utc(selectedDate.year, selectedDate.month, selectedDate.day)
+        .difference(DateTime.utc(start.year, start.month, start.day))
         .inDays;
     final normalized = (diff % days.length) + 1;
     return normalized;
@@ -78,7 +97,7 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   List<Map<String, dynamic>> get dailyMealPlan {
-    final meals = _activePlan?.meals ?? [];
+    final meals = getMealsForToday();
     return meals
         .map((meal) => {
               'id': meal.id,
@@ -98,7 +117,7 @@ class NutritionProvider extends ChangeNotifier {
         'fat': _todayProgress!.consumedFats,
       };
     }
-    final meals = _activePlan?.meals ?? [];
+    final meals = getMealsForToday().where((meal) => meal.completed);
     double calories = 0;
     double protein = 0;
     double carbs = 0;
@@ -136,6 +155,12 @@ class NutritionProvider extends ChangeNotifier {
     if (DemoConfig.isDemo) {
       _activePlan = DemoData.nutritionPlan(userId: DemoConfig.demoUserId);
       _todayProgress = _activePlan?.todayProgress;
+      _accessStatus = NutritionAccessStatus(
+        hasAccess: true,
+        tier: 'demo',
+        daysRemaining: 4,
+        isTrialActive: true,
+      );
       _error = null;
       _isLoading = false;
       notifyListeners();
@@ -146,7 +171,19 @@ class NutritionProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final plan = await _repository.getActivePlan();
+      await refreshAccessStatus(notify: false);
+      if (_accessStatus?.hasAccess == false) {
+        _activePlan = null;
+        _todayProgress = null;
+        _intakeRequirements = null;
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      final plan = _selectedDate == null
+          ? await _repository.getActivePlan()
+          : await _repository.getPlanForDate(_selectedDate!);
       _activePlan = plan;
       _todayProgress = plan?.todayProgress;
     } catch (e) {
@@ -159,10 +196,69 @@ class NutritionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<NutritionAccessStatus?> refreshAccessStatus({
+    bool notify = true,
+  }) async {
+    if (DemoConfig.isDemo) {
+      _accessStatus = NutritionAccessStatus(
+        hasAccess: true,
+        tier: 'demo',
+        daysRemaining: 4,
+        isTrialActive: true,
+      );
+      _applyAccessTrialState();
+      if (notify) notifyListeners();
+      return _accessStatus;
+    }
+
+    try {
+      _accessStatus = await _repository.getAccessStatus();
+      _applyAccessTrialState();
+      _error = null;
+      if (notify) notifyListeners();
+      return _accessStatus;
+    } catch (e) {
+      _error = e.toString();
+      if (notify) notifyListeners();
+      return null;
+    }
+  }
+
+  Future<NutritionIntakeRequirements?> loadIntakeRequirements({
+    String planType = 'starter',
+  }) async {
+    if (DemoConfig.isDemo) {
+      _intakeRequirements = NutritionIntakeRequirements(
+        planType: planType,
+        missingFields: const [],
+        questions: const [],
+        access: _accessStatus,
+      );
+      notifyListeners();
+      return _intakeRequirements;
+    }
+
+    try {
+      _intakeRequirements =
+          await _repository.getIntakeRequirements(planType: planType);
+      if (_intakeRequirements?.access != null) {
+        _accessStatus = _intakeRequirements!.access;
+        _applyAccessTrialState();
+      }
+      _error = null;
+      notifyListeners();
+      return _intakeRequirements;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
   Future<void> checkTrialStatus() async {
     if (DemoConfig.isDemo) {
       _trialStartDate = DateTime.now().subtract(const Duration(days: 3));
-      _trialDaysRemaining = freemiumTrialDays - 3;
+      _trialDaysRemaining = 4;
       _hasTrialExpired = false;
       notifyListeners();
       return;
@@ -172,13 +268,11 @@ class NutritionProvider extends ChangeNotifier {
       _trialStartDate = trialData['startDate'] != null
           ? DateTime.parse(trialData['startDate'] as String)
           : null;
-
-      if (_trialStartDate != null) {
-        final daysSinceStart =
-            DateTime.now().difference(_trialStartDate!).inDays;
-        _trialDaysRemaining = freemiumTrialDays - daysSinceStart;
-        _hasTrialExpired = _trialDaysRemaining <= 0;
-      }
+      _trialDaysRemaining =
+          _asInt(trialData['daysRemaining'] ?? trialData['days_remaining']) ??
+              0;
+      _hasTrialExpired =
+          trialData['hasAccess'] == false && _trialDaysRemaining <= 0;
 
       notifyListeners();
     } catch (e) {
@@ -188,19 +282,33 @@ class NutritionProvider extends ChangeNotifier {
   }
 
   bool canAccessNutrition(String subscriptionTier) {
-    return subscriptionTier == 'Premium' || subscriptionTier == 'Smart Premium';
+    if (DemoConfig.isDemo) return true;
+    if (_accessStatus != null) return _accessStatus!.hasAccess;
+    final tier = subscriptionTier.trim().toLowerCase();
+    return tier == 'premium' || tier == 'smart premium';
   }
 
   bool checkFreemiumAccess(String tier, DateTime trialStartDate) {
     if (tier.toLowerCase().contains('premium')) return true;
-    final daysSinceStart = DateTime.now().difference(trialStartDate).inDays;
-    return daysSinceStart < freemiumTrialDays;
+    if (_accessStatus != null) return _accessStatus!.hasAccess;
+    return getRemainingTrialDays(trialStartDate) > 0;
   }
 
   int getRemainingTrialDays(DateTime trialStartDate) {
-    final daysSinceStart = DateTime.now().difference(trialStartDate).inDays;
-    final remaining = freemiumTrialDays - daysSinceStart;
-    return remaining > 0 ? remaining : 0;
+    if (_accessStatus != null || _hasTrialExpired) {
+      return _trialDaysRemaining > 0 ? _trialDaysRemaining : 0;
+    }
+
+    final trialStartDay = DateTime(
+      trialStartDate.year,
+      trialStartDate.month,
+      trialStartDate.day,
+    );
+    final today = DateTime.now();
+    final elapsedDays = DateTime(today.year, today.month, today.day)
+        .difference(trialStartDay)
+        .inDays;
+    return (14 - elapsedDays).clamp(0, 14);
   }
 
   Future<bool> logMeal(String mealId, Map<String, dynamic> data) async {
@@ -208,10 +316,19 @@ class NutritionProvider extends ChangeNotifier {
       return true;
     }
     try {
-      final response = await _repository.logMeal(mealId, data);
+      final meal = _activePlan?.meals?.where((item) => item.id == mealId).firstOrNull;
+      final logDate = meal?.scheduledDate ?? selectedDate;
+      if (meal?.canLog == false || dateKey(logDate).compareTo(dateKey(DateTime.now())) > 0) {
+        return false;
+      }
+      final response = await _repository.logMeal(mealId, {
+        ...data,
+        'logDate': dateKey(logDate),
+        'timezoneOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+      });
       final progressMap =
           _asMap(response['todayProgress'] ?? response['today_progress']);
-      if (progressMap != null) {
+      if (progressMap != null && dateKey(logDate) == dateKey(selectedDate)) {
         _todayProgress = NutritionTodayProgress.fromJson(progressMap);
       }
       _markMealCompletedLocal(mealId);
@@ -344,9 +461,25 @@ class NutritionProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void _applyAccessTrialState() {
+    if (_accessStatus == null) return;
+    _trialStartDate = _accessStatus!.trialStartedAt;
+    _trialDaysRemaining = _accessStatus!.daysRemaining ?? 0;
+    _hasTrialExpired =
+        !_accessStatus!.hasAccess && !_accessStatus!.isTrialActive;
+  }
+
   Map<String, dynamic>? _asMap(dynamic value) {
     if (value is Map<String, dynamic>) return value;
     if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  int? _asInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is num) return value.toInt();
+    if (value is String) return int.tryParse(value);
     return null;
   }
 

@@ -303,26 +303,26 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     ),
                   TextField(
                     controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Plan Name',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_plan_name'),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _descriptionController,
                     maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_description'),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _goalController,
-                    decoration: const InputDecoration(
-                      labelText: 'Goal',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_goal'),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -363,7 +363,10 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                         'Day ${dayIndex + 1}',
                                     enabled: _isEditable,
                                     decoration: InputDecoration(
-                                      labelText: 'Day ${dayIndex + 1} Name',
+                                      labelText: lang.t(
+                                        'plan_editor_day_name',
+                                        args: {'day': '${dayIndex + 1}'},
+                                      ),
                                     ),
                                     onChanged: (value) =>
                                         _days[dayIndex]['name'] = value,
@@ -396,8 +399,11 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                               initialValue:
                                                   _asString(ex['name']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Exercise name'),
+                                              decoration: InputDecoration(
+                                                labelText: lang.t(
+                                                  'plan_editor_exercise_name',
+                                                ),
+                                              ),
                                               onChanged: (value) =>
                                                   _updateExercise(dayIndex,
                                                       exIndex, 'name', value),
@@ -424,8 +430,10 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                               enabled: _isEditable,
                                               keyboardType:
                                                   TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Sets'),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    lang.t('plan_editor_sets'),
+                                              ),
                                               onChanged: (value) =>
                                                   _updateExercise(
                                                 dayIndex,
@@ -441,8 +449,10 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                               initialValue:
                                                   _asString(ex['reps']) ?? '10',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Reps'),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    lang.t('plan_editor_reps'),
+                                              ),
                                               onChanged: (value) =>
                                                   _updateExercise(dayIndex,
                                                       exIndex, 'reps', value),
@@ -462,7 +472,8 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                     ? () => _addExercise(dayIndex)
                                     : null,
                                 icon: const Icon(Icons.add),
-                                label: Text(lang.t('coach_plan_editor_add_exercise')),
+                                label: Text(
+                                    lang.t('coach_plan_editor_add_exercise')),
                               ),
                             )
                           ],

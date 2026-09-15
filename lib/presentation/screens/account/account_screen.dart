@@ -672,7 +672,6 @@ class _AccountScreenState extends State<AccountScreen> {
     AuthProvider authProvider,
     bool isArabic,
   ) {
-    final theme = Theme.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

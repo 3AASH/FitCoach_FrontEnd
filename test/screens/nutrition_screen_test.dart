@@ -27,6 +27,24 @@ class MockAuthRepository implements AuthRepositoryBase {
   }
 
   @override
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    return AuthResponse(
+      token: 'mock_token',
+      user: UserProfile(
+        id: 'mock_id',
+        phoneNumber: phoneNumber,
+        name: 'Test User',
+        age: 30,
+      ),
+      isNewUser: false,
+    );
+  }
+
+  @override
   Future<String?> getStoredToken() async => null;
 
   @override
@@ -54,6 +72,7 @@ class MockAuthRepository implements AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   }) async {
     return AuthResponse(
       token: 'mock_token',
@@ -89,6 +108,15 @@ class MockAuthRepository implements AuthRepositoryBase {
 }
 
 class MockNutritionRepository extends NutritionRepository {
+  @override
+  Future<NutritionAccessStatus> getAccessStatus() async {
+    return NutritionAccessStatus(
+      hasAccess: false,
+      tier: 'freemium',
+      reason: 'subscription_required',
+    );
+  }
+
   @override
   Future<NutritionPlan?> getActivePlan() async => null;
 

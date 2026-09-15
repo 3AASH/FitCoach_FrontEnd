@@ -213,7 +213,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                 height: 250,
                                 child: LineChart(
                                   LineChartData(
-                                    gridData: FlGridData(
+                                    gridData: const FlGridData(
                                       show: true,
                                       drawVerticalLine: false,
                                     ),

@@ -381,7 +381,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                                     return Container(
                                       color: AppColors.surface,
                                       alignment: Alignment.center,
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.image_not_supported_outlined,
                                         color: AppColors.textDisabled,
                                       ),

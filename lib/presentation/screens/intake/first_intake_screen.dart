@@ -366,10 +366,11 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
         ),
         child: Row(
           children: [
-            Radio<bool>(
-              value: true,
-              groupValue: isSelected,
-              onChanged: (_) => onTap(),
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected ? AppColors.primary : AppColors.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(

@@ -7,7 +7,7 @@ void main() {
     });
 
     test('String concatenation works', () {
-      expect('Hello' + ' ' + 'World', 'Hello World');
+      expect('Hello' ' ' 'World', 'Hello World');
     });
 
     test('List operations work', () {
