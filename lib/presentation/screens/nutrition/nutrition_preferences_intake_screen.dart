@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../providers/language_provider.dart';
 
 class NutritionPreferencesIntakeScreen extends StatefulWidget {
-  final void Function(Map<String, dynamic> preferences) onComplete;
+  final Future<void> Function(Map<String, dynamic> preferences) onComplete;
   final VoidCallback onBack;
 
   const NutritionPreferencesIntakeScreen({
@@ -27,6 +27,7 @@ class _NutritionPreferencesIntakeScreenState extends State<NutritionPreferencesI
   final Set<String> _cuisines = {};
   final Set<String> _avoid = {};
   final TextEditingController _notesController = TextEditingController();
+  bool _isSaving = false;
 
   @override
   void dispose() {
@@ -34,11 +35,20 @@ class _NutritionPreferencesIntakeScreenState extends State<NutritionPreferencesI
     super.dispose();
   }
 
-  void _nextStep() {
+  Future<void> _nextStep() async {
     if (_step < 2) {
       setState(() => _step += 1);
-    } else {
-      widget.onComplete(_buildPreferences());
+      return;
+    }
+    setState(() => _isSaving = true);
+    try {
+      await widget.onComplete(_buildPreferences());
+    } catch (_) {
+      // Error is surfaced to the user by the onComplete handler.
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
@@ -99,17 +109,26 @@ class _NutritionPreferencesIntakeScreenState extends State<NutritionPreferencesI
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: _prevStep,
+                    onPressed: _isSaving ? null : _prevStep,
                     child: Text(lang.t('nutrition_intake_back')),
                   ),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _nextStep,
-                    child: Text(
-                      _step == 2 ? lang.t('nutrition_intake_complete') : lang.t('nutrition_intake_next'),
-                    ),
+                    onPressed: _isSaving ? null : _nextStep,
+                    child: _isSaving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            _step == 2 ? lang.t('nutrition_intake_complete') : lang.t('nutrition_intake_next'),
+                          ),
                   ),
                 ),
               ],
