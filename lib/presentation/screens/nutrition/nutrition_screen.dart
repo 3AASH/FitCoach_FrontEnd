@@ -126,20 +126,33 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
     final prefsKey = 'nutrition_preferences_$userId';
-    await prefs.setString(prefsKey, jsonEncode(preferences));
-    await prefs.setBool(completedKey, true);
-    await prefs.setBool(pendingKey, false);
-    if (!DemoConfig.isDemo) {
-      final repository = NutritionRepository();
-      await repository.generatePlan(preferences);
-      if (mounted) {
-        await nutritionProvider.loadActivePlan();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        final repository = NutritionRepository();
+        await repository.generatePlan(preferences);
+        if (mounted) {
+          await nutritionProvider.loadActivePlan();
+        }
       }
-    }
-    if (mounted) {
-      setState(() {
-        _showPreferencesIntake = false;
-      });
+      await prefs.setString(prefsKey, jsonEncode(preferences));
+      await prefs.setBool(completedKey, true);
+      await prefs.setBool(pendingKey, false);
+      if (mounted) {
+        setState(() {
+          _showPreferencesIntake = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save nutrition preferences: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+      rethrow;
     }
   }
 
