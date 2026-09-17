@@ -4,14 +4,15 @@ import 'package:integration_test/integration_test.dart';
 // ...existing code...
 // Update the import path below if your main.dart is in a different location
 import 'package:fitapp/main.dart' as app;
-import 'workout_coach_e2e_test.dart' as workoutCoachE2E;
+import 'workout_coach_e2e_test.dart' as workout_coach_e2e;
 // import 'package:fitcoach_mobile/presentation/providers/auth_provider.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   group('Complete User Flow Integration Tests', () {
-    testWidgets('complete onboarding and authentication flow', (WidgetTester tester) async {
+    testWidgets('complete onboarding and authentication flow',
+        (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -26,11 +27,11 @@ void main() {
 
       // 3. Onboarding screens
       expect(find.text('Welcome to FitCoach+'), findsOneWidget);
-      
+
       // Swipe through onboarding
       await tester.drag(find.byType(PageView), const Offset(-400, 0));
       await tester.pumpAndSettle();
-      
+
       await tester.drag(find.byType(PageView), const Offset(-400, 0));
       await tester.pumpAndSettle();
 
@@ -40,7 +41,7 @@ void main() {
 
       // 4. OTP Authentication
       expect(find.text('Phone Verification'), findsOneWidget);
-      
+
       // Enter phone number
       await tester.enterText(
         find.byType(TextField).first,
@@ -66,7 +67,7 @@ void main() {
 
       // 5. First Intake
       expect(find.text('Tell us about yourself'), findsOneWidget);
-      
+
       // Answer questions
       await tester.tap(find.text('Fat Loss'));
       await tester.pumpAndSettle();
@@ -91,7 +92,8 @@ void main() {
       expect(find.text('Nutrition'), findsOneWidget);
     });
 
-    testWidgets('workout flow with injury substitution', (WidgetTester tester) async {
+    testWidgets('workout flow with injury substitution',
+        (WidgetTester tester) async {
       // Assuming user is logged in
       app.main();
       await tester.pumpAndSettle();
@@ -102,7 +104,7 @@ void main() {
 
       // Should see weekly workout plan
       expect(find.text('Monday'), findsOneWidget);
-      
+
       // Tap on a workout day
       await tester.tap(find.text('Monday'));
       await tester.pumpAndSettle();
@@ -128,7 +130,8 @@ void main() {
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
     });
 
-    testWidgets('nutrition plan and trial management', (WidgetTester tester) async {
+    testWidgets('nutrition plan and trial management',
+        (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -161,7 +164,8 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('messaging with quota enforcement', (WidgetTester tester) async {
+    testWidgets('messaging with quota enforcement',
+        (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -223,7 +227,8 @@ void main() {
       expect(find.text('Checkout'), findsOneWidget);
     });
 
-    testWidgets('video call booking with quota check', (WidgetTester tester) async {
+    testWidgets('video call booking with quota check',
+        (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -320,7 +325,8 @@ void main() {
       expect(find.text('الرئيسية'), findsOneWidget);
     });
 
-    testWidgets('progress tracking displays correctly', (WidgetTester tester) async {
+    testWidgets('progress tracking displays correctly',
+        (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -344,7 +350,8 @@ void main() {
       }
     });
 
-    testWidgets('exercise library search and filter', (WidgetTester tester) async {
+    testWidgets('exercise library search and filter',
+        (WidgetTester tester) async {
       app.main();
       await tester.pumpAndSettle();
 
@@ -371,5 +378,5 @@ void main() {
     });
   });
 
-  workoutCoachE2E.registerWorkoutCoachE2ETests();
+  workout_coach_e2e.registerWorkoutCoachE2ETests();
 }

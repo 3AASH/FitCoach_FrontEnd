@@ -138,7 +138,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.history,
                                   size: 64,
                                   color: AppColors.textDisabled,
@@ -221,7 +221,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Icon(
+                        const Icon(
                           Icons.access_time,
                           size: 12,
                           color: AppColors.textSecondary,
@@ -236,7 +236,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                         ),
                         if (log.ipAddress != null) ...[
                           const SizedBox(width: 12),
-                          Icon(
+                          const Icon(
                             Icons.location_on,
                             size: 12,
                             color: AppColors.textSecondary,
@@ -402,7 +402,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
               ),
               const SizedBox(height: 8),
               DropdownButtonFormField<String?>(
-                value: _actionFilter,
+                initialValue: _actionFilter,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),

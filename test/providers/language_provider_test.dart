@@ -18,20 +18,20 @@ void main() {
       expect(languageProvider.currentLanguage, 'ar');
     });
 
-     test('toggle language should switch between Arabic and English', () async {
-       // Initial state
-       expect(languageProvider.isArabic, true);
-    
-       // Toggle to English
-       await languageProvider.toggleLanguage();
-       expect(languageProvider.isArabic, false);
-       expect(languageProvider.currentLanguage, 'en');
-    
-       // Toggle back to Arabic
-       await languageProvider.toggleLanguage();
-       expect(languageProvider.isArabic, true);
-       expect(languageProvider.currentLanguage, 'ar');
-     });
+    test('toggle language should switch between Arabic and English', () async {
+      // Initial state
+      expect(languageProvider.isArabic, true);
+
+      // Toggle to English
+      await languageProvider.toggleLanguage();
+      expect(languageProvider.isArabic, false);
+      expect(languageProvider.currentLanguage, 'en');
+
+      // Toggle back to Arabic
+      await languageProvider.toggleLanguage();
+      expect(languageProvider.isArabic, true);
+      expect(languageProvider.currentLanguage, 'ar');
+    });
 
     test('setLanguage should update language correctly', () async {
       // Set to English
@@ -45,20 +45,19 @@ void main() {
       expect(languageProvider.currentLanguage, 'ar');
     });
 
-
     test('t should return correct translation', () async {
       // Test Arabic translations
       expect(languageProvider.t('welcome'), 'مرحباً بك في عاش');
-      expect(languageProvider.t('login'), 'login'); // Not in translations, should return key
+      expect(languageProvider.t('login'), 'Login'); // Humanized fallback
 
       // Switch to English and test
       await languageProvider.setLanguage('en');
       expect(languageProvider.t('welcome'), 'Welcome to FitCoach+');
-      expect(languageProvider.t('login'), 'login'); // Not in translations, should return key
+      expect(languageProvider.t('login'), 'Login'); // Humanized fallback
     });
 
     test('t should return key if translation not found', () {
-      expect(languageProvider.t('nonexistent_key'), 'nonexistent_key');
+      expect(languageProvider.t('nonexistent_key'), 'Nonexistent Key');
     });
 
     test('notifyListeners should be called on language change', () async {

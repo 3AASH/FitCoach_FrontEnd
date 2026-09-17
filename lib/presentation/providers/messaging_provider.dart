@@ -366,9 +366,23 @@ class MessagingProvider extends ChangeNotifier {
     if (_demoConfig.isDemo) {
       return;
     }
+    _bindSocketCallbacks();
     _isReconnecting = true;
     notifyListeners();
-    await _repository.connect();
+    try {
+      await _repository.connect();
+      if (_repository.isConnected) {
+        _isConnected = true;
+        _isReconnecting = false;
+        _error = null;
+        _joinActiveConversation();
+      }
+    } catch (e) {
+      _isConnected = false;
+      _isReconnecting = false;
+      _error = e.toString();
+    }
+    notifyListeners();
   }
 
   Future<void> loadConversations({

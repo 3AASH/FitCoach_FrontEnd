@@ -13,7 +13,9 @@ import 'package:fitapp/data/repositories/user_repository.dart';
 
 void main() {
   group('Repository contract coverage', () {
-    test('T-FE-01: UserRepository updateSubscription uses correct path and auth header', () async {
+    test(
+        'T-FE-01: UserRepository updateSubscription uses correct path and auth header',
+        () async {
       final captured = <RequestOptions>[];
       final dio = _buildMockDio((options) async {
         captured.add(options);
@@ -45,7 +47,8 @@ void main() {
       expect(captured.single.data, {'tier': 'Premium'});
     });
 
-    test('T-FE-02: AdminRepository sends auth header on protected route', () async {
+    test('T-FE-02: AdminRepository sends auth header on protected route',
+        () async {
       final captured = <RequestOptions>[];
       final dio = _buildMockDio((options) async {
         captured.add(options);
@@ -80,6 +83,7 @@ void main() {
       await repo.createCoach(
         fullName: 'Coach Test',
         email: 'coach@test.com',
+        phoneNumber: '+966500000002',
       );
 
       expect(captured.single.path, '/admin/coaches');
@@ -87,7 +91,9 @@ void main() {
       expect(captured.single.headers['Authorization'], 'Bearer admin-token');
     });
 
-    test('T-FE-03: SubscriptionPlanRepository uses auth header for admin create', () async {
+    test(
+        'T-FE-03: SubscriptionPlanRepository uses auth header for admin create',
+        () async {
       final captured = <RequestOptions>[];
       final dio = _buildMockDio((options) async {
         captured.add(options);
@@ -125,7 +131,9 @@ void main() {
       expect(captured.single.headers['Authorization'], 'Bearer sub-token');
     });
 
-    test('T-FE-04: StoreRepository parses categories from name/category payloads', () async {
+    test(
+        'T-FE-04: StoreRepository parses categories from name/category payloads',
+        () async {
       final dio = _buildMockDio((options) async {
         return Response<dynamic>(
           requestOptions: options,
@@ -148,7 +156,9 @@ void main() {
       expect(categories, ['Supplements', 'Equipment', 'Accessories']);
     });
 
-    test('T-FE-05: PaymentRepository uses supported paths and parses checkout payload', () async {
+    test(
+        'T-FE-05: PaymentRepository uses supported paths and parses checkout payload',
+        () async {
       final captured = <RequestOptions>[];
       final dio = _buildMockDio((options) async {
         captured.add(options);
@@ -199,7 +209,9 @@ void main() {
       expect(captured[1].method, 'POST');
     });
 
-    test('T-FE-06: MessagingRepository parses send wrapper after attachment upload', () async {
+    test(
+        'T-FE-06: MessagingRepository parses send wrapper after attachment upload',
+        () async {
       final captured = <RequestOptions>[];
       final dio = _buildMockDio((options) async {
         captured.add(options);
@@ -246,7 +258,8 @@ void main() {
         tokenReader: () async => 'msg-token',
       );
 
-      final tempFile = File('${Directory.systemTemp.path}/fitcoach_msg_test.png');
+      final tempFile =
+          File('${Directory.systemTemp.path}/fitcoach_msg_test.png');
       await tempFile.writeAsBytes(const [1, 2, 3, 4]);
       addTearDown(() async {
         if (await tempFile.exists()) {
@@ -269,7 +282,8 @@ void main() {
   });
 }
 
-Dio _buildMockDio(Future<Response<dynamic>> Function(RequestOptions options) handler) {
+Dio _buildMockDio(
+    Future<Response<dynamic>> Function(RequestOptions options) handler) {
   final dio = Dio(BaseOptions(baseUrl: 'https://example.test'));
   dio.interceptors.add(
     InterceptorsWrapper(

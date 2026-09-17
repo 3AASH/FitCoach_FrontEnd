@@ -7,6 +7,9 @@ import 'package:fitapp/core/config/demo_config.dart';
 class FakeMessagingRepository extends MessagingRepository {
   final List<Message> _messages = [];
   final Map<String, Conversation> _conversations = {};
+  final List<void Function()> _connectListeners = [];
+  final List<void Function(dynamic)> _disconnectListeners = [];
+  bool _connected = false;
 
   FakeMessagingRepository() {
     final now = DateTime.now();
@@ -33,23 +36,49 @@ class FakeMessagingRepository extends MessagingRepository {
   }
 
   @override
-  Future<void> connect() async {}
+  bool get isConnected => _connected;
+
+  @override
+  Future<void> connect() async {
+    _connected = true;
+    for (final listener in _connectListeners) {
+      listener();
+    }
+  }
 
   @override
   void onMessageReceived(Function(Message) callback) {}
 
   @override
-  void disconnect() {}
+  void onConnect(void Function() callback) {
+    _connectListeners.add(callback);
+  }
+
+  @override
+  void onDisconnect(void Function(dynamic reason) callback) {
+    _disconnectListeners.add(callback);
+  }
+
+  @override
+  void disconnect() {
+    _connected = false;
+    for (final listener in _disconnectListeners) {
+      listener('test_disconnect');
+    }
+    _connectListeners.clear();
+    _disconnectListeners.clear();
+  }
 
   @override
   Future<Conversation> getConversation(String conversationId) async {
-    return _conversations[conversationId] ?? Conversation(
-      id: conversationId,
-      userId: 'user123',
-      coachId: 'coach456',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
+    return _conversations[conversationId] ??
+        Conversation(
+          id: conversationId,
+          userId: 'user123',
+          coachId: 'coach456',
+          createdAt: DateTime.now(),
+          updatedAt: DateTime.now(),
+        );
   }
 
   @override
@@ -163,7 +192,6 @@ void main() {
     test('receiveMessage should add coach message', () async {
       await messagingProvider.connect('user123', 'coach456');
 
-
       messagingProvider.receiveMessage(
         Message(
           id: 'msg1',
@@ -236,6 +264,7 @@ void main() {
       );
 
       // Incoming messages in the active conversation are auto-marked as read.
+      await Future<void>.delayed(Duration.zero);
       expect(messagingProvider.getUnreadCount(), initialUnread);
     });
 
@@ -243,8 +272,9 @@ void main() {
       await messagingProvider.loadConversation('chat123');
 
       final results = messagingProvider.searchMessages('workout');
-      expect(results.every((msg) => 
-        msg.content.toLowerCase().contains('workout')), true);
+      expect(
+          results.every((msg) => msg.content.toLowerCase().contains('workout')),
+          true);
     });
 
     test('deleteMessage should remove from list', () async {

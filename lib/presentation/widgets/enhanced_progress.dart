@@ -274,7 +274,7 @@ class EnhancedSwitch extends StatelessWidget {
     return Switch(
       value: value,
       onChanged: onChanged,
-      activeColor: activeColor ?? AppColors.primary,
+      activeThumbColor: activeColor ?? AppColors.primary,
       activeTrackColor: (activeColor ?? AppColors.primary).withValues(alpha: 0.5),
       inactiveThumbColor: Colors.white,
       inactiveTrackColor: AppColors.border,
@@ -304,7 +304,7 @@ class EnhancedCheckbox extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(4),
       ),
-      side: BorderSide(
+      side: const BorderSide(
         color: AppColors.border,
         width: 2,
       ),

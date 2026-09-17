@@ -316,7 +316,8 @@ class WorkoutProvider extends ChangeNotifier {
     final catalog = _catalogService.catalog;
     if (catalog == null) return exercise;
 
-    ExerciseCatalogItem? item = catalog.byId[exercise.id];
+    ExerciseCatalogItem? item =
+        catalog.byId[exercise.exerciseId] ?? catalog.byId[exercise.id];
     item ??= _findCatalogByName(catalog, exercise.nameEn, exercise.nameAr);
     if (item == null) return exercise;
 

@@ -405,7 +405,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
           description: lang.t('intake_second_frequency_desc'),
           children: [
             DropdownButtonFormField<int>(
-              value: _selectedFrequency,
+              initialValue: _selectedFrequency,
               decoration: InputDecoration(
                 labelText: lang.t('workout_frequency'),
               ),
@@ -543,10 +543,13 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
         ),
         child: Row(
           children: [
-            Radio<bool>(
-              value: true,
-              groupValue: isSelected,
-              onChanged: (_) => onTap(),
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected
+                  ? AppColors.secondaryForeground
+                  : AppColors.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(

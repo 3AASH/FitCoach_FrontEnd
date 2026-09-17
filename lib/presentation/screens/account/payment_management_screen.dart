@@ -12,7 +12,8 @@ class PaymentManagementScreen extends StatefulWidget {
   const PaymentManagementScreen({super.key});
 
   @override
-  State<PaymentManagementScreen> createState() => _PaymentManagementScreenState();
+  State<PaymentManagementScreen> createState() =>
+      _PaymentManagementScreenState();
 }
 
 class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
@@ -73,7 +74,9 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
             style: const TextStyle(color: AppColors.textSecondary),
           ),
           const SizedBox(height: 16),
-          DemoConfig.isDemo ? _buildMethodsCard(lang) : _buildProductionMethodsCard(),
+          DemoConfig.isDemo
+              ? _buildMethodsCard(lang)
+              : _buildProductionMethodsCard(),
           const SizedBox(height: 16),
           _buildHistoryCard(lang),
           const SizedBox(height: 16),
@@ -106,21 +109,26 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           ..._methods.map(
             (method) => Column(
               children: [
-                RadioListTile<String>(
-                  value: method.id,
-                  groupValue: _defaultMethodId,
+                ListTile(
                   contentPadding: EdgeInsets.zero,
-                  activeColor: AppColors.primary,
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => _defaultMethodId = value);
-                  },
+                  leading: Icon(
+                    method.id == _defaultMethodId
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: method.id == _defaultMethodId
+                        ? AppColors.primary
+                        : AppColors.textSecondary,
+                  ),
                   title: Text('${method.brand} •••• ${method.last4}'),
-                  subtitle: Text(method.type == 'card' ? 'Exp ${method.expiry}' : method.holder),
-                  secondary: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: AppColors.textSecondary),
+                  subtitle: Text(method.type == 'card'
+                      ? 'Exp ${method.expiry}'
+                      : method.holder),
+                  trailing: IconButton(
+                    icon: const Icon(Icons.delete_outline,
+                        color: AppColors.textSecondary),
                     onPressed: () => _removeMethod(method.id),
                   ),
+                  onTap: () => setState(() => _defaultMethodId = method.id),
                 ),
                 if (method != _methods.last) const Divider(height: 0),
               ],
@@ -158,9 +166,9 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Recent Payments',
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
               if (!DemoConfig.isDemo)
                 IconButton(
@@ -178,21 +186,23 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               style: const TextStyle(color: AppColors.error),
             )
           else if (_paymentHistory.isEmpty)
-            Text(
+            const Text(
               DemoConfig.isDemo
                   ? 'No demo transactions available.'
                   : 'No payment history found yet.',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: AppColors.textSecondary),
             )
           else
             ..._paymentHistory.take(5).map((payment) {
               final amount = payment['amount'];
-              final currency = (payment['currency'] ?? 'SAR').toString().toUpperCase();
+              final currency =
+                  (payment['currency'] ?? 'SAR').toString().toUpperCase();
               final status = (payment['status'] ?? '').toString();
               final tier = (payment['tier'] ?? '').toString();
               return ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.receipt_long, color: AppColors.primary),
+                leading:
+                    const Icon(Icons.receipt_long, color: AppColors.primary),
                 title: Text(
                   '$tier ${amount ?? '-'} $currency',
                   maxLines: 1,
@@ -229,7 +239,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           const Divider(height: 12),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.work_outline, color: AppColors.secondaryForeground),
+            leading: const Icon(Icons.work_outline,
+                color: AppColors.secondaryForeground),
             title: Text(lang.t('payment_secondary_address')),
             subtitle: const Text('Remote Office Hub, Dammam 12211'),
             trailing: TextButton(
@@ -314,7 +325,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                     _PaymentMethod(
                       id: 'card_${DateTime.now().millisecondsSinceEpoch}',
                       brand: 'Visa',
-                      last4: cardNumberController.text.substring(cardNumberController.text.length - 4),
+                      last4: cardNumberController.text
+                          .substring(cardNumberController.text.length - 4),
                       expiry: expiryController.text,
                       holder: holderController.text,
                       type: 'card',

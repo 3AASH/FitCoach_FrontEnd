@@ -149,14 +149,14 @@ class _EnhancedTextFieldState extends State<EnhancedTextField> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.border,
                   width: 1,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.border,
                   width: 1,
                 ),
@@ -170,14 +170,14 @@ class _EnhancedTextFieldState extends State<EnhancedTextField> {
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.error,
                   width: 1,
                 ),
               ),
               focusedErrorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.error,
                   width: 2,
                 ),
@@ -294,7 +294,7 @@ class _EnhancedDropdownState<T> extends State<EnhancedDropdown<T>> {
                 : null,
           ),
           child: DropdownButtonFormField<T>(
-            value: widget.value,
+            initialValue: widget.value,
             items: widget.items,
             onChanged: widget.enabled ? widget.onChanged : null,
             focusNode: _focusNode,
@@ -310,21 +310,21 @@ class _EnhancedDropdownState<T> extends State<EnhancedDropdown<T>> {
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.border,
                   width: 1,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.border,
                   width: 1,
                 ),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.ring,
                   width: 2,
                 ),

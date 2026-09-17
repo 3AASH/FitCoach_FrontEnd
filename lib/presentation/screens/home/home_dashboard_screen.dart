@@ -448,7 +448,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     minHeight: 6,
                     backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.textWhite),
+                        const AlwaysStoppedAnimation<Color>(AppColors.textWhite),
                   ),
                 ),
               ],
@@ -516,7 +516,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     minHeight: 6,
                     backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.textWhite),
+                        const AlwaysStoppedAnimation<Color>(AppColors.textWhite),
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -778,7 +778,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.calendar_today,
+                    const Icon(Icons.calendar_today,
                         size: 12, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
@@ -1052,7 +1052,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  Icon(Icons.fitness_center,
+                  const Icon(Icons.fitness_center,
                       size: 18, color: AppColors.textPrimary),
                   const SizedBox(width: 8),
                   Expanded(
@@ -1191,7 +1191,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.trending_up, size: 18, color: AppColors.textPrimary),
+              const Icon(Icons.trending_up, size: 18, color: AppColors.textPrimary),
               const SizedBox(width: 8),
               Text(
                 lang.t('home_recent_activity'),
@@ -1333,9 +1333,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final tierLabel = _tierLabel(lang, tier);
     final fitnessScore = user?.fitnessScore ?? (DemoConfig.isDemo ? 72 : 0);
     final fitnessUpdatedBy = user?.fitnessScoreUpdatedBy;
-    final caloriesBurned = DemoConfig.isDemo ? 2850 : 0;
-    final caloriesConsumed = DemoConfig.isDemo ? 1950 : 0;
-    final workoutsCompleted = DemoConfig.isDemo ? 12 : 0;
+    const caloriesBurned = DemoConfig.isDemo ? 2850 : 0;
+    const caloriesConsumed = DemoConfig.isDemo ? 1950 : 0;
+    const workoutsCompleted = DemoConfig.isDemo ? 12 : 0;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -1452,7 +1452,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     minHeight: 6,
                     backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(AppColors.textWhite),
+                        const AlwaysStoppedAnimation<Color>(AppColors.textWhite),
                   ),
                 ),
               ],
@@ -1895,7 +1895,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               : Center(
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.fitness_center_outlined,
                         size: 48,
                         color: AppColors.textDisabled,
@@ -1987,7 +1987,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               : Center(
                   child: Column(
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.restaurant_outlined,
                         size: 48,
                         color: AppColors.textDisabled,
@@ -2202,6 +2202,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget _buildNutritionTab() {
     return NutritionScreen(
       onBack: () => setState(() => _selectedIndex = 0),
+      onOpenWorkout: () => setState(() => _selectedIndex = 1),
     );
   }
 

@@ -13,7 +13,7 @@ import '../../../data/models/subscription_plan.dart';
 class SubscriptionUpgradeScreen extends StatefulWidget {
   final String? requiredTier; // 'premium' or 'smart_premium'
   final String? featureName; // Feature that triggered upgrade
-  
+
   const SubscriptionUpgradeScreen({
     super.key,
     this.requiredTier,
@@ -21,7 +21,8 @@ class SubscriptionUpgradeScreen extends StatefulWidget {
   });
 
   @override
-  State<SubscriptionUpgradeScreen> createState() => _SubscriptionUpgradeScreenState();
+  State<SubscriptionUpgradeScreen> createState() =>
+      _SubscriptionUpgradeScreenState();
 }
 
 class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
@@ -49,9 +50,12 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
         languageProvider.t(key, args: args);
     final currentTier = authProvider.user?.subscriptionTier ?? 'freemium';
     final paidPlans = _paidPlans(planProvider.plans);
-    SubscriptionPlan? selectedPlan = _findPlanByIdentifier(paidPlans, _selectedPlanId);
+    SubscriptionPlan? selectedPlan =
+        _findPlanByIdentifier(paidPlans, _selectedPlanId);
     selectedPlan ??= paidPlans.isNotEmpty ? paidPlans.first : null;
-    final requiredPlanName = planProvider.matchTier(widget.requiredTier ?? '')?.name ?? widget.requiredTier;
+    final requiredPlanName =
+        planProvider.matchTier(widget.requiredTier ?? '')?.name ??
+            widget.requiredTier;
 
     if (selectedPlan != null && selectedPlan.id != _selectedPlanId) {
       final targetId = selectedPlan.id;
@@ -88,7 +92,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                                     'subscription_feature_requires_plan',
                                     args: {
                                       'feature': widget.featureName!,
-                                      'plan': (requiredPlanName ?? widget.requiredTier ?? 'Premium'),
+                                      'plan': (requiredPlanName ??
+                                          widget.requiredTier ??
+                                          'Premium'),
                                     },
                                   ),
                                   style: const TextStyle(fontSize: 14),
@@ -101,12 +107,14 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                       ],
                       Text(
                         tr('subscription_choose_plan'),
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         tr('subscription_upgrade_subtitle'),
-                        style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                            fontSize: 14, color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: 24),
                       _buildBillingCycleToggle(languageProvider),
@@ -129,7 +137,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                           color: AppColors.info.withValues(alpha: 0.1),
                           child: Row(
                             children: [
-                              const Icon(Icons.hourglass_top, color: AppColors.info),
+                              const Icon(Icons.hourglass_top,
+                                  color: AppColors.info),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
@@ -140,7 +149,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                               TextButton(
                                 onPressed: _isProcessing
                                     ? null
-                                    : () => _handleCancelRequest(languageProvider),
+                                    : () =>
+                                        _handleCancelRequest(languageProvider),
                                 child: Text(tr('subscription_request_cancel')),
                               ),
                             ],
@@ -156,7 +166,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                                 : tr('subscription_send_request'),
                             onPressed: _isProcessing || selectedPlan == null
                                 ? null
-                                : () => _handleSubscriptionRequest(languageProvider, selectedPlan!),
+                                : () => _handleSubscriptionRequest(
+                                    languageProvider, selectedPlan!),
                             variant: ButtonVariant.primary,
                             size: ButtonSize.large,
                             fullWidth: true,
@@ -166,7 +177,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                       const SizedBox(height: 16),
                       Text(
                         tr('subscription_request_disclaimer'),
-                        style: const TextStyle(fontSize: 12, color: AppColors.textDisabled),
+                        style: const TextStyle(
+                            fontSize: 12, color: AppColors.textDisabled),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -174,7 +186,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                 ),
     );
   }
-  
+
   Widget _buildBillingCycleToggle(LanguageProvider languageProvider) {
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
@@ -206,7 +218,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       ),
     );
   }
-  
+
   Widget _buildCycleOption(
     String cycle,
     String label,
@@ -214,7 +226,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     String? badge,
   }) {
     final isSelected = _selectedCycle == cycle;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -260,7 +272,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       ),
     );
   }
-  
+
   Widget _buildPlanCard({
     required SubscriptionPlan plan,
     required LanguageProvider languageProvider,
@@ -272,13 +284,13 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     final price = _selectedCycle == 'monthly'
         ? plan.monthlyPrice
         : (plan.yearlyPrice ?? plan.monthlyPrice * 12);
-    final monthlyBreakdown = _selectedCycle == 'yearly'
-        ? price / 12
-        : plan.monthlyPrice;
+    final monthlyBreakdown =
+        _selectedCycle == 'yearly' ? price / 12 : plan.monthlyPrice;
     final featureList = [...plan.features]
       ..sort((a, b) => a.order.compareTo(b.order));
     final planName = _localizedPlanName(plan, languageProvider.isArabic);
-    final planDescription = _localizedPlanDescription(plan, languageProvider.isArabic);
+    final planDescription =
+        _localizedPlanDescription(plan, languageProvider.isArabic);
     final accentColor = _planAccentColor(plan);
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
@@ -317,7 +329,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                     if (plan.badge != null || plan.isRecommended) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: accentColor.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(12),
@@ -335,7 +348,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                     if (isCurrent) ...[
                       const SizedBox(width: 8),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppColors.success,
                           borderRadius: BorderRadius.circular(12),
@@ -353,11 +367,17 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                   ],
                 ),
                 if (!isCurrent)
-                  Radio<String>(
-                    value: plan.id,
-                    groupValue: _selectedPlanId,
-                    onChanged: (_) => onSelected(),
-                    activeColor: AppColors.primary,
+                  IconButton(
+                    tooltip: tr('subscription_select_plan'),
+                    onPressed: onSelected,
+                    icon: Icon(
+                      _selectedPlanId == plan.id
+                          ? Icons.radio_button_checked
+                          : Icons.radio_button_unchecked,
+                      color: _selectedPlanId == plan.id
+                          ? AppColors.primary
+                          : AppColors.textSecondary,
+                    ),
                   ),
               ],
             ),
@@ -412,7 +432,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                     padding: const EdgeInsets.only(bottom: 8),
                     child: Row(
                       children: [
-                        const Icon(Icons.check_circle, color: AppColors.success, size: 20),
+                        const Icon(Icons.check_circle,
+                            color: AppColors.success, size: 20),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
@@ -425,8 +446,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                       ],
                     ),
                   ),
-                )
-                .toList(),
+                ),
             if (featureList.length > 5)
               Text(
                 tr('subscription_more_perks'),
@@ -469,7 +489,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     if (currentTier.isEmpty) return false;
     final query = currentTier.trim().toLowerCase();
     final slug = (plan.metadata['tier'] as String?)?.trim().toLowerCase();
-    return plan.id.toLowerCase() == query || plan.name.toLowerCase() == query || slug == query;
+    return plan.id.toLowerCase() == query ||
+        plan.name.toLowerCase() == query ||
+        slug == query;
   }
 
   String _localizedPlanName(SubscriptionPlan plan, bool isArabic) {
@@ -498,7 +520,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     }
     return Color(0xFF000000 | parsed);
   }
-  
+
   Future<void> _handleSubscriptionRequest(
       LanguageProvider languageProvider, SubscriptionPlan plan) async {
     setState(() {
@@ -593,7 +615,11 @@ class _EmptyPlansState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.auto_graph, size: 72, color: AppColors.textDisabled.withOpacity(0.5)),
+            Icon(
+              Icons.auto_graph,
+              size: 72,
+              color: AppColors.textDisabled.withValues(alpha: 0.5),
+            ),
             const SizedBox(height: 16),
             Text(
               tr('subscription_empty_title'),
@@ -603,7 +629,8 @@ class _EmptyPlansState extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               tr('subscription_empty_subtitle'),
-              style: const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+              style:
+                  const TextStyle(fontSize: 14, color: AppColors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

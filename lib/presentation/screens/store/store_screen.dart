@@ -592,15 +592,15 @@ class _StoreScreenState extends State<StoreScreen> {
                           color: AppColors.warning, size: 14),
                       const SizedBox(width: 4),
                       Text(
-                        '${(product.rating ?? 0).toStringAsFixed(1)}',
+                        (product.rating ?? 0).toStringAsFixed(1),
                         style: const TextStyle(
                             fontSize: 12, color: AppColors.textSecondary),
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${lang.t('reviews_count', args: {
+                        lang.t('reviews_count', args: {
                               'count': '${product.reviewCount}'
-                            })}',
+                            }),
                         style: const TextStyle(
                             fontSize: 12, color: AppColors.textDisabled),
                       ),
@@ -727,15 +727,15 @@ class _StoreScreenState extends State<StoreScreen> {
                     const Icon(Icons.star, color: AppColors.warning, size: 20),
                     const SizedBox(width: 4),
                     Text(
-                      '${(product.rating ?? 0).toStringAsFixed(1)}',
+                      (product.rating ?? 0).toStringAsFixed(1),
                       style: const TextStyle(
                           fontSize: 16, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${lang.t('reviews_count', args: {
+                      lang.t('reviews_count', args: {
                             'count': '${product.reviewCount}'
-                          })}',
+                          }),
                       style: const TextStyle(
                           fontSize: 14, color: AppColors.textSecondary),
                     ),
@@ -872,7 +872,7 @@ class _StoreScreenState extends State<StoreScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1194,7 +1194,7 @@ class _StoreScreenState extends State<StoreScreen> {
               ],
             ),
           );
-        }).toList(),
+        }),
         const SizedBox(height: 12),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1342,7 +1342,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                     overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '${qty} × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
+                                  '$qty × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
                                   style: const TextStyle(
                                       color: AppColors.textSecondary,
                                       fontSize: 12),
@@ -1594,9 +1594,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        '${lang.t('reviews_count', args: {
+                        lang.t('reviews_count', args: {
                               'count': '${product['reviews']}'
-                            })}',
+                            }),
                         style: const TextStyle(
                           fontSize: 12,
                           color: AppColors.textDisabled,
@@ -1661,7 +1661,7 @@ class _StoreScreenState extends State<StoreScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.shopping_bag_outlined,
             size: 80,
             color: AppColors.textDisabled,
@@ -1785,9 +1785,9 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      '${lang.t('reviews_count', args: {
+                      lang.t('reviews_count', args: {
                             'count': '${product['reviews']}'
-                          })}',
+                          }),
                       style: const TextStyle(
                         fontSize: 14,
                         color: AppColors.textSecondary,

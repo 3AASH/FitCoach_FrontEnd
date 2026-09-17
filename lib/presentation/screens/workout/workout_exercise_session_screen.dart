@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
@@ -161,6 +163,50 @@ class _WorkoutExerciseSessionScreenState
 
   Exercise get currentExercise => widget.exercises[_currentIndex];
 
+  Widget _buildExerciseDemo(Exercise exercise, LanguageProvider lang) {
+    final resolved = VideoThumbnailResolver.resolveDemo(
+      thumbnailUrl: exercise.thumbnailUrl,
+      videoUrl: exercise.videoUrl,
+    );
+
+    if (resolved == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.play_circle,
+                size: 48, color: AppColors.textSecondary),
+            const SizedBox(height: 8),
+            Text(
+              lang.t('workouts_exercise_demo'),
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Image.network(
+      resolved,
+      width: double.infinity,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Icon(Icons.play_circle,
+                size: 48, color: AppColors.textSecondary),
+            const SizedBox(height: 8),
+            Text(
+              lang.t('workouts_exercise_demo'),
+              style: const TextStyle(color: AppColors.textSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _formatTime(int seconds) {
     final mins = seconds ~/ 60;
     final secs = seconds % 60;
@@ -277,24 +323,29 @@ class _WorkoutExerciseSessionScreenState
                         _SessionCard(
                           child: Container(
                             height: 160,
+                            clipBehavior: Clip.antiAlias,
                             decoration: BoxDecoration(
                               color: AppColors.surface,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.play_circle,
-                                      size: 48, color: AppColors.textSecondary),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    lang.t('workouts_exercise_demo'),
-                                    style: const TextStyle(
-                                        color: AppColors.textSecondary),
-                                  ),
-                                ],
-                              ),
+                            child: InkWell(
+                              onTap: () async {
+                                final url = VideoThumbnailResolver.assetUrl(
+                                  currentExercise.videoUrl ??
+                                      currentExercise.thumbnailUrl,
+                                );
+                                if (url == null) return;
+                                final opened = await launchUrl(Uri.parse(url),
+                                    mode: LaunchMode.externalApplication);
+                                if (!opened && context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(lang
+                                            .t('exercise_video_unavailable'))),
+                                  );
+                                }
+                              },
+                              child: _buildExerciseDemo(currentExercise, lang),
                             ),
                           ),
                         ),
