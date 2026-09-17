@@ -765,6 +765,75 @@ class AdminRepository {
     }
   }
 
+  Future<List<Map<String, dynamic>>> getNutritionIngredients({
+    String? search,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/admin/nutrition-engine/ingredients',
+        queryParameters: {
+          if (search != null && search.trim().isNotEmpty) 'search': search.trim(),
+        },
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asList(data['ingredients'] ?? data['data'])
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to get nutrition ingredients'));
+    }
+  }
+
+  Future<Map<String, dynamic>> createNutritionIngredient(
+      Map<String, dynamic> ingredient) async {
+    try {
+      final response = await _dio.post(
+        '/admin/nutrition-engine/ingredients',
+        data: {'ingredient': ingredient},
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['ingredient']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to create nutrition ingredient'));
+    }
+  }
+
+  Future<Map<String, dynamic>> updateNutritionIngredient(
+    String ingredientId,
+    Map<String, dynamic> ingredient,
+  ) async {
+    try {
+      final response = await _dio.put(
+        '/admin/nutrition-engine/ingredients/${Uri.encodeComponent(ingredientId)}',
+        data: {'ingredient': ingredient},
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['ingredient']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to update nutrition ingredient'));
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getNutritionRecipeVariants() async {
+    try {
+      final response = await _dio.get('/admin/nutrition-engine/recipe-variants',
+          options: await _getAuthOptions());
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asList(data['variants'] ?? data['data'])
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to get nutrition recipe variants'));
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getNutritionEngineRecipes({
     String? search,
     String? validationStatus,
@@ -826,6 +895,22 @@ class AdminRepository {
     } on DioException catch (e) {
       throw Exception(_readableError(e,
           fallback: 'Failed to save nutrition engine recipe'));
+    }
+  }
+
+  Future<Map<String, dynamic>> createNutritionEngineRecipe(
+      Map<String, dynamic> recipe) async {
+    try {
+      final response = await _dio.post(
+        '/admin/nutrition-engine/recipes',
+        data: {'recipe': recipe},
+        options: await _getAuthOptions(),
+      );
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['recipe']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to create nutrition engine recipe'));
     }
   }
 
@@ -901,6 +986,19 @@ class AdminRepository {
     } on DioException catch (e) {
       throw Exception(
           _readableError(e, fallback: 'Failed to save nutrition engine plan'));
+    }
+  }
+
+  Future<Map<String, dynamic>> createNutritionEnginePlan(
+      Map<String, dynamic> plan) async {
+    try {
+      final response = await _dio.post('/admin/nutrition-engine/plans',
+          data: {'plan': plan}, options: await _getAuthOptions());
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      return _asMap(data['plan']) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(_readableError(e,
+          fallback: 'Failed to create nutrition engine plan'));
     }
   }
 

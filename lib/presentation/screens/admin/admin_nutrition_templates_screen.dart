@@ -30,7 +30,7 @@ class _AdminNutritionTemplatesScreenState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this)
+    _tabController = TabController(length: 4, vsync: this)
       ..addListener(() {
         if (!_tabController.indexIsChanging && mounted) {
           setState(() {});
@@ -52,6 +52,8 @@ class _AdminNutritionTemplatesScreenState
     await Future.wait([
       provider.loadNutritionEngineRecipes(),
       provider.loadNutritionEnginePlans(),
+      provider.loadNutritionIngredients(),
+      provider.loadNutritionRecipeVariants(),
       provider.loadNutritionEngineImports(),
     ]);
   }
@@ -62,8 +64,10 @@ class _AdminNutritionTemplatesScreenState
       case 0:
         return provider.loadNutritionEngineRecipes();
       case 1:
-        return provider.loadNutritionEnginePlans();
+        return provider.loadNutritionIngredients();
       case 2:
+        return provider.loadNutritionEnginePlans();
+      case 3:
         return provider.loadNutritionEngineImports();
       default:
         return provider.loadNutritionEngineRecipes();
@@ -113,6 +117,10 @@ class _AdminNutritionTemplatesScreenState
               icon: const Icon(Icons.ramen_dining),
             ),
             Tab(
+              text: lang.t('plan_editor_ingredients'),
+              icon: const Icon(Icons.inventory_2_outlined),
+            ),
+            Tab(
               text: lang.t('plan_editor_engine_plans'),
               icon: const Icon(Icons.calendar_month),
             ),
@@ -158,6 +166,7 @@ class _AdminNutritionTemplatesScreenState
                 controller: _tabController,
                 children: [
                   _buildEngineRecipesTab(provider),
+                  _buildIngredientsTab(provider),
                   _buildEnginePlansTab(provider),
                   _buildImportsTab(provider),
                 ],
@@ -166,6 +175,13 @@ class _AdminNutritionTemplatesScreenState
           ],
         ),
       ),
+        floatingActionButton: _tabController.index <= 1
+          ? FloatingActionButton.extended(
+            onPressed: _tabController.index == 0 ? _openNewRecipe : _openNewPlan,
+              icon: const Icon(Icons.add),
+              label: Text(lang.t('plan_editor_add_meal')),
+            )
+          : null,
     );
   }
 
@@ -227,6 +243,83 @@ class _AdminNutritionTemplatesScreenState
     );
   }
 
+  Widget _buildIngredientsTab(AdminProvider provider) {
+    final ingredients = provider.nutritionIngredients;
+    if (provider.isLoading && ingredients.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    return RefreshIndicator(
+      onRefresh: provider.loadNutritionIngredients,
+      child: ListView.builder(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
+        itemCount: ingredients.length,
+        itemBuilder: (context, index) {
+          final ingredient = ingredients[index];
+          return ListTile(
+            title: Text(_stringValue(ingredient['name_en'])),
+            subtitle: Text(_stringValue(ingredient['ingredient_id'])),
+            trailing: Icon(ingredient['is_active'] == false
+                ? Icons.visibility_off_outlined
+                : Icons.edit_outlined),
+            onTap: () => _editIngredient(ingredient),
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _editIngredient(Map<String, dynamic> ingredient) async {
+    final nameEn = TextEditingController(text: _stringValue(ingredient['name_en']));
+    final nameAr = TextEditingController(text: _stringValue(ingredient['name_ar']));
+    final perGram = _asMap(ingredient['per_gram']) ?? const {};
+    final calories = TextEditingController(text: _stringValue(perGram['calories']));
+    final protein = TextEditingController(text: _stringValue(perGram['protein_g']));
+    final carbs = TextEditingController(text: _stringValue(perGram['carbs_g']));
+    final fat = TextEditingController(text: _stringValue(perGram['fat_g']));
+    var active = ingredient['is_active'] != false;
+    final lang = context.read<LanguageProvider>();
+    final payload = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(lang.t('plan_editor_ingredient_name')),
+          content: SingleChildScrollView(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              TextField(controller: nameEn, decoration: InputDecoration(labelText: lang.t('admin_exercise_english_name'))),
+              TextField(controller: nameAr, decoration: InputDecoration(labelText: lang.t('admin_exercise_arabic_name'))),
+              TextField(controller: calories, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_calories_per_gram'))),
+              TextField(controller: protein, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_protein_per_gram'))),
+              TextField(controller: carbs, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_carbs_per_gram'))),
+              TextField(controller: fat, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_fat_per_gram'))),
+              SwitchListTile(
+                value: active,
+                contentPadding: EdgeInsets.zero,
+                title: Text(lang.t('plan_editor_active')),
+                onChanged: (value) => setDialogState(() => active = value),
+              ),
+            ]),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(lang.t('cancel'))),
+            FilledButton(onPressed: () => Navigator.pop(dialogContext, {
+              'name_en': nameEn.text.trim(), 'name_ar': nameAr.text.trim(), 'is_active': active,
+              'per_gram': {'calories': num.tryParse(calories.text) ?? 0, 'protein_g': num.tryParse(protein.text) ?? 0, 'carbs_g': num.tryParse(carbs.text) ?? 0, 'fat_g': num.tryParse(fat.text) ?? 0},
+            }), child: Text(lang.t('save'))),
+          ],
+        ),
+      ),
+    );
+    final id = _stringValue(ingredient['ingredient_id']);
+    if (payload == null || id.isEmpty || !mounted) return;
+    final success = await context.read<AdminProvider>().updateNutritionIngredient(id, payload);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Text(success ? lang.t('plan_editor_engine_meal_saved') : context.read<AdminProvider>().error ?? lang.t('plan_editor_save_failed')),
+      backgroundColor: success ? AppColors.success : AppColors.error,
+    ));
+  }
+
   Widget _buildImportsTab(AdminProvider provider) {
     final imports = provider.nutritionEngineImports;
     if (provider.isLoading && imports.isEmpty) {
@@ -260,13 +353,50 @@ class _AdminNutritionTemplatesScreenState
     final fullRecipe =
         await context.read<AdminProvider>().getNutritionEngineRecipe(recipeId);
     if (!mounted || fullRecipe == null) return;
+    final provider = context.read<AdminProvider>();
+    if (provider.nutritionIngredients.isEmpty) {
+      await provider.loadNutritionIngredients();
+      if (!mounted) return;
+    }
 
     await showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       builder: (_) => _NutritionRecipeEditorSheet(
         initialRecipe: fullRecipe,
+        availableIngredients: context.read<AdminProvider>().nutritionIngredients,
         onSave: context.read<AdminProvider>().saveNutritionEngineRecipe,
+      ),
+    );
+  }
+
+  Future<void> _openNewRecipe() async {
+    final provider = context.read<AdminProvider>();
+    if (provider.nutritionIngredients.isEmpty) {
+      await provider.loadNutritionIngredients();
+      if (!mounted) return;
+    }
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _NutritionRecipeEditorSheet(
+        initialRecipe: const {
+          'schema_version': '1.0.0',
+          'name_en': '', 'name_ar': '', 'market_tags': ['SA'],
+          'cuisine': 'International', 'meal_types': ['snack'], 'diet_tags': [],
+          'allergens': [], 'cost_level': 'medium', 'prep_time_min': 10,
+          'difficulty': 'easy', 'ingredients_base_g': {}, 'base_nutrition': {},
+          'macro_profile_hint': 'balanced',
+          'portion_variants': [
+            {'portion_code': 'M', 'scale_factor': 1, 'ingredients_g': {}, 'nutrition': {}, 'equivalence_group': 'admin_created'}
+          ],
+          'preparation': {'steps_en': [], 'steps_ar': []},
+          'validation': {'status': 'admin_edited'},
+          'metadata': {'version': 1, 'active': true},
+        },
+        availableIngredients: context.read<AdminProvider>().nutritionIngredients,
+        onSave: context.read<AdminProvider>().createNutritionEngineRecipe,
+        isNew: true,
       ),
     );
   }
@@ -284,7 +414,26 @@ class _AdminNutritionTemplatesScreenState
       isScrollControlled: true,
       builder: (_) => _NutritionEnginePlanEditorSheet(
         initialPlan: fullPlan,
+        availableVariants: context.read<AdminProvider>().nutritionRecipeVariants,
         onSave: context.read<AdminProvider>().saveNutritionEnginePlan,
+      ),
+    );
+  }
+
+  Future<void> _openNewPlan() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _NutritionEnginePlanEditorSheet(
+        initialPlan: const {
+          'schema_version': '1.0.0', 'plan_type': 'professional', 'market': 'SA',
+          'calorie_band': 2000, 'macro_profile': 'balanced', 'meal_count': 3,
+          'rotation': 1, 'template_target': {}, 'days': [],
+          'assignment_rules': {}, 'validation': {'status': 'admin_edited'},
+        },
+        availableVariants: context.read<AdminProvider>().nutritionRecipeVariants,
+        onSave: context.read<AdminProvider>().saveNutritionEnginePlan,
+        isNew: true,
       ),
     );
   }
@@ -776,11 +925,15 @@ class _JsonEditorSheetState extends State<_JsonEditorSheet> {
 
 class _NutritionRecipeEditorSheet extends StatefulWidget {
   final Map<String, dynamic> initialRecipe;
+  final List<Map<String, dynamic>> availableIngredients;
   final _JsonSaveCallback onSave;
+  final bool isNew;
 
   const _NutritionRecipeEditorSheet({
     required this.initialRecipe,
+    required this.availableIngredients,
     required this.onSave,
+    this.isNew = false,
   });
 
   @override
@@ -803,6 +956,7 @@ class _NutritionRecipeEditorSheetState
   final TextEditingController _carbsController = TextEditingController();
   final TextEditingController _fatController = TextEditingController();
   List<MapEntry<String, TextEditingController>> _ingredients = [];
+  List<Map<String, dynamic>> _variants = [];
   // Preserve untouched recipe fields when saving from structured mode.
   late Map<String, dynamic> _rawRecipe;
   bool _jsonMode = false;
@@ -866,11 +1020,14 @@ class _NutritionRecipeEditorSheetState
               TextEditingController(text: _stringValue(entry.value)),
             ))
         .toList();
+      _variants = (_asList(recipe['portion_variants']) ?? const [])
+        .map((item) => Map<String, dynamic>.from(_asMap(item) ?? const {}))
+        .toList();
   }
 
   Map<String, dynamic> _buildRecipe() {
     final merged = Map<String, dynamic>.from(_rawRecipe);
-    merged['recipe_id'] = _recipeIdController.text.trim();
+    if (!widget.isNew) merged['recipe_id'] = _recipeIdController.text.trim();
     merged['name_en'] = _nameEnController.text.trim();
     merged['name_ar'] = _nameArController.text.trim();
     merged['meal_types'] = _mealTypesController.text
@@ -892,6 +1049,17 @@ class _NutritionRecipeEditorSheetState
         if (entry.key.trim().isNotEmpty)
           entry.key.trim(): num.tryParse(entry.value.text.trim()) ?? 0,
     };
+    final baseIngredients = merged['ingredients_base_g'] as Map<String, dynamic>;
+    merged['portion_variants'] = _variants.map((variant) {
+      final scale = num.tryParse(_stringValue(variant['scale_factor'])) ?? 1;
+      return {
+        ...variant,
+        'portion_code': _stringValue(variant['portion_code'], fallback: 'M'),
+        'scale_factor': scale,
+        'ingredients_g': baseIngredients.map((id, grams) => MapEntry(
+            id, ((num.tryParse(_stringValue(grams)) ?? 0) * scale))),
+      };
+    }).toList();
     return merged;
   }
 
@@ -901,6 +1069,44 @@ class _NutritionRecipeEditorSheetState
     });
   }
 
+  Future<void> _createIngredient() async {
+    final lang = context.read<LanguageProvider>();
+    final nameEn = TextEditingController();
+    final nameAr = TextEditingController();
+    final calories = TextEditingController(text: '0');
+    final protein = TextEditingController(text: '0');
+    final carbs = TextEditingController(text: '0');
+    final fat = TextEditingController(text: '0');
+    final created = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(lang.t('admin_new_ingredient')),
+        content: SingleChildScrollView(
+          child: Column(mainAxisSize: MainAxisSize.min, children: [
+            TextField(controller: nameEn, decoration: InputDecoration(labelText: lang.t('admin_exercise_english_name'))),
+            TextField(controller: nameAr, decoration: InputDecoration(labelText: lang.t('admin_exercise_arabic_name'))),
+            TextField(controller: calories, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_calories_per_gram'))),
+            TextField(controller: protein, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_protein_per_gram'))),
+            TextField(controller: carbs, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_carbs_per_gram'))),
+            TextField(controller: fat, keyboardType: TextInputType.number, decoration: InputDecoration(labelText: lang.t('admin_fat_per_gram'))),
+          ]),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(dialogContext), child: Text(context.read<LanguageProvider>().t('cancel'))),
+          FilledButton(onPressed: () => Navigator.pop(dialogContext, {
+            'name_en': nameEn.text.trim(), 'name_ar': nameAr.text.trim(),
+            'per_gram': {'calories': num.tryParse(calories.text) ?? 0, 'protein_g': num.tryParse(protein.text) ?? 0, 'carbs_g': num.tryParse(carbs.text) ?? 0, 'fat_g': num.tryParse(fat.text) ?? 0},
+          }), child: Text(context.read<LanguageProvider>().t('add'))),
+        ],
+      ),
+    );
+    if (created == null || created['name_en'].toString().isEmpty || !mounted) return;
+    final ingredient = await context.read<AdminProvider>().createNutritionIngredient(created);
+    if (!mounted || ingredient == null) return;
+    setState(() => _ingredients.add(MapEntry(
+          _stringValue(ingredient['ingredient_id']), TextEditingController(text: '0'))));
+  }
+
   void _removeIngredient(int index) {
     setState(() {
       _ingredients[index].value.dispose();
@@ -908,11 +1114,52 @@ class _NutritionRecipeEditorSheetState
     });
   }
 
+  void _addVariant() {
+    setState(() => _variants.add({
+          'portion_code': 'M', 'scale_factor': 1,
+          'nutrition': {}, 'equivalence_group': 'admin_created',
+        }));
+  }
+
+  void _removeVariant(int index) {
+    setState(() => _variants.removeAt(index));
+  }
+
   void _renameIngredient(int index, String name) {
     final controller = _ingredients[index].value;
     setState(() {
       _ingredients[index] = MapEntry(name, controller);
     });
+  }
+
+  void _recalculateRecipeMacros() {
+    num calories = 0, protein = 0, carbs = 0, fat = 0;
+    for (final entry in _ingredients) {
+      final ingredient = widget.availableIngredients.cast<Map<String, dynamic>?>().firstWhere(
+            (item) => _stringValue(item?['ingredient_id']) == entry.key,
+            orElse: () => null,
+          );
+      final perGram = _asMap(ingredient?['per_gram']) ?? const {};
+      final grams = num.tryParse(entry.value.text) ?? 0;
+      calories += (num.tryParse(_stringValue(perGram['calories'])) ?? 0) * grams;
+      protein += (num.tryParse(_stringValue(perGram['protein_g'])) ?? 0) * grams;
+      carbs += (num.tryParse(_stringValue(perGram['carbs_g'])) ?? 0) * grams;
+      fat += (num.tryParse(_stringValue(perGram['fat_g'])) ?? 0) * grams;
+    }
+    _caloriesController.text = calories.round().toString();
+    _proteinController.text = protein.toStringAsFixed(2);
+    _carbsController.text = carbs.toStringAsFixed(2);
+    _fatController.text = fat.toStringAsFixed(2);
+  }
+
+  String _ingredientLabel(String ingredientId) {
+    final ingredient = widget.availableIngredients.cast<Map<String, dynamic>?>().firstWhere(
+          (item) => _stringValue(item?['ingredient_id']) == ingredientId,
+          orElse: () => null,
+        );
+    return ingredient == null
+        ? ingredientId
+        : _stringValue(ingredient['name_en'], fallback: ingredientId);
   }
 
   @override
@@ -1023,14 +1270,17 @@ class _NutritionRecipeEditorSheetState
   Widget _buildRecipeEditor(LanguageProvider lang) {
     return Column(
       children: [
-        TextField(
-          controller: _recipeIdController,
-          decoration: InputDecoration(
-            labelText: lang.t('plan_editor_recipe_id'),
-            border: const OutlineInputBorder(),
+        if (!widget.isNew) ...[
+          TextField(
+            controller: _recipeIdController,
+            readOnly: true,
+            decoration: InputDecoration(
+              labelText: lang.t('plan_editor_recipe_id'),
+              border: const OutlineInputBorder(),
+            ),
           ),
-        ),
-        const SizedBox(height: 12),
+          const SizedBox(height: 12),
+        ],
         Row(
           children: [
             Expanded(
@@ -1110,6 +1360,7 @@ class _NutritionRecipeEditorSheetState
               child: TextField(
                 controller: _caloriesController,
                 keyboardType: TextInputType.number,
+                readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_calories'),
                   border: const OutlineInputBorder(),
@@ -1121,6 +1372,7 @@ class _NutritionRecipeEditorSheetState
               child: TextField(
                 controller: _proteinController,
                 keyboardType: TextInputType.number,
+                readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_protein'),
                   border: const OutlineInputBorder(),
@@ -1132,6 +1384,7 @@ class _NutritionRecipeEditorSheetState
               child: TextField(
                 controller: _carbsController,
                 keyboardType: TextInputType.number,
+                readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_carbs'),
                   border: const OutlineInputBorder(),
@@ -1143,6 +1396,7 @@ class _NutritionRecipeEditorSheetState
               child: TextField(
                 controller: _fatController,
                 keyboardType: TextInputType.number,
+                readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_fat'),
                   border: const OutlineInputBorder(),
@@ -1166,6 +1420,11 @@ class _NutritionRecipeEditorSheetState
               icon: const Icon(Icons.add),
               label: Text(lang.t('plan_editor_add_ingredient')),
             ),
+            IconButton(
+              tooltip: lang.t('admin_new_ingredient'),
+              onPressed: _createIngredient,
+              icon: const Icon(Icons.add_circle_outline),
+            ),
           ],
         ),
         ..._ingredients.asMap().entries.map((entry) {
@@ -1177,13 +1436,33 @@ class _NutritionRecipeEditorSheetState
               children: [
                 Expanded(
                   flex: 2,
-                  child: TextFormField(
-                    initialValue: ingredient.key,
-                    decoration: InputDecoration(
-                      labelText: lang.t('plan_editor_ingredient_name'),
-                      border: const OutlineInputBorder(),
+                  child: Autocomplete<Map<String, dynamic>>(
+                    initialValue: TextEditingValue(
+                      text: _ingredientLabel(ingredient.key),
                     ),
-                    onChanged: (value) => _renameIngredient(index, value),
+                    displayStringForOption: (option) =>
+                        _stringValue(option['name_en'], fallback: option['ingredient_id'].toString()),
+                    optionsBuilder: (value) {
+                      final query = value.text.trim().toLowerCase();
+                      return widget.availableIngredients.where((option) {
+                        final id = _stringValue(option['ingredient_id']).toLowerCase();
+                        final nameEn = _stringValue(option['name_en']).toLowerCase();
+                        final nameAr = _stringValue(option['name_ar']);
+                        return query.isEmpty || id.contains(query) || nameEn.contains(query) || nameAr.contains(value.text.trim());
+                      });
+                    },
+                    onSelected: (selected) => _renameIngredient(
+                      index,
+                      _stringValue(selected['ingredient_id']),
+                    ),
+                    fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        labelText: lang.t('plan_editor_ingredient_name'),
+                        border: const OutlineInputBorder(),
+                      ),
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -1191,6 +1470,7 @@ class _NutritionRecipeEditorSheetState
                   child: TextField(
                     controller: ingredient.value,
                     keyboardType: TextInputType.number,
+                    onChanged: (_) => setState(_recalculateRecipeMacros),
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_grams'),
                       border: const OutlineInputBorder(),
@@ -1204,6 +1484,51 @@ class _NutritionRecipeEditorSheetState
                 ),
               ],
             ),
+          );
+        }),
+        const SizedBox(height: 16),
+        Row(
+          children: [
+            Expanded(
+              child: Text(
+                lang.t('plan_editor_variant_id'),
+                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              ),
+            ),
+            IconButton(
+              tooltip: lang.t('add'),
+              onPressed: _addVariant,
+              icon: const Icon(Icons.add_circle_outline),
+            ),
+          ],
+        ),
+        ..._variants.asMap().entries.map((entry) {
+          final index = entry.key;
+          final variant = entry.value;
+          return Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  initialValue: _stringValue(variant['portion_code'], fallback: 'M'),
+                  decoration: InputDecoration(labelText: lang.t('plan_editor_variant_id')),
+                  onChanged: (value) => variant['portion_code'] = value.toUpperCase(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: TextFormField(
+                  initialValue: _stringValue(variant['scale_factor'], fallback: '1'),
+                  keyboardType: TextInputType.number,
+                  decoration: InputDecoration(labelText: lang.t('plan_editor_grams')),
+                  onChanged: (value) => variant['scale_factor'] = num.tryParse(value) ?? 1,
+                ),
+              ),
+              IconButton(
+                tooltip: lang.t('delete'),
+                onPressed: _variants.length > 1 ? () => _removeVariant(index) : null,
+                icon: const Icon(Icons.remove_circle_outline, color: AppColors.error),
+              ),
+            ],
           );
         }),
       ],
@@ -1250,6 +1575,8 @@ class _NutritionRecipeEditorSheetState
 
 class _NutritionEnginePlanEditorSheet extends StatefulWidget {
   final Map<String, dynamic> initialPlan;
+  final List<Map<String, dynamic>> availableVariants;
+  final bool isNew;
   final Future<bool> Function(
     Map<String, dynamic> payload, {
     required bool includeCoachEdited,
@@ -1257,7 +1584,9 @@ class _NutritionEnginePlanEditorSheet extends StatefulWidget {
 
   const _NutritionEnginePlanEditorSheet({
     required this.initialPlan,
+    required this.availableVariants,
     required this.onSave,
+    this.isNew = false,
   });
 
   @override
@@ -1539,89 +1868,92 @@ class _NutritionEnginePlanEditorSheetState
                                 ),
                               ],
                             ),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    initialValue:
-                                        _stringValue(meal['planned_recipe_id']),
-                                    decoration: InputDecoration(
-                                        labelText:
-                                            lang.t('plan_editor_recipe_id')),
-                                    onChanged: (value) =>
-                                        meal['planned_recipe_id'] = value,
-                                  ),
+                            Autocomplete<Map<String, dynamic>>(
+                              initialValue: TextEditingValue(
+                                text: _stringValue(
+                                    meal['planned_meal_variant_id']),
+                              ),
+                              displayStringForOption: _variantLabel,
+                              optionsBuilder: (value) {
+                                final query = value.text.trim().toLowerCase();
+                                return widget.availableVariants.where((variant) =>
+                                    query.isEmpty ||
+                                    _variantLabel(variant).toLowerCase().contains(query));
+                              },
+                              onSelected: (variant) => setState(() {
+                                meal['planned_recipe_id'] = variant['recipe_id'];
+                                meal['planned_meal_variant_id'] = variant['variant_id'];
+                                meal['planned_nutrition'] =
+                                    Map<String, dynamic>.from(_asMap(variant['nutrition']) ?? const {});
+                              }),
+                              fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                decoration: InputDecoration(
+                                  labelText: lang.t('plan_editor_recipe_id'),
+                                  border: const OutlineInputBorder(),
                                 ),
-                                const SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    initialValue: _stringValue(
-                                        meal['planned_meal_variant_id']),
-                                    decoration: InputDecoration(
-                                        labelText:
-                                            lang.t('plan_editor_variant_id')),
-                                    onChanged: (value) =>
-                                        meal['planned_meal_variant_id'] = value,
-                                  ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Autocomplete<Map<String, dynamic>>(
+                              displayStringForOption: _variantLabel,
+                              optionsBuilder: (value) {
+                                final query = value.text.trim().toLowerCase();
+                                final selectedIds = (_asList(meal['alternative_variant_ids']) ?? const [])
+                                    .map((item) => item.toString()).toSet();
+                                return widget.availableVariants.where((variant) {
+                                  final id = _stringValue(variant['variant_id']);
+                                  return id != _stringValue(meal['planned_meal_variant_id']) &&
+                                      !selectedIds.contains(id) &&
+                                      (query.isEmpty || _variantLabel(variant).toLowerCase().contains(query));
+                                });
+                              },
+                              onSelected: (variant) => setState(() {
+                                final alternatives = List<dynamic>.from(
+                                    _asList(meal['alternative_variant_ids']) ?? const []);
+                                alternatives.add(variant['variant_id']);
+                                meal['alternative_variant_ids'] = alternatives;
+                              }),
+                              fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextField(
+                                controller: controller,
+                                focusNode: focusNode,
+                                decoration: InputDecoration(
+                                  labelText: lang.t('plan_editor_variant_id'),
+                                  border: const OutlineInputBorder(),
                                 ),
-                              ],
+                              ),
+                            ),
+                            Wrap(
+                              spacing: 6,
+                              children: (_asList(meal['alternative_variant_ids']) ?? const [])
+                                  .map((item) => InputChip(
+                                        label: Text(_stringValue(item)),
+                                        onDeleted: () => setState(() {
+                                          final alternatives = List<dynamic>.from(
+                                              _asList(meal['alternative_variant_ids']) ?? const []);
+                                          alternatives.remove(item);
+                                          meal['alternative_variant_ids'] = alternatives;
+                                        }),
+                                      ))
+                                  .toList(),
                             ),
                             Row(
                               children: [
                                 Expanded(
-                                  child: TextFormField(
-                                    initialValue: _stringValue(
-                                        nutrition['calories'],
-                                        fallback: '0'),
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText:
-                                            lang.t('plan_editor_calories')),
-                                    onChanged: (value) =>
-                                        nutrition['calories'] =
-                                            num.tryParse(value) ?? 0,
-                                  ),
+                                    child: _derivedMacroField(lang.t('plan_editor_calories'), nutrition['calories']),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: TextFormField(
-                                    initialValue: _stringValue(
-                                        nutrition['protein_g'],
-                                        fallback: '0'),
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText:
-                                            lang.t('plan_editor_protein')),
-                                    onChanged: (value) =>
-                                        nutrition['protein_g'] =
-                                            num.tryParse(value) ?? 0,
-                                  ),
+                                    child: _derivedMacroField(lang.t('plan_editor_protein'), nutrition['protein_g']),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: TextFormField(
-                                    initialValue: _stringValue(
-                                        nutrition['carbs_g'],
-                                        fallback: '0'),
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText: lang.t('plan_editor_carbs')),
-                                    onChanged: (value) => nutrition['carbs_g'] =
-                                        num.tryParse(value) ?? 0,
-                                  ),
+                                    child: _derivedMacroField(lang.t('plan_editor_carbs'), nutrition['carbs_g']),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                  child: TextFormField(
-                                    initialValue: _stringValue(
-                                        nutrition['fat_g'],
-                                        fallback: '0'),
-                                    keyboardType: TextInputType.number,
-                                    decoration: InputDecoration(
-                                        labelText: lang.t('plan_editor_fat')),
-                                    onChanged: (value) => nutrition['fat_g'] =
-                                        num.tryParse(value) ?? 0,
-                                  ),
+                                    child: _derivedMacroField(lang.t('plan_editor_fat'), nutrition['fat_g']),
                                 ),
                               ],
                             ),
@@ -1646,6 +1978,18 @@ class _NutritionEnginePlanEditorSheetState
       ],
     );
   }
+
+  String _variantLabel(Map<String, dynamic> variant) {
+    final name = _stringValue(variant['name_en'], fallback: variant['recipe_id'].toString());
+    final portion = _stringValue(variant['portion_code']);
+    return '$name${portion.isEmpty ? '' : ' ($portion)'}';
+  }
+
+  Widget _derivedMacroField(String label, dynamic value) => TextFormField(
+        initialValue: _stringValue(value, fallback: '0'),
+        readOnly: true,
+        decoration: InputDecoration(labelText: label),
+      );
 
   Widget _field(TextEditingController controller, String label,
       {bool number = false}) {
@@ -1686,7 +2030,7 @@ class _NutritionEnginePlanEditorSheetState
 
   Map<String, dynamic> _buildPlan() {
     return <String, dynamic>{
-      'plan_id': _planIdController.text.trim(),
+      if (!widget.isNew) 'plan_id': _planIdController.text.trim(),
       'schema_version':
           _stringValue(widget.initialPlan['schema_version'], fallback: '1.0'),
       'plan_type': _planTypeController.text.trim(),
@@ -1792,7 +2136,7 @@ class _NutritionEnginePlanEditorSheetState
         payload = parsed;
       } else {
         payload = _buildPlan();
-        if (_stringValue(payload['plan_id']).isEmpty) {
+        if (!widget.isNew && _stringValue(payload['plan_id']).isEmpty) {
           throw FormatException(
             context
                 .read<LanguageProvider>()
@@ -1812,12 +2156,12 @@ class _NutritionEnginePlanEditorSheetState
       return;
     }
 
-    final ok = await widget.onSave(
-      payload,
-      includeCoachEdited: _includeCoachEdited,
-    );
+    final provider = context.read<AdminProvider>();
+    final ok = widget.isNew
+      ? await provider.createNutritionEnginePlan(payload)
+        : await widget.onSave(payload, includeCoachEdited: _includeCoachEdited);
     if (!mounted) return;
-    final providerError = context.read<AdminProvider>().error;
+    final providerError = provider.error;
     final lang = context.read<LanguageProvider>();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

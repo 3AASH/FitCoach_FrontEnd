@@ -28,6 +28,8 @@ class AdminProvider extends ChangeNotifier {
   List<AdminExercise> _exercises = [];
   List<AdminWorkoutTemplate> _workoutTemplates = [];
   List<Map<String, dynamic>> _nutritionMealTemplates = [];
+  List<Map<String, dynamic>> _nutritionIngredients = [];
+  List<Map<String, dynamic>> _nutritionRecipeVariants = [];
   List<Map<String, dynamic>> _nutritionEngineRecipes = [];
   List<Map<String, dynamic>> _nutritionEnginePlans = [];
   List<Map<String, dynamic>> _nutritionEngineImports = [];
@@ -47,6 +49,10 @@ class AdminProvider extends ChangeNotifier {
   List<AdminWorkoutTemplate> get workoutTemplates => _workoutTemplates;
   List<Map<String, dynamic>> get nutritionMealTemplates =>
       _nutritionMealTemplates;
+    List<Map<String, dynamic>> get nutritionIngredients =>
+      _nutritionIngredients;
+      List<Map<String, dynamic>> get nutritionRecipeVariants =>
+        _nutritionRecipeVariants;
   List<Map<String, dynamic>> get nutritionEngineRecipes =>
       _nutritionEngineRecipes;
   List<Map<String, dynamic>> get nutritionEnginePlans => _nutritionEnginePlans;
@@ -965,6 +971,79 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> loadNutritionIngredients({String? search}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _nutritionIngredients = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionIngredients(search: search);
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> createNutritionIngredient(
+      Map<String, dynamic> ingredient) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final created = DemoConfig.isDemo
+          ? <String, dynamic>{...ingredient, 'ingredient_id': 'demo_ingredient'}
+          : await _repository.createNutritionIngredient(ingredient);
+      await loadNutritionIngredients();
+      _isLoading = false;
+      notifyListeners();
+      return created;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> updateNutritionIngredient(
+    String ingredientId,
+    Map<String, dynamic> ingredient,
+  ) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.updateNutritionIngredient(ingredientId, ingredient);
+      }
+      await loadNutritionIngredients();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionRecipeVariants() async {
+    try {
+      _nutritionRecipeVariants = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionRecipeVariants();
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
   Future<Map<String, dynamic>?> getNutritionEngineRecipe(
       String recipeId) async {
     try {
@@ -986,6 +1065,27 @@ class AdminProvider extends ChangeNotifier {
         await _repository.saveNutritionEngineRecipe(recipe);
       }
       await loadNutritionEngineRecipes();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> createNutritionEngineRecipe(Map<String, dynamic> recipe) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.createNutritionEngineRecipe(recipe);
+      }
+      await loadNutritionEngineRecipes();
+      await loadNutritionRecipeVariants();
       _isLoading = false;
       notifyListeners();
       return true;
@@ -1052,6 +1152,24 @@ class AdminProvider extends ChangeNotifier {
           includeCoachEdited: includeCoachEdited,
         );
       }
+      await loadNutritionEnginePlans();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> createNutritionEnginePlan(Map<String, dynamic> plan) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      if (!DemoConfig.isDemo) await _repository.createNutritionEnginePlan(plan);
       await loadNutritionEnginePlans();
       _isLoading = false;
       notifyListeners();
