@@ -622,12 +622,19 @@ class WorkoutRepository {
   // Get exercise alternatives (injury-safe substitutions)
   Future<List<Exercise>> getExerciseAlternatives(
     String exerciseId,
-    List<String> userInjuries,
-  ) async {
+    List<String> userInjuries, {
+    String? workoutLocation,
+  }) async {
     try {
       final response = await _dio.get(
         '/exercises/alternatives/$exerciseId',
-        queryParameters: {'injuries': userInjuries.join(',')},
+        queryParameters: {
+          'injuries': userInjuries.join(','),
+          // Restricts the list to what the user can train with. Omitted when
+          // unknown, which the backend reads from the stored intake answer.
+          if (workoutLocation != null && workoutLocation.trim().isNotEmpty)
+            'location': workoutLocation.trim(),
+        },
         options: await _getAuthOptions(),
       );
 

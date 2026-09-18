@@ -377,6 +377,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
   late final TextEditingController _category;
   late final TextEditingController _difficulty;
   late final TextEditingController _muscles;
+  late final TextEditingController _mainMuscle;
+  String? _locationType;
   late final TextEditingController _equipment;
   late final TextEditingController _videoUrl;
   late final TextEditingController _thumbnailUrl;
@@ -394,6 +396,14 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     _difficulty = TextEditingController(text: exercise?.difficulty ?? '');
     _muscles =
         TextEditingController(text: exercise?.muscleGroups.join(', ') ?? '');
+    // Defaults to the first listed muscle, the convention the catalog follows.
+    _mainMuscle = TextEditingController(
+      text: exercise?.mainMuscle ??
+          (exercise?.muscleGroups.isNotEmpty == true
+              ? exercise!.muscleGroups.first
+              : ''),
+    );
+    _locationType = exercise?.locationType;
     _equipment =
         TextEditingController(text: exercise?.equipment.join(', ') ?? '');
     _selectedAlternatives = {
@@ -412,6 +422,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     _category.dispose();
     _difficulty.dispose();
     _muscles.dispose();
+    _mainMuscle.dispose();
     _equipment.dispose();
     _videoUrl.dispose();
     _thumbnailUrl.dispose();
@@ -464,6 +475,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                 _field(_category, _tr('admin_exercise_category')),
                 _field(_difficulty, _tr('admin_exercise_difficulty')),
                 _field(_muscles, _tr('admin_exercise_muscles')),
+                _field(_mainMuscle, _tr('admin_exercise_main_muscle')),
+                _buildLocationSelector(),
                 _field(_equipment, _tr('admin_exercise_equipment')),
                 _buildSwapSelector(),
                 _field(_videoUrl, _tr('admin_exercise_video_url')),
@@ -522,6 +535,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
       category: _emptyToNull(_category.text),
       difficulty: _emptyToNull(_difficulty.text),
       muscleGroups: _csv(_muscles.text),
+      mainMuscle: _emptyToNull(_mainMuscle.text),
+      locationType: _locationType,
       equipment: _csv(_equipment.text),
       alternatives: _selectedAlternatives.toList()..sort(),
       alternativesCount: _selectedAlternatives.length,
@@ -582,6 +597,36 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
     }).toList()
       ..sort(
           (a, b) => a.nameEn.toLowerCase().compareTo(b.nameEn.toLowerCase()));
+  }
+
+  /// Where the exercise can be trained. The swap list is filtered by the
+  /// client's first-intake location, so this decides who is offered it.
+  Widget _buildLocationSelector() {
+    final lang = context.watch<LanguageProvider>();
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: InputDecorator(
+        decoration: InputDecoration(
+          labelText: lang.t('admin_exercise_location'),
+          border: const OutlineInputBorder(),
+        ),
+        child: Row(
+          children: [
+            for (final option in const ['home', 'gym', 'both'])
+              Padding(
+                padding: const EdgeInsetsDirectional.only(end: 8),
+                child: ChoiceChip(
+                  label: Text(lang.t('admin_exercise_location_$option')),
+                  selected: _locationType == option,
+                  onSelected: (selected) => setState(
+                    () => _locationType = selected ? option : null,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSwapSelector() {

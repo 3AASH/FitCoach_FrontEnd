@@ -106,6 +106,9 @@ class _WorkoutExerciseDetailScreenState
     final lang = context.read<LanguageProvider>();
     final authProvider = context.read<AuthProvider>();
     final injuries = authProvider.user?.injuries ?? [];
+    // The same profile object the injuries come from already carries where the
+    // user trains, so the swap list can be restricted to what they can do.
+    final workoutLocation = authProvider.user?.workoutLocation;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -117,6 +120,7 @@ class _WorkoutExerciseDetailScreenState
             future: provider.getExerciseAlternatives(
               _exercise.exerciseId ?? _exercise.id,
               injuries,
+              workoutLocation: workoutLocation,
             ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {

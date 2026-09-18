@@ -232,8 +232,9 @@ class WorkoutProvider extends ChangeNotifier {
 
   Future<List<Exercise>> getExerciseAlternatives(
     String exerciseId,
-    List<String> userInjuries,
-  ) async {
+    List<String> userInjuries, {
+    String? workoutLocation,
+  }) async {
     if (_demoConfig.isDemo) {
       final alternatives =
           await _demoRepository.getExerciseAlternatives(exerciseId);
@@ -247,6 +248,7 @@ class WorkoutProvider extends ChangeNotifier {
       final alternatives = await _repository.getExerciseAlternatives(
         exerciseId,
         userInjuries,
+        workoutLocation: workoutLocation,
       );
       await _ensureCatalogLoaded();
       _isLoading = false;

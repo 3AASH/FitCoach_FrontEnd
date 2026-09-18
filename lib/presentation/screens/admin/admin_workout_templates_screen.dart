@@ -626,7 +626,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                                   child: Autocomplete<AdminExercise>(
                                     initialValue: TextEditingValue(
                                       text: _stringValue(
-                                        exercise['name_en'] ?? exercise['name'],
+                                        _resolveExerciseName(exercise),
                                       ),
                                     ),
                                     displayStringForOption: (option) =>
@@ -652,6 +652,9 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                                         onSubmitted) => TextField(
                                       controller: controller,
                                       focusNode: focusNode,
+                                      onChanged: (value) {
+                                        exercise['name_en'] = value;
+                                      },
                                       decoration: InputDecoration(
                                         labelText: _tr('plan_editor_exercise_name'),
                                         border: const OutlineInputBorder(),
@@ -757,10 +760,52 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
       session['work'] = (_asList(session['work']) ??
               _asList(session['exercises']) ??
               const <dynamic>[])
-          .map((item) => Map<String, dynamic>.from(_asMap(item) ?? const {}))
+          .map((item) => _normalizeWorkoutExercise(_asMap(item) ?? const {}))
           .toList();
       return session;
     }).toList();
+  }
+
+  Map<String, dynamic> _normalizeWorkoutExercise(Map<String, dynamic> exercise) {
+    final normalized = Map<String, dynamic>.from(exercise);
+    final exId = _stringValue(
+      normalized['ex_id'] ?? normalized['exId'] ?? normalized['id'],
+    );
+    if (exId.isNotEmpty) {
+      normalized['ex_id'] = exId;
+    }
+
+    final fallback = _findExerciseById(exId);
+    final nameEn = _stringValue(
+      normalized['name_en'] ?? normalized['name'] ?? fallback?.nameEn,
+    );
+    final nameAr = _stringValue(normalized['name_ar'] ?? fallback?.nameAr);
+
+    if (nameEn.isNotEmpty) {
+      normalized['name_en'] = nameEn;
+    }
+    if (nameAr.isNotEmpty) {
+      normalized['name_ar'] = nameAr;
+    }
+
+    return normalized;
+  }
+
+  AdminExercise? _findExerciseById(String exId) {
+    if (exId.isEmpty) return null;
+    for (final item in widget.availableExercises) {
+      final candidate = _stringValue(item.exId ?? item.id);
+      if (candidate == exId) return item;
+    }
+    return null;
+  }
+
+  String _resolveExerciseName(Map<String, dynamic> exercise) {
+    final fromTemplate = _stringValue(exercise['name_en'] ?? exercise['name']);
+    if (fromTemplate.isNotEmpty) return fromTemplate;
+    final exId = _stringValue(exercise['ex_id'] ?? exercise['exId'] ?? exercise['id']);
+    final resolved = _findExerciseById(exId);
+    return _stringValue(resolved?.nameEn, fallback: exId);
   }
 
   Map<String, dynamic> _buildTemplate() {

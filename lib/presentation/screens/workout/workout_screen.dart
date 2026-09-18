@@ -1565,6 +1565,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   ) async {
     final authProvider = context.read<AuthProvider>();
     final userInjuries = authProvider.user?.injuries ?? [];
+    // The same profile object the injuries come from already carries where the
+    // user trains, so the swap list can be restricted to what they can do.
+    final workoutLocation = authProvider.user?.workoutLocation;
 
     showDialog(
       context: context,
@@ -1574,6 +1577,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           future: provider.getExerciseAlternatives(
             exercise.exerciseId ?? exercise.id,
             userInjuries,
+            workoutLocation: workoutLocation,
           ),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
