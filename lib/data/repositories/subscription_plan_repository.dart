@@ -39,6 +39,7 @@ class SubscriptionPlanRepository {
       'name': plan.name,
       'description': plan.description,
       'price': plan.monthlyPrice,
+      'yearlyPrice': plan.yearlyPrice,
       'currency': plan.currency,
       'features': plan.features.map((feature) => feature.toJson()).toList(),
       'messageQuota': plan.metadata['messagesLimit'],
