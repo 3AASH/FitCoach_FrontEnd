@@ -280,12 +280,6 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
           isSelected: _selectedGender == 'female',
           onTap: () => setState(() => _selectedGender = 'female'),
         ),
-        const SizedBox(height: 12),
-        _buildRadioOption(
-          title: lang.t('other'),
-          isSelected: _selectedGender == 'other',
-          onTap: () => setState(() => _selectedGender = 'other'),
-        ),
       ],
     );
   }

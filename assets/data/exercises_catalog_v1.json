@@ -1,7 +1,7 @@
 {
   "generated_at": "2026-02-02T20:41:01.558Z",
   "source": "mobile/assets/data/new",
-  "total": 105,
+  "total": 109,
   "equip_ar_map": {
     "barbell": "بار",
     "bench": "مقعد",
@@ -544,6 +544,32 @@
       "main_muscle": "core",
       "location": "gym",
       "gif_source": "High Pulley Abs (1)",
+      "gif_approx": false
+    },
+    {
+      "ex_id": "cable_fly",
+      "name_en": "Cable Fly",
+      "name_ar": "تفريغ الصدر بالكابل",
+      "equip": [
+        "cable"
+      ],
+      "muscles": [
+        "chest",
+        "front_delts"
+      ],
+      "main_muscle": "chest",
+      "location": "gym",
+      "video_id": "vid_cable_fly",
+      "video_url": "/assets/exercises/gifs/cable_fly.gif",
+      "thumbnail_url": "/assets/exercises/gifs/cable_fly.gif",
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان الاستقامة، والتسريع في الإيقاع.",
+      "default_sets": 3,
+      "default_reps": "8-12",
+      "default_rest_seconds": 90,
+      "gif_source": "Cable Fly (1)",
       "gif_approx": false
     },
     {
@@ -1368,6 +1394,34 @@
       "location": "gym"
     },
     {
+      "ex_id": "incline_bench_press",
+      "name_en": "Incline Bench Press",
+      "name_ar": "ضغط البنش المائل",
+      "equip": [
+        "barbell",
+        "bench"
+      ],
+      "muscles": [
+        "chest",
+        "front_delts",
+        "triceps"
+      ],
+      "main_muscle": "chest",
+      "location": "gym",
+      "video_id": "vid_incline_bench_press",
+      "video_url": "/assets/exercises/gifs/incline_bench_press.gif",
+      "thumbnail_url": "/assets/exercises/gifs/incline_bench_press.gif",
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان الاستقامة، والتسريع في الإيقاع.",
+      "default_sets": 3,
+      "default_reps": "8-12",
+      "default_rest_seconds": 90,
+      "gif_source": "Incline Bench Press (1)",
+      "gif_approx": false
+    },
+    {
       "ex_id": "incline_db_press",
       "name_en": "Incline DB Press",
       "name_ar": "ضغط مائل بالدمبل",
@@ -1843,6 +1897,31 @@
       "location": "gym"
     },
     {
+      "ex_id": "overhead_tricep_extension",
+      "name_en": "Overhead Tricep Extension",
+      "name_ar": "تمديد الترايسبس فوق الرأس",
+      "equip": [
+        "dumbbell"
+      ],
+      "muscles": [
+        "triceps"
+      ],
+      "main_muscle": "triceps",
+      "location": "gym",
+      "video_id": "vid_overhead_tricep_extension",
+      "video_url": "/assets/exercises/gifs/overhead_tricep_extension.gif",
+      "thumbnail_url": "/assets/exercises/gifs/overhead_tricep_extension.gif",
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان الاستقامة، والتسريع في الإيقاع.",
+      "default_sets": 3,
+      "default_reps": "8-12",
+      "default_rest_seconds": 90,
+      "gif_source": "Tricep Overhead Extensions (1)",
+      "gif_approx": false
+    },
+    {
       "ex_id": "pike_push_up",
       "name_en": "Pike Push-up",
       "name_ar": "ضغط بايك",
@@ -1945,7 +2024,7 @@
     {
       "ex_id": "prone_ytw_raise",
       "name_en": "Prone Y-T-W Raise",
-      "name_ar": "رفع Y-T-W على البطن",
+      "name_ar": "رفع الذراعين على البطن",
       "equip": [
         "bodyweight"
       ],
@@ -1959,8 +2038,8 @@
       "video_id": "vid_prone_ytw_raise",
       "video_url": null,
       "thumbnail_url": null,
-      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
-      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "instructions_en": "Face down, lift the arms into a Y, then a T, then a W, squeezing the shoulder blades.",
+      "instructions_ar": "استلقِ على بطنك وارفع ذراعيك بشكل حرف Y ثم T ثم W مع ضم لوحي الكتف.",
       "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
       "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان الاستقامة، والتسريع في الإيقاع.",
       "default_sets": 3,
@@ -2167,6 +2246,31 @@
       "default_rest_seconds": null,
       "main_muscle": "hamstrings",
       "location": "gym"
+    },
+    {
+      "ex_id": "seated_calf_raise",
+      "name_en": "Seated Calf Raise",
+      "name_ar": "رفع السمانة جلوسًا",
+      "equip": [
+        "machine"
+      ],
+      "muscles": [
+        "calves"
+      ],
+      "main_muscle": "calves",
+      "location": "gym",
+      "video_id": "vid_seated_calf_raise",
+      "video_url": "/assets/exercises/gifs/seated_calf_raise.gif",
+      "thumbnail_url": "/assets/exercises/gifs/seated_calf_raise.gif",
+      "instructions_en": "Follow the in-app video, keep a neutral spine, use controlled tempo, and stop if you feel pain.",
+      "instructions_ar": "اتّبع فيديو التمرين داخل التطبيق، حافظ على استقامة العمود الفقري، استخدم حركة محكومة، وتوقف عند الشعور بالألم.",
+      "common_mistakes_en": "Using momentum, shortening range of motion, losing alignment, and rushing the tempo.",
+      "common_mistakes_ar": "استخدام الزخم، تقصير مدى الحركة، فقدان الاستقامة، والتسريع في الإيقاع.",
+      "default_sets": 3,
+      "default_reps": "8-12",
+      "default_rest_seconds": 90,
+      "gif_source": "Seated Calf Raise (1)",
+      "gif_approx": false
     },
     {
       "ex_id": "seated_row",

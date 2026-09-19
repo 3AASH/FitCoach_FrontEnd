@@ -489,4 +489,178 @@ void main() {
     // Macros follow the newly selected meal's default portion.
     expect(_macroValueKeyFinder('180'), findsWidgets);
   });
+
+  testWidgets('plan editor scopes swap options to the slot, market and dish',
+      (tester) async {
+    // The picker used to list every variant in the catalogue, so it offered
+    // breakfasts against a lunch, the other market's dishes, and the four
+    // other portions of the meal already chosen.
+    final repo = _FakeAdminRepository(
+      nutritionEnginePlans: const [
+        {'plan_id': 'plan_1', 'plan_type': 'professional', 'market': 'EG'}
+      ],
+      nutritionEnginePlanById: const {
+        'plan_1': {
+          'plan_id': 'plan_1',
+          'plan_type': 'professional',
+          'market': 'EG',
+          'calorie_band': 2000,
+          'days': [
+            {
+              'day_number': 1,
+              'meals': [
+                {
+                  'slot': 'lunch',
+                  'planned_recipe_id': 'recipe_chicken',
+                  'planned_meal_variant_id': 'variant_chicken_m',
+                  'planned_nutrition': {'calories': 450},
+                  'alternative_variant_ids': <String>[],
+                }
+              ]
+            }
+          ]
+        }
+      },
+      nutritionRecipeVariants: const [
+        {
+          'variant_id': 'variant_chicken_s', 'recipe_id': 'recipe_chicken',
+          'portion_code': 'S', 'name_en': 'Chicken Bowl',
+          'meal_types': ['lunch', 'dinner'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 300},
+        },
+        {
+          'variant_id': 'variant_chicken_m', 'recipe_id': 'recipe_chicken',
+          'portion_code': 'M', 'name_en': 'Chicken Bowl',
+          'meal_types': ['lunch', 'dinner'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 450},
+        },
+        {
+          'variant_id': 'variant_fish_m', 'recipe_id': 'recipe_fish',
+          'portion_code': 'M', 'name_en': 'Grilled Fish',
+          'meal_types': ['lunch', 'dinner'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 470},
+        },
+        {
+          'variant_id': 'variant_oats_m', 'recipe_id': 'recipe_oats',
+          'portion_code': 'M', 'name_en': 'Morning Oats',
+          'meal_types': ['breakfast'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 440},
+        },
+        {
+          'variant_id': 'variant_kabsa_m', 'recipe_id': 'recipe_kabsa',
+          'portion_code': 'M', 'name_en': 'Saudi Only Dish',
+          'meal_types': ['lunch', 'dinner'], 'market_tags': ['SA'],
+          'nutrition': {'calories': 455},
+        },
+      ],
+    );
+    await tester.pumpWidget(
+      _wrapWithProviders(
+        child: const AdminNutritionTemplatesScreen(),
+        adminProvider: AdminProvider(repo),
+        languageProvider: await _englishLanguageProvider(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Tab).at(2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.data_object).first);
+    await tester.pumpAndSettle();
+
+    final altField =
+        find.widgetWithText(TextField, 'Alternative meals (swap options)');
+    await tester.ensureVisible(altField);
+    await tester.pumpAndSettle();
+    await tester.tap(altField);
+    await tester.enterText(altField, 'grill');
+    await tester.pumpAndSettle();
+
+    // Same slot and market, and a different dish, is offered.
+    expect(find.text('Grilled Fish'), findsOneWidget);
+    // A breakfast is not an alternative for lunch.
+    expect(find.text('Morning Oats'), findsNothing);
+    // Nor is a dish from the other market.
+    expect(find.text('Saudi Only Dish'), findsNothing);
+    // Nor another portion of the meal already selected.
+    expect(find.text('Chicken Bowl (S)'), findsNothing);
+  });
+
+  testWidgets('plan editor can fill swap options in one tap', (tester) async {
+    final repo = _FakeAdminRepository(
+      nutritionEnginePlans: const [
+        {'plan_id': 'plan_1', 'plan_type': 'professional', 'market': 'EG'}
+      ],
+      nutritionEnginePlanById: const {
+        'plan_1': {
+          'plan_id': 'plan_1',
+          'plan_type': 'professional',
+          'market': 'EG',
+          'calorie_band': 2000,
+          'days': [
+            {
+              'day_number': 1,
+              'meals': [
+                {
+                  'slot': 'lunch',
+                  'planned_recipe_id': 'recipe_chicken',
+                  'planned_meal_variant_id': 'variant_chicken_m',
+                  'planned_nutrition': {'calories': 450},
+                  'alternative_variant_ids': <String>[],
+                }
+              ]
+            }
+          ]
+        }
+      },
+      nutritionRecipeVariants: const [
+        {
+          'variant_id': 'variant_chicken_m', 'recipe_id': 'recipe_chicken',
+          'portion_code': 'M', 'name_en': 'Chicken Bowl',
+          'meal_types': ['lunch'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 450},
+        },
+        {
+          'variant_id': 'variant_fish_m', 'recipe_id': 'recipe_fish',
+          'portion_code': 'M', 'name_en': 'Grilled Fish',
+          'meal_types': ['lunch'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 470},
+        },
+        {
+          'variant_id': 'variant_beef_m', 'recipe_id': 'recipe_beef',
+          'portion_code': 'M', 'name_en': 'Grilled Beef',
+          'meal_types': ['lunch'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 430},
+        },
+        {
+          'variant_id': 'variant_shrimp_m', 'recipe_id': 'recipe_shrimp',
+          'portion_code': 'M', 'name_en': 'Grilled Shrimp',
+          'meal_types': ['lunch'], 'market_tags': ['EG'],
+          'nutrition': {'calories': 500},
+        },
+      ],
+    );
+    await tester.pumpWidget(
+      _wrapWithProviders(
+        child: const AdminNutritionTemplatesScreen(),
+        adminProvider: AdminProvider(repo),
+        languageProvider: await _englishLanguageProvider(),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byType(Tab).at(2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byIcon(Icons.data_object).first);
+    await tester.pumpAndSettle();
+
+    final suggest = find.widgetWithText(OutlinedButton, 'Suggest');
+    await tester.ensureVisible(suggest);
+    await tester.pumpAndSettle();
+    await tester.tap(suggest);
+    await tester.pumpAndSettle();
+
+    // Three swaps filled in, closest calories first, shown by meal name.
+    expect(find.widgetWithText(InputChip, 'Grilled Beef (M)'), findsOneWidget);
+    expect(find.widgetWithText(InputChip, 'Grilled Fish (M)'), findsOneWidget);
+    expect(find.widgetWithText(InputChip, 'Grilled Shrimp (M)'), findsOneWidget);
+  });
 }

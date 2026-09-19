@@ -311,6 +311,35 @@ class NutritionProvider extends ChangeNotifier {
     return (14 - elapsedDays).clamp(0, 14);
   }
 
+  /// Meals the client may swap this one for. Returns an empty list rather than
+  /// throwing, so a failed lookup shows "no alternatives" instead of breaking
+  /// the screen the client was reading.
+  Future<List<MealAlternative>> getMealAlternatives(String mealId) async {
+    if (DemoConfig.isDemo) return const <MealAlternative>[];
+    try {
+      return await _repository.getMealAlternatives(mealId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return const <MealAlternative>[];
+    }
+  }
+
+  /// Applies a swap and reloads the plan so every screen shows the new meal
+  /// and the day's totals move with it.
+  Future<bool> swapMeal(String mealId, String variantId) async {
+    if (DemoConfig.isDemo) return true;
+    try {
+      await _repository.swapMeal(mealId, variantId);
+      await loadActivePlan();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> logMeal(String mealId, Map<String, dynamic> data) async {
     if (DemoConfig.isDemo) {
       return true;

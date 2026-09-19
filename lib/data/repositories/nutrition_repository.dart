@@ -155,6 +155,44 @@ class NutritionRepository {
     }
   }
 
+  /// Meals the client may swap this one for. The server decides what is on
+  /// offer: same slot, same market, comparable calories, and nothing that
+  /// clashes with their allergies or disliked foods.
+  Future<List<MealAlternative>> getMealAlternatives(String mealId) async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/meals/$mealId/alternatives',
+        options: await _getAuthOptions(),
+      );
+      final map = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = map['alternatives'];
+      if (list is! List) return const <MealAlternative>[];
+      return list
+          .map((item) => _asMap(item))
+          .whereType<Map<String, dynamic>>()
+          .map(MealAlternative.fromJson)
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to load meal alternatives');
+    }
+  }
+
+  /// Applies a swap. Returns the replacement as the server stored it, so the
+  /// caller shows the saved meal rather than what it hoped it saved.
+  Future<Map<String, dynamic>> swapMeal(String mealId, String variantId) async {
+    try {
+      final response = await _dio.post(
+        '/nutrition/meals/$mealId/swap',
+        data: {'variantId': variantId},
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to swap meal');
+    }
+  }
+
   // Get nutrition history
   Future<List<Map<String, dynamic>>> getNutritionHistory() async {
     try {

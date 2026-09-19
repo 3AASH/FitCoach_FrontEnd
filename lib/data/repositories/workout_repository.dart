@@ -650,6 +650,26 @@ class WorkoutRepository {
     }
   }
 
+  /// Report an injured body part. The backend records it and re-applies the
+  /// whole plan around it, so every conflicting exercise is swapped rather than
+  /// only the one the user happened to be looking at.
+  ///
+  /// Returns the number of injuries now on record, and whether the plan was
+  /// rebuilt.
+  Future<Map<String, dynamic>> reportInjury(List<String> injuries) async {
+    try {
+      final response = await _dio.post(
+        '/workouts/report-injury',
+        data: {'injuries': injuries},
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to report injury');
+    }
+  }
+
   // Substitute exercise
   Future<void> substituteExercise(
     String originalExerciseId,

@@ -20,8 +20,39 @@ class AuthRepositoryException implements Exception {
   String toString() => message;
 }
 
+/// What the sign-in screen should do next with a phone number.
+class PhoneStatus {
+  final bool registered;
+  final bool hasPassword;
+
+  /// One of `send_otp`, `password` or `complete_registration`.
+  final String nextStep;
+
+  const PhoneStatus({
+    required this.registered,
+    required this.hasPassword,
+    required this.nextStep,
+  });
+
+  factory PhoneStatus.fromJson(Map<String, dynamic> json) {
+    return PhoneStatus(
+      registered: json['registered'] ?? false,
+      hasPassword: json['hasPassword'] ?? false,
+      nextStep: (json['nextStep'] as String?) ?? 'send_otp',
+    );
+  }
+}
+
 abstract class AuthRepositoryBase {
-  Future<void> requestOTP(String phoneNumber);
+  /// Whether a number already has an account, so the screen knows whether to
+  /// ask for a password or to send a sign-up code.
+  Future<PhoneStatus> checkPhone(String phoneNumber);
+  Future<void> requestOTP(String phoneNumber, {String? purpose});
+  Future<AuthResponse> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  });
   Future<AuthResponse> verifyOTP(String phoneNumber, String otpCode);
   Future<AuthResponse> resetPassword({
     required String phoneNumber,
@@ -53,14 +84,23 @@ class AuthResponse {
   final UserProfile user;
   final bool isNewUser;
 
-  AuthResponse(
-      {required this.token, required this.user, required this.isNewUser});
+  /// False when the account was created by OTP but has not answered the rest of
+  /// the sign-up questions yet, so the app routes there instead of home.
+  final bool registrationComplete;
+
+  AuthResponse({
+    required this.token,
+    required this.user,
+    required this.isNewUser,
+    this.registrationComplete = true,
+  });
 
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       token: json['token'] as String,
       user: UserProfile.fromJson(json['user'] as Map<String, dynamic>),
       isNewUser: json['isNewUser'] ?? false,
+      registrationComplete: json['registrationComplete'] ?? true,
     );
   }
 }
@@ -93,15 +133,58 @@ class AuthRepository implements AuthRepositoryBase {
     );
   }
 
-  // Request OTP
   @override
-  Future<void> requestOTP(String phoneNumber) async {
+  Future<PhoneStatus> checkPhone(String phoneNumber) async {
+    try {
+      final response = await _dio.post('$_authBasePath/check-phone', data: {
+        'phoneNumber': phoneNumber,
+      });
+      return PhoneStatus.fromJson(response.data as Map<String, dynamic>);
+    } on DioException catch (e) {
+      throw _buildAuthException(e, fallback: 'Failed to check phone number');
+    }
+  }
+
+  // Request OTP. `purpose` tells the backend whether this is a sign-up code
+  // (refused for a number that already has a password) or a reset code
+  // (refused for a number with no account).
+  @override
+  Future<void> requestOTP(String phoneNumber, {String? purpose}) async {
     try {
       await _dio.post('$_authBasePath/send-otp', data: {
         'phoneNumber': phoneNumber,
+        if (purpose != null) 'purpose': purpose,
       });
     } on DioException catch (e) {
       throw _buildAuthException(e, fallback: 'Failed to send OTP');
+    }
+  }
+
+  @override
+  Future<AuthResponse> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '$_authBasePath/complete-registration',
+        data: {
+          'fullName': fullName,
+          'password': password,
+          if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
+        },
+      );
+      final data = response.data as Map<String, dynamic>;
+      return AuthResponse(
+        // The caller is already signed in; the existing token stays valid.
+        token: '',
+        user: UserProfile.fromJson(data['user'] as Map<String, dynamic>),
+        isNewUser: true,
+        registrationComplete: true,
+      );
+    } on DioException catch (e) {
+      throw _buildAuthException(e, fallback: 'Failed to complete registration');
     }
   }
 
@@ -122,7 +205,11 @@ class AuthRepository implements AuthRepositoryBase {
       final token = data['token'] as String;
 
       return AuthResponse(
-          user: user, token: token, isNewUser: data['isNewUser'] ?? false);
+        user: user,
+        token: token,
+        isNewUser: data['isNewUser'] ?? false,
+        registrationComplete: data['registrationComplete'] ?? true,
+      );
     } on DioException catch (e) {
       throw _buildAuthException(e, fallback: 'Failed to verify OTP');
     }

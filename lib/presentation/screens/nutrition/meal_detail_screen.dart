@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/nutrition_plan.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 
@@ -206,18 +207,172 @@ class MealDetailScreen extends StatelessWidget {
     }
   }
 
-  void _showSwapDialog(BuildContext context, LanguageProvider lang) {
-    showDialog(
+  Future<void> _showSwapDialog(BuildContext context, LanguageProvider lang) async {
+    final swapped = await showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(lang.t('meal_detail_swap')),
-        content: Text(lang.t('coach_messages_coming_soon')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(lang.t('done')),
-          ),
-        ],
+      isScrollControlled: true,
+      builder: (sheetContext) => MealSwapSheet(meal: meal),
+    );
+    if (swapped != true || !context.mounted) return;
+    // The Meal held by this screen is now stale, so hand control back to the
+    // plan screen, which reloads from the provider.
+    Navigator.of(context).pop(true);
+  }
+
+}
+
+/// Lists the meals this one can be exchanged for and applies the choice.
+///
+/// Public so the nutrition plan screen can open the same sheet straight from a
+/// meal card, without routing through the detail screen first.
+class MealSwapSheet extends StatefulWidget {
+  final Meal meal;
+
+  const MealSwapSheet({super.key, required this.meal});
+
+  @override
+  State<MealSwapSheet> createState() => _MealSwapSheetState();
+}
+
+class _MealSwapSheetState extends State<MealSwapSheet> {
+  List<MealAlternative>? _alternatives;
+  String? _applyingVariantId;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    final provider = context.read<NutritionProvider>();
+    final alternatives = await provider.getMealAlternatives(widget.meal.id);
+    if (!mounted) return;
+    setState(() => _alternatives = alternatives);
+  }
+
+  Future<void> _apply(MealAlternative alternative) async {
+    if (_applyingVariantId != null) return;
+    setState(() {
+      _applyingVariantId = alternative.variantId;
+      _error = null;
+    });
+
+    final provider = context.read<NutritionProvider>();
+    final ok = await provider.swapMeal(widget.meal.id, alternative.variantId);
+    if (!mounted) return;
+
+    if (!ok) {
+      setState(() {
+        _applyingVariantId = null;
+        // Show the reason the server gave, which distinguishes "already
+        // logged" from "not an option" rather than flattening both.
+        _error = provider.error ?? context.read<LanguageProvider>().t('meal_swap_failed');
+      });
+      return;
+    }
+    Navigator.of(context).pop(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+    final isArabic = lang.isArabic;
+    final alternatives = _alternatives;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    lang.t('meal_swap_title'),
+                    style: const TextStyle(
+                        fontSize: 18, fontWeight: FontWeight.w700),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            Text(
+              lang.t('meal_swap_subtitle'),
+              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(_error!, style: const TextStyle(color: AppColors.error)),
+            ],
+            const SizedBox(height: 12),
+            if (alternatives == null)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (alternatives.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    lang.t('meal_swap_none'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(color: AppColors.textSecondary),
+                  ),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: alternatives.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final alternative = alternatives[index];
+                    final busy = _applyingVariantId == alternative.variantId;
+                    final delta = alternative.calorieDelta;
+                    final deltaText = delta == 0
+                        ? ''
+                        : ' (${delta > 0 ? '+' : ''}$delta)';
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      enabled: _applyingVariantId == null,
+                      title: Text(alternative.displayName(isArabic)),
+                      subtitle: Text(
+                        '${alternative.calories} ${lang.t('cal_unit')}$deltaText  •  '
+                        '${alternative.protein.round()}P '
+                        '${alternative.carbs.round()}C '
+                        '${alternative.fats.round()}F',
+                      ),
+                      leading: alternative.suggestedByTemplate
+                          ? Tooltip(
+                              message: lang.t('meal_swap_suggested'),
+                              child: const Icon(Icons.star,
+                                  color: AppColors.primary, size: 20),
+                            )
+                          : const Icon(Icons.swap_horiz,
+                              color: AppColors.textSecondary, size: 20),
+                      trailing: busy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.chevron_right),
+                      onTap: () => _apply(alternative),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

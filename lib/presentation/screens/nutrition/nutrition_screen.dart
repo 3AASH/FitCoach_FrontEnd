@@ -10,6 +10,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
+import 'meal_detail_screen.dart' show MealSwapSheet;
 import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
 import '../../../data/repositories/nutrition_repository.dart';
@@ -294,6 +295,45 @@ class _NutritionScreenState extends State<NutritionScreen> {
         );
       }
       return _buildLockedAccess(languageProvider, isArabic);
+    }
+
+    // A field the first intake owns is missing, so send the client there
+    // rather than asking the same question again on the nutrition form.
+    if (_showPreferencesIntake &&
+        nutritionProvider.intakeRequirements?.requiresFirstIntake == true) {
+      void completed() {
+        Navigator.of(context).pop();
+        _loadNutritionState();
+      }
+      return Scaffold(
+        appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  isArabic
+                      ? 'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.'
+                      : 'We need your basic profile details first so we can calculate your calorie needs.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                    builder: (_) => FirstIntakeScreen(
+                      onComplete: completed,
+                      onSkip: () => Navigator.of(context).pop(),
+                    ),
+                  )),
+                  child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
     }
 
     if (_showPreferencesIntake) {
@@ -1591,11 +1631,40 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     height: 1.5,
                   ),
                 ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () async {
+                      // Close the detail sheet first so the swap list is not
+                      // stacked on top of a sheet showing the old meal.
+                      Navigator.of(context).pop();
+                      await _openMealSwap(meal);
+                    },
+                    icon: const Icon(Icons.swap_horiz),
+                    label: Text(lang.t('meal_detail_swap')),
+                  ),
+                ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Opens the swap list for a meal and reports the outcome. The provider
+  /// reloads the plan on success, so nothing here has to patch local state.
+  Future<void> _openMealSwap(Meal meal) async {
+    final lang = context.read<LanguageProvider>();
+    final swapped = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => MealSwapSheet(meal: meal),
+    );
+    if (swapped != true || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(lang.t('meal_swap_done'))),
     );
   }
 }

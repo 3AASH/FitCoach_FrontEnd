@@ -36,7 +36,6 @@ class _NutritionPreferencesIntakeScreenState
   final _weightController = TextEditingController();
   final _trainingDaysController = TextEditingController();
 
-  String _sex = 'male';
   String _goal = 'general_fitness';
   String _dailyMovement = 'mostly_sitting';
   int _mealsPerDay = 3;
@@ -49,7 +48,6 @@ class _NutritionPreferencesIntakeScreenState
   void initState() {
     super.initState();
     final saved = widget.context ?? <String, dynamic>{};
-    _sex = saved['sex']?.toString() ?? _sex;
     _goal = saved['goal']?.toString() ?? _goal;
     _dailyMovement = saved['daily_movement']?.toString() ?? _dailyMovement;
     _mealsPerDay = (saved['meals_per_day'] as num?)?.toInt() ?? 3;
@@ -70,13 +68,26 @@ class _NutritionPreferencesIntakeScreenState
     }
   }
 
-  List<String> get _fields {
-    final fields = widget.missingFields ?? const <String>[];
-    return {...fields, 'dietary_exclusions', 'disliked_foods',
-      if (widget.editMode) 'daily_movement',
-      if (widget.editMode && widget.planType != 'starter') 'meals_per_day',
-    }.toList();
-  }
+  /// The questions this form asks, which deliberately do not depend on what is
+  /// already answered. The screen used to render only the fields the server
+  /// reported missing, plus two extras in edit mode, so a client who came back
+  /// to change a preference was shown a different questionnaire than the one
+  /// they first filled in. Everything is shown every time and prefilled from
+  /// the saved context, which makes this a review screen rather than a quiz.
+  ///
+  /// `sex` is absent on purpose: the first workout intake owns that question.
+  List<String> get _fields => [
+        'age',
+        'height_cm',
+        'weight_kg',
+        'goal',
+        'training_days_per_week',
+        'daily_movement',
+        'dietary_exclusions',
+        'disliked_foods',
+        if (widget.planType != 'starter') 'meals_per_day',
+        if (widget.planType != 'starter') 'medical_nutrition_safety_screen',
+      ];
 
   @override
   void dispose() {
@@ -100,9 +111,6 @@ class _NutritionPreferencesIntakeScreenState
       'disliked_foods': _dislikedFoods.where((food) => food != 'none').toList(),
     };
 
-    if (_needsAny(const ['sex', 'gender'])) {
-      payload['sex'] = _sex;
-    }
     if (_needs('age')) {
       payload['age'] = int.parse(_ageController.text.trim());
     }
@@ -172,8 +180,6 @@ class _NutritionPreferencesIntakeScreenState
             const SizedBox(height: 12),
             const SizedBox(height: 20),
             if (_needsAny(const [
-              'sex',
-              'gender',
               'age',
               'height_cm',
               'weight_kg',
@@ -184,28 +190,34 @@ class _NutritionPreferencesIntakeScreenState
             if (_needs('daily_movement')) _buildDailyMovementSection(isArabic),
             if (_needs('dietary_exclusions'))
               _buildDietaryExclusionsSection(isArabic),
-            _Section(title: isArabic ? 'أطعمة لا تفضلها' : 'Foods to avoid', children: [
-              _buildMultiSelect(options: [
-                _Option('chicken', isArabic ? 'دجاج' : 'Chicken'),
-                _Option('beef', isArabic ? 'لحم بقري' : 'Beef'),
-                _Option('tuna', isArabic ? 'تونة' : 'Tuna'),
-                _Option('egg', isArabic ? 'بيض' : 'Eggs'),
-                _Option('oats', isArabic ? 'شوفان' : 'Oats'),
-                _Option('lentils', isArabic ? 'عدس' : 'Lentils'),
-              ], selection: _dislikedFoods),
-            ]),
+            if (_needs('disliked_foods'))
+              _Section(
+                title: _copy('dislikedTitle', isArabic),
+                children: [
+                  Text(
+                    _copy('dislikedDesc', isArabic),
+                    style: const TextStyle(color: Colors.black54),
+                  ),
+                  const SizedBox(height: 12),
+                  // Every code here is mapped to real ingredient ids by the
+                  // engine, so each chip removes meals from the plan.
+                  _buildMultiSelect(options: [
+                    _Option('chicken', isArabic ? 'دجاج' : 'Chicken'),
+                    _Option('beef', isArabic ? 'لحم بقري' : 'Beef'),
+                    _Option('lamb', isArabic ? 'لحم ضأن' : 'Lamb'),
+                    _Option('fish', isArabic ? 'سمك' : 'Fish'),
+                    _Option('shrimp', isArabic ? 'جمبري' : 'Shrimp'),
+                    _Option('liver', isArabic ? 'كبدة' : 'Liver'),
+                    _Option('egg', isArabic ? 'بيض' : 'Eggs'),
+                    _Option('oats', isArabic ? 'شوفان' : 'Oats'),
+                    _Option('lentils', isArabic ? 'عدس' : 'Lentils'),
+                    _Option('foul', isArabic ? 'فول' : 'Foul'),
+                  ], selection: _dislikedFoods),
+                ],
+              ),
             if (_needs('meals_per_day')) _buildMealsPerDaySection(isArabic),
             if (_needs('medical_nutrition_safety_screen'))
               _buildMedicalSafetySection(isArabic),
-            if (_fields.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 32),
-                child: Text(
-                  _copy('nothingMissing', isArabic),
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.black54),
-                ),
-              ),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -234,16 +246,6 @@ class _NutritionPreferencesIntakeScreenState
     return _Section(
       title: _copy('bodyTrainingTitle', isArabic),
       children: [
-        if (_needsAny(const ['sex', 'gender']))
-          _buildSingleChoice(
-            title: _copy('sex', isArabic),
-            options: [
-              _Option('male', _copy('male', isArabic)),
-              _Option('female', _copy('female', isArabic)),
-            ],
-            value: _sex,
-            onChanged: (value) => setState(() => _sex = value),
-          ),
         if (_needs('age'))
           _buildNumberField(
             controller: _ageController,
@@ -311,20 +313,30 @@ class _NutritionPreferencesIntakeScreenState
     return _Section(
       title: _copy('restrictions', isArabic),
       children: [
+        // Only codes the engine maps onto the recipe allergen vocabulary are
+        // offered. "Soy" was removed because no recipe or ingredient in the
+        // catalogue contains soy, and the halal option because every meal in
+        // the catalogue is already halal - both looked like filters and were
+        // silently ignored.
         _buildMultiSelect(
           options: [
             _Option('none', _copy('none', isArabic)),
             _Option('nuts', isArabic ? 'مكسرات' : 'Nuts'),
-            _Option('soy', isArabic ? 'صويا' : 'Soy'),
+            _Option('sesame', isArabic ? 'سمسم' : 'Sesame'),
             _Option('eggs', isArabic ? 'بيض' : 'Eggs'),
             _Option('fish', isArabic ? 'سمك' : 'Fish'),
+            _Option('shellfish', isArabic ? 'محار وقشريات' : 'Shellfish'),
             _Option('dairy_lactose', _copy('dairy', isArabic)),
             _Option('gluten', _copy('gluten', isArabic)),
             _Option('vegetarian', _copy('vegetarian', isArabic)),
             _Option('vegan', _copy('vegan', isArabic)),
-            _Option('personal_religious', _copy('religious', isArabic)),
           ],
           selection: _dietaryExclusions,
+        ),
+        const SizedBox(height: 10),
+        Text(
+          _copy('halalNote', isArabic),
+          style: const TextStyle(color: Colors.black54, fontSize: 12),
         ),
       ],
     );
@@ -469,12 +481,9 @@ class _NutritionPreferencesIntakeScreenState
 
   String _copy(String key, bool isArabic) {
     final en = {
-      'subtitle': 'Only the missing nutrition details are needed.',
-      'nothingMissing': 'All required nutrition details are already available.',
+      'subtitle':
+          'Check these details before we build your plan. Anything you have already answered is filled in.',
       'bodyTrainingTitle': 'Body and Training Details',
-      'sex': 'Sex',
-      'male': 'Male',
-      'female': 'Female',
       'age': 'Age',
       'height': 'Height in cm',
       'weight': 'Weight in kg',
@@ -492,13 +501,13 @@ class _NutritionPreferencesIntakeScreenState
       'physicalJob': 'Very physical job',
       'restrictions': 'Food Restrictions',
       'none': 'None',
-      'foodAllergy': 'Food allergy',
       'dairy': 'Dairy / lactose',
       'gluten': 'Gluten',
       'vegetarian': 'Vegetarian',
       'vegan': 'Vegan',
-      'intolerance': 'Other intolerance',
-      'religious': 'Personal / religious',
+      'halalNote': 'Every meal in the plan is halal.',
+      'dislikedTitle': 'Foods to avoid',
+      'dislikedDesc': 'Meals containing these are left out of your plan.',
       'mealsPerDay': 'Meals Per Day',
       'mealsPerDayPrompt': 'How many meals do you prefer?',
       'medicalTitle': 'Medical Safety Review',
@@ -513,12 +522,8 @@ class _NutritionPreferencesIntakeScreenState
       'therapeuticDiet': 'Therapeutic diet',
     };
     final ar = {
-      'subtitle': 'نحتاج فقط تفاصيل التغذية الناقصة.',
-      'nothingMissing': 'كل تفاصيل التغذية المطلوبة متوفرة بالفعل.',
+      'subtitle': 'راجع هذه البيانات قبل إنشاء خطتك. ما سبق أن أجبت عنه تم ملؤه تلقائيا.',
       'bodyTrainingTitle': 'بيانات الجسم والتمرين',
-      'sex': 'النوع',
-      'male': 'ذكر',
-      'female': 'أنثى',
       'age': 'العمر',
       'height': 'الطول بالسنتيمتر',
       'weight': 'الوزن بالكيلوجرام',
@@ -536,13 +541,13 @@ class _NutritionPreferencesIntakeScreenState
       'physicalJob': 'عمل بدني شديد',
       'restrictions': 'قيود الطعام',
       'none': 'لا يوجد',
-      'foodAllergy': 'حساسية طعام',
       'dairy': 'ألبان / لاكتوز',
       'gluten': 'جلوتين',
       'vegetarian': 'نباتي',
       'vegan': 'نباتي بالكامل',
-      'intolerance': 'عدم تحمل آخر',
-      'religious': 'شخصي / ديني',
+      'halalNote': 'كل الوجبات في الخطة حلال.',
+      'dislikedTitle': 'أطعمة لا تفضلها',
+      'dislikedDesc': 'الوجبات التي تحتوي على هذه الأصناف لن تظهر في خطتك.',
       'mealsPerDay': 'عدد الوجبات',
       'mealsPerDayPrompt': 'كم وجبة تفضل؟',
       'medicalTitle': 'مراجعة السلامة الطبية',

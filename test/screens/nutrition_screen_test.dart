@@ -14,7 +14,28 @@ import 'package:fitapp/data/models/nutrition_plan.dart';
 
 class MockAuthRepository implements AuthRepositoryBase {
   @override
-  Future<void> requestOTP(String phoneNumber) async {}
+  Future<PhoneStatus> checkPhone(String phoneNumber) async => const PhoneStatus(
+        registered: false,
+        hasPassword: false,
+        nextStep: 'send_otp',
+      );
+
+  @override
+  Future<AuthResponse> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  }) async =>
+      AuthResponse(
+        token: '',
+        user: UserProfile(
+            id: 'mock_id', phoneNumber: '+201027856024', name: fullName),
+        isNewUser: true,
+        registrationComplete: true,
+      );
+
+  @override
+  Future<void> requestOTP(String phoneNumber, {String? purpose}) async {}
 
   @override
   Future<AuthResponse> verifyOTP(String phoneNumber, String otp) async {

@@ -371,6 +371,32 @@ class WorkoutProvider extends ChangeNotifier {
     return null;
   }
 
+  /// Record an injured body part and reload the plan the backend rebuilt around
+  /// it. Returns true when the injury was accepted.
+  Future<bool> reportInjury(List<String> injuries) async {
+    if (injuries.isEmpty) return false;
+    if (_demoConfig.isDemo) {
+      _error = null;
+      notifyListeners();
+      return true;
+    }
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.reportInjury(injuries);
+      // The backend regenerates the plan, so pull the rebuilt one.
+      await loadActivePlan();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   Future<bool> substituteExercise(
     String originalExerciseId,
     String newExerciseId,

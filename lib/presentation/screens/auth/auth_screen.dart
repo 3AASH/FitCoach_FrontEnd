@@ -9,7 +9,7 @@ import '../../widgets/animated_reveal.dart';
 import '../../widgets/international_phone_input.dart';
 import 'forgot_password_screen.dart';
 
-enum AuthStep { choose, phone, otp, email, emailSignup }
+enum AuthStep { choose, phone, otp, email, emailSignup, completeRegistration }
 
 enum PasswordLoginMode { email, phone }
 
@@ -43,6 +43,9 @@ class _AuthScreenState extends State<AuthScreen> {
   String? _passwordLoginPhoneErrorText;
   String? _signupVerificationErrorText;
   String? _signupNormalizedPhone;
+  String? _completeNameErrorText;
+  String? _completeEmailErrorText;
+  String? _completePasswordErrorText;
 
   final TextEditingController _otpPhoneController = TextEditingController();
   final TextEditingController _loginEmailController = TextEditingController();
@@ -56,6 +59,12 @@ class _AuthScreenState extends State<AuthScreen> {
   final TextEditingController _signupConfirmPasswordController =
       TextEditingController();
   final TextEditingController _signupPhoneController = TextEditingController();
+  // The remaining sign-up questions, asked after a new phone number is verified.
+  final TextEditingController _completeNameController = TextEditingController();
+  final TextEditingController _completeEmailController =
+      TextEditingController();
+  final TextEditingController _completePasswordController =
+      TextEditingController();
   final List<TextEditingController> _otpControllers =
       List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
@@ -75,6 +84,9 @@ class _AuthScreenState extends State<AuthScreen> {
     _signupPasswordController.dispose();
     _signupConfirmPasswordController.dispose();
     _signupPhoneController.dispose();
+    _completeNameController.dispose();
+    _completeEmailController.dispose();
+    _completePasswordController.dispose();
     for (final controller in _otpControllers) {
       controller.dispose();
     }
@@ -322,7 +334,12 @@ class _AuthScreenState extends State<AuthScreen> {
     _applySignupInlineError();
   }
 
-  Future<void> _requestOTP() async {
+  /// Continue from the phone step.
+  ///
+  /// A number that already has an account signs in with its password; only a new
+  /// number is sent a code. Previously every number was sent an OTP, so a
+  /// registered user could sign in without their password.
+  Future<void> _continueWithPhone() async {
     final authProvider = context.read<AuthProvider>();
     final normalizedPhone = _normalizedPhoneOrSetError(
       controller: _otpPhoneController,
@@ -335,7 +352,47 @@ class _AuthScreenState extends State<AuthScreen> {
       return;
     }
 
-    final success = await authProvider.requestOTP(normalizedPhone);
+    final status = await authProvider.checkPhone(normalizedPhone);
+    if (!mounted) return;
+
+    if (status == null) {
+      _applyProviderPhoneError(
+        assignError: (message) => _otpPhoneErrorText = message,
+      );
+      return;
+    }
+
+    if (status.registered && status.hasPassword) {
+      // Hand over to the existing phone + password login step.
+      setState(() {
+        _passwordLoginMode = PasswordLoginMode.phone;
+        _passwordLoginPhoneCountry = _otpPhoneCountry;
+        _loginPhoneController.text = _otpPhoneController.text;
+        _step = AuthStep.email;
+      });
+      return;
+    }
+
+    // New number, or one verified by OTP that never finished signing up.
+    await _requestOTP(normalizedPhone);
+  }
+
+  Future<void> _requestOTP([String? phone]) async {
+    final authProvider = context.read<AuthProvider>();
+    final normalizedPhone = phone ??
+        _normalizedPhoneOrSetError(
+          controller: _otpPhoneController,
+          country: _otpPhoneCountry,
+          assignError: (message) => _otpPhoneErrorText = message,
+        );
+
+    if (normalizedPhone == null) {
+      setState(() {});
+      return;
+    }
+
+    final success =
+        await authProvider.requestOTP(normalizedPhone, purpose: 'signup');
     if (!mounted) {
       return;
     }
@@ -380,6 +437,11 @@ class _AuthScreenState extends State<AuthScreen> {
     }
 
     if (success) {
+      // A brand-new account has not given a name, email or password yet.
+      if (!authProvider.registrationComplete) {
+        setState(() => _step = AuthStep.completeRegistration);
+        return;
+      }
       widget.onAuthenticated();
       return;
     }
@@ -392,6 +454,50 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _otpAttempts = _otpAttempts > 0 ? _otpAttempts - 1 : 0;
     });
+  }
+
+  /// Submit the remaining sign-up answers for an account created by OTP.
+  Future<void> _submitCompleteRegistration() async {
+    final authProvider = context.read<AuthProvider>();
+    final languageProvider = context.read<LanguageProvider>();
+
+    final name = _completeNameController.text.trim();
+    final email = _completeEmailController.text.trim();
+    final password = _completePasswordController.text;
+
+    setState(() {
+      _completeNameErrorText =
+          name.isEmpty ? languageProvider.t('auth_name_required') : null;
+      _completePasswordErrorText = password.length < 8
+          ? languageProvider.t('auth_password_min_length')
+          : null;
+      // Email is optional here; the account is identified by its phone number.
+      _completeEmailErrorText = email.isNotEmpty && !email.contains('@')
+          ? languageProvider.t('auth_email_invalid')
+          : null;
+    });
+
+    if (_completeNameErrorText != null ||
+        _completePasswordErrorText != null ||
+        _completeEmailErrorText != null) {
+      return;
+    }
+
+    final ok = await authProvider.completeRegistration(
+      fullName: name,
+      password: password,
+      email: email.isEmpty ? null : email,
+    );
+    if (!mounted) return;
+
+    if (ok) {
+      widget.onAuthenticated();
+      return;
+    }
+
+    if (authProvider.error != null) {
+      _showError(authProvider.error!);
+    }
   }
 
   Future<void> _handleEmailLogin() async {
@@ -1118,7 +1224,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 ElevatedButton(
-                                  onPressed: isBusy ? null : _requestOTP,
+                                  onPressed: isBusy ? null : _continueWithPhone,
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 14),
@@ -1135,8 +1241,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                             ),
                                           ),
                                         )
+                                      // Neutral, because this either sends a
+                                      // code or moves to a password prompt.
                                       : Text(
-                                          languageProvider.t('auth_sign_in')),
+                                          languageProvider.t('auth_continue')),
                                 ),
                                 const SizedBox(height: 12),
                                 OutlinedButton(
@@ -1205,7 +1313,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 const SizedBox(height: 8),
                                 TextButton(
                                   onPressed: _resendEnabled && !isBusy
-                                      ? _requestOTP
+                                      ? () => _requestOTP()
                                       : null,
                                   child: Text(
                                     _resendEnabled
@@ -1227,6 +1335,71 @@ class _AuthScreenState extends State<AuthScreen> {
                                   child: Text(
                                     languageProvider.t('auth_change_phone'),
                                   ),
+                                ),
+                              ],
+                              // The remaining sign-up questions, asked after a
+                              // new number is verified by OTP.
+                              if (_step == AuthStep.completeRegistration) ...[
+                                Text(
+                                  languageProvider.t('auth_complete_profile_desc'),
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                TextField(
+                                  controller: _completeNameController,
+                                  enabled: !isBusy,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText: languageProvider.t('auth_full_name'),
+                                    border: const OutlineInputBorder(),
+                                    errorText: _completeNameErrorText,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                TextField(
+                                  controller: _completeEmailController,
+                                  enabled: !isBusy,
+                                  keyboardType: TextInputType.emailAddress,
+                                  textInputAction: TextInputAction.next,
+                                  decoration: InputDecoration(
+                                    labelText:
+                                        languageProvider.t('auth_email_optional'),
+                                    border: const OutlineInputBorder(),
+                                    errorText: _completeEmailErrorText,
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                TextField(
+                                  controller: _completePasswordController,
+                                  enabled: !isBusy,
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    labelText: languageProvider.t('auth_password'),
+                                    helperText: languageProvider
+                                        .t('auth_password_min_length'),
+                                    border: const OutlineInputBorder(),
+                                    errorText: _completePasswordErrorText,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed:
+                                      isBusy ? null : _submitCompleteRegistration,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 14),
+                                  ),
+                                  child: isBusy
+                                      ? const SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                              strokeWidth: 2),
+                                        )
+                                      : Text(languageProvider.t('auth_finish')),
                                 ),
                               ],
                             ],

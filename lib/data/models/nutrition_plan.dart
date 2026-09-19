@@ -283,12 +283,18 @@ class NutritionIntakeRequirements {
   final Map<String, dynamic>? context;
   final NutritionAccessStatus? access;
 
+  /// Set when a field the first workout intake owns (currently sex) is absent.
+  /// The nutrition form does not ask for it a second time; the client is sent
+  /// back to the intake that owns the question instead.
+  final bool requiresFirstIntake;
+
   NutritionIntakeRequirements({
     required this.planType,
     required this.missingFields,
     required this.questions,
     this.context,
     this.access,
+    this.requiresFirstIntake = false,
   });
 
   bool get isComplete => missingFields.isEmpty;
@@ -307,6 +313,8 @@ class NutritionIntakeRequirements {
       access: json['access'] != null
           ? NutritionAccessStatus.fromJson(_asMap(json['access']) ?? const {})
           : null,
+      requiresFirstIntake:
+          json['requiresFirstIntake'] == true || json['requires_first_intake'] == true,
     );
   }
 
@@ -316,6 +324,7 @@ class NutritionIntakeRequirements {
         'questions': questions,
         'context': context,
         'access': access?.toJson(),
+        'requiresFirstIntake': requiresFirstIntake,
       };
 }
 
@@ -461,6 +470,81 @@ class Meal {
       'scheduledDate': scheduledDate?.toIso8601String(),
       'canLog': canLog,
     };
+  }
+}
+
+/// One meal the client may swap the current one for.
+///
+/// The server decides what is offered; this only carries enough to let someone
+/// choose between them, which is the name, the macros, and how far the swap
+/// moves the day's calories.
+class MealAlternative {
+  final String variantId;
+  final String recipeId;
+  final String? nameEn;
+  final String? nameAr;
+  final String? portionCode;
+  final int calories;
+  final double protein;
+  final double carbs;
+  final double fats;
+
+  /// Signed difference against the meal being replaced, so the UI can say
+  /// "+40 kcal" rather than making the client compare two numbers.
+  final int calorieDelta;
+
+  /// True when this was one of the three the plan itself proposed, which are
+  /// shown first because they were chosen to fit the day.
+  final bool suggestedByTemplate;
+  final String? imageUrl;
+
+  const MealAlternative({
+    required this.variantId,
+    required this.recipeId,
+    this.nameEn,
+    this.nameAr,
+    this.portionCode,
+    this.calories = 0,
+    this.protein = 0,
+    this.carbs = 0,
+    this.fats = 0,
+    this.calorieDelta = 0,
+    this.suggestedByTemplate = false,
+    this.imageUrl,
+  });
+
+  String displayName(bool isArabic) {
+    final preferred = isArabic ? nameAr : nameEn;
+    final fallback = isArabic ? nameEn : nameAr;
+    final name = (preferred?.trim().isNotEmpty ?? false)
+        ? preferred!.trim()
+        : (fallback?.trim().isNotEmpty ?? false)
+            ? fallback!.trim()
+            : recipeId;
+    return name;
+  }
+
+  factory MealAlternative.fromJson(Map<String, dynamic> json) {
+    double toDouble(dynamic value) =>
+        value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+    int toInt(dynamic value) =>
+        value is num ? value.round() : int.tryParse('$value') ?? 0;
+
+    return MealAlternative(
+      variantId: asString(json['variantId'] ?? json['variant_id']) ?? '',
+      recipeId: asString(json['recipeId'] ?? json['recipe_id']) ?? '',
+      nameEn: asString(json['nameEn'] ?? json['name_en']),
+      nameAr: asString(json['nameAr'] ?? json['name_ar']),
+      portionCode: asString(json['portionCode'] ?? json['portion_code']),
+      calories: toInt(json['calories']),
+      protein: toDouble(json['protein']),
+      carbs: toDouble(json['carbs']),
+      fats: toDouble(json['fats']),
+      calorieDelta: toInt(json['calorieDelta'] ?? json['calorie_delta']),
+      suggestedByTemplate:
+          json['suggestedByTemplate'] == true || json['suggested_by_template'] == true,
+      imageUrl: asString(json['imageUrl'] ?? json['image_url']),
+    );
   }
 }
 

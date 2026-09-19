@@ -9,7 +9,28 @@ import 'package:fitapp/core/config/demo_config.dart';
 // Add a mock implementation for the required dependency
 class MockAuthRepository implements AuthRepositoryBase {
   @override
-  Future<void> requestOTP(String phoneNumber) async {
+  Future<PhoneStatus> checkPhone(String phoneNumber) async => const PhoneStatus(
+        registered: false,
+        hasPassword: false,
+        nextStep: 'send_otp',
+      );
+
+  @override
+  Future<AuthResponse> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  }) async =>
+      AuthResponse(
+        token: '',
+        user: UserProfile(
+            id: 'mock_id', phoneNumber: '+201027856024', name: fullName),
+        isNewUser: true,
+        registrationComplete: true,
+      );
+
+  @override
+  Future<void> requestOTP(String phoneNumber, {String? purpose}) async {
     if (!phoneNumber.startsWith('+9665') || phoneNumber.length != 13) {
       throw Exception('Invalid phone number');
     }

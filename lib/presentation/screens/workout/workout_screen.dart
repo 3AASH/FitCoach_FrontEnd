@@ -1538,7 +1538,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           onShowSubstitute: (exercise) {
             final provider = context.read<WorkoutProvider>();
             final lang = context.read<LanguageProvider>();
-            _showSubstituteDialog(exercise, provider, lang, lang.isArabic);
+            // The button says "Report injury", so ask where the user is hurt.
+            // It used to open the exercise-substitute list, which never
+            // recorded the injury and only changed the current exercise.
+            _showReportInjuryDialog(provider, lang);
           },
         ),
       ),
@@ -1557,87 +1560,91 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
-  Future<void> _showSubstituteDialog(
-    Exercise exercise,
+  /// The body parts an injury can be reported against. These are the parts the
+  /// injury-swap data is keyed on, so anything offered here can actually be
+  /// acted upon.
+  static const List<String> _reportableInjuries = [
+    'shoulder',
+    'knee',
+    'lower_back',
+    'neck',
+    'ankle',
+    'wrist',
+    'elbow',
+    'hip',
+  ];
+
+  Future<void> _showReportInjuryDialog(
     WorkoutProvider provider,
     LanguageProvider lang,
-    bool isArabic,
   ) async {
-    final authProvider = context.read<AuthProvider>();
-    final userInjuries = authProvider.user?.injuries ?? [];
-    // The same profile object the injuries come from already carries where the
-    // user trains, so the swap list can be restricted to what they can do.
-    final workoutLocation = authProvider.user?.workoutLocation;
+    final selected = <String>{};
 
-    showDialog(
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(lang.t('substitute_exercise')),
-        content: FutureBuilder<List<Exercise>>(
-          future: provider.getExerciseAlternatives(
-            exercise.exerciseId ?? exercise.id,
-            userInjuries,
-            workoutLocation: workoutLocation,
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError ||
-                !snapshot.hasData ||
-                snapshot.data!.isEmpty) {
-              return Text(
-                lang.t('no_alternatives_available'),
-              );
-            }
-
-            final alternatives = snapshot.data!;
-
-            return SizedBox(
-              width: double.maxFinite,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: alternatives.length,
-                itemBuilder: (context, index) {
-                  final alt = alternatives[index];
-                  return ListTile(
-                    title: Text(isArabic ? alt.nameAr : alt.nameEn),
-                    subtitle: Text(alt.muscleGroup ?? ''),
-                    trailing: Icon(
-                        isArabic ? Icons.chevron_left : Icons.chevron_right),
-                    onTap: () async {
-                      final messenger = ScaffoldMessenger.of(this.context);
-                      Navigator.pop(context);
-                      final success = await provider.substituteExercise(
-                        exercise.id,
-                        alt.id,
-                      );
-
-                      if (success && mounted) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              lang.t('exercise_substituted_successfully'),
-                            ),
-                            backgroundColor: AppColors.success,
-                          ),
-                        );
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(lang.t('workouts_report_injury_title')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  lang.t('workouts_report_injury_desc'),
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: AppColors.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                for (final injury in _reportableInjuries)
+                  CheckboxListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: selected.contains(injury),
+                    title: Text(lang.t('injury_$injury')),
+                    onChanged: (checked) => setDialogState(() {
+                      if (checked == true) {
+                        selected.add(injury);
+                      } else {
+                        selected.remove(injury);
                       }
-                    },
-                  );
-                },
-              ),
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(lang.t('cancel')),
+                    }),
+                  ),
+              ],
+            ),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(lang.t('cancel')),
+            ),
+            FilledButton(
+              onPressed: selected.isEmpty
+                  ? null
+                  : () => Navigator.pop(dialogContext, true),
+              child: Text(lang.t('workouts_report_injury_submit')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final ok = await provider.reportInjury(selected.toList());
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? lang.t('workouts_report_injury_done')
+            : provider.error ?? lang.t('workouts_report_injury_failed')),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
       ),
     );
   }
+
 }

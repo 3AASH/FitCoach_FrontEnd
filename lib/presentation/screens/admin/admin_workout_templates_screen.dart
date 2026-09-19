@@ -942,8 +942,20 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
         if (_stringValue(payload['plan_id']).isEmpty) {
           throw FormatException(_tr('plan_editor_error_plan_id_required'));
         }
-        if ((_asList(payload['sessions']) ?? const []).isEmpty) {
+        // An advanced template keeps its days inside
+        // programs[location][goal][experience], not in a top-level `sessions`
+        // array, so checking `payload['sessions']` rejected every advanced
+        // template no matter how many days were defined. Check the editor's own
+        // day list, which holds the days for either shape.
+        if (_sessions.isEmpty) {
           throw FormatException(_tr('plan_editor_error_workout_day_required'));
+        }
+        if (_isAdvancedTemplate && _selectedAdvancedProgramPath == null) {
+          // Without a selected program path _buildTemplate has nowhere to write
+          // the days back to, and the edit would be silently dropped.
+          throw FormatException(
+            _tr('plan_editor_error_program_path_required'),
+          );
         }
       }
     } catch (error) {

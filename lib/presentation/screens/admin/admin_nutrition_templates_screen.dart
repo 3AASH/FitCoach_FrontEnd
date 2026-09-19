@@ -1943,37 +1943,61 @@ class _NutritionEnginePlanEditorSheetState
                             // Swap options offered to the user. Kept separate
                             // from the meal's own portion so the two are not
                             // mistaken for each other.
-                            Autocomplete<Map<String, dynamic>>(
-                              key: ValueKey(
-                                'alt:$dayIndex:$mealIndex:'
-                                '${(_asList(meal['alternative_variant_ids']) ?? const []).length}',
-                              ),
-                              displayStringForOption: _variantLabel,
-                              optionsBuilder: (value) {
-                                final query = value.text.trim().toLowerCase();
-                                final selectedIds = (_asList(meal['alternative_variant_ids']) ?? const [])
-                                    .map((item) => item.toString()).toSet();
-                                return widget.availableVariants.where((variant) {
-                                  final id = _stringValue(variant['variant_id']);
-                                  return id != _stringValue(meal['planned_meal_variant_id']) &&
-                                      !selectedIds.contains(id) &&
-                                      (query.isEmpty || _variantLabel(variant).toLowerCase().contains(query));
-                                });
-                              },
-                              onSelected: (variant) => setState(() {
-                                final alternatives = List<dynamic>.from(
-                                    _asList(meal['alternative_variant_ids']) ?? const []);
-                                alternatives.add(variant['variant_id']);
-                                meal['alternative_variant_ids'] = alternatives;
-                              }),
-                              fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextField(
-                                controller: controller,
-                                focusNode: focusNode,
-                                decoration: InputDecoration(
-                                  labelText: lang.t('plan_editor_alternative_meals'),
-                                  border: const OutlineInputBorder(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(
+                                  child: Autocomplete<Map<String, dynamic>>(
+                                    key: ValueKey(
+                                      'alt:$dayIndex:$mealIndex:'
+                                      '${_stringValue(meal['planned_recipe_id'])}:'
+                                      '${(_asList(meal['alternative_variant_ids']) ?? const []).length}',
+                                    ),
+                                    displayStringForOption: _mealLabel,
+                                    optionsBuilder: (value) =>
+                                        _alternativeOptions(meal, value.text),
+                                    onSelected: (variant) =>
+                                        _addAlternative(meal, variant),
+                                    fieldViewBuilder: (context, controller,
+                                            focusNode, onSubmitted) =>
+                                        TextField(
+                                      controller: controller,
+                                      focusNode: focusNode,
+                                      decoration: InputDecoration(
+                                        labelText: lang
+                                            .t('plan_editor_alternative_meals'),
+                                        helperText: _stringValue(
+                                                    meal['planned_recipe_id'])
+                                                .isEmpty
+                                            ? lang.t(
+                                                'plan_editor_alternative_pick_meal_first')
+                                            : lang.t(
+                                                'plan_editor_alternative_scope'),
+                                        helperMaxLines: 2,
+                                        border: const OutlineInputBorder(),
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
+                                const SizedBox(width: 8),
+                                // Filling three sensible swaps by hand for
+                                // every meal of every day is the reason plans
+                                // shipped with none.
+                                Padding(
+                                  padding: const EdgeInsets.only(top: 4),
+                                  child: OutlinedButton.icon(
+                                    onPressed:
+                                        _stringValue(meal['planned_recipe_id'])
+                                                .isEmpty
+                                            ? null
+                                            : () => _suggestAlternatives(meal),
+                                    icon: const Icon(Icons.auto_awesome,
+                                        size: 18),
+                                    label: Text(
+                                        lang.t('plan_editor_alternative_suggest')),
+                                  ),
+                                ),
+                              ],
                             ),
                             Wrap(
                               spacing: 6,
@@ -2165,6 +2189,118 @@ class _NutritionEnginePlanEditorSheetState
   String _portionLabel(Map<String, dynamic> variant) {
     final portion = _stringValue(variant['portion_code']);
     return portion.isEmpty ? _stringValue(variant['variant_id']) : portion;
+  }
+
+  static final _slotSuffix = RegExp(r'_\d+$');
+
+  /// `snack_1` and `snack_2` are both snack slots as far as the catalogue
+  /// cares, and a blank slot should not silently filter everything out.
+  String _baseMealType(Map<String, dynamic> meal) {
+    final slot = _stringValue(meal['slot']).trim().toLowerCase();
+    return slot.replaceAll(_slotSuffix, '');
+  }
+
+  num _variantCalories(Map<String, dynamic> variant) {
+    final nutrition = _asMap(variant['nutrition']);
+    final value = nutrition?['calories'] ?? variant['calories'];
+    return value is num ? value : num.tryParse('$value') ?? 0;
+  }
+
+  bool _variantServesSlot(Map<String, dynamic> variant, String mealType) {
+    if (mealType.isEmpty) return true;
+    final types = (_asList(variant['meal_types']) ?? const [])
+        .map((item) => item.toString().toLowerCase())
+        .toList();
+    // Tolerate a catalogue that has not been reimported with meal_types yet
+    // rather than presenting an empty picker.
+    if (types.isEmpty) return true;
+    return types.contains(mealType);
+  }
+
+  bool _variantServesMarket(Map<String, dynamic> variant) {
+    final market = _marketController.text.trim().toUpperCase();
+    if (market.isEmpty) return true;
+    final tags = (_asList(variant['market_tags']) ?? const [])
+        .map((item) => item.toString().toUpperCase())
+        .toList();
+    if (tags.isEmpty) return true;
+    return tags.contains(market);
+  }
+
+  /// Candidate swaps for a meal: same slot, same market, a different dish, and
+  /// one portion per dish. The old picker listed every variant in the
+  /// catalogue, so it offered breakfasts against dinners, meals from the other
+  /// market, and four other sizes of the meal already selected.
+  Iterable<Map<String, dynamic>> _alternativeOptions(
+    Map<String, dynamic> meal,
+    String query,
+  ) {
+    final plannedRecipeId = _stringValue(meal['planned_recipe_id']);
+    if (plannedRecipeId.isEmpty) return const <Map<String, dynamic>>[];
+
+    final mealType = _baseMealType(meal);
+    final selectedIds = (_asList(meal['alternative_variant_ids']) ?? const [])
+        .map((item) => item.toString())
+        .toSet();
+    final selectedRecipeIds = selectedIds
+        .map((id) => _stringValue(_variantById(id)?['recipe_id']))
+        .where((id) => id.isNotEmpty)
+        .toSet();
+    final target = _variantCalories(
+      _variantById(_stringValue(meal['planned_meal_variant_id'])) ??
+          const <String, dynamic>{},
+    );
+    final normalizedQuery = query.trim().toLowerCase();
+
+    final bestPerRecipe = <String, Map<String, dynamic>>{};
+    for (final variant in widget.availableVariants) {
+      final recipeId = _stringValue(variant['recipe_id']);
+      if (recipeId.isEmpty || recipeId == plannedRecipeId) continue;
+      if (selectedRecipeIds.contains(recipeId)) continue;
+      if (!_variantServesSlot(variant, mealType)) continue;
+      if (!_variantServesMarket(variant)) continue;
+      if (normalizedQuery.isNotEmpty &&
+          !_mealLabel(variant).toLowerCase().contains(normalizedQuery)) {
+        continue;
+      }
+      // Keep the portion that lands closest to the meal being replaced, so the
+      // day's calories barely move when a client takes the swap.
+      final current = bestPerRecipe[recipeId];
+      if (current == null ||
+          (_variantCalories(variant) - target).abs() <
+              (_variantCalories(current) - target).abs()) {
+        bestPerRecipe[recipeId] = variant;
+      }
+    }
+
+    final options = bestPerRecipe.values.toList()
+      ..sort((a, b) => (_variantCalories(a) - target)
+          .abs()
+          .compareTo((_variantCalories(b) - target).abs()));
+    return options.take(25);
+  }
+
+  void _addAlternative(Map<String, dynamic> meal, Map<String, dynamic> variant) {
+    setState(() {
+      final alternatives = List<dynamic>.from(
+          _asList(meal['alternative_variant_ids']) ?? const []);
+      alternatives.add(variant['variant_id']);
+      meal['alternative_variant_ids'] = alternatives;
+    });
+  }
+
+  /// Fills the meal up to three alternatives with the closest available swaps.
+  void _suggestAlternatives(Map<String, dynamic> meal) {
+    final existing = List<dynamic>.from(
+        _asList(meal['alternative_variant_ids']) ?? const []);
+    final suggestions = _alternativeOptions(meal, '')
+        .take(3 - existing.length.clamp(0, 3))
+        .map((variant) => variant['variant_id'])
+        .toList();
+    if (suggestions.isEmpty) return;
+    setState(() {
+      meal['alternative_variant_ids'] = [...existing, ...suggestions];
+    });
   }
 
   String _variantLabel(Map<String, dynamic> variant) {

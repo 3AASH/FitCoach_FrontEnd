@@ -395,6 +395,13 @@ class LanguageProvider with ChangeNotifier {
     'coach_workout_plan_saved': 'Plan saved',
     'coach_workout_plan_save_failed': 'Failed to save plan',
     'auth_full_name': 'Full Name',
+    'auth_complete_profile_desc':
+        'Your number is verified. Finish setting up your account.',
+    'auth_email_optional': 'Email (optional)',
+    'auth_password_min_length': 'At least 8 characters',
+    'auth_finish': 'Finish',
+    'auth_name_required': 'Please enter your name',
+    'auth_email_invalid': 'Please enter a valid email',
     'auth_email': 'Email',
     'auth_email_placeholder': 'name@example.com',
     'auth_password': 'Password',
@@ -415,6 +422,7 @@ class LanguageProvider with ChangeNotifier {
     'auth_password_too_short': 'Password must be at least 8 characters',
     'auth_send': 'Send',
     'auth_send_code': 'Send code',
+    'auth_continue': 'Continue',
     'auth_signup_code_sent_help':
         'Code sent. Enter the 6-digit code to finish creating your account.',
     'auth_cancel': 'Cancel',
@@ -498,6 +506,15 @@ class LanguageProvider with ChangeNotifier {
     'injury_lower_back': 'Lower Back',
     'injury_neck': 'Neck',
     'injury_ankle': 'Ankle',
+    'injury_wrist': 'Wrist',
+    'injury_elbow': 'Elbow',
+    'injury_hip': 'Hip',
+    'workouts_report_injury_title': 'Where are you injured?',
+    'workouts_report_injury_desc':
+        'Pick the injured area. We will swap every exercise in your plan that could aggravate it.',
+    'workouts_report_injury_submit': 'Update my plan',
+    'workouts_report_injury_done': 'Injury recorded and your plan was updated',
+    'workouts_report_injury_failed': 'Could not record the injury',
     'intake_prompt_title': 'Complete your workout intake',
     'intake_prompt_description':
         'Finish a short questionnaire to unlock a personalized plan or book a free call with your coach.',
@@ -909,6 +926,13 @@ class LanguageProvider with ChangeNotifier {
     'meal_detail_ingredients': 'Ingredients',
     'meal_detail_notes': 'Coach Notes',
     'meal_detail_swap': 'Swap Meal',
+    'meal_swap_title': 'Swap this meal',
+    'meal_swap_subtitle':
+        'Same meal slot, similar calories, and nothing you have told us to avoid.',
+    'meal_swap_none': 'No alternatives are available for this meal right now.',
+    'meal_swap_suggested': 'Suggested for this plan',
+    'meal_swap_failed': 'Could not swap this meal',
+    'meal_swap_done': 'Meal swapped',
 
     // Messaging
     'messages': 'Messages',
@@ -1706,6 +1730,11 @@ class LanguageProvider with ChangeNotifier {
     'plan_editor_portion': 'Portion',
     'plan_editor_select_meal_first': 'Select a meal first',
     'plan_editor_alternative_meals': 'Alternative meals (swap options)',
+    'plan_editor_alternative_scope':
+        'Same slot and market as this meal, one portion per dish.',
+    'plan_editor_alternative_pick_meal_first':
+        'Choose the meal first, then its swap options.',
+    'plan_editor_alternative_suggest': 'Suggest',
     'plan_editor_add_plan': 'Add plan',
     'plan_editor_add_ingredient_button': 'Add ingredient',
     'plan_editor_plan_type': 'Plan type',
@@ -1768,6 +1797,8 @@ class LanguageProvider with ChangeNotifier {
         'Every meal needs a meal and a portion selected',
     'plan_editor_error_workout_day_required':
         'At least one workout day is required',
+    'plan_editor_error_program_path_required':
+        'Choose which program variation to save these days into',
     'admin_exercise_search_hint': 'Search by ID or name',
     'admin_exercise_create_title': 'Create exercise',
     'admin_exercise_edit_title': 'Edit exercise',
@@ -1932,6 +1963,11 @@ class LanguageProvider with ChangeNotifier {
     'plan_editor_portion': 'حجم الحصة',
     'plan_editor_select_meal_first': 'اختر الوجبة أولاً',
     'plan_editor_alternative_meals': 'وجبات بديلة (خيارات التبديل)',
+    'plan_editor_alternative_scope':
+        'نفس التوقيت والسوق لهذه الوجبة، وحصة واحدة لكل طبق.',
+    'plan_editor_alternative_pick_meal_first':
+        'اختر الوجبة أولا ثم حدد بدائلها.',
+    'plan_editor_alternative_suggest': 'اقتراح',
     'plan_editor_add_plan': 'إضافة خطة',
     'plan_editor_add_ingredient_button': 'إضافة مكون',
     'plan_editor_plan_type': 'نوع الخطة',
@@ -1993,6 +2029,8 @@ class LanguageProvider with ChangeNotifier {
         'يجب اختيار الوجبة وحجم الحصة لكل وجبة',
     'plan_editor_error_workout_day_required':
         'يجب إضافة يوم تمرين واحد على الأقل',
+    'plan_editor_error_program_path_required':
+        'اختر نسخة البرنامج التي ستُحفظ فيها هذه الأيام',
     'admin_exercise_search_hint': 'ابحث بالمعرف أو الاسم',
     'admin_exercise_create_title': 'إنشاء تمرين',
     'admin_exercise_edit_title': 'تعديل تمرين',
@@ -2032,6 +2070,13 @@ class LanguageProvider with ChangeNotifier {
     'meal_detail_ingredients': 'المكونات',
     'meal_detail_notes': 'ملاحظات المدرب',
     'meal_detail_swap': 'استبدال الوجبة',
+    'meal_swap_title': 'استبدال هذه الوجبة',
+    'meal_swap_subtitle':
+        'نفس توقيت الوجبة، وسعرات قريبة، وبدون أي صنف طلبت تجنبه.',
+    'meal_swap_none': 'لا توجد بدائل متاحة لهذه الوجبة حاليا.',
+    'meal_swap_suggested': 'مقترحة لهذه الخطة',
+    'meal_swap_failed': 'تعذر استبدال الوجبة',
+    'meal_swap_done': 'تم استبدال الوجبة',
     'home_manage_subscription': 'إدارة الاشتراك',
     // --- Added for workout timer screen ---
     'reps': 'تكرارات',
@@ -2430,6 +2475,13 @@ class LanguageProvider with ChangeNotifier {
     'coach_workout_plan_saved': 'تم حفظ الخطة',
     'coach_workout_plan_save_failed': 'فشل حفظ الخطة',
     'auth_full_name': 'الاسم الكامل',
+    'auth_complete_profile_desc':
+        'تم تأكيد رقمك. أكمل إعداد حسابك.',
+    'auth_email_optional': 'البريد الإلكتروني (اختياري)',
+    'auth_password_min_length': '8 أحرف على الأقل',
+    'auth_finish': 'إنهاء',
+    'auth_name_required': 'الرجاء إدخال اسمك',
+    'auth_email_invalid': 'الرجاء إدخال بريد إلكتروني صحيح',
     'auth_email': 'البريد الإلكتروني',
     'auth_email_placeholder': 'name@example.com',
     'auth_password': 'كلمة المرور',
@@ -2450,6 +2502,7 @@ class LanguageProvider with ChangeNotifier {
     'auth_password_too_short': 'يجب أن تتكون كلمة المرور من 8 أحرف على الأقل',
     'auth_send': 'إرسال',
     'auth_send_code': 'إرسال الرمز',
+    'auth_continue': 'متابعة',
     'auth_signup_code_sent_help':
         'تم إرسال الرمز. أدخل رمز التحقق المكون من 6 أرقام لإكمال إنشاء الحساب.',
     'auth_cancel': 'إلغاء',
@@ -3406,6 +3459,15 @@ class LanguageProvider with ChangeNotifier {
     'injury_lower_back': 'أسفل الظهر',
     'injury_neck': 'الرقبة',
     'injury_ankle': 'الكاحل',
+    'injury_wrist': 'الرسغ',
+    'injury_elbow': 'المرفق',
+    'injury_hip': 'الورك',
+    'workouts_report_injury_title': 'ما هو موضع الإصابة؟',
+    'workouts_report_injury_desc':
+        'اختر موضع الإصابة، وسنستبدل كل تمرين في خطتك قد يزيدها سوءًا.',
+    'workouts_report_injury_submit': 'حدّث خطتي',
+    'workouts_report_injury_done': 'تم تسجيل الإصابة وتحديث خطتك',
+    'workouts_report_injury_failed': 'لم نتمكن من تسجيل الإصابة',
     'intake_prompt_title': 'أكمل استبيان التمرين',
     'intake_prompt_description':
         'أكمل بعض الأسئلة لفتح خطة مخصصة أو احجز مكالمة مجانية مع المدرب.',
