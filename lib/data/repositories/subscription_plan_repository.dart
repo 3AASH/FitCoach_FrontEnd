@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/config/api_config.dart';
 import '../models/subscription_plan.dart';
@@ -34,6 +35,21 @@ class SubscriptionPlanRepository {
     );
   }
 
+  void _debugLog(String message) {
+    if (kDebugMode) {
+      debugPrint(message);
+    }
+  }
+
+  String _errorMessage(DioException e, String fallback) {
+    final data = e.response?.data;
+    if (data is Map && data['message'] is String) {
+      return data['message'] as String;
+    }
+    final status = e.response?.statusCode;
+    return status != null ? '$fallback (status $status)' : fallback;
+  }
+
   Map<String, dynamic> _toBackendPayload(SubscriptionPlan plan) {
     return {
       'name': plan.name,
@@ -58,35 +74,47 @@ class SubscriptionPlanRepository {
           .map((json) => SubscriptionPlan.fromJson(json as Map<String, dynamic>))
           .toList();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to load plans');
+      throw Exception(_errorMessage(e, 'Failed to load plans'));
     }
   }
 
   Future<SubscriptionPlan> createPlan(SubscriptionPlan plan) async {
+    const endpoint = '/admin/subscriptions/plans';
+    _debugLog('[SubscriptionPlanRepository] POST ${_dio.options.baseUrl}$endpoint');
     try {
       final response = await _dio.post(
-        '/admin/subscriptions/plans',
+        endpoint,
         data: _toBackendPayload(plan),
         options: await _getAuthOptions(),
       );
+      _debugLog(
+          '[SubscriptionPlanRepository] $endpoint status=${response.statusCode ?? 'unknown'} body=${response.data}');
       final data = response.data as Map<String, dynamic>;
       return SubscriptionPlan.fromJson(data['plan'] as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to create plan');
+      _debugLog(
+          '[SubscriptionPlanRepository] $endpoint failed type=${e.type} status=${e.response?.statusCode ?? 'unknown'} body=${e.response?.data}');
+      throw Exception(_errorMessage(e, 'Failed to create plan'));
     }
   }
 
   Future<SubscriptionPlan> updatePlan(SubscriptionPlan plan) async {
+    final endpoint = '/admin/subscriptions/plans/${plan.id}';
+    _debugLog('[SubscriptionPlanRepository] PUT ${_dio.options.baseUrl}$endpoint');
     try {
       final response = await _dio.put(
-        '/admin/subscriptions/plans/${plan.id}',
+        endpoint,
         data: _toBackendPayload(plan),
         options: await _getAuthOptions(),
       );
+      _debugLog(
+          '[SubscriptionPlanRepository] $endpoint status=${response.statusCode ?? 'unknown'} body=${response.data}');
       final data = response.data as Map<String, dynamic>;
       return SubscriptionPlan.fromJson(data['plan'] as Map<String, dynamic>);
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to update plan');
+      _debugLog(
+          '[SubscriptionPlanRepository] $endpoint failed type=${e.type} status=${e.response?.statusCode ?? 'unknown'} body=${e.response?.data}');
+      throw Exception(_errorMessage(e, 'Failed to update plan'));
     }
   }
 
@@ -97,7 +125,7 @@ class SubscriptionPlanRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to delete plan');
+      throw Exception(_errorMessage(e, 'Failed to delete plan'));
     }
   }
 
@@ -110,7 +138,7 @@ class SubscriptionPlanRepository {
       );
       return response.data as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to load subscription');
+      throw Exception(_errorMessage(e, 'Failed to load subscription'));
     }
   }
 
@@ -126,7 +154,7 @@ class SubscriptionPlanRepository {
       final data = response.data as Map<String, dynamic>;
       return data['request'] as Map<String, dynamic>;
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to submit subscription request');
+      throw Exception(_errorMessage(e, 'Failed to submit subscription request'));
     }
   }
 
@@ -137,7 +165,7 @@ class SubscriptionPlanRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to cancel subscription request');
+      throw Exception(_errorMessage(e, 'Failed to cancel subscription request'));
     }
   }
 
@@ -153,7 +181,7 @@ class SubscriptionPlanRepository {
       final requests = data['requests'] as List? ?? [];
       return requests.cast<Map<String, dynamic>>();
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to load subscription requests');
+      throw Exception(_errorMessage(e, 'Failed to load subscription requests'));
     }
   }
 
@@ -165,7 +193,7 @@ class SubscriptionPlanRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to approve request');
+      throw Exception(_errorMessage(e, 'Failed to approve request'));
     }
   }
 
@@ -177,7 +205,7 @@ class SubscriptionPlanRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(e.response?.data['message'] ?? 'Failed to reject request');
+      throw Exception(_errorMessage(e, 'Failed to reject request'));
     }
   }
 }
