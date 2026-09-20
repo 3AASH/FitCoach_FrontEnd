@@ -223,7 +223,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
         await prefs.setBool(pendingKey, true);
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(error.toString())),
+            SnackBar(
+              content: Text(error.toString()),
+              backgroundColor: AppColors.error,
+            ),
           );
         }
         return;

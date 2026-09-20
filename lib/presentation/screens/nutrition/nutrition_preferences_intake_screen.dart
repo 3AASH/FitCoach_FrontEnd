@@ -223,7 +223,7 @@ class _NutritionPreferencesIntakeScreenState
               children: [
                 Expanded(
                   child: OutlinedButton(
-                    onPressed: widget.onBack,
+                    onPressed: _saving ? null : widget.onBack,
                     child: Text(lang.t('nutrition_intake_back')),
                   ),
                 ),
@@ -231,7 +231,17 @@ class _NutritionPreferencesIntakeScreenState
                 Expanded(
                   child: ElevatedButton(
                     onPressed: _saving ? null : _submit,
-                    child: Text(lang.t('nutrition_intake_complete')),
+                    child: _saving
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(lang.t('nutrition_intake_complete')),
                   ),
                 ),
               ],
