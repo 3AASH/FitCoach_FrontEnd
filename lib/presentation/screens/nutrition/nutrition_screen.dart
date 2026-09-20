@@ -71,10 +71,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
       return;
     }
 
-    if (provider.activePlan == null) {
-      await provider.loadIntakeRequirements(planType: 'starter');
-      if (!mounted) return;
-    }
+    // Always ask the server what is still missing, even when a plan exists. A
+    // plan can predate the preference questions (or have been generated from
+    // defaults), so "has a plan" is not evidence the client ever answered them.
+    await provider.loadIntakeRequirements();
+    if (!mounted) return;
 
     await _loadPreferencesFlag(hasPlan: provider.activePlan != null);
     final history = await NutritionRepository().getNutritionHistory();
@@ -131,23 +132,30 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
 
-    if (hasPlan) {
-      await prefs.setBool(completedKey, true);
-      await prefs.setBool(pendingKey, false);
+    // The server's missing-field list wins over any local flag. This used to
+    // short-circuit on `hasPlan` and write completed=true, which meant a plan
+    // created from defaults permanently convinced the client that the
+    // preference questions had been answered when they never were.
+    final requirements = nutritionProvider.intakeRequirements;
+    if (requirements != null) {
+      final complete = requirements.isComplete;
+      await prefs.setBool(completedKey, complete);
+      await prefs.setBool(pendingKey, !complete);
       if (mounted) {
         setState(() {
-          _showPreferencesIntake = false;
+          _showPreferencesIntake = !complete;
           _preferencesLoaded = true;
         });
       }
       return;
     }
 
-    if (nutritionProvider.intakeRequirements != null) {
+    // Requirements unavailable (offline, or the call failed). An existing plan
+    // is then the best evidence the questions were answered at some point.
+    if (hasPlan) {
       if (mounted) {
         setState(() {
-          _showPreferencesIntake =
-              !nutritionProvider.intakeRequirements!.isComplete;
+          _showPreferencesIntake = false;
           _preferencesLoaded = true;
         });
       }
@@ -1637,17 +1645,33 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
+                  // Swapping a logged meal is refused by the server with a 409,
+                  // so the action is dimmed once it has been logged and the
+                  // reason is spelled out underneath.
                   child: OutlinedButton.icon(
-                    onPressed: () async {
-                      // Close the detail sheet first so the swap list is not
-                      // stacked on top of a sheet showing the old meal.
-                      Navigator.of(context).pop();
-                      await _openMealSwap(meal);
-                    },
+                    onPressed: meal.completed
+                        ? null
+                        : () async {
+                            // Close the detail sheet first so the swap list is
+                            // not stacked on top of a sheet showing the old meal.
+                            Navigator.of(context).pop();
+                            await _openMealSwap(meal);
+                          },
                     icon: const Icon(Icons.swap_horiz),
                     label: Text(lang.t('meal_detail_swap')),
                   ),
                 ),
+                if (meal.completed) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    lang.t('meal_swap_already_logged'),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

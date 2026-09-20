@@ -152,12 +152,27 @@ class MealDetailScreen extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 24),
+          // The server refuses a swap once the meal is logged (409
+          // already_logged). Dim the action and say why, rather than letting
+          // the client discover it from an error after a round trip.
           CustomButton(
             text: lang.t('meal_detail_swap'),
-            onPressed: () => _showSwapDialog(context, lang),
+            onPressed:
+                meal.completed ? null : () => _showSwapDialog(context, lang),
             variant: ButtonVariant.secondary,
             fullWidth: true,
           ),
+          if (meal.completed) ...[
+            const SizedBox(height: 8),
+            Text(
+              lang.t('meal_swap_already_logged'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                color: AppColors.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -267,8 +282,19 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
       setState(() {
         _applyingVariantId = null;
         // Show the reason the server gave, which distinguishes "already
-        // logged" from "not an option" rather than flattening both.
-        _error = provider.error ?? context.read<LanguageProvider>().t('meal_swap_failed');
+        // logged" from "not an option" rather than flattening both. The
+        // provider stores `Exception.toString()`, so strip that prefix -- it
+        // was being shown to the client verbatim as "Exception: ...".
+        var reason = provider.error?.trim() ?? '';
+        for (final prefix in const ['Exception:', '_Exception:', 'DioException:']) {
+          if (reason.startsWith(prefix)) {
+            reason = reason.substring(prefix.length).trim();
+            break;
+          }
+        }
+        _error = reason.isNotEmpty
+            ? reason
+            : context.read<LanguageProvider>().t('meal_swap_failed');
       });
       return;
     }
@@ -280,6 +306,15 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
     final alternatives = _alternatives;
+
+    // The list rows carried no colour of their own and the light theme's
+    // listTileTheme.titleTextStyle has none either, so the meal names were left
+    // to whatever colour the surrounding sheet happened to inherit -- white on
+    // a white sheet in light mode. Resolve against the sheet's own surface so
+    // both themes stay readable.
+    final colors = Theme.of(context).colorScheme;
+    final onSurface = colors.onSurface;
+    final onSurfaceVariant = colors.onSurfaceVariant;
 
     return SafeArea(
       child: Padding(
@@ -293,8 +328,10 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
                 Expanded(
                   child: Text(
                     lang.t('meal_swap_title'),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.w700),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: onSurface),
                   ),
                 ),
                 IconButton(
@@ -344,12 +381,16 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       enabled: _applyingVariantId == null,
-                      title: Text(alternative.displayName(isArabic)),
+                      title: Text(
+                        alternative.displayName(isArabic),
+                        style: TextStyle(color: onSurface),
+                      ),
                       subtitle: Text(
                         '${alternative.calories} ${lang.t('cal_unit')}$deltaText  •  '
                         '${alternative.protein.round()}P '
                         '${alternative.carbs.round()}C '
                         '${alternative.fats.round()}F',
+                        style: TextStyle(color: onSurfaceVariant),
                       ),
                       leading: alternative.suggestedByTemplate
                           ? Tooltip(

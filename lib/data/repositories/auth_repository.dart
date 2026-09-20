@@ -167,6 +167,16 @@ class AuthRepository implements AuthRepositoryBase {
     String? email,
   }) async {
     try {
+      // complete-registration sits behind authMiddleware and there is no
+      // Authorization interceptor on this Dio instance, so the token verify-otp
+      // issued has to be attached by hand the way every other guarded call here
+      // does. Without it the request arrives anonymous and the server answers
+      // 401 "No token provided" at the last step of sign-up.
+      final token = await getStoredToken();
+      if (token == null) {
+        throw Exception('Your session expired. Please verify your phone again.');
+      }
+
       final response = await _dio.post(
         '$_authBasePath/complete-registration',
         data: {
@@ -174,6 +184,7 @@ class AuthRepository implements AuthRepositoryBase {
           'password': password,
           if (email != null && email.trim().isNotEmpty) 'email': email.trim(),
         },
+        options: Options(headers: {'Authorization': 'Bearer $token'}),
       );
       final data = response.data as Map<String, dynamic>;
       return AuthResponse(

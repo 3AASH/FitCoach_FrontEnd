@@ -224,12 +224,17 @@ class NutritionProvider extends ChangeNotifier {
     }
   }
 
+  /// [planType] defaults to null, which lets the server pick from the user's
+  /// subscription tier. Passing 'starter' unconditionally (as every caller used
+  /// to) asked premium clients the starter question set, while /nutrition/generate
+  /// derives the plan type from the tier and then rejects the answers with a 422
+  /// for the professional-only fields the form never showed.
   Future<NutritionIntakeRequirements?> loadIntakeRequirements({
-    String planType = 'starter',
+    String? planType,
   }) async {
     if (DemoConfig.isDemo) {
       _intakeRequirements = NutritionIntakeRequirements(
-        planType: planType,
+        planType: planType ?? 'starter',
         missingFields: const [],
         questions: const [],
         access: _accessStatus,

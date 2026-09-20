@@ -68,15 +68,13 @@ class _NutritionPreferencesIntakeScreenState
     }
   }
 
-  /// The questions this form asks, which deliberately do not depend on what is
-  /// already answered. The screen used to render only the fields the server
-  /// reported missing, plus two extras in edit mode, so a client who came back
-  /// to change a preference was shown a different questionnaire than the one
-  /// they first filled in. Everything is shown every time and prefilled from
-  /// the saved context, which makes this a review screen rather than a quiz.
+  /// Every question this form can ask, prefilled from the saved context. Used
+  /// as-is when reviewing preferences, and as the fallback when the server did
+  /// not tell us what is missing.
   ///
-  /// `sex` is absent on purpose: the first workout intake owns that question.
-  List<String> get _fields => [
+  /// `sex` is absent on purpose: the first workout intake owns that question,
+  /// and the caller redirects there instead of asking it here.
+  List<String> get _allFields => [
         'age',
         'height_cm',
         'weight_kg',
@@ -88,6 +86,27 @@ class _NutritionPreferencesIntakeScreenState
         if (widget.planType != 'starter') 'meals_per_day',
         if (widget.planType != 'starter') 'medical_nutrition_safety_screen',
       ];
+
+  /// What this run actually asks.
+  ///
+  /// On a first pass we ask only what the server reported missing, so the
+  /// questions the workout intakes already own (age, height, weight, goal,
+  /// training days) are not put to the client a second time -- the server
+  /// fills those from `user_intake` and omits them from `missingFields`.
+  ///
+  /// Edit mode is the exception: the client came here to change an answer, so
+  /// the whole form is shown as a review even though nothing is missing.
+  List<String> get _fields {
+    final missing = widget.missingFields;
+    if (widget.editMode || missing == null || missing.isEmpty) {
+      return _allFields;
+    }
+
+    // 'sex' arrives without a question descriptor and is handled by the
+    // redirect to the first intake, so it must not become an empty section.
+    final asked = missing.where((field) => field != 'sex').toList();
+    return asked.isEmpty ? _allFields : asked;
+  }
 
   @override
   void dispose() {

@@ -45,13 +45,17 @@ class NutritionRepository {
     }
   }
 
+  /// Omitting [planType] lets the server derive it from the subscription tier,
+  /// which is what /nutrition/generate does when it validates the answers.
   Future<NutritionIntakeRequirements> getIntakeRequirements({
-    String planType = 'starter',
+    String? planType,
   }) async {
     try {
       final response = await _dio.get(
         '/nutrition/intake/requirements',
-        queryParameters: {'planType': planType},
+        queryParameters: {
+          if (planType != null) 'planType': planType,
+        },
         options: await _getAuthOptions(),
       );
 

@@ -933,6 +933,8 @@ class LanguageProvider with ChangeNotifier {
     'meal_swap_suggested': 'Suggested for this plan',
     'meal_swap_failed': 'Could not swap this meal',
     'meal_swap_done': 'Meal swapped',
+    'meal_swap_already_logged':
+        'You have already logged this meal, so it can no longer be swapped.',
 
     // Messaging
     'messages': 'Messages',
@@ -2077,6 +2079,8 @@ class LanguageProvider with ChangeNotifier {
     'meal_swap_suggested': 'مقترحة لهذه الخطة',
     'meal_swap_failed': 'تعذر استبدال الوجبة',
     'meal_swap_done': 'تم استبدال الوجبة',
+    'meal_swap_already_logged':
+        'لقد سجلت هذه الوجبة بالفعل، لذلك لم يعد بالإمكان استبدالها.',
     'home_manage_subscription': 'إدارة الاشتراك',
     // --- Added for workout timer screen ---
     'reps': 'تكرارات',
