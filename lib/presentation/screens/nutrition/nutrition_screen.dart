@@ -250,6 +250,49 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
   }
 
+  // The single "finish your workout intake" screen. Both reasons the nutrition
+  // tab can be blocked on an intake render through here so the user only ever
+  // sees one such screen, and it always lands on the intake that is actually
+  // outstanding instead of restarting from the first one.
+  Widget _buildIntakeGate({
+    required LanguageProvider languageProvider,
+    required bool isArabic,
+    required bool needsFirstIntake,
+    required String message,
+  }) {
+    void completed() {
+      Navigator.of(context).pop();
+      _loadNutritionState();
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(message, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => needsFirstIntake
+                      ? FirstIntakeScreen(
+                          onComplete: completed,
+                          onSkip: () => Navigator.of(context).pop(),
+                        )
+                      : SecondIntakeScreen(onComplete: completed),
+                )),
+                child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
@@ -264,13 +307,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
     }
 
-    if (_showIntro) {
-      return NutritionIntroScreen(onGetStarted: _completeIntro);
-    }
-
-    // Check access
-    final canAccess = nutritionProvider.canAccessNutrition(subscriptionTier);
-
     if (nutritionProvider.isLoading) {
       return const Scaffold(
         body: Center(
@@ -279,72 +315,50 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
     }
 
-    // Locked for non-premium tiers
+    // Check access
+    final canAccess = nutritionProvider.canAccessNutrition(subscriptionTier);
+
+    // The workout intakes come first, ahead of both the onboarding screen and
+    // the preference questions. They used to be spread over two branches on
+    // either side of the intro, so a user missing a first-intake field was sent
+    // to an intake screen, shown the intro, then sent to an intake screen
+    // again -- the "multiple intakes" this is meant to stop. There is now one
+    // gate, and it is the first thing this screen can render.
+    final requiresIntakes =
+        !canAccess && nutritionProvider.accessStatus?.requiresIntakes == true;
+    // A field the first intake owns is still missing, so send the client there
+    // rather than asking the same question again on the nutrition form.
+    final requiresFirstIntakeField = _showPreferencesIntake &&
+        nutritionProvider.intakeRequirements?.requiresFirstIntake == true;
+
+    if (requiresIntakes || requiresFirstIntakeField) {
+      final firstIntakeDone =
+          authProvider.user?.hasCompletedFirstIntake == true &&
+              !requiresFirstIntakeField;
+      return _buildIntakeGate(
+        languageProvider: languageProvider,
+        isArabic: isArabic,
+        needsFirstIntake: !firstIntakeDone,
+        message: requiresIntakes
+            ? (nutritionProvider.accessMessage(isArabic: isArabic) ??
+                (isArabic
+                    ? 'أكمل الاستبيان الأول والثاني قبل بدء التغذية.'
+                    : 'Complete your first and second intake before starting nutrition.'))
+            : (isArabic
+                ? 'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.'
+                : 'We need your basic profile details first so we can calculate your calorie needs.'),
+      );
+    }
+
     if (!canAccess) {
-      if (nutritionProvider.accessStatus?.requiresIntakes == true) {
-        void completed() {
-          Navigator.of(context).pop();
-          _loadNutritionState();
-        }
-        return Scaffold(
-          appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
-          body: Center(child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(mainAxisSize: MainAxisSize.min, children: [
-              Text(nutritionProvider.accessMessage(isArabic: isArabic) ?? '', textAlign: TextAlign.center),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                  builder: (_) => authProvider.user?.hasCompletedFirstIntake != true
-                      ? FirstIntakeScreen(onComplete: completed, onSkip: () => Navigator.of(context).pop())
-                      : SecondIntakeScreen(onComplete: completed),
-                )),
-                child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
-              ),
-            ]),
-          )),
-        );
-      }
       return _buildLockedAccess(languageProvider, isArabic);
     }
 
-    // A field the first intake owns is missing, so send the client there
-    // rather than asking the same question again on the nutrition form.
-    if (_showPreferencesIntake &&
-        nutritionProvider.intakeRequirements?.requiresFirstIntake == true) {
-      void completed() {
-        Navigator.of(context).pop();
-        _loadNutritionState();
-      }
-      return Scaffold(
-        appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isArabic
-                      ? 'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.'
-                      : 'We need your basic profile details first so we can calculate your calorie needs.',
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).push(MaterialPageRoute(
-                    builder: (_) => FirstIntakeScreen(
-                      onComplete: completed,
-                      onSkip: () => Navigator.of(context).pop(),
-                    ),
-                  )),
-                  child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
+    // Onboarding sits between the intakes and the questions: by here the user
+    // has everything the plan needs from the workout side, so the intro is an
+    // introduction to nutrition rather than an interruption before a gate.
+    if (_showIntro) {
+      return NutritionIntroScreen(onGetStarted: _completeIntro);
     }
 
     if (_showPreferencesIntake) {
@@ -437,10 +451,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               onPressed: () async {
                                 await nutritionProvider.loadIntakeRequirements(
                                   planType: subscriptionTier.toLowerCase() == 'freemium' ? 'starter' : 'professional');
-                                if (mounted) setState(() {
-                                  _editingPreferences = true;
-                                  _showPreferencesIntake = true;
-                                });
+                                if (mounted) {
+                                  setState(() {
+                                    _editingPreferences = true;
+                                    _showPreferencesIntake = true;
+                                  });
+                                }
                               },
                               tooltip: languageProvider
                                   .t('nutrition_edit_preferences'),

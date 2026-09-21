@@ -289,8 +289,11 @@ class NutritionProvider extends ChangeNotifier {
   bool canAccessNutrition(String subscriptionTier) {
     if (DemoConfig.isDemo) return true;
     if (_accessStatus != null) return _accessStatus!.hasAccess;
-    final tier = subscriptionTier.trim().toLowerCase();
-    return tier == 'premium' || tier == 'smart premium';
+    // No server answer yet (first frame, or the call failed). Nutrition is not
+    // behind a tier at the moment, so falling back to a premium-only tier test
+    // would flash the paywall at everyone else for something the server is
+    // about to allow. The server response still wins as soon as it arrives.
+    return true;
   }
 
   bool checkFreemiumAccess(String tier, DateTime trialStartDate) {
