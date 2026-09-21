@@ -57,6 +57,67 @@ class CoachRepository {
     return Options(headers: {'Authorization': 'Bearer $token'});
   }
 
+  /// The exercise library the coach plan builders search.
+  ///
+  /// This is the same `/exercises` listing the client app reads; it is
+  /// authenticated but not role-gated, so no backend change was needed to let
+  /// coaches browse it.
+  Future<List<Map<String, dynamic>>> getExerciseLibrary({
+    String? search,
+    int limit = 200,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/exercises',
+        queryParameters: {
+          'limit': limit,
+          if (search != null && search.trim().isNotEmpty) 'search': search,
+        },
+        options: await _getAuthOptions(),
+      );
+
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = _asList(data['exercises']) ?? const <dynamic>[];
+      return list
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .where((item) => item.isNotEmpty)
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_asMap(e.response?.data)?['message'] ??
+          'Failed to load the exercise library');
+    }
+  }
+
+  /// The recipe library the coach nutrition builders search.
+  ///
+  /// Backed by a coach-readable endpoint rather than the admin recipe listing,
+  /// which is admin-only and carries moderation columns.
+  Future<List<Map<String, dynamic>>> getRecipeLibrary({
+    String? search,
+    int limit = 200,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/library/recipes',
+        queryParameters: {
+          'limit': limit,
+          if (search != null && search.trim().isNotEmpty) 'search': search,
+        },
+        options: await _getAuthOptions(),
+      );
+
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = _asList(data['recipes']) ?? const <dynamic>[];
+      return list
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .where((item) => item.isNotEmpty)
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_asMap(e.response?.data)?['message'] ??
+          'Failed to load the recipe library');
+    }
+  }
+
   /// Get coach's clients
   Future<List<CoachClient>> getClients({
     required String coachId,

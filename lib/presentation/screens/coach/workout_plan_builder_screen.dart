@@ -6,6 +6,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/library_picker_field.dart';
+import 'plan_library_options.dart';
 
 class WorkoutPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -36,7 +38,15 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
   void initState() {
     super.initState();
     _initializeWorkoutDays();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<CoachProvider>().loadPlanLibraries();
+    });
   }
+
+  List<ExerciseLibraryOption> get _exerciseOptions =>
+      ExerciseLibraryOption.fromRows(
+          context.read<CoachProvider>().exerciseLibrary);
 
   void _initializeWorkoutDays() {
     _workoutDays = List.generate(
@@ -489,6 +499,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
       context: context,
       builder: (context) {
         String exerciseName = '';
+        String? exerciseId;
         int sets = 3;
         int reps = 12;
 
@@ -499,12 +510,24 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      labelText: lang.t('coach_workout_builder_exercise_name'),
-                      hintText: lang.t('coach_workout_builder_exercise_name_hint'),
-                    ),
-                    onChanged: (value) => exerciseName = value,
+                  LibraryPickerField<ExerciseLibraryOption>(
+                    initialValue: exerciseName,
+                    labelText:
+                        lang.t('coach_workout_builder_exercise_name'),
+                    options: _exerciseOptions,
+                    optionLabel: (option) => option.name,
+                    optionDetail: (option) => option.detail,
+                    onTextChanged: (value) {
+                      exerciseName = value;
+                      // Typing over a picked exercise makes it a custom entry
+                      // again; keeping the old id would file the new name
+                      // under the previous library row.
+                      exerciseId = null;
+                    },
+                    onSelected: (option) {
+                      exerciseName = option.name;
+                      exerciseId = option.id;
+                    },
                   ),
                   const SizedBox(height: 16),
                   Row(
@@ -544,6 +567,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                     setState(() {
                       (_workoutDays[dayIndex]['exercises'] as List).add({
                         'name': exerciseName,
+                        if (exerciseId != null) 'exerciseId': exerciseId,
                         'sets': sets,
                         'reps': reps,
                       });

@@ -8,6 +8,8 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/library_picker_field.dart';
+import 'plan_library_options.dart';
 
 class WorkoutPlanEditorScreen extends StatefulWidget {
   final String clientId;
@@ -40,7 +42,18 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
   void initState() {
     super.initState();
     _loadCurrentPlan();
+    // Reference data for the exercise picker. Deliberately not awaited: the
+    // field falls back to plain free text while it is in flight, so the editor
+    // stays usable if the library is slow or unavailable.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<CoachProvider>().loadPlanLibraries();
+    });
   }
+
+  List<ExerciseLibraryOption> get _exerciseOptions =>
+      ExerciseLibraryOption.fromRows(
+          context.watch<CoachProvider>().exerciseLibrary);
 
   @override
   void dispose() {
@@ -395,18 +408,34 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: TextFormField(
+                                            child: LibraryPickerField<
+                                                ExerciseLibraryOption>(
                                               initialValue:
                                                   _asString(ex['name']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: InputDecoration(
-                                                labelText: lang.t(
-                                                  'plan_editor_exercise_name',
-                                                ),
+                                              labelText: lang.t(
+                                                'plan_editor_exercise_name',
                                               ),
-                                              onChanged: (value) =>
+                                              options: _exerciseOptions,
+                                              optionLabel: (option) =>
+                                                  option.name,
+                                              optionDetail: (option) =>
+                                                  option.detail,
+                                              onTextChanged: (value) =>
                                                   _updateExercise(dayIndex,
                                                       exIndex, 'name', value),
+                                              onSelected: (option) {
+                                                // Carry the id, not just the
+                                                // label: the name alone is what
+                                                // let a plan reference an
+                                                // exercise the library has
+                                                // never heard of.
+                                                _updateExercise(dayIndex,
+                                                    exIndex, 'name', option.name);
+                                                _updateExercise(dayIndex,
+                                                    exIndex, 'exerciseId',
+                                                    option.id);
+                                              },
                                             ),
                                           ),
                                           IconButton(

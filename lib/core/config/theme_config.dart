@@ -77,7 +77,14 @@ class AppThemeConfig {
           borderRadius: BorderRadius.circular(AppRadius.medium),
           borderSide: const BorderSide(color: AppColors.error, width: 2),
         ),
-        labelStyle: AppTextStyles.label,
+        // Every style handed to a sub-theme carries its own colour. A style
+        // with a null colour inherits from whatever DefaultTextStyle happens to
+        // be in scope, which inside overlays (menus, sheets, autocomplete
+        // popups) is not the page's text colour and has been rendering as
+        // white-on-white here.
+        labelStyle: AppTextStyles.label.copyWith(color: AppColors.textSecondary),
+        floatingLabelStyle:
+            AppTextStyles.label.copyWith(color: AppColors.textSecondary),
         hintStyle: AppTextStyles.body.copyWith(color: AppColors.textDisabled),
         errorStyle: AppTextStyles.small.copyWith(color: AppColors.error),
       ),
@@ -300,11 +307,58 @@ class AppThemeConfig {
       // List tile theme
       listTileTheme: ListTileThemeData(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        titleTextStyle: AppTextStyles.body,
+        // This one had no colour while the dark theme's equivalent did, which
+        // is why list rows inside bottom sheets (the meal swap list) came out
+        // invisible in light mode.
+        titleTextStyle: AppTextStyles.body.copyWith(
+          color: AppColors.textPrimary,
+        ),
         subtitleTextStyle: AppTextStyles.small.copyWith(
           color: AppColors.textSecondary,
         ),
         iconColor: AppColors.textPrimary,
+      ),
+
+      // Overlay surfaces. None of these were themed, so menus, dropdowns and
+      // sheets fell back to Material defaults whose text colour does not track
+      // this palette. Autocomplete's suggestion list is one of them.
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.background,
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: AppColors.background,
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: AppColors.background,
+        surfaceTintColor: Colors.transparent,
+        textStyle: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.medium),
+        ),
+      ),
+      dropdownMenuTheme: DropdownMenuThemeData(
+        textStyle: AppTextStyles.body.copyWith(color: AppColors.textPrimary),
+        menuStyle: const MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(AppColors.background),
+          surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        ),
+      ),
+      menuTheme: const MenuThemeData(
+        style: MenuStyle(
+          backgroundColor: WidgetStatePropertyAll(AppColors.background),
+          surfaceTintColor: WidgetStatePropertyAll(Colors.transparent),
+        ),
+      ),
+      expansionTileTheme: const ExpansionTileThemeData(
+        textColor: AppColors.textPrimary,
+        collapsedTextColor: AppColors.textPrimary,
+        iconColor: AppColors.textPrimary,
+        collapsedIconColor: AppColors.textPrimary,
+      ),
+      tabBarTheme: const TabBarThemeData(
+        labelColor: AppColors.primary,
+        unselectedLabelColor: AppColors.textSecondary,
+        labelStyle: AppTextStyles.smallMedium,
+        unselectedLabelStyle: AppTextStyles.small,
       ),
     );
   }
