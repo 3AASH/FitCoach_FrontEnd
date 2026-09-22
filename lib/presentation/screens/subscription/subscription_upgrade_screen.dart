@@ -9,6 +9,7 @@ import '../../providers/subscription_plan_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../../data/models/subscription_plan.dart';
+import '../../../core/theme/app_palette.dart';
 
 class SubscriptionUpgradeScreen extends StatefulWidget {
   final String? requiredTier; // 'premium' or 'smart_premium'
@@ -113,8 +114,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                       const SizedBox(height: 8),
                       Text(
                         tr('subscription_upgrade_subtitle'),
-                        style: const TextStyle(
-                            fontSize: 14, color: AppColors.textSecondary),
+                        style: TextStyle(
+                            fontSize: 14, color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 24),
                       _buildBillingCycleToggle(languageProvider),
@@ -177,8 +178,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                       const SizedBox(height: 16),
                       Text(
                         tr('subscription_request_disclaimer'),
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textDisabled),
+                        style: TextStyle(
+                            fontSize: 12, color: context.palette.textDisabled),
                         textAlign: TextAlign.center,
                       ),
                     ],
@@ -192,9 +193,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
         languageProvider.t(key, args: args);
     return Container(
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       padding: const EdgeInsets.all(4),
       child: Row(
@@ -246,7 +247,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : AppColors.textPrimary,
+                color: isSelected ? Colors.white : context.palette.textPrimary,
               ),
             ),
             if (badge != null) ...[
@@ -304,11 +305,11 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : context.palette.border,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(16),
-          color: isCurrent ? AppColors.surface : Colors.white,
+          color: isCurrent ? context.palette.surfaceVariant : Colors.white,
         ),
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -376,7 +377,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                           : Icons.radio_button_unchecked,
                       color: _selectedPlanId == plan.id
                           ? AppColors.primary
-                          : AppColors.textSecondary,
+                          : context.palette.textSecondary,
                     ),
                   ),
               ],
@@ -385,9 +386,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               const SizedBox(height: 8),
               Text(
                 planDescription,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -408,9 +409,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                   padding: const EdgeInsets.only(bottom: 6),
                   child: Text(
                     '/$cycleUnitShort',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
@@ -420,9 +421,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               const SizedBox(height: 4),
               Text(
                 '${monthlyBreakdown.toStringAsFixed(0)} ${plan.currency}/$monthUnitFull',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
               ),
             ],
@@ -450,9 +451,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
             if (featureList.length > 5)
               Text(
                 tr('subscription_more_perks'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                   fontStyle: FontStyle.italic,
                 ),
               ),
@@ -618,7 +619,7 @@ class _EmptyPlansState extends StatelessWidget {
             Icon(
               Icons.auto_graph,
               size: 72,
-              color: AppColors.textDisabled.withValues(alpha: 0.5),
+              color: context.palette.textDisabled.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -630,7 +631,7 @@ class _EmptyPlansState extends StatelessWidget {
             Text(
               tr('subscription_empty_subtitle'),
               style:
-                  const TextStyle(fontSize: 14, color: AppColors.textSecondary),
+                  TextStyle(fontSize: 14, color: context.palette.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 enum ButtonVariant {
   primary,
@@ -131,7 +132,7 @@ class _CustomButtonState extends State<CustomButton> {
               textStyle: _getTextStyle(),
               side: BorderSide(
                 color: isDisabled
-                    ? AppColors.border
+                    ? context.palette.border
                     : AppColors.secondaryForeground,
                 width: 1,
               ),
@@ -153,7 +154,7 @@ class _CustomButtonState extends State<CustomButton> {
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               side: BorderSide(
-                color: isDisabled ? AppColors.border : AppColors.primary,
+                color: isDisabled ? context.palette.border : AppColors.primary,
                 width: 1.5,
               ),
               shape: RoundedRectangleBorder(

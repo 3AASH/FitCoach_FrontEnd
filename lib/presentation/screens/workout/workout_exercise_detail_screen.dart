@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutExerciseDetailScreen extends StatefulWidget {
   final Exercise exercise;
@@ -136,7 +137,7 @@ class _WorkoutExerciseDetailScreenState
                   child: Center(
                     child: Text(
                       lang.t('exercise_no_alternatives'),
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                     ),
                   ),
                 );
@@ -148,10 +149,10 @@ class _WorkoutExerciseDetailScreenState
                   children: [
                     Text(
                       lang.t('exercise_alternative_exercises'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.palette.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -164,19 +165,19 @@ class _WorkoutExerciseDetailScreenState
                           return ListTile(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: context.palette.border),
                             ),
                             title: Text(
                               alt.nameEn,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: context.palette.textPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             subtitle: Text(
                               '${alt.sets} ${lang.t('sets')} \u2022 ${alt.reps} ${lang.t('reps')}',
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: context.palette.textSecondary,
                               ),
                             ),
                             trailing: Icon(
@@ -292,8 +293,8 @@ class _WorkoutExerciseDetailScreenState
       child: Scaffold(
         body: Stack(
           children: [
-            const Positioned.fill(
-                child: ColoredBox(color: AppColors.background)),
+            Positioned.fill(
+                child: ColoredBox(color: context.palette.background)),
             SafeArea(
               child: Column(
                 children: [
@@ -390,13 +391,13 @@ class _WorkoutExerciseDetailScreenState
                           const SizedBox(height: 16),
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surface.withValues(alpha: 0.9),
+                              color: context.palette.surfaceVariant.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: context.palette.border),
                             ),
                             child: TabBar(
                               labelColor: AppColors.primary,
-                              unselectedLabelColor: AppColors.textSecondary,
+                              unselectedLabelColor: context.palette.textSecondary,
                               indicatorColor: AppColors.primary,
                               indicatorWeight: 3,
                               labelStyle:
@@ -674,7 +675,7 @@ class _QuickStat extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
         ),
       ],
     );
@@ -737,13 +738,13 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
       ),
     );
   }
@@ -763,7 +764,7 @@ class _TutorialOverlay extends StatelessWidget {
     final lang = context.watch<LanguageProvider>();
     return Positioned.fill(
       child: Container(
-        color: AppColors.textPrimary.withValues(alpha: 0.7),
+        color: context.palette.textPrimary.withValues(alpha: 0.7),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -870,8 +871,8 @@ class _TutorialStep extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                    fontSize: 12, color: context.palette.textSecondary),
               ),
             ],
           ),

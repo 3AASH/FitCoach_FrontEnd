@@ -11,6 +11,7 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/subscription_comparison_table.dart';
 import '../../../data/models/subscription_plan.dart';
+import '../../../core/theme/app_palette.dart';
 
 class SubscriptionManagerScreen extends StatefulWidget {
   const SubscriptionManagerScreen({super.key});
@@ -119,7 +120,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
         children: [
           Text(
             tr('subscription_current_plan_label'),
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 13, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -172,7 +173,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
           else
             Text(
               tr('subscription_plan_loading_message'),
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
             ),
         ],
       ),
@@ -212,7 +213,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                     const SizedBox(height: 4),
                     Text(
                       plan.description,
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      style: TextStyle(fontSize: 13, color: context.palette.textSecondary),
                     ),
                   ],
                 ),
@@ -257,7 +258,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                         'unit': yearUnitShort,
                       },
                     ),
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
                   ),
                 ),
             ],
@@ -486,21 +487,21 @@ class _MetricChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 18, color: AppColors.textSecondary),
+          Icon(icon, size: 18, color: context.palette.textSecondary),
           const SizedBox(width: 8),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 label,
-                style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                style: TextStyle(fontSize: 11, color: context.palette.textSecondary),
               ),
               Text(
                 value,

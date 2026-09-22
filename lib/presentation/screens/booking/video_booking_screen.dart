@@ -14,6 +14,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class VideoBookingScreen extends StatefulWidget {
   const VideoBookingScreen({super.key});
@@ -268,7 +269,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 isArabic
                     ? 'جارٍ تحميل بيانات المدرب...'
                     : 'Loading coach details...',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ),
           ],
@@ -321,19 +322,19 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
               children: [
                 Text(
                   isArabic ? 'المدرب المعين لك' : 'Your Assigned Coach',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   coachName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textPrimary,
+                    color: context.palette.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -353,9 +354,9 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                         if (rating != null) const SizedBox(width: 12),
                         Text(
                           '$yearsExperience ${isArabic ? 'سنوات خبرة' : 'years exp'}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -372,9 +373,9 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: Text(
                         specialty,
@@ -506,9 +507,9 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           const SizedBox(height: 6),
           Text(
             '${isArabic ? 'التاريخ' : 'Date'}: ${DateFormat('EEE, MMM d', isArabic ? 'ar' : 'en').format(_selectedDate!)}',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
           const SizedBox(height: 16),
@@ -526,7 +527,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                       : (isArabic
                           ? 'لا توجد أوقات متاحة'
                           : 'No available slots'),
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
               ),
             )
@@ -544,10 +545,10 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                   backgroundColor: Colors.white,
                   side: BorderSide(
                     color:
-                        isSelected ? const Color(0xFF9333EA) : AppColors.border,
+                        isSelected ? const Color(0xFF9333EA) : context.palette.border,
                   ),
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.textPrimary,
+                    color: isSelected ? Colors.white : context.palette.textPrimary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 );
@@ -570,10 +571,10 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           const SizedBox(height: 16),
           Text(
             isArabic ? 'المدة' : 'Duration',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
           const SizedBox(height: 10),
@@ -590,10 +591,10 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 backgroundColor: Colors.white,
                 side: BorderSide(
                   color:
-                      isSelected ? const Color(0xFF9333EA) : AppColors.border,
+                      isSelected ? const Color(0xFF9333EA) : context.palette.border,
                 ),
                 labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : AppColors.textPrimary,
+                  color: isSelected ? Colors.white : context.palette.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               );
@@ -692,7 +693,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         Expanded(
           child: Text(
             label,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
         ),
         const SizedBox(width: 12),
@@ -963,9 +964,9 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: child,
     );

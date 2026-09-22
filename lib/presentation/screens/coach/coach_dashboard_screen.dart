@@ -23,6 +23,7 @@ import '../video_call/video_call_screen.dart';
 import 'coach_schedule_session_sheet.dart';
 import 'coach_client_detail_screen.dart';
 import '../messaging/coach_messaging_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 enum _UpcomingFilter { all, video }
 
@@ -242,7 +243,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textDisabled,
+        unselectedItemColor: context.palette.textDisabled,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.dashboard),
@@ -327,9 +328,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           const SizedBox(height: 4),
                           Text(
                             lang.t('coach_dashboard_title'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -675,7 +676,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: context.palette.border),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -709,9 +710,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                   const SizedBox(height: 2),
                                   Text(
                                     '${entry.goal ?? lang.t('coach_goal_fallback')} • ${_formatActivityAgo(entry.activityDaysAgo, lang)}',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -754,7 +755,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                       vertical: 6,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: AppColors.textSecondary
+                                      color: context.palette.textSecondary
                                           .withValues(alpha: 0.12),
                                       borderRadius: BorderRadius.circular(999),
                                     ),
@@ -762,10 +763,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                       lang.isArabic
                                           ? 'بدون درجة لياقة'
                                           : 'Needs score',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,
-                                        color: AppColors.textSecondary,
+                                        color: context.palette.textSecondary,
                                       ),
                                     ),
                                   ),
@@ -781,16 +782,16 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           color: entry.needsAttention
                               ? AppColors.warning
                               : AppColors.primary,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: context.palette.surfaceVariant,
                         ),
                         const SizedBox(height: 6),
                         Text(
                           lang.t('coach_plan_health', args: {
                             'percent': '${(entry.momentum * 100).round()}'
                           }),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -853,7 +854,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     required VoidCallback onTap,
   }) {
     final Color activeColor =
-        selected ? AppColors.primary : AppColors.textSecondary;
+        selected ? AppColors.primary : context.palette.textSecondary;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -864,12 +865,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           decoration: BoxDecoration(
             color: selected
                 ? AppColors.primary.withValues(alpha: 0.12)
-                : AppColors.background,
+                : context.palette.surface,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: selected
                   ? AppColors.primary
-                  : AppColors.textDisabled.withValues(alpha: 0.5),
+                  : context.palette.textDisabled.withValues(alpha: 0.5),
               width: selected ? 1.5 : 1,
             ),
             boxShadow: selected
@@ -987,17 +988,17 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           child: Center(
             child: Column(
               children: [
-                const Icon(
+                Icon(
                   Icons.event_busy,
                   size: 48,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   lang.t('coach_no_appointments'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ],
@@ -1049,9 +1050,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           child: Center(
             child: Text(
               lang.t('coach_no_upcoming_sessions'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -1075,9 +1076,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
             child: Text(
               emptyMessage,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),

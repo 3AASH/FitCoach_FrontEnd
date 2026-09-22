@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
 import 'workout_plan_editor_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachWorkoutPlanViewerScreen extends StatefulWidget {
   final String clientId;
@@ -146,7 +147,7 @@ class _CoachWorkoutPlanViewerScreenState
               const SizedBox(height: 8),
               Text(
                 plan.description!,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ],
             const SizedBox(height: 16),
@@ -194,7 +195,7 @@ class _CoachWorkoutPlanViewerScreenState
             child: Center(
               child: Text(
                 lang.t('coach_no_workout_days'),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ),
           ),
@@ -215,7 +216,7 @@ class _CoachWorkoutPlanViewerScreenState
             return ListTile(
               leading: Icon(
                 completed ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: completed ? AppColors.success : AppColors.textDisabled,
+                color: completed ? AppColors.success : context.palette.textDisabled,
               ),
               title: Text(exercise.name),
               subtitle: Text('${exercise.sets} x ${exercise.reps}'),
@@ -228,14 +229,14 @@ class _CoachWorkoutPlanViewerScreenState
 
   Widget _buildStatChip({required String label, required String value}) {
     return Chip(
-      backgroundColor: AppColors.surface,
+      backgroundColor: context.palette.surfaceVariant,
       label: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             label,
             style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                TextStyle(fontSize: 11, color: context.palette.textSecondary),
           ),
           Text(
             value,
@@ -254,13 +255,13 @@ class _CoachWorkoutPlanViewerScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.fitness_center_outlined,
-                size: 64, color: AppColors.textDisabled),
+            Icon(Icons.fitness_center_outlined,
+                size: 64, color: context.palette.textDisabled),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ],
         ),

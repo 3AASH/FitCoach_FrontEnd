@@ -9,6 +9,7 @@ import '../../../data/models/admin_workout_template.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AdminWorkoutTemplatesScreen extends StatefulWidget {
   const AdminWorkoutTemplatesScreen({super.key});
@@ -100,7 +101,7 @@ class _AdminWorkoutTemplatesScreenState
                           child: Text(
                             lang.t('plan_editor_no_workout_templates'),
                             style:
-                                const TextStyle(color: AppColors.textSecondary),
+                                TextStyle(color: context.palette.textSecondary),
                           ),
                         ),
                       ],
@@ -239,8 +240,8 @@ class _TemplateCard extends StatelessWidget {
                     '${template.planId} • $subtitle',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -614,7 +615,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                     final exercise =
                         _asMap(exerciseEntry.value) ?? <String, dynamic>{};
                     return Card(
-                      color: AppColors.surface,
+                      color: context.palette.surfaceVariant,
                       margin: const EdgeInsets.only(top: 8),
                       child: Padding(
                         padding: const EdgeInsets.all(10),

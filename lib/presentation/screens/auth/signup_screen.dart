@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/international_phone_input.dart';
+import '../../../core/theme/app_palette.dart';
 
 class SignupScreen extends StatefulWidget {
   final VoidCallback onAuthenticated;
@@ -186,10 +187,10 @@ class _SignupScreenState extends State<SignupScreen> {
                 AnimatedReveal(
                   child: Text(
                     isArabic ? 'إنشاء حساب جديد' : 'Create Account',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: context.palette.textPrimary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -203,9 +204,9 @@ class _SignupScreenState extends State<SignupScreen> {
                     isArabic
                         ? 'انضم إلينا وابدأ رحلة اللياقة'
                         : 'Join us and start your fitness journey',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -425,9 +426,9 @@ class _SignupScreenState extends State<SignupScreen> {
                           },
                           child: RichText(
                             text: TextSpan(
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 14,
-                                color: AppColors.textPrimary,
+                                color: context.palette.textPrimary,
                               ),
                               children: [
                                 TextSpan(
@@ -536,8 +537,8 @@ class _SignupScreenState extends State<SignupScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
                           isArabic ? 'أو' : 'OR',
-                          style: const TextStyle(
-                            color: AppColors.textSecondary,
+                          style: TextStyle(
+                            color: context.palette.textSecondary,
                             fontSize: 14,
                           ),
                         ),
@@ -554,9 +555,9 @@ class _SignupScreenState extends State<SignupScreen> {
                   delay: const Duration(milliseconds: 700),
                   child: Text(
                     isArabic ? 'أو إنشاء حساب باستخدام' : 'Or sign up with',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -611,9 +612,9 @@ class _SignupScreenState extends State<SignupScreen> {
                         isArabic
                             ? 'لديك حساب بالفعل؟'
                             : 'Already have an account?',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       TextButton(

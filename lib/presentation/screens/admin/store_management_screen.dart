@@ -6,6 +6,7 @@ import '../../../core/constants/colors.dart';
 import '../../../data/repositories/store_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 // ...existing code...
 
 class StoreManagementScreen extends StatefulWidget {
@@ -201,7 +202,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
             ),
           // Tabs
           Container(
-            color: AppColors.background,
+            color: context.palette.surface,
             child: Row(
               children: [
                 _buildTab('products', lang.t('store_tab_products'), lang),
@@ -228,7 +229,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: AppColors.surface,
+                fillColor: context.palette.surfaceVariant,
               ),
             ),
           ),
@@ -272,7 +273,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isSelected ? AppColors.primary : AppColors.background,
+                color: isSelected ? AppColors.primary : context.palette.surface,
                 width: 2,
               ),
             ),
@@ -281,7 +282,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected ? AppColors.primary : context.palette.textSecondary,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -313,7 +314,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                     width: 60,
                     height: 60,
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.palette.surfaceVariant,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     clipBehavior: Clip.antiAlias,
@@ -341,9 +342,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                         const SizedBox(height: 4),
                         Text(
                           product['category'],
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -375,7 +376,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                   _buildStatItem(
                     lang.t('store_sales_label'),
                     '${product['sales']}',
-                    AppColors.textSecondary,
+                    context.palette.textSecondary,
                   ),
                 ],
               ),
@@ -453,9 +454,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                     ),
                     Text(
                       '${category['count']} ${lang.t('store_products_label')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -465,7 +466,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 Directionality.of(context) == TextDirection.rtl
                     ? Icons.chevron_left
                     : Icons.chevron_right,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
             ],
           ),
@@ -511,9 +512,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
               const SizedBox(height: 8),
               Text(
                 order['customer'] as String,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 12),
@@ -522,9 +523,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 children: [
                   Text(
                     order['date'] as String,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                   Text(
@@ -574,7 +575,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         label = lang.t('store_status_delivered');
         break;
       default:
-        color = AppColors.textSecondary;
+        color = context.palette.textSecondary;
         label = status;
     }
 
@@ -601,9 +602,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 11,
-            color: AppColors.textSecondary,
+            color: context.palette.textSecondary,
           ),
         ),
         const SizedBox(height: 4),
@@ -1095,7 +1096,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
               const SizedBox(height: 8),
               Text(
                 '${category['count']} ${lang.t('store_products_label')}',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
               const SizedBox(height: 16),
               Row(

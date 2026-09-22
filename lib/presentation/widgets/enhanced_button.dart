@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 /// Enhanced button that EXACTLY matches React button design
 /// - Exact heights (h-8=32px, h-9=36px, h-10=40px)
@@ -190,7 +191,7 @@ class _EnhancedButtonState extends State<EnhancedButton> {
 
   Color _getBackgroundColor(bool isDisabled) {
     if (isDisabled) {
-      return AppColors.surface.withValues(alpha: 0.5);
+      return context.palette.surfaceVariant.withValues(alpha: 0.5);
     }
 
     switch (widget.variant) {
@@ -219,7 +220,7 @@ class _EnhancedButtonState extends State<EnhancedButton> {
 
   Color _getTextColor(bool isDisabled) {
     if (isDisabled) {
-      return AppColors.textDisabled;
+      return context.palette.textDisabled;
     }
 
     switch (widget.variant) {
@@ -232,7 +233,7 @@ class _EnhancedButtonState extends State<EnhancedButton> {
       case ButtonVariant.link:
         return _isHovered
             ? AppColors.accentLight
-            : AppColors.textPrimary;
+            : context.palette.textPrimary;
       case ButtonVariant.text:
         return AppColors.primary;
       case ButtonVariant.danger:
@@ -243,7 +244,7 @@ class _EnhancedButtonState extends State<EnhancedButton> {
   Border? _getBorder(bool isDisabled) {
     if (widget.variant == ButtonVariant.outline) {
       return Border.all(
-        color: isDisabled ? AppColors.border : AppColors.border,
+        color: isDisabled ? context.palette.border : context.palette.border,
         width: 1,
       );
     }

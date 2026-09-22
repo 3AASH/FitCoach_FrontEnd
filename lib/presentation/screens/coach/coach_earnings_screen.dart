@@ -6,6 +6,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachEarningsScreen extends StatefulWidget {
   const CoachEarningsScreen({super.key});
@@ -139,9 +140,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                       Expanded(
                         child: Text(
                           lang.t('coach_earnings_total'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ),
@@ -189,9 +190,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                       Expanded(
                         child: Text(
                           lang.t('coach_earnings_transactions'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ),
@@ -268,9 +269,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
           child: Center(
             child: Text(
               lang.t('coach_earnings_no_data'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -335,9 +336,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                             padding: const EdgeInsets.only(top: 8),
                             child: Text(
                               '${period.month}/${period.day}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           );
@@ -351,9 +352,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                         getTitlesWidget: (value, meta) {
                           return Text(
                             '\$${value.toInt()}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 10,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           );
                         },
@@ -363,7 +364,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                   borderData: FlBorderData(
                     show: true,
                     border: Border.all(
-                      color: AppColors.textDisabled.withValues(alpha: 0.2),
+                      color: context.palette.textDisabled.withValues(alpha: 0.2),
                     ),
                   ),
                   minX: 0,
@@ -412,9 +413,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                 ),
                 Text(
                   '${earnings.recentTransactions.length}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ],
@@ -428,9 +429,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                   padding: const EdgeInsets.all(32),
                   child: Text(
                     lang.t('coach_earnings_no_transactions'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
@@ -487,9 +488,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                 const SizedBox(height: 4),
                 Text(
                   _formatDate(transaction.createdAt),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ],
@@ -510,9 +511,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
               const SizedBox(height: 4),
               Text(
                 transaction.type,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 10,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],

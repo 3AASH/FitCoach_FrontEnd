@@ -11,6 +11,7 @@ import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
 import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class NutritionPlanEditorScreen extends StatefulWidget {
   final String clientId;
@@ -423,7 +424,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                               final mealIndex = mealEntry.key;
                               final meal = mealEntry.value;
                               return Card(
-                                color: AppColors.surface,
+                                color: context.palette.surfaceVariant,
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),

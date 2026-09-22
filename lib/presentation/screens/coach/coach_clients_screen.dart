@@ -8,6 +8,7 @@ import '../../widgets/custom_card.dart';
 import 'coach_client_detail_screen.dart';
 import 'coach_message_thread_screen.dart';
 import 'coach_schedule_session_sheet.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachClientsScreen extends StatefulWidget {
   const CoachClientsScreen({super.key});
@@ -178,17 +179,17 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.people_outline,
                                   size: 64,
-                                  color: AppColors.textDisabled,
+                                  color: context.palette.textDisabled,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   languageProvider.t('coach_clients_empty'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                               ],
@@ -277,9 +278,9 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         if (client.goal != null)
                           Text(
                             client.goal!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 14,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         const SizedBox(height: 4),
@@ -354,9 +355,9 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         const SizedBox(height: 4),
                         Text(
                           languageProvider.t('coach_clients_score_label'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -365,7 +366,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                   const SizedBox(width: 8),
                   Icon(
                     isArabic ? Icons.chevron_left : Icons.chevron_right,
-                    color: AppColors.textDisabled,
+                    color: context.palette.textDisabled,
                   ),
                 ],
               ),
@@ -469,7 +470,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
         return AppColors.primary;
       case 'freemium':
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -484,7 +485,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
       case 'new':
         return AppColors.info;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 

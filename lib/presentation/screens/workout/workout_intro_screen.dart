@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutIntroScreen extends StatelessWidget {
   final VoidCallback onGetStarted;
@@ -86,7 +87,7 @@ class WorkoutIntroScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(40),
                         boxShadow: [
                           BoxShadow(
-                            color: AppColors.textPrimary.withValues(alpha: 0.35),
+                            color: context.palette.textPrimary.withValues(alpha: 0.35),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),

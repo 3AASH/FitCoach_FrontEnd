@@ -7,6 +7,7 @@ import '../../../data/models/admin_exercise.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 String _humanizeSnakeCase(String value) {
   return value
@@ -111,13 +112,13 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                     ? const Center(child: CircularProgressIndicator())
                     : provider.exercises.isEmpty
                         ? ListView(
-                            children: const [
-                              SizedBox(height: 160),
+                            children: [
+                              const SizedBox(height: 160),
                               Center(
                                 child: Text(
                                   'No exercises found',
                                   style:
-                                      TextStyle(color: AppColors.textSecondary),
+                                      TextStyle(color: context.palette.textSecondary),
                                 ),
                               ),
                             ],
@@ -270,8 +271,8 @@ class _ExerciseAdminCard extends StatelessWidget {
                       subtitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -282,8 +283,8 @@ class _ExerciseAdminCard extends StatelessWidget {
                       '${lang.t('admin_exercise_swap_alternatives')}: ${alternativeLabels.take(3).join(', ')}${alternativeLabels.length > 3 ? ' +' : ''}',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -304,10 +305,10 @@ class _ExerciseAdminCard extends StatelessWidget {
                             : lang.t('admin_exercise_no_swaps'),
                         background: exercise.hasAlternatives
                             ? AppColors.success.withValues(alpha: 0.14)
-                            : AppColors.surface,
+                            : context.palette.surfaceVariant,
                         foreground: exercise.hasAlternatives
                             ? AppColors.success
-                            : AppColors.textSecondary,
+                            : context.palette.textSecondary,
                       ),
                     ],
                   ),
@@ -646,7 +647,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
             if (selected.isEmpty)
               Text(
                 _tr('admin_no_swap_exercises_selected'),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               )
             else
               Wrap(
@@ -729,8 +730,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                                   value: selected,
                                   title: Text(
                                     exercise.nameEn,
-                                    style: const TextStyle(
-                                        color: AppColors.textPrimary),
+                                    style: TextStyle(
+                                        color: context.palette.textPrimary),
                                   ),
                                   subtitle: Text(
                                     [
@@ -743,8 +744,8 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                                             .map(_humanizeSnakeCase)
                                             .join(', '),
                                     ].join(' • '),
-                                    style: const TextStyle(
-                                        color: AppColors.textSecondary),
+                                    style: TextStyle(
+                                        color: context.palette.textSecondary),
                                   ),
                                   onChanged: (value) {
                                     setDialogState(() {
@@ -800,7 +801,7 @@ class _ExerciseThumb extends StatelessWidget {
       videoUrl: videoUrl,
     );
     if (imageUrl == null || imageUrl.isEmpty) {
-      return _placeholder();
+      return _placeholder(context);
     }
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
@@ -809,20 +810,20 @@ class _ExerciseThumb extends StatelessWidget {
         width: 64,
         height: 64,
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _placeholder(),
+        errorBuilder: (_, __, ___) => _placeholder(context),
       ),
     );
   }
 
-  Widget _placeholder() {
+  Widget _placeholder(BuildContext context) {
     return Container(
       width: 64,
       height: 64,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: const Icon(Icons.fitness_center, color: AppColors.textSecondary),
+      child: Icon(Icons.fitness_center, color: context.palette.textSecondary),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/language_provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 class RatingModal extends StatefulWidget {
   final String type; // 'message', 'video_call', 'workout', 'nutrition'
@@ -64,7 +65,7 @@ class _RatingModalState extends State<RatingModal> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.border,
+                  color: context.palette.border,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -109,9 +110,9 @@ class _RatingModalState extends State<RatingModal> {
             Center(
               child: Text(
                 translator('rating_subtitle'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -148,7 +149,7 @@ class _RatingModalState extends State<RatingModal> {
                         size: 48,
                         color: index < _rating && !_forceShowAllBorders
                             ? AppColors.warning
-                            : AppColors.textDisabled,
+                            : context.palette.textDisabled,
                       ),
                     ),
                   );
@@ -207,7 +208,7 @@ class _RatingModalState extends State<RatingModal> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  disabledBackgroundColor: AppColors.textDisabled,
+                  disabledBackgroundColor: context.palette.textDisabled,
                 ),
                 child: Text(
                   translator('rating_submit'),
@@ -227,9 +228,9 @@ class _RatingModalState extends State<RatingModal> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   translator('rating_skip'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),

@@ -11,6 +11,7 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import 'store_intro_screen.dart';
 import 'store_checkout_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class StoreScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -288,7 +289,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: TabBar(
                           labelColor: AppColors.primary,
-                          unselectedLabelColor: AppColors.textSecondary,
+                          unselectedLabelColor: context.palette.textSecondary,
                           indicatorColor: AppColors.primary,
                           tabs: [
                             Tab(text: languageProvider.t('store_products')),
@@ -367,7 +368,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: TabBar(
                           labelColor: AppColors.primary,
-                          unselectedLabelColor: AppColors.textSecondary,
+                          unselectedLabelColor: context.palette.textSecondary,
                           indicatorColor: AppColors.primary,
                           tabs: [
                             Tab(text: lang.t('store_products')),
@@ -444,7 +445,7 @@ class _StoreScreenState extends State<StoreScreen> {
   ) {
     return Container(
       height: 60,
-      color: AppColors.surface,
+      color: context.palette.surfaceVariant,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -500,9 +501,9 @@ class _StoreScreenState extends State<StoreScreen> {
                     ? Container(
                         height: 140,
                         width: double.infinity,
-                        color: AppColors.surface,
-                        child: const Icon(Icons.image_not_supported,
-                            color: AppColors.textDisabled),
+                        color: context.palette.surfaceVariant,
+                        child: Icon(Icons.image_not_supported,
+                            color: context.palette.textDisabled),
                       )
                     : Image.network(
                         imageUrl,
@@ -572,8 +573,8 @@ class _StoreScreenState extends State<StoreScreen> {
                 children: [
                   Text(
                     product.category,
-                    style: const TextStyle(
-                        fontSize: 11, color: AppColors.textSecondary),
+                    style: TextStyle(
+                        fontSize: 11, color: context.palette.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -593,16 +594,16 @@ class _StoreScreenState extends State<StoreScreen> {
                       const SizedBox(width: 4),
                       Text(
                         (product.rating ?? 0).toStringAsFixed(1),
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                            fontSize: 12, color: context.palette.textSecondary),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         lang.t('reviews_count', args: {
                               'count': '${product.reviewCount}'
                             }),
-                        style: const TextStyle(
-                            fontSize: 12, color: AppColors.textDisabled),
+                        style: TextStyle(
+                            fontSize: 12, color: context.palette.textDisabled),
                       ),
                     ],
                   ),
@@ -692,7 +693,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -704,9 +705,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       ? Container(
                           height: 250,
                           width: double.infinity,
-                          color: AppColors.surface,
-                          child: const Icon(Icons.image_not_supported,
-                              color: AppColors.textDisabled),
+                          color: context.palette.surfaceVariant,
+                          child: Icon(Icons.image_not_supported,
+                              color: context.palette.textDisabled),
                         )
                       : Image.network(
                           imageUrl,
@@ -736,8 +737,8 @@ class _StoreScreenState extends State<StoreScreen> {
                       lang.t('reviews_count', args: {
                             'count': '${product.reviewCount}'
                           }),
-                      style: const TextStyle(
-                          fontSize: 14, color: AppColors.textSecondary),
+                      style: TextStyle(
+                          fontSize: 14, color: context.palette.textSecondary),
                     ),
                   ],
                 ),
@@ -760,9 +761,9 @@ class _StoreScreenState extends State<StoreScreen> {
                   isArabic
                       ? (product.descriptionAr ?? product.description ?? '')
                       : (product.descriptionEn ?? product.description ?? ''),
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 15,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                       height: 1.5),
                 ),
                 const SizedBox(height: 32),
@@ -829,9 +830,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       ? Container(
                           width: 60,
                           height: 60,
-                          color: AppColors.surface,
-                          child: const Icon(Icons.image_not_supported,
-                              color: AppColors.textDisabled),
+                          color: context.palette.surfaceVariant,
+                          child: Icon(Icons.image_not_supported,
+                              color: context.palette.textDisabled),
                         )
                       : Image.network(
                           imageUrl,
@@ -849,7 +850,7 @@ class _StoreScreenState extends State<StoreScreen> {
                       const SizedBox(height: 4),
                       Text(
                         '${product.finalPrice.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                     ],
                   ),
@@ -950,7 +951,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     const SizedBox(height: 4),
                     Text(
                       _statusLabel(order['status'], lang),
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                     ),
                   ],
                 ),
@@ -1171,7 +1172,7 @@ class _StoreScreenState extends State<StoreScreen> {
                       const SizedBox(height: 4),
                       Text(
                         '${item['price']} ${lang.t('currency_sar')}',
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                     ],
                   ),
@@ -1246,7 +1247,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     const SizedBox(height: 4),
                     Text(
                       _statusLabel(order['status'], lang),
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                     ),
                   ],
                 ),
@@ -1294,7 +1295,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1309,7 +1310,7 @@ class _StoreScreenState extends State<StoreScreen> {
                 Text(
                   _statusLabel(
                       order['status']?.toString() ?? 'processing', lang),
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
                 const SizedBox(height: 16),
                 if (items.isNotEmpty) ...[
@@ -1343,8 +1344,8 @@ class _StoreScreenState extends State<StoreScreen> {
                                 const SizedBox(height: 2),
                                 Text(
                                   '$qty × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                                  style: const TextStyle(
-                                      color: AppColors.textSecondary,
+                                  style: TextStyle(
+                                      color: context.palette.textSecondary,
                                       fontSize: 12),
                                 ),
                               ],
@@ -1393,7 +1394,7 @@ class _StoreScreenState extends State<StoreScreen> {
   Widget _summaryRow(String label, String value, {bool strong = false}) {
     final style = TextStyle(
       fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
-      color: strong ? AppColors.textPrimary : AppColors.textSecondary,
+      color: strong ? context.palette.textPrimary : context.palette.textSecondary,
     );
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
@@ -1446,7 +1447,7 @@ class _StoreScreenState extends State<StoreScreen> {
   Widget _buildCategoryFilters(LanguageProvider lang, bool isArabic) {
     return Container(
       height: 60,
-      color: AppColors.surface,
+      color: context.palette.surfaceVariant,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -1564,9 +1565,9 @@ class _StoreScreenState extends State<StoreScreen> {
                 children: [
                   Text(
                     product['brand'],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1587,9 +1588,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${product['rating']}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       const SizedBox(width: 6),
@@ -1597,9 +1598,9 @@ class _StoreScreenState extends State<StoreScreen> {
                         lang.t('reviews_count', args: {
                               'count': '${product['reviews']}'
                             }),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textDisabled,
+                          color: context.palette.textDisabled,
                         ),
                       ),
                     ],
@@ -1661,19 +1662,19 @@ class _StoreScreenState extends State<StoreScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(
+          Icon(
             Icons.shopping_bag_outlined,
             size: 80,
-            color: AppColors.textDisabled,
+            color: context.palette.textDisabled,
           ),
           const SizedBox(height: 24),
           Text(
             messageKey != null
                 ? lang.t(messageKey)
                 : lang.t('store_no_products'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ],
@@ -1748,7 +1749,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1788,9 +1789,9 @@ class _StoreScreenState extends State<StoreScreen> {
                       lang.t('reviews_count', args: {
                             'count': '${product['reviews']}'
                           }),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -1817,9 +1818,9 @@ class _StoreScreenState extends State<StoreScreen> {
                   isArabic
                       ? product['descriptionAr']
                       : product['descriptionEn'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 15,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     height: 1.5,
                   ),
                 ),
@@ -1883,10 +1884,10 @@ class _StoreScreenState extends State<StoreScreen> {
     final fallback = Container(
       width: size,
       height: size,
-      color: AppColors.surface,
+      color: context.palette.surfaceVariant,
       child: Icon(
         Icons.image_not_supported_outlined,
-        color: AppColors.textDisabled,
+        color: context.palette.textDisabled,
         size: size * 0.45,
       ),
     );

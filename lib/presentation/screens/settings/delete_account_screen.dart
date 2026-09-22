@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/messaging_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 /// Delete the account, as required by App Store guideline 5.1.1(v).
 ///
@@ -177,7 +178,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           _buildList(
             title: t('delete_account_kept_title'),
             icon: Icons.inventory_2_outlined,
-            iconColor: AppColors.textSecondary,
+            iconColor: context.palette.textSecondary,
             items: [
               t('delete_account_kept_messages'),
               t('delete_account_kept_orders'),
@@ -214,7 +215,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                       Text(
                         t('delete_account_code_explainer'),
                         style:
-                            const TextStyle(color: AppColors.textSecondary),
+                            TextStyle(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton(
@@ -238,7 +239,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   t('delete_account_type_to_confirm', args: {
                     'word': t('delete_account_confirm_word'),
                   }),
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
                 const SizedBox(height: 8),
                 TextField(
@@ -311,7 +312,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   Expanded(
                     child: Text(
                       item,
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                     ),
                   ),
                 ],

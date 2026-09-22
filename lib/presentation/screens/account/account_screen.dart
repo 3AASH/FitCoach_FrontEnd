@@ -18,6 +18,7 @@ import '../settings/change_password_screen.dart';
 import '../settings/change_mobile_screen.dart';
 import '../settings/delete_account_screen.dart';
 import 'payment_management_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AccountScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -289,7 +290,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     child: Row(
                       children: [
                         Icon(option.icon,
-                            size: 18, color: AppColors.textSecondary),
+                            size: 18, color: context.palette.textSecondary),
                         const SizedBox(width: 8),
                         Text(option.label),
                       ],
@@ -723,8 +724,8 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.lock_outline,
-                    color: AppColors.textSecondary),
+                leading: Icon(Icons.lock_outline,
+                    color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_password_title')),
                 trailing:
                     Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
@@ -737,8 +738,8 @@ class _AccountScreenState extends State<AccountScreen> {
               ),
               const Divider(height: 1),
               ListTile(
-                leading: const Icon(Icons.phone_iphone,
-                    color: AppColors.textSecondary),
+                leading: Icon(Icons.phone_iphone,
+                    color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_mobile_title')),
                 trailing:
                     Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
@@ -787,7 +788,7 @@ class _AccountScreenState extends State<AccountScreen> {
           CustomInfoCard(
             title: languageProvider.t('account_terms'),
             icon: Icons.article,
-            iconColor: AppColors.textSecondary,
+            iconColor: context.palette.textSecondary,
             onTap: () => _showComingSoon(isArabic),
           ),
         ],
@@ -796,7 +797,7 @@ class _AccountScreenState extends State<AccountScreen> {
           CustomInfoCard(
             title: languageProvider.t('account_privacy'),
             icon: Icons.privacy_tip,
-            iconColor: AppColors.textSecondary,
+            iconColor: context.palette.textSecondary,
             onTap: () => _showComingSoon(isArabic),
           ),
         ],
@@ -882,25 +883,25 @@ class _AccountScreenState extends State<AccountScreen> {
           const SizedBox(height: 8),
           Text(
             coach['bio']?.toString() ?? '-',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
             '${languageProvider.t('account_experience')}: $experience',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           if (specializations.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
               '${languageProvider.t('account_specializations')}: ${specializations.join(', ')}',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ],
           if (certifications.isNotEmpty) ...[
             const SizedBox(height: 8),
             Text(
               '${languageProvider.t('account_certifications')}: ${certifications.join(', ')}',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ],
         ],
@@ -925,17 +926,17 @@ class _AccountScreenState extends State<AccountScreen> {
           const SizedBox(height: 8),
           Text(
             admin['email']?.toString() ?? '-',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
             'Role: ${admin['role']?.toString() ?? '-'}',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
             'Permissions: $permissions',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -963,7 +964,7 @@ class _AccountScreenState extends State<AccountScreen> {
           const SizedBox(height: 8),
           Text(
             _coachBio,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -985,7 +986,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(height: 6),
               Text(
                 '$_coachYearsExperience ${languageProvider.t('account_years')}',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ],
           ),
@@ -1023,7 +1024,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppColors.background.withValues(alpha: 0.6),
+                      color: context.palette.surface.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(item, style: const TextStyle(fontSize: 12)),
@@ -1174,7 +1175,7 @@ class _AccountScreenState extends State<AccountScreen> {
           Text(
             label,
             style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 11),
+                TextStyle(color: context.palette.textSecondary, fontSize: 11),
           ),
         ],
       ),

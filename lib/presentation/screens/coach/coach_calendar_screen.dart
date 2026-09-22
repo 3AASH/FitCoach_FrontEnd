@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/appointment.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachCalendarScreen extends StatefulWidget {
   const CoachCalendarScreen({super.key});
@@ -191,9 +192,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                           ),
                           Text(
                             '${selectedDayAppointments.length}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -208,18 +209,18 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                               child: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.event_busy,
                                     size: 64,
-                                    color: AppColors.textDisabled,
+                                    color: context.palette.textDisabled,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
                                     lang.t(
                                         'coach_calendar_no_appointments_day'),
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 16,
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -303,14 +304,14 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                           Icon(
                             _getTypeIcon(appointment.type ?? ''),
                             size: 14,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${_getTypeDisplayName(appointment.type, lang)} - ${appointment.durationMinutes ?? '-'} ${lang.t('minute_short')}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -343,9 +344,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               const SizedBox(height: 12),
               Text(
                 appointment.notes!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -991,7 +992,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
       case 'assessment':
         return AppColors.warning;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -1023,9 +1024,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
       case 'rejected':
         return AppColors.error;
       case 'missed':
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
       default:
-        return AppColors.textDisabled;
+        return context.palette.textDisabled;
     }
   }
 

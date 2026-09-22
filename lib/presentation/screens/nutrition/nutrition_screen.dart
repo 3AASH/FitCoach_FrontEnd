@@ -17,6 +17,7 @@ import '../../../data/repositories/nutrition_repository.dart';
 import '../subscription/subscription_manager_screen.dart';
 import '../intake/first_intake_screen.dart';
 import '../intake/second_intake_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class NutritionScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -534,13 +535,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: TabBar(
-                        labelColor: AppColors.textPrimary,
-                        unselectedLabelColor: AppColors.textSecondary,
+                        labelColor: context.palette.textPrimary,
+                        unselectedLabelColor: context.palette.textSecondary,
                         labelStyle: const TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600),
                         unselectedLabelStyle: const TextStyle(
@@ -739,13 +740,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             Text(label,
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12)),
+                style: TextStyle(
+                    color: context.palette.textSecondary, fontSize: 12)),
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: progress,
               minHeight: 4,
-              backgroundColor: AppColors.surface,
+              backgroundColor: context.palette.surfaceVariant,
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ],
@@ -897,9 +898,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
               const SizedBox(height: 16),
               Text(
                 lang.t('upgrade_prompt'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -944,25 +945,25 @@ class _NutritionScreenState extends State<NutritionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.restaurant_outlined,
               size: 80,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
             const SizedBox(height: 24),
             Text(
               lang.t('no_active_nutrition_plan'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
             Text(
               lang.t('nutrition_plan_coming_soon'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               textAlign: TextAlign.center,
             ),
@@ -1071,7 +1072,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       const SizedBox(height: 8),
                       Text(
                         lockedMessage,
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -1133,7 +1134,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
           child: Text(
             label,
             style:
-                const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
             textAlign: isArabic ? TextAlign.right : TextAlign.left,
           ),
         ),
@@ -1197,6 +1198,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 painter: _MacroRingPainter(
                   percentage: percentage,
                   color: color,
+                  trackColor: context.palette.surfaceVariant,
                 ),
               ),
               Column(
@@ -1212,9 +1214,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                   Text(
                     '/ ${target.toInt()}g',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1225,10 +1227,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
         const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
       ],
@@ -1277,9 +1279,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                   Text(
                     lang.t('consumed'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1297,9 +1299,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                   Text(
                     lang.t('remaining'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1311,7 +1313,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: AppColors.surface,
+              backgroundColor: context.palette.surfaceVariant,
               valueColor:
                   const AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 12,
@@ -1417,17 +1419,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       _macroLine(meal, lang),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -1471,18 +1473,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
               child: Row(
                 children: [
                   const SizedBox(width: 8),
-                  const Icon(
+                  Icon(
                     Icons.circle,
                     size: 6,
-                    color: AppColors.textDisabled,
+                    color: context.palette.textDisabled,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
                       '${_localizedFoodName(food, isArabic)} (${_formatQuantity(food)})',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ),
@@ -1500,9 +1502,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   'more_items',
                   args: {'count': (meal.foods.length - 3).toString()},
                 ),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
               ),
             ),
@@ -1523,7 +1525,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       case 'snack':
         return AppColors.accent;
       default:
-        return AppColors.textDisabled;
+        return context.palette.textDisabled;
     }
   }
 
@@ -1569,7 +1571,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1588,9 +1590,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 const SizedBox(height: 8),
                 Text(
                   '${meal.calories} ${lang.t('cal_unit')} - ${_macroLine(meal, lang)}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
 
@@ -1602,9 +1604,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     isArabic
                         ? 'لا توجد مكونات/تفاصيل متاحة'
                         : 'No ingredients/details available',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ...meal.foods.map((food) {
@@ -1627,9 +1629,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')} - ${_foodMacroLine(food, lang)}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
@@ -1652,9 +1654,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 const SizedBox(height: 12),
                 Text(
                   _mealInstructions(meal, isArabic),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     height: 1.5,
                   ),
                 ),
@@ -1682,9 +1684,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   Text(
                     lang.t('meal_swap_already_logged'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1717,9 +1719,14 @@ class _MacroRingPainter extends CustomPainter {
   final double percentage;
   final Color color;
 
+  /// A painter has no BuildContext, so the theme-dependent track colour is
+  /// resolved by the caller and passed in rather than read from a global.
+  final Color trackColor;
+
   _MacroRingPainter({
     required this.percentage,
     required this.color,
+    required this.trackColor,
   });
 
   @override
@@ -1730,7 +1737,7 @@ class _MacroRingPainter extends CustomPainter {
 
     // Background circle
     final bgPaint = Paint()
-      ..color = AppColors.surface
+      ..color = trackColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
@@ -1754,6 +1761,8 @@ class _MacroRingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MacroRingPainter oldDelegate) {
-    return oldDelegate.percentage != percentage;
+    return oldDelegate.percentage != percentage ||
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }

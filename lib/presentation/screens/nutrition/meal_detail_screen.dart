@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
+import '../../../core/theme/app_palette.dart';
 
 class MealDetailScreen extends StatelessWidget {
   final Meal meal;
@@ -62,7 +63,7 @@ class MealDetailScreen extends StatelessWidget {
                           Text(
                             '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
                             style:
-                                const TextStyle(color: AppColors.textSecondary),
+                                TextStyle(color: context.palette.textSecondary),
                           ),
                         ],
                       ),
@@ -92,7 +93,7 @@ class MealDetailScreen extends StatelessWidget {
                 isArabic
                     ? 'لا توجد مكونات/تفاصيل متاحة'
                     : 'No ingredients/details available',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ),
           ...meal.foods.map(
@@ -112,9 +113,9 @@ class MealDetailScreen extends StatelessWidget {
                   children: [
                     Text('${food.macros.protein.round()}P'),
                     Text('${food.macros.carbs.round()}C',
-                        style: const TextStyle(color: AppColors.textSecondary)),
+                        style: TextStyle(color: context.palette.textSecondary)),
                     Text('${food.macros.fats.round()}F',
-                        style: const TextStyle(color: AppColors.textSecondary)),
+                        style: TextStyle(color: context.palette.textSecondary)),
                   ],
                 ),
               ),
@@ -167,8 +168,8 @@ class MealDetailScreen extends StatelessWidget {
             Text(
               lang.t('meal_swap_already_logged'),
               textAlign: TextAlign.center,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: context.palette.textSecondary,
                 fontSize: 12,
               ),
             ),
@@ -342,7 +343,7 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
             ),
             Text(
               lang.t('meal_swap_subtitle'),
-              style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+              style: TextStyle(color: context.palette.textSecondary, fontSize: 12),
             ),
             if (_error != null) ...[
               const SizedBox(height: 8),
@@ -361,7 +362,7 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
                   child: Text(
                     lang.t('meal_swap_none'),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: context.palette.textSecondary),
                   ),
                 ),
               )
@@ -398,8 +399,8 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
                               child: const Icon(Icons.star,
                                   color: AppColors.primary, size: 20),
                             )
-                          : const Icon(Icons.swap_horiz,
-                              color: AppColors.textSecondary, size: 20),
+                          : Icon(Icons.swap_horiz,
+                              color: context.palette.textSecondary, size: 20),
                       trailing: busy
                           ? const SizedBox(
                               width: 18,
@@ -470,17 +471,17 @@ class _MacroChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.palette.surfaceVariant,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.palette.border),
         ),
         child: Column(
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
             const SizedBox(height: 4),

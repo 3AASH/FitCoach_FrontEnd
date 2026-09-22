@@ -9,6 +9,7 @@ import '../../../data/models/admin_user.dart';
 import '../../../data/models/admin_coach.dart';
 import '../../../data/repositories/admin_repository.dart';
 import 'admin_coaches_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AdminUsersScreen extends StatefulWidget {
   const AdminUsersScreen({
@@ -292,17 +293,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.people_outline,
                                       size: 64,
-                                      color: AppColors.textDisabled,
+                                      color: context.palette.textDisabled,
                                     ),
                                     const SizedBox(height: 16),
                                     Text(
                                       lang.t('admin_users_empty'),
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 18,
-                                        color: AppColors.textSecondary,
+                                        color: context.palette.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -333,17 +334,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.sports_outlined,
               size: 64,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
             const SizedBox(height: 16),
             Text(
               lang.t('admin_coaches_empty'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ],
@@ -500,9 +501,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     if (user.email != null)
                       Text(
                         user.email!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     const SizedBox(height: 8),
@@ -559,9 +560,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           Expanded(
                             child: Text(
                               '${lang.t('admin_coach_prefix')} ${user.coachName}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 10,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -685,9 +686,9 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             width: 100,
             child: Text(
               '$label:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -1168,7 +1169,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         return AppColors.primary;
       case 'freemium':
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 

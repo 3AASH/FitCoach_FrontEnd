@@ -8,6 +8,7 @@ import '../../../data/models/workout_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/workout_provider.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutExerciseSessionScreen extends StatefulWidget {
   final List<Exercise> exercises;
@@ -174,12 +175,12 @@ class _WorkoutExerciseSessionScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.play_circle,
-                size: 48, color: AppColors.textSecondary),
+            Icon(Icons.play_circle,
+                size: 48, color: context.palette.textSecondary),
             const SizedBox(height: 8),
             Text(
               lang.t('workouts_exercise_demo'),
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ],
         ),
@@ -194,12 +195,12 @@ class _WorkoutExerciseSessionScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.play_circle,
-                size: 48, color: AppColors.textSecondary),
+            Icon(Icons.play_circle,
+                size: 48, color: context.palette.textSecondary),
             const SizedBox(height: 8),
             Text(
               lang.t('workouts_exercise_demo'),
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ],
         ),
@@ -325,7 +326,7 @@ class _WorkoutExerciseSessionScreenState
                             height: 160,
                             clipBehavior: Clip.antiAlias,
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: context.palette.surfaceVariant,
                               borderRadius: BorderRadius.circular(12),
                             ),
                             child: InkWell(
@@ -536,7 +537,7 @@ class _SessionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -570,7 +571,7 @@ class _MetricItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
         ),
       ],
     );
@@ -614,14 +615,14 @@ class _NumberFieldState extends State<_NumberField> {
       children: [
         Text(widget.label,
             style:
-                const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary)),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.palette.surfaceVariant,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.palette.border),
           ),
           child: Row(
             children: [

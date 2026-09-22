@@ -7,6 +7,7 @@ import '../../providers/subscription_plan_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/subscription_comparison_table.dart';
+import '../../../core/theme/app_palette.dart';
 
 class SubscriptionManagementScreen extends StatefulWidget {
   const SubscriptionManagementScreen({super.key});
@@ -206,8 +207,8 @@ class _SubscriptionManagementScreenState
         children: [
           Row(
             children: [
-              const Icon(Icons.person_outline,
-                  size: 20, color: AppColors.textSecondary),
+              Icon(Icons.person_outline,
+                  size: 20, color: context.palette.textSecondary),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
@@ -246,7 +247,7 @@ class _SubscriptionManagementScreenState
               },
             ),
             style:
-                const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                TextStyle(fontSize: 13, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 12),
           Row(
@@ -399,9 +400,9 @@ class _SubscriptionManagementScreenState
                     const SizedBox(height: 6),
                     Text(
                       description,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -423,9 +424,9 @@ class _SubscriptionManagementScreenState
                   if (plan.yearlyPrice != null && plan.yearlyPrice! > 0)
                     Text(
                       '${plan.yearlyPrice!.toStringAsFixed(0)} ${plan.currency}/${tr('subscription_unit_year_short')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                 ],
@@ -460,7 +461,7 @@ class _SubscriptionManagementScreenState
             Text(
               tr('subscription_admin_add_features_hint'),
               style:
-                  const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  TextStyle(color: context.palette.textSecondary, fontSize: 12),
             )
           else
             Wrap(
@@ -472,7 +473,7 @@ class _SubscriptionManagementScreenState
                     : '${feature.label}: ${feature.value}';
                 return Chip(
                   label: Text(text, style: const TextStyle(fontSize: 12)),
-                  backgroundColor: AppColors.background,
+                  backgroundColor: context.palette.surface,
                 );
               }).toList(),
             ),
@@ -657,9 +658,9 @@ class _MetricChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -668,7 +669,7 @@ class _MetricChip extends StatelessWidget {
           Text(
             label,
             style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                TextStyle(fontSize: 11, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -728,7 +729,7 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         children: [
           Icon(Icons.auto_graph,
-              size: 72, color: AppColors.textDisabled.withValues(alpha: 0.7)),
+              size: 72, color: context.palette.textDisabled.withValues(alpha: 0.7)),
           const SizedBox(height: 16),
           Text(
             languageProvider.t('subscription_admin_empty_title'),
@@ -737,7 +738,7 @@ class _EmptyState extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             languageProvider.t('subscription_admin_empty_subtitle'),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
             textAlign: TextAlign.center,
           ),
         ],
@@ -852,7 +853,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: context.palette.border,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -1050,9 +1051,9 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                     margin: const EdgeInsets.only(bottom: 12),
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppColors.surface,
+                      color: context.palette.surfaceVariant,
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border),
+                      border: Border.all(color: context.palette.border),
                     ),
                     child: Column(
                       children: [

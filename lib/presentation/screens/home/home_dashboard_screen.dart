@@ -31,6 +31,7 @@ import '../progress/progress_screen.dart';
 import '../inbody/inbody_input_screen.dart';
 import '../subscription/subscription_manager_screen.dart';
 import '../../../data/models/appointment.dart';
+import '../../../core/theme/app_palette.dart';
 
 class HomeDashboardScreen extends StatefulWidget {
   const HomeDashboardScreen({super.key});
@@ -127,7 +128,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textDisabled,
+        unselectedItemColor: context.palette.textDisabled,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.home),
@@ -550,9 +551,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         // Light surface so text/icons stay clearly visible
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Row(
         children: [
@@ -774,17 +775,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.palette.border),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.calendar_today,
-                        size: 12, color: AppColors.textSecondary),
+                    Icon(Icons.calendar_today,
+                        size: 12, color: context.palette.textSecondary),
                     const SizedBox(width: 4),
                     Text(
                       lang.t('home_today'),
                       style: AppTextStyles.small
-                          .copyWith(color: AppColors.textSecondary),
+                          .copyWith(color: context.palette.textSecondary),
                     ),
                   ],
                 ),
@@ -795,7 +796,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           Text(
             workout['name'] as String,
             style:
-                AppTextStyles.bodyMedium.copyWith(color: AppColors.textPrimary),
+                AppTextStyles.bodyMedium.copyWith(color: context.palette.textPrimary),
           ),
           const SizedBox(height: 6),
           Row(
@@ -803,19 +804,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               Text(
                 durationLabel,
                 style: AppTextStyles.small
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: context.palette.textSecondary),
               ),
               const SizedBox(width: 8),
               Text(
                 '\u2022',
                 style: AppTextStyles.small
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: context.palette.textSecondary),
               ),
               const SizedBox(width: 8),
               Text(
                 '${workout['exercises']} ${lang.t('home_exercises')}',
                 style: AppTextStyles.small
-                    .copyWith(color: AppColors.textSecondary),
+                    .copyWith(color: context.palette.textSecondary),
               ),
             ],
           ),
@@ -934,12 +935,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         decoration: BoxDecoration(
           color: item.locked
               ? AppColors.accent.withValues(alpha: 0.12)
-              : item.background ?? AppColors.surface,
+              : item.background ?? context.palette.surfaceVariant,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: item.locked
                 ? AppColors.accent.withValues(alpha: 0.35)
-                : AppColors.border,
+                : context.palette.border,
             width: item.locked ? 2 : 1,
           ),
         ),
@@ -997,19 +998,19 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const SizedBox(height: 8),
             Text(
               item.label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textPrimary,
+                color: context.palette.textPrimary,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 2),
             Text(
               item.description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
               textAlign: TextAlign.center,
               maxLines: 2,
@@ -1026,7 +1027,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 child: Text(
                   item.lockedLabel,
                   style: AppTextStyles.small.copyWith(
-                    color: AppColors.textPrimary,
+                    color: context.palette.textPrimary,
                     fontSize: 10,
                   ),
                 ),
@@ -1052,8 +1053,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               child: Row(
                 children: [
-                  const Icon(Icons.fitness_center,
-                      size: 18, color: AppColors.textPrimary),
+                  Icon(Icons.fitness_center,
+                      size: 18, color: context.palette.textPrimary),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
@@ -1066,7 +1067,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     _quickAccessExpanded
                         ? Icons.expand_less
                         : Icons.expand_more,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ],
               ),
@@ -1108,7 +1109,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   _buildQuickAccessButton(
                     lang.t('home_view_progress'),
                     Icons.trending_up,
-                    AppColors.textPrimary,
+                    context.palette.textPrimary,
                     isArabic,
                     () => Navigator.of(context).push(
                       MaterialPageRoute(builder: (_) => const ProgressScreen()),
@@ -1118,7 +1119,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   _buildQuickAccessButton(
                     lang.t('home_exercise_library'),
                     Icons.fitness_center,
-                    AppColors.textPrimary,
+                    context.palette.textPrimary,
                     isArabic,
                     () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -1145,7 +1146,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   _buildQuickAccessButton(
                     lang.t('home_supplements'),
                     Icons.shopping_bag,
-                    AppColors.textPrimary,
+                    context.palette.textPrimary,
                     isArabic,
                     () => setState(() => _selectedIndex = 4),
                   ),
@@ -1172,7 +1173,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       label: Text(
         label,
         style: AppTextStyles.smallMedium.copyWith(
-            color: iconColor == AppColors.textPrimary ? null : iconColor),
+            color: iconColor == context.palette.textPrimary ? null : iconColor),
       ),
       style: OutlinedButton.styleFrom(
         alignment: isArabic ? Alignment.centerRight : Alignment.centerLeft,
@@ -1191,7 +1192,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.trending_up, size: 18, color: AppColors.textPrimary),
+              Icon(Icons.trending_up, size: 18, color: context.palette.textPrimary),
               const SizedBox(width: 8),
               Text(
                 lang.t('home_recent_activity'),
@@ -1247,7 +1248,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               Text(title, style: AppTextStyles.smallMedium),
               Text(subtitle,
                   style: AppTextStyles.small
-                      .copyWith(color: AppColors.textSecondary)),
+                      .copyWith(color: context.palette.textSecondary)),
             ],
           ),
         ),
@@ -1256,11 +1257,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
-              color: AppColors.surface,
+              color: context.palette.surfaceVariant,
             ),
             child: Text(badge,
                 style: AppTextStyles.small
-                    .copyWith(color: AppColors.textSecondary)),
+                    .copyWith(color: context.palette.textSecondary)),
           ),
       ],
     );
@@ -1290,14 +1291,14 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             lang.t('home_unlock_premium'),
             style: AppTextStyles.bodyMedium.copyWith(
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.palette.textPrimary,
             ),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 6),
           Text(
             lang.t('home_premium_desc'),
-            style: AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+            style: AppTextStyles.small.copyWith(color: context.palette.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -1568,7 +1569,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('home_quick_access'),
-          style: AppTextStyles.h4.copyWith(color: AppColors.textPrimary),
+          style: AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
         GridView.count(
@@ -1593,12 +1594,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.palette.surfaceVariant,
           borderRadius: BorderRadius.circular(AppRadius.medium),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.palette.border),
           boxShadow: [
             BoxShadow(
-              color: AppColors.textPrimary.withValues(alpha: 0.05),
+              color: context.palette.textPrimary.withValues(alpha: 0.05),
               blurRadius: 10,
               offset: const Offset(0, 2),
             ),
@@ -1622,13 +1623,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 Text(
                   item.label,
                   style: AppTextStyles.bodyMedium
-                      .copyWith(color: AppColors.textPrimary),
+                      .copyWith(color: context.palette.textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   item.description,
                   style: AppTextStyles.small
-                      .copyWith(color: AppColors.textSecondary),
+                      .copyWith(color: context.palette.textSecondary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -1683,7 +1684,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         case 'Smart Premium':
           return AppColors.accent;
         default:
-          return AppColors.textDisabled;
+          return context.palette.textDisabled;
       }
     }
 
@@ -1791,10 +1792,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('monthly_quota'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -1832,10 +1833,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('todays_workout'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -1876,9 +1877,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 '${workoutProvider.currentDay?.exercises.length ?? 8} ${lang.t('exercises')}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
@@ -1886,7 +1887,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ),
                         Icon(
                           isArabic ? Icons.chevron_left : Icons.chevron_right,
-                          color: AppColors.textDisabled,
+                          color: context.palette.textDisabled,
                         ),
                       ],
                     ),
@@ -1895,16 +1896,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               : Center(
                   child: Column(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.fitness_center_outlined,
                         size: 48,
-                        color: AppColors.textDisabled,
+                        color: context.palette.textDisabled,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         lang.t('no_active_workout_plan'),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -1924,10 +1925,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('todays_nutrition'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -1968,9 +1969,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 '4 ${lang.t('meals')}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
@@ -1978,7 +1979,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                         ),
                         Icon(
                           isArabic ? Icons.chevron_left : Icons.chevron_right,
-                          color: AppColors.textDisabled,
+                          color: context.palette.textDisabled,
                         ),
                       ],
                     ),
@@ -1987,16 +1988,16 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               : Center(
                   child: Column(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.restaurant_outlined,
                         size: 48,
-                        color: AppColors.textDisabled,
+                        color: context.palette.textDisabled,
                       ),
                       const SizedBox(height: 8),
                       Text(
                         lang.t('no_active_nutrition_plan'),
-                        style: const TextStyle(
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -2014,10 +2015,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('quick_actions'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -2064,10 +2065,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('home_demo_mode'),
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 12),
@@ -2077,9 +2078,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             children: [
               Text(
                 lang.t('home_demo_mode_desc'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 12),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
 import '../../core/utils/phone_number_utils.dart';
+import '../../core/theme/app_palette.dart';
 
 class InternationalPhoneInput extends StatelessWidget {
   const InternationalPhoneInput({
@@ -34,10 +35,10 @@ class InternationalPhoneInput extends StatelessWidget {
         if (label != null) ...[
           Text(
             label!,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
-              color: AppColors.textPrimary,
+              color: context.palette.textPrimary,
             ),
           ),
           const SizedBox(height: 6),
@@ -64,7 +65,7 @@ class InternationalPhoneInput extends StatelessWidget {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium),
               borderSide: BorderSide(
-                color: hasError ? AppColors.error : AppColors.border,
+                color: hasError ? AppColors.error : context.palette.border,
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -113,9 +114,9 @@ class _CountrySelector extends StatelessWidget {
     return Container(
       margin: const EdgeInsetsDirectional.only(start: 6),
       padding: const EdgeInsetsDirectional.only(start: 8),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         border: Border(
-          right: BorderSide(color: AppColors.border),
+          right: BorderSide(color: context.palette.border),
         ),
       ),
       child: DropdownButtonHideUnderline(
@@ -135,9 +136,9 @@ class _CountrySelector extends StatelessWidget {
                   value: country,
                   child: Text(
                     '${country.isoCode} ${country.dialCode}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textPrimary,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                 ),

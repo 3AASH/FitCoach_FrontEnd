@@ -8,6 +8,7 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
 import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class NutritionPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -196,9 +197,9 @@ class _NutritionPlanBuilderScreenState
                     children: [
                       Text(
                         lang.t('coach_nutrition_builder_client_label'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       Text(
@@ -431,8 +432,8 @@ class _NutritionPlanBuilderScreenState
               child: Center(
                 child: Text(
                   lang.t('coach_nutrition_builder_no_foods'),
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),

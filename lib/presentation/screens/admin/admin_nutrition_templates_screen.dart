@@ -7,6 +7,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 enum _AdminNutritionAction {
   importEngineSeed,
@@ -315,8 +316,8 @@ class _AdminNutritionTemplatesScreenState
                   _stringValue(ingredient['ingredient_id']),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                     fontSize: 11,
                   ),
                 ),
@@ -541,7 +542,7 @@ class _EmptyList extends StatelessWidget {
           Center(
             child: Text(
               message,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ),
         ],
@@ -604,8 +605,8 @@ class _NutritionEngineRecipeCard extends StatelessWidget {
                     '$recipeId - $mealTypes - $markets',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -699,8 +700,8 @@ class _NutritionEnginePlanCard extends StatelessWidget {
                     '$planType - $market - $calories kcal - $macroProfile',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -789,8 +790,8 @@ class _NutritionEngineImportCard extends StatelessWidget {
                     '$status - $count JSON files - $completedAt',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -799,8 +800,8 @@ class _NutritionEngineImportCard extends StatelessWidget {
                     'checksum $shortChecksum - recipes $recipeCount - plans $planCount',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: AppColors.textSecondary,
+                    style: TextStyle(
+                      color: context.palette.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -823,8 +824,8 @@ class _MetaText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: const TextStyle(
-        color: AppColors.textSecondary,
+      style: TextStyle(
+        color: context.palette.textSecondary,
         fontSize: 12,
       ),
     );
@@ -1874,7 +1875,7 @@ class _NutritionEnginePlanEditorSheetState
                     final nutrition = _asMap(meal['planned_nutrition']) ??
                         <String, dynamic>{};
                     return Card(
-                      color: AppColors.surface,
+                      color: context.palette.surfaceVariant,
                       margin: const EdgeInsets.only(top: 8),
                       child: Padding(
                         padding: const EdgeInsets.all(10),
@@ -2654,8 +2655,8 @@ Future<Map<String, dynamic>?> _showIngredientForm(
               const SizedBox(height: 12),
               Text(
                 lang.t('admin_per_100g_hint'),
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
+                style: TextStyle(
+                  color: context.palette.textSecondary,
                   fontSize: 12,
                 ),
               ),

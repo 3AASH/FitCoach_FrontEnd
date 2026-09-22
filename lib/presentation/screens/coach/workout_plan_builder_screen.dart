@@ -8,6 +8,7 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
 import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -170,9 +171,9 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                     children: [
                       Text(
                         languageProvider.t('coach_workout_builder_client_label'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       Text(
@@ -290,10 +291,10 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                       height: 40,
                       decoration: BoxDecoration(
                         color:
-                            isSelected ? AppColors.primary : AppColors.background,
+                            isSelected ? AppColors.primary : context.palette.surface,
                         border: Border.all(
                           color:
-                              isSelected ? AppColors.primary : AppColors.border,
+                              isSelected ? AppColors.primary : context.palette.border,
                         ),
                         borderRadius: BorderRadius.circular(8),
                       ),
@@ -303,7 +304,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                           style: TextStyle(
                             color: isSelected
                                 ? AppColors.textWhite
-                                : AppColors.textPrimary,
+                                : context.palette.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -403,16 +404,16 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
               child: Center(
                 child: Column(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.fitness_center,
                       size: 40,
-                      color: AppColors.textDisabled,
+                      color: context.palette.textDisabled,
                     ),
                     const SizedBox(height: 8),
                     Text(
                       lang.t('coach_workout_builder_no_exercises'),
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],

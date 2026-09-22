@@ -15,6 +15,7 @@ import 'coach_workout_plan_viewer_screen.dart';
 import 'coach_nutrition_plan_viewer_screen.dart';
 import 'workout_plan_editor_screen.dart';
 import 'nutrition_plan_editor_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachClientDetailScreen extends StatefulWidget {
   final String clientId;
@@ -290,14 +291,14 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.flag,
-                      size: 16, color: AppColors.textSecondary),
+                  Icon(Icons.flag,
+                      size: 16, color: context.palette.textSecondary),
                   const SizedBox(width: 8),
                   Text(
                     client.goal!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -387,7 +388,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                   shape: BoxShape.circle,
                   color: client.fitnessScore != null
                       ? _getScoreColor(client.fitnessScore!)
-                      : AppColors.textDisabled,
+                      : context.palette.textDisabled,
                 ),
                 child: Center(
                   child: Column(
@@ -524,7 +525,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                   const SizedBox(height: 4),
                   Text(
                     planName,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: context.palette.textSecondary),
                   ),
                   const SizedBox(height: 8),
                   if (hasProgress) ...[
@@ -535,17 +536,17 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                     const SizedBox(height: 4),
                     Text(
                       '${(progress * 100).round()}% ${lang.t('complete')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ] else
                     Text(
                       lang.t('coach_no_progress_yet'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                 ],
@@ -623,9 +624,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               lang.isArabic
                   ? 'كل تسجيلات العميل، بما في ذلك InBody والاستبيانات والتقدم.'
                   : 'Every client check-in, including InBody, progress, and intake events.',
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
@@ -647,16 +648,16 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Column(
         children: [
-          const Icon(
+          Icon(
             Icons.timeline_outlined,
             size: 40,
-            color: AppColors.textDisabled,
+            color: context.palette.textDisabled,
           ),
           const SizedBox(height: 12),
           Text(
@@ -674,9 +675,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                 ? 'ستظهر هنا تسجيلات InBody والتقدم والاستبيانات عند توفرها.'
                 : 'InBody, progress, and intake events will appear here once available.',
             textAlign: TextAlign.center,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ],
@@ -698,7 +699,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -733,9 +734,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                     const SizedBox(height: 4),
                     Text(
                       _formatDateTime(checkIn.occurredAt),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -774,7 +775,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppColors.background,
+                color: context.palette.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: Text(
@@ -1074,7 +1075,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
   }) {
     return Row(
       children: [
-        Icon(icon, size: 20, color: AppColors.textSecondary),
+        Icon(icon, size: 20, color: context.palette.textSecondary),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -1082,9 +1083,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
             children: [
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 2),
@@ -1115,7 +1116,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
-            color: AppColors.background,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Text(
@@ -1269,7 +1270,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       case 'intake':
         return AppColors.accent;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -1403,7 +1404,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
         return AppColors.primary;
       case 'freemium':
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -1418,7 +1419,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       case 'new':
         return AppColors.info;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 

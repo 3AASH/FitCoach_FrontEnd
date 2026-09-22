@@ -23,6 +23,7 @@ import '../../widgets/custom_card.dart';
 import '../booking/video_booking_screen.dart';
 import '../coach/public_coach_profile_screen.dart';
 import 'coach_intro_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachMessagingScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -560,9 +561,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     subtitle,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -575,9 +576,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 if (timestamp != null)
                   Text(
                     _formatInboxTime(timestamp, lang),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
-                      color: AppColors.textDisabled,
+                      color: context.palette.textDisabled,
                     ),
                   ),
                 if ((conversation?.unreadCount ?? 0) > 0) ...[
@@ -681,9 +682,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     lang.isArabic
                         ? 'محادثة مباشرة مع العميل.'
                         : 'Direct 1-to-1 chat with your client.',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -731,9 +732,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       lang.isArabic
                           ? 'محادثة مباشرة مع مدربك المعتمد.'
                           : 'Direct 1-to-1 chat with your assigned coach.',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -766,7 +767,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
-                      foregroundColor: AppColors.textPrimary,
+                      foregroundColor: context.palette.textPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -823,27 +824,27 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.chat_bubble_outline,
               size: 72,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
             const SizedBox(height: 18),
             Text(
               title,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 10),
             Text(
               description,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               textAlign: TextAlign.center,
             ),
@@ -912,7 +913,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         height: 1.4,
-                        color: isMe ? Colors.white : AppColors.textPrimary,
+                        color: isMe ? Colors.white : context.palette.textPrimary,
                       ),
                     ),
                   if (message.type == MessageType.image &&
@@ -945,7 +946,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       decoration: BoxDecoration(
                         color: isMe
                             ? Colors.white.withValues(alpha: 0.18)
-                            : AppColors.surface,
+                            : context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -961,7 +962,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                               message.content,
                               style: TextStyle(
                                 color:
-                                    isMe ? Colors.white : AppColors.textPrimary,
+                                    isMe ? Colors.white : context.palette.textPrimary,
                               ),
                             ),
                           ),
@@ -977,9 +978,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
               children: [
                 Text(
                   _formatTime(message.createdAt, lang),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textDisabled,
+                    color: context.palette.textDisabled,
                   ),
                 ),
                 if (isMe) ...[
@@ -993,7 +994,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     size: 14,
                     color: message.status == 'read'
                         ? AppColors.primary
-                        : AppColors.textDisabled,
+                        : context.palette.textDisabled,
                   ),
                 ],
               ],
@@ -1037,7 +1038,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             IconButton(
               icon: const Icon(Icons.attach_file),
               onPressed: canCompose ? () => _showAttachmentOptions(lang) : null,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           Expanded(
             child: TextField(
@@ -1050,7 +1051,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: AppColors.surface,
+                fillColor: context.palette.surfaceVariant,
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 10,
@@ -1261,7 +1262,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       return Container(
         width: 220,
         height: 220,
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         alignment: Alignment.center,
         child: const Icon(Icons.image_outlined),
       );
@@ -1275,7 +1276,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       errorBuilder: (_, __, ___) => Container(
         width: 220,
         height: 220,
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         alignment: Alignment.center,
         child: const Icon(Icons.broken_image_outlined),
       ),

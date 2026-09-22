@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 /// A text field that suggests entries from an existing library as you type.
 ///
@@ -92,7 +93,7 @@ class LibraryPickerField<T extends Object> extends StatelessWidget {
           alignment: Alignment.topLeft,
           child: Material(
             elevation: 4,
-            color: AppColors.background,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(AppRadius.medium),
             child: ConstrainedBox(
               // Without a cap the overlay grows past the screen on a long
@@ -110,7 +111,7 @@ class LibraryPickerField<T extends Object> extends StatelessWidget {
                     title: Text(
                       optionLabel(option),
                       style: AppTextStyles.smallMedium.copyWith(
-                        color: AppColors.textPrimary,
+                        color: context.palette.textPrimary,
                       ),
                     ),
                     subtitle: detail == null || detail.isEmpty
@@ -118,7 +119,7 @@ class LibraryPickerField<T extends Object> extends StatelessWidget {
                         : Text(
                             detail,
                             style: AppTextStyles.small.copyWith(
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                     onTap: () => onSelectedOption(option),

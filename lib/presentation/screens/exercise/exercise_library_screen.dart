@@ -8,6 +8,7 @@ import '../../../data/services/exercise_catalog_service.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
+import '../../../core/theme/app_palette.dart';
 
 class ExerciseLibraryScreen extends StatefulWidget {
   const ExerciseLibraryScreen({super.key});
@@ -128,7 +129,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
             isArabic
                 ? 'تعذر تحميل مكتبة التمارين'
                 : 'Failed to load exercise library',
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
         ),
       );
@@ -180,7 +181,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: AppColors.surface,
+                fillColor: context.palette.surfaceVariant,
               ),
             ),
           ),
@@ -220,19 +221,19 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.search_off,
                           size: 80,
-                          color: AppColors.textDisabled,
+                          color: context.palette.textDisabled,
                         ),
                         const SizedBox(height: 24),
                         Text(
                           isArabic
                               ? 'لم يتم العثور على تمارين'
                               : 'No exercises found',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 18,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -286,9 +287,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 const SizedBox(height: 4),
                 Text(
                   musclesLabel,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -301,7 +302,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     const SizedBox(width: 8),
                     _buildBadge(
                       equipmentLabel,
-                      AppColors.textSecondary,
+                      context.palette.textSecondary,
                     ),
                   ],
                 ),
@@ -311,7 +312,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
           Icon(
             isArabic ? Icons.chevron_left : Icons.chevron_right,
-            color: AppColors.textDisabled,
+            color: context.palette.textDisabled,
           ),
         ],
       ),
@@ -368,7 +369,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       case 'advanced':
         return AppColors.error;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -450,7 +451,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -511,7 +512,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     const SizedBox(width: 8),
                     _buildBadge(
                       equipmentLabel,
-                      AppColors.textSecondary,
+                      context.palette.textSecondary,
                     ),
                   ],
                 ),
@@ -620,9 +621,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         const SizedBox(height: 8),
         Text(
           content,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 15,
-            color: AppColors.textSecondary,
+            color: context.palette.textSecondary,
           ),
         ),
       ],
@@ -696,10 +697,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
-      child: const Icon(Icons.fitness_center, color: AppColors.textSecondary),
+      child: Icon(Icons.fitness_center, color: context.palette.textSecondary),
     );
 
     if (url == null || url.isEmpty) return placeholder;

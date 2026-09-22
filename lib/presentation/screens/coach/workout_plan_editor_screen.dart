@@ -10,6 +10,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
 import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutPlanEditorScreen extends StatefulWidget {
   final String clientId;
@@ -399,7 +400,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                               final exIndex = exEntry.key;
                               final ex = exEntry.value;
                               return Card(
-                                color: AppColors.surface,
+                                color: context.palette.surfaceVariant,
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),

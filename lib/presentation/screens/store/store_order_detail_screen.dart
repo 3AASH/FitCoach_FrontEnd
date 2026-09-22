@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
 import 'store_checkout_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class StoreOrderDetailScreen extends StatelessWidget {
   final StoreCheckoutResult order;
@@ -46,12 +47,12 @@ class StoreOrderDetailScreen extends StatelessWidget {
                     if (date != null)
                       Text(
                         DateFormat('MMM d, HH:mm').format(date),
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildProgressTimeline(status, lang),
+                _buildProgressTimeline(context, status, lang),
               ],
             ),
           ),
@@ -82,7 +83,7 @@ class StoreOrderDetailScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     shippingInfo['notes'] as String,
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: context.palette.textSecondary),
                   ),
                 ],
                 const Divider(height: 24),
@@ -169,7 +170,7 @@ class StoreOrderDetailScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProgressTimeline(String status, LanguageProvider lang) {
+  Widget _buildProgressTimeline(BuildContext context, String status, LanguageProvider lang) {
     final steps = [
       'processing',
       'confirmed',
@@ -191,7 +192,7 @@ class StoreOrderDetailScreen extends StatelessWidget {
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
-                    color: isCompleted ? AppColors.primary : AppColors.border,
+                    color: isCompleted ? AppColors.primary : context.palette.border,
                     shape: BoxShape.circle,
                   ),
                 ),
@@ -199,7 +200,7 @@ class StoreOrderDetailScreen extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 28,
-                    color: isCompleted ? AppColors.primary : AppColors.border,
+                    color: isCompleted ? AppColors.primary : context.palette.border,
                   ),
               ],
             ),
@@ -211,7 +212,7 @@ class StoreOrderDetailScreen extends StatelessWidget {
                   _statusLabel(step, lang),
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: isCompleted ? AppColors.textPrimary : AppColors.textSecondary,
+                    color: isCompleted ? context.palette.textPrimary : context.palette.textSecondary,
                   ),
                 ),
               ),
@@ -287,7 +288,7 @@ class _SummaryRow extends StatelessWidget {
               label,
               style: TextStyle(
                 fontWeight: emphasized ? FontWeight.w700 : FontWeight.w500,
-                color: emphasized ? AppColors.textPrimary : AppColors.textSecondary,
+                color: emphasized ? context.palette.textPrimary : context.palette.textSecondary,
               ),
             ),
           ),
@@ -334,8 +335,8 @@ class _OrderItemTile extends StatelessWidget {
               errorBuilder: (_, __, ___) => Container(
                 width: 56,
                 height: 56,
-                color: AppColors.surface,
-                child: const Icon(Icons.image_not_supported, color: AppColors.textDisabled),
+                color: context.palette.surfaceVariant,
+                child: Icon(Icons.image_not_supported, color: context.palette.textDisabled),
               ),
             ),
           ),
@@ -351,7 +352,7 @@ class _OrderItemTile extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   '${lang.t('quantity')}: $quantity',
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  style: TextStyle(color: context.palette.textSecondary, fontSize: 12),
                 ),
               ],
             ),

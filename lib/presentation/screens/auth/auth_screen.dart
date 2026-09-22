@@ -8,6 +8,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/international_phone_input.dart';
 import 'forgot_password_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 enum AuthStep { choose, phone, otp, email, emailSignup, completeRegistration }
 
@@ -738,10 +739,10 @@ class _AuthScreenState extends State<AuthScreen> {
                                             .t('auth_create_account')
                                         : languageProvider.t('auth_welcome'),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 22,
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: context.palette.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -766,9 +767,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                                         'auth_welcome_subtitle',
                                                       ),
                                 textAlign: TextAlign.center,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 13,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                               const SizedBox(height: 20),
@@ -789,15 +790,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                           AppRadius.medium),
                                     ),
                                   ),
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.email_outlined,
-                                    color: AppColors.textPrimary,
+                                    color: context.palette.textPrimary,
                                   ),
                                   label: Text(
                                     languageProvider
                                         .t('auth_continue_with_email'),
-                                    style: const TextStyle(
-                                      color: AppColors.textPrimary,
+                                    style: TextStyle(
+                                      color: context.palette.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -818,15 +819,15 @@ class _AuthScreenState extends State<AuthScreen> {
                                           AppRadius.medium),
                                     ),
                                   ),
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.phone_outlined,
-                                    color: AppColors.textPrimary,
+                                    color: context.palette.textPrimary,
                                   ),
                                   label: Text(
                                     languageProvider
                                         .t('auth_continue_with_phone'),
-                                    style: const TextStyle(
-                                      color: AppColors.textPrimary,
+                                    style: TextStyle(
+                                      color: context.palette.textPrimary,
                                     ),
                                   ),
                                 ),
@@ -840,8 +841,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ),
                                       child: Text(
                                         languageProvider.t('auth_or_divider'),
-                                        style: const TextStyle(
-                                          color: AppColors.textSecondary,
+                                        style: TextStyle(
+                                          color: context.palette.textSecondary,
                                           fontSize: 12,
                                         ),
                                       ),
@@ -926,9 +927,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 Text(
                                   languageProvider
                                       .t('auth_coach_default_password_help'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 12,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -1101,9 +1102,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                             languageProvider.t(
                                               'auth_signup_code_sent_help',
                                             ),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 12,
-                                              color: AppColors.textPrimary,
+                                              color: context.palette.textPrimary,
                                             ),
                                           ),
                                         ),
@@ -1304,9 +1305,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                   Text(
                                     '$_otpAttempts ${languageProvider.t('auth_attempts_remaining')}',
                                     textAlign: TextAlign.center,
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -1342,9 +1343,9 @@ class _AuthScreenState extends State<AuthScreen> {
                               if (_step == AuthStep.completeRegistration) ...[
                                 Text(
                                   languageProvider.t('auth_complete_profile_desc'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 13,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                                 const SizedBox(height: 16),
@@ -1423,7 +1424,7 @@ class _AuthScreenState extends State<AuthScreen> {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Row(
@@ -1481,7 +1482,7 @@ class _AuthScreenState extends State<AuthScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? AppColors.primary : AppColors.textSecondary,
+            color: isSelected ? AppColors.primary : context.palette.textSecondary,
           ),
         ),
       ),
@@ -1546,7 +1547,7 @@ class _AuthScreenState extends State<AuthScreen> {
       onPressed: onPressed,
       style: OutlinedButton.styleFrom(
         shape: const CircleBorder(),
-        side: const BorderSide(color: AppColors.border),
+        side: BorderSide(color: context.palette.border),
         padding: const EdgeInsets.all(12),
       ),
       child: Icon(icon, color: color, size: 22),
@@ -1566,10 +1567,10 @@ class _AuthScreenState extends State<AuthScreen> {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
         const SizedBox(height: 6),

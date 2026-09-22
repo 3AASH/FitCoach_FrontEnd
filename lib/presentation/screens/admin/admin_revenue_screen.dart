@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AdminRevenueScreen extends StatefulWidget {
   const AdminRevenueScreen({super.key});
@@ -102,9 +103,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                         children: [
                                           Text(
                                             lang.t('admin_total_revenue'),
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 14,
-                                              color: AppColors.textSecondary,
+                                              color: context.palette.textSecondary,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
@@ -134,7 +135,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                     Container(
                                       width: 1,
                                       height: 40,
-                                      color: AppColors.textDisabled,
+                                      color: context.palette.textDisabled,
                                     ),
                                     _buildStatItem(
                                       lang.t('admin_avg_transaction'),
@@ -239,9 +240,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                               padding: const EdgeInsets.only(top: 8),
                                               child: Text(
                                                 '${period.month}/${period.day}',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 10,
-                                                  color: AppColors.textSecondary,
+                                                  color: context.palette.textSecondary,
                                                 ),
                                               ),
                                             );
@@ -255,9 +256,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                           getTitlesWidget: (value, meta) {
                                             return Text(
                                               '\$${value.toInt()}',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 10,
-                                                color: AppColors.textSecondary,
+                                                color: context.palette.textSecondary,
                                               ),
                                             );
                                           },
@@ -267,7 +268,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                     borderData: FlBorderData(
                                       show: true,
                                       border: Border.all(
-                                        color: AppColors.textDisabled.withValues(alpha: 0.2),
+                                        color: context.palette.textDisabled.withValues(alpha: 0.2),
                                       ),
                                     ),
                                     minX: 0,
@@ -346,9 +347,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                               const SizedBox(height: 4),
                                               Text(
                                                 '${tier.count} ${lang.t('admin_subscriptions_label')}',
-                                                style: const TextStyle(
+                                                style: TextStyle(
                                                   fontSize: 12,
-                                                  color: AppColors.textSecondary,
+                                                  color: context.palette.textSecondary,
                                                 ),
                                               ),
                                               const SizedBox(height: 8),
@@ -356,7 +357,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                                 borderRadius: BorderRadius.circular(4),
                                                 child: LinearProgressIndicator(
                                                   value: percentage / 100,
-                                                  backgroundColor: AppColors.textDisabled.withValues(alpha: 0.2),
+                                                  backgroundColor: context.palette.textDisabled.withValues(alpha: 0.2),
                                                   valueColor: AlwaysStoppedAnimation(
                                                     _getTierColor(tier.subscriptionTier),
                                                   ),
@@ -380,9 +381,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                             ),
                                             Text(
                                               '${percentage.toStringAsFixed(1)}%',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 12,
-                                                color: AppColors.textSecondary,
+                                                color: context.palette.textSecondary,
                                               ),
                                             ),
                                           ],
@@ -420,9 +421,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 12,
-            color: AppColors.textSecondary,
+            color: context.palette.textSecondary,
           ),
         ),
       ],
@@ -443,7 +444,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
         return AppColors.primary;
       case 'freemium':
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 

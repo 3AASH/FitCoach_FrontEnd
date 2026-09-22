@@ -4,6 +4,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../../core/theme/app_palette.dart';
 
 class FirstIntakeScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -121,8 +122,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                             ),
                             Text(
                               '${_currentStep + 1}/3',
-                              style: const TextStyle(
-                                  color: AppColors.textSecondary),
+                              style: TextStyle(
+                                  color: context.palette.textSecondary),
                             ),
                           ],
                         ),
@@ -130,12 +131,12 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                         Text(
                           languageProvider.t('intake_first_subtitle'),
                           style:
-                              const TextStyle(color: AppColors.textSecondary),
+                              TextStyle(color: context.palette.textSecondary),
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
                           value: (_currentStep + 1) / 3,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: context.palette.surfaceVariant,
                           valueColor: const AlwaysStoppedAnimation<Color>(
                               AppColors.primary),
                         ),
@@ -354,7 +355,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
               : Colors.white,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : context.palette.border,
             width: 1.5,
           ),
         ),
@@ -364,7 +365,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
               isSelected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected ? AppColors.primary : context.palette.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -379,9 +380,9 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -425,7 +426,7 @@ class _StepSection extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               description,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

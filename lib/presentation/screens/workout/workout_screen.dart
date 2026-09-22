@@ -18,6 +18,7 @@ import '../messaging/coach_messaging_screen.dart';
 import './workout_intro_screen.dart';
 import './workout_exercise_session_screen.dart';
 import './workout_exercise_detail_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutScreen extends StatefulWidget {
   final bool isActive;
@@ -199,17 +200,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.palette.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 if (badgeText != null) ...[
@@ -359,9 +360,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 const SizedBox(height: 16),
                 Text(
                   workoutProvider.error!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -392,17 +393,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.fitness_center_outlined,
                 size: 80,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               const SizedBox(height: 24),
               Text(
                 languageProvider.t('no_active_workout_plan'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -428,25 +429,25 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.fitness_center_outlined,
                 size: 80,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               const SizedBox(height: 24),
               Text(
                 languageProvider.t('no_active_workout_plan'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 languageProvider.t('workout_plan_coming_soon'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -525,7 +526,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       languageProvider.t('workout_select_day'),
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -716,23 +717,23 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   children: [
                     Text(
                       lang.t('intake_banner_title'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: context.palette.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       lang.t('intake_banner_desc'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.info_outline, color: AppColors.textSecondary),
+              Icon(Icons.info_outline, color: context.palette.textSecondary),
             ],
           ),
           const SizedBox(height: 12),
@@ -741,17 +742,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Expanded(
                 child: Text(
                   lang.t('intake_banner_progress'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),
               Text(
                 '$percent%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -773,9 +774,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Text(
               lang.t('intake_banner_benefits'),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -1592,9 +1593,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               children: [
                 Text(
                   lang.t('workouts_report_injury_desc'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 12),

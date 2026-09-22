@@ -8,6 +8,7 @@ import '../../widgets/custom_card.dart';
 import '../../../data/models/public_coach_profile.dart';
 import '../../../data/repositories/coach_repository.dart';
 import '../booking/video_booking_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class PublicCoachProfileScreen extends StatefulWidget {
   final String coachId;
@@ -375,7 +376,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
               ? Center(
                   child: Text(
                     lang.t('public_coach_profile_failed'),
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: TextStyle(color: context.palette.textPrimary),
                   ),
                 )
               : NestedScrollView(
@@ -385,7 +386,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                         pinned: true,
                         elevation: 0,
                         backgroundColor:
-                            AppColors.background.withValues(alpha: 0),
+                            context.palette.background.withValues(alpha: 0),
                         leading: IconButton(
                           onPressed: () => Navigator.of(context).maybePop(),
                           icon: Icon(
@@ -446,7 +447,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                           TabBar(
                             controller: _tabController,
                             labelColor: AppColors.primary,
-                            unselectedLabelColor: AppColors.textSecondary,
+                            unselectedLabelColor: context.palette.textSecondary,
                             indicatorColor: AppColors.primary,
                             indicatorWeight: 3,
                             tabs: [
@@ -518,10 +519,10 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                           Expanded(
                             child: Text(
                               _profile!.fullName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w800,
-                                color: AppColors.textPrimary,
+                                color: context.palette.textPrimary,
                               ),
                             ),
                           ),
@@ -575,61 +576,61 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                               const SizedBox(width: 6),
                               Text(
                                 rating,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  color: AppColors.textPrimary,
+                                  color: context.palette.textPrimary,
                                 ),
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 '($reviewsCount ${lang.t('public_coach_profile_reviews')})',
-                                style: const TextStyle(
-                                  color: AppColors.textSecondary,
+                                style: TextStyle(
+                                  color: context.palette.textSecondary,
                                   fontSize: 12,
                                 ),
                               ),
                             ],
                           ),
-                          const Text(
+                          Text(
                             '-',
-                            style: TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: context.palette.textSecondary),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.people,
                                 size: 16,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 '${_profile!.activeClients} ${lang.t('public_coach_profile_active_clients')}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
                           ),
-                          const Text(
+                          Text(
                             '-',
-                            style: TextStyle(color: AppColors.textSecondary),
+                            style: TextStyle(color: context.palette.textSecondary),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const Icon(
+                              Icon(
                                 Icons.calendar_today,
                                 size: 16,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                               const SizedBox(width: 6),
                               Text(
                                 '${_profile!.yearsOfExperience} ${lang.t('public_coach_profile_years_exp')}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 12,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
@@ -653,16 +654,16 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(14),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: Text(
                         spec,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.textPrimary,
+                          color: context.palette.textPrimary,
                         ),
                       ),
                     ),
@@ -718,17 +719,17 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
           if (_profile!.bio != null) ...[
             Text(
               lang.t('public_coach_profile_about'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.textPrimary,
+                color: context.palette.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
             CustomCard(
               child: Text(
                 _profile!.bio!,
-                style: const TextStyle(color: AppColors.textPrimary),
+                style: TextStyle(color: context.palette.textPrimary),
               ),
             ),
             const SizedBox(height: 24),
@@ -737,10 +738,10 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
           // Specializations
           Text(
             lang.t('public_coach_profile_specializations'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: context.palette.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -772,10 +773,10 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
           // Contact Info
           Text(
             lang.t('public_coach_profile_contact'),
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
-              color: AppColors.textPrimary,
+              color: context.palette.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -786,7 +787,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                   leading: const Icon(Icons.email, color: AppColors.primary),
                   title: Text(
                     _profile!.email,
-                    style: const TextStyle(color: AppColors.textPrimary),
+                    style: TextStyle(color: context.palette.textPrimary),
                   ),
                 ),
                 if (_profile!.phoneNumber != null)
@@ -794,7 +795,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     leading: const Icon(Icons.phone, color: AppColors.primary),
                     title: Text(
                       _profile!.phoneNumber!,
-                      style: const TextStyle(color: AppColors.textPrimary),
+                      style: TextStyle(color: context.palette.textPrimary),
                     ),
                   ),
               ],
@@ -810,7 +811,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
         ? Center(
             child: Text(
               lang.t('public_coach_profile_no_certificates'),
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           )
         : ListView.builder(
@@ -834,9 +835,9 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                   ),
                   title: Text(
                     cert.name,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   subtitle: Column(
@@ -844,14 +845,14 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     children: [
                       Text(
                         cert.issuingOrganization,
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${_formatDate(cert.dateObtained)}${cert.expiryDate != null ? ' - ${_formatDate(cert.expiryDate!)}' : ''}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -875,7 +876,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
         ? Center(
             child: Text(
               lang.t('public_coach_profile_no_experience'),
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           )
         : ListView.builder(
@@ -891,21 +892,21 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     decoration: BoxDecoration(
                       color: exp.isCurrent
                           ? AppColors.success.withValues(alpha: 0.1)
-                          : AppColors.textSecondary.withValues(alpha: 0.1),
+                          : context.palette.textSecondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Icon(
                       Icons.work,
                       color: exp.isCurrent
                           ? AppColors.success
-                          : AppColors.textSecondary,
+                          : context.palette.textSecondary,
                     ),
                   ),
                   title: Text(
                     exp.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   subtitle: Column(
@@ -913,20 +914,20 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     children: [
                       Text(
                         exp.organization,
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${_formatDate(exp.startDate)} - ${exp.isCurrent ? lang.t('public_coach_profile_present') : _formatDate(exp.endDate!)} (${exp.duration})',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
                         exp.description,
-                        style: const TextStyle(color: AppColors.textPrimary),
+                        style: TextStyle(color: context.palette.textPrimary),
                       ),
                     ],
                   ),
@@ -942,7 +943,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
         ? Center(
             child: Text(
               lang.t('public_coach_profile_no_achievements'),
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           )
         : ListView.builder(
@@ -967,9 +968,9 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                   ),
                   title: Text(
                     achievement.title,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   subtitle: Column(
@@ -977,14 +978,14 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     children: [
                       Text(
                         achievement.description,
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         _formatDate(achievement.date),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -1081,19 +1082,19 @@ class _QuickStatCard extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w800,
-                color: AppColors.textPrimary,
+                color: context.palette.textPrimary,
               ),
             ),
             const SizedBox(height: 2),
             Text(
               label,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ],

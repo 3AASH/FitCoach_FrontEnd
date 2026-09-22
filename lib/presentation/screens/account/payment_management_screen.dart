@@ -7,6 +7,7 @@ import '../../../data/repositories/payment_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class PaymentManagementScreen extends StatefulWidget {
   const PaymentManagementScreen({super.key});
@@ -71,7 +72,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
         children: [
           Text(
             lang.t('payment_management_subtitle'),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 16),
           DemoConfig.isDemo
@@ -117,15 +118,15 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         : Icons.radio_button_unchecked,
                     color: method.id == _defaultMethodId
                         ? AppColors.primary
-                        : AppColors.textSecondary,
+                        : context.palette.textSecondary,
                   ),
                   title: Text('${method.brand} •••• ${method.last4}'),
                   subtitle: Text(method.type == 'card'
                       ? 'Exp ${method.expiry}'
                       : method.holder),
                   trailing: IconButton(
-                    icon: const Icon(Icons.delete_outline,
-                        color: AppColors.textSecondary),
+                    icon: Icon(Icons.delete_outline,
+                        color: context.palette.textSecondary),
                     onPressed: () => _removeMethod(method.id),
                   ),
                   onTap: () => setState(() => _defaultMethodId = method.id),
@@ -140,18 +141,18 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   }
 
   Widget _buildProductionMethodsCard() {
-    return const CustomCard(
+    return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Payment Methods',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Payment methods are managed securely by your payment provider in production mode.',
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -186,11 +187,11 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               style: const TextStyle(color: AppColors.error),
             )
           else if (_paymentHistory.isEmpty)
-            const Text(
+            Text(
               DemoConfig.isDemo
                   ? 'No demo transactions available.'
                   : 'No payment history found yet.',
-              style: TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             )
           else
             ..._paymentHistory.take(5).map((payment) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 /// Enhanced text field that EXACTLY matches React input design
 /// - Focus ring with purple color
@@ -88,7 +89,7 @@ class _EnhancedTextFieldState extends State<EnhancedTextField> {
           Text(
             widget.label!,
             style: AppTextStyles.label.copyWith(
-              color: widget.enabled ? AppColors.textPrimary : AppColors.textDisabled,
+              color: widget.enabled ? context.palette.textPrimary : context.palette.textDisabled,
             ),
           ),
           const SizedBox(height: 8),
@@ -130,34 +131,34 @@ class _EnhancedTextFieldState extends State<EnhancedTextField> {
             validator: widget.validator,
             autovalidateMode: widget.autovalidateMode,
             style: AppTextStyles.body.copyWith(
-              color: widget.enabled ? AppColors.textPrimary : AppColors.textDisabled,
+              color: widget.enabled ? context.palette.textPrimary : context.palette.textDisabled,
             ),
             decoration: InputDecoration(
               hintText: widget.hint,
               hintStyle: AppTextStyles.body.copyWith(
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               prefixIcon: widget.prefixIcon,
               suffixIcon: widget.suffixIcon,
               filled: true,
               fillColor: widget.enabled
-                  ? AppColors.surface
-                  : AppColors.surface.withValues(alpha: 0.5),
+                  ? context.palette.surfaceVariant
+                  : context.palette.surfaceVariant.withValues(alpha: 0.5),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: const BorderSide(
-                  color: AppColors.border,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: const BorderSide(
-                  color: AppColors.border,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1,
                 ),
               ),
@@ -185,7 +186,7 @@ class _EnhancedTextFieldState extends State<EnhancedTextField> {
               disabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
                 borderSide: BorderSide(
-                  color: AppColors.border.withValues(alpha: 0.5),
+                  color: context.palette.border.withValues(alpha: 0.5),
                   width: 1,
                 ),
               ),
@@ -268,7 +269,7 @@ class _EnhancedDropdownState<T> extends State<EnhancedDropdown<T>> {
           Text(
             widget.label!,
             style: AppTextStyles.label.copyWith(
-              color: widget.enabled ? AppColors.textPrimary : AppColors.textDisabled,
+              color: widget.enabled ? context.palette.textPrimary : context.palette.textDisabled,
             ),
           ),
           const SizedBox(height: 8),
@@ -302,23 +303,23 @@ class _EnhancedDropdownState<T> extends State<EnhancedDropdown<T>> {
               hintText: widget.hint,
               filled: true,
               fillColor: widget.enabled
-                  ? AppColors.surface
-                  : AppColors.surface.withValues(alpha: 0.5),
+                  ? context.palette.surfaceVariant
+                  : context.palette.surfaceVariant.withValues(alpha: 0.5),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: const BorderSide(
-                  color: AppColors.border,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1,
                 ),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(AppRadius.medium),
-                borderSide: const BorderSide(
-                  color: AppColors.border,
+                borderSide: BorderSide(
+                  color: context.palette.border,
                   width: 1,
                 ),
               ),
@@ -331,7 +332,7 @@ class _EnhancedDropdownState<T> extends State<EnhancedDropdown<T>> {
               ),
             ),
             style: AppTextStyles.body.copyWith(
-              color: AppColors.textPrimary,
+              color: context.palette.textPrimary,
             ),
           ),
         ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 /// Wrapper widget that adds React-style focus rings to any widget
 /// Matches React's focus-visible:ring-ring/50 focus-visible:ring-[3px]
@@ -102,15 +103,15 @@ InputDecoration getFocusedInputDecoration({
     errorText: errorText,
     enabled: enabled,
     filled: true,
-    fillColor: enabled ? AppColors.surface : AppColors.surface.withValues(alpha: 0.5),
+    fillColor: enabled ? context.palette.surfaceVariant : context.palette.surfaceVariant.withValues(alpha: 0.5),
     contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: const BorderSide(color: AppColors.border, width: 1),
+      borderSide: BorderSide(color: context.palette.border, width: 1),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: const BorderSide(color: AppColors.border, width: 1),
+      borderSide: BorderSide(color: context.palette.border, width: 1),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
@@ -126,7 +127,7 @@ InputDecoration getFocusedInputDecoration({
     ),
     disabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(AppRadius.medium),
-      borderSide: BorderSide(color: AppColors.border.withValues(alpha: 0.5), width: 1),
+      borderSide: BorderSide(color: context.palette.border.withValues(alpha: 0.5), width: 1),
     ),
   );
 }

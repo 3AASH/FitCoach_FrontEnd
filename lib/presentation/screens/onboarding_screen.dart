@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../providers/language_provider.dart';
+import '../../core/theme/app_palette.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -82,7 +83,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 left: isArabic ? 16 : null,
                 child: TextButton(
                   style: TextButton.styleFrom(
-                    foregroundColor: AppColors.textSecondary,
+                    foregroundColor: context.palette.textSecondary,
                     backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     shape: RoundedRectangleBorder(
@@ -108,7 +109,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.textWhite.withValues(alpha: 0.8),
                         border: Border(
-                          top: BorderSide(color: AppColors.border.withValues(alpha: 0.8)),
+                          top: BorderSide(color: context.palette.border.withValues(alpha: 0.8)),
                         ),
                       ),
                       child: Column(
@@ -159,7 +160,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                 ),
                                 child: Icon(
                                   isArabic ? Icons.chevron_right : Icons.chevron_left,
-                                  color: AppColors.textPrimary,
+                                  color: context.palette.textPrimary,
                                 ),
                               ),
                               const SizedBox(width: 16),
@@ -379,11 +380,11 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
-                                      color: AppColors.surface,
+                                      color: context.palette.surfaceVariant,
                                       alignment: Alignment.center,
-                                      child: const Icon(
+                                      child: Icon(
                                         Icons.image_not_supported_outlined,
-                                        color: AppColors.textDisabled,
+                                        color: context.palette.textDisabled,
                                       ),
                                     );
                                   },
@@ -423,7 +424,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                         child: Text(
                           widget.slide.title,
                           style: AppTextStyles.h1.copyWith(
-                            color: AppColors.textPrimary,
+                            color: context.palette.textPrimary,
                           ),
                           textAlign: widget.isArabic ? TextAlign.right : TextAlign.left,
                         ),
@@ -442,7 +443,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                         child: Text(
                           widget.slide.description,
                           style: AppTextStyles.body.copyWith(
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                           textAlign: widget.isArabic ? TextAlign.right : TextAlign.left,
                         ),
@@ -486,7 +487,7 @@ class _PageIndicator extends StatelessWidget {
           width: isActive ? 32 : 8,
           height: 8,
           decoration: BoxDecoration(
-            color: isActive ? accentColor : AppColors.border,
+            color: isActive ? accentColor : context.palette.border,
             borderRadius: BorderRadius.circular(4),
           ),
         ),

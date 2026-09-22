@@ -5,6 +5,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/audit_log.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AdminAuditLogsScreen extends StatefulWidget {
   const AdminAuditLogsScreen({super.key});
@@ -138,17 +139,17 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.history,
                                   size: 64,
-                                  color: AppColors.textDisabled,
+                                  color: context.palette.textDisabled,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   lang.t('admin_no_logs'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                               ],
@@ -213,41 +214,41 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                     if (log.userName != null)
                       Text(
                         '${lang.t('admin_user_label')}: ${log.userName}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.access_time,
                           size: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           _formatDateTime(log.createdAt),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                         if (log.ipAddress != null) ...[
                           const SizedBox(width: 12),
-                          const Icon(
+                          Icon(
                             Icons.location_on,
                             size: 12,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                           const SizedBox(width: 4),
                           Flexible(
                             child: Text(
                               log.ipAddress!,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -263,7 +264,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                 Directionality.of(context) == TextDirection.rtl
                     ? Icons.chevron_left
                     : Icons.chevron_right,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ],
           ),
@@ -303,9 +304,9 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                 const SizedBox(height: 8),
                 Text(
                   lang.t('admin_user_agent'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -318,16 +319,16 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                 const SizedBox(height: 12),
                 Text(
                   lang.t('admin_additional_details'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: AppColors.background,
+                    color: context.palette.surface,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -359,9 +360,9 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
             width: 100,
             child: Text(
               '$label:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),

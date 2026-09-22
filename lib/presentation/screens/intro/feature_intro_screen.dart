@@ -4,6 +4,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/animated_reveal.dart';
+import '../../../core/theme/app_palette.dart';
 
 class FeatureIntroScreen extends StatefulWidget {
   final String feature; // 'workout', 'nutrition', 'store', 'coach'
@@ -46,8 +47,8 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
             onPressed: widget.onComplete,
             child: Text(
               isArabic ? 'تخطي' : 'Skip',
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: context.palette.textSecondary,
                 fontSize: 16,
               ),
             ),
@@ -87,7 +88,7 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
                       decoration: BoxDecoration(
                         color: _currentPage == index
                             ? AppColors.primary
-                            : AppColors.border,
+                            : context.palette.border,
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
