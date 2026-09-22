@@ -622,12 +622,19 @@ class WorkoutRepository {
   // Get exercise alternatives (injury-safe substitutions)
   Future<List<Exercise>> getExerciseAlternatives(
     String exerciseId,
-    List<String> userInjuries,
-  ) async {
+    List<String> userInjuries, {
+    String? workoutLocation,
+  }) async {
     try {
       final response = await _dio.get(
         '/exercises/alternatives/$exerciseId',
-        queryParameters: {'injuries': userInjuries.join(',')},
+        queryParameters: {
+          'injuries': userInjuries.join(','),
+          // Restricts the list to what the user can train with. Omitted when
+          // unknown, which the backend reads from the stored intake answer.
+          if (workoutLocation != null && workoutLocation.trim().isNotEmpty)
+            'location': workoutLocation.trim(),
+        },
         options: await _getAuthOptions(),
       );
 
@@ -640,6 +647,26 @@ class WorkoutRepository {
       }
       throw Exception(
           e.response?.data['message'] ?? 'Failed to load alternatives');
+    }
+  }
+
+  /// Report an injured body part. The backend records it and re-applies the
+  /// whole plan around it, so every conflicting exercise is swapped rather than
+  /// only the one the user happened to be looking at.
+  ///
+  /// Returns the number of injuries now on record, and whether the plan was
+  /// rebuilt.
+  Future<Map<String, dynamic>> reportInjury(List<String> injuries) async {
+    try {
+      final response = await _dio.post(
+        '/workouts/report-injury',
+        data: {'injuries': injuries},
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to report injury');
     }
   }
 

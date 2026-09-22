@@ -6,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../auth/forgot_password_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 /// Change the account password.
 ///
@@ -109,7 +110,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
               const SizedBox(height: 8),
               Text(
                 t('change_password_none_body'),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ],
           ),

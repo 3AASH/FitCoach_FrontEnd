@@ -28,6 +28,9 @@ class CoachProvider extends ChangeNotifier {
   CoachClient? _selectedClient;
   List<CoachClientCheckIn> _clientCheckIns = [];
   CoachClientCheckIn? _latestClientCheckIn;
+  List<Map<String, dynamic>> _exerciseLibrary = const [];
+  List<Map<String, dynamic>> _recipeLibrary = const [];
+  bool _librariesLoaded = false;
 
   // Getters
   bool get isLoading => _isLoading;
@@ -38,6 +41,8 @@ class CoachProvider extends ChangeNotifier {
   List<Appointment> get appointments => _appointments;
   CoachAnalytics? get analytics => _analytics;
   CoachEarnings? get earnings => _earnings;
+  List<Map<String, dynamic>> get exerciseLibrary => _exerciseLibrary;
+  List<Map<String, dynamic>> get recipeLibrary => _recipeLibrary;
   CoachClient? get selectedClient => _selectedClient;
   List<CoachClientCheckIn> get clientCheckIns => _clientCheckIns;
   CoachClientCheckIn? get latestClientCheckIn => _latestClientCheckIn;
@@ -564,6 +569,38 @@ class CoachProvider extends ChangeNotifier {
       notifyListeners();
       return false;
     }
+  }
+
+  /// Load the exercise and recipe libraries the plan builders search.
+  ///
+  /// Both are cached for the life of the provider: they are reference data
+  /// that does not change while a coach edits a plan, and re-fetching on every
+  /// keystroke would put a request behind each character typed. Failures are
+  /// swallowed into [_error] rather than thrown, because an empty library must
+  /// still leave the field usable as free text.
+  Future<void> loadPlanLibraries({bool force = false}) async {
+    if (_librariesLoaded && !force) return;
+    _librariesLoaded = true;
+
+    if (DemoConfig.isDemo) {
+      _exerciseLibrary = const [];
+      _recipeLibrary = const [];
+      notifyListeners();
+      return;
+    }
+
+    try {
+      final results = await Future.wait([
+        _repository.getExerciseLibrary(),
+        _repository.getRecipeLibrary(),
+      ]);
+      _exerciseLibrary = results[0];
+      _recipeLibrary = results[1];
+    } catch (e) {
+      _librariesLoaded = false;
+      _error = e.toString();
+    }
+    notifyListeners();
   }
 
   /// Refresh all data

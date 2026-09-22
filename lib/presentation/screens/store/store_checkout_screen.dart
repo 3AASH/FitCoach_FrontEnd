@@ -8,6 +8,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/store_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 enum StorePaymentMethod { card, cod }
 
@@ -490,9 +491,9 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
         fillColor = AppColors.primary;
         textColor = Colors.white;
       } else {
-        borderColor = AppColors.border;
+        borderColor = context.palette.border;
         fillColor = Colors.white;
-        textColor = AppColors.textSecondary;
+        textColor = context.palette.textSecondary;
       }
 
       return Expanded(
@@ -523,8 +524,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: isActive || isComplete
-                    ? AppColors.textPrimary
-                    : AppColors.textSecondary,
+                    ? context.palette.textPrimary
+                    : context.palette.textSecondary,
               ),
             ),
           ],
@@ -537,14 +538,14 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
         child: Container(
           height: 2,
           margin: const EdgeInsets.only(bottom: 18),
-          color: complete ? AppColors.success : AppColors.border,
+          color: complete ? AppColors.success : context.palette.border,
         ),
       );
     }
 
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-      color: AppColors.surface,
+      color: context.palette.surfaceVariant,
       child: Row(
         children: [
           stepDot(0, lang.t('checkout_step_shipping')),
@@ -651,6 +652,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       initialValue: _selectedCountryCode,
+                      isExpanded: true,
                       decoration: InputDecoration(
                         labelText: lang.t('checkout_country'),
                         prefixIcon: const Icon(Icons.public),
@@ -658,12 +660,15 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         filled: true,
-                        fillColor: AppColors.surface,
+                        fillColor: context.palette.surfaceVariant,
                       ),
                       items: _countryOptions.map((country) {
                         return DropdownMenuItem<String>(
                           value: country['code'],
-                          child: Text(lang.t(country['labelKey']!)),
+                          child: Text(
+                            lang.t(country['labelKey']!),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         );
                       }).toList(),
                       onChanged: (value) {
@@ -796,7 +801,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
         const SizedBox(height: 6),
         Text(
           lang.t('order_success_message'),
-          style: const TextStyle(color: AppColors.textSecondary),
+          style: TextStyle(color: context.palette.textSecondary),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 16),
@@ -848,8 +853,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                         const SizedBox(height: 2),
                         Text(
                           '$qty x ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                          style: const TextStyle(
-                              color: AppColors.textSecondary, fontSize: 12),
+                          style: TextStyle(
+                              color: context.palette.textSecondary, fontSize: 12),
                         ),
                       ],
                     ),
@@ -868,10 +873,10 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     final fallback = Container(
       width: 46,
       height: 46,
-      color: AppColors.surface,
-      child: const Icon(
+      color: context.palette.surfaceVariant,
+      child: Icon(
         Icons.image_not_supported_outlined,
-        color: AppColors.textDisabled,
+        color: context.palette.textDisabled,
         size: 22,
       ),
     );
@@ -894,7 +899,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     Widget row(String label, String value, {bool strong = false}) {
       final style = TextStyle(
         fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
-        color: strong ? AppColors.textPrimary : AppColors.textSecondary,
+        color: strong ? context.palette.textPrimary : context.palette.textSecondary,
       );
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),

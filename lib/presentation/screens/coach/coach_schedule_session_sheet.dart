@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../../core/theme/app_palette.dart';
 
 Future<void> showCoachScheduleSessionSheet(
   BuildContext context, {
@@ -170,7 +171,7 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
           ),
           Text(
             lang.t('coach_schedule_subtitle', args: {'client': widget.clientName}),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 16),
           ListTile(

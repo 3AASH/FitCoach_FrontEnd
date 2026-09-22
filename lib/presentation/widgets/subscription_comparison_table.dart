@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../../data/models/subscription_plan.dart';
 import '../providers/language_provider.dart';
+import '../../core/theme/app_palette.dart';
 
 class SubscriptionComparisonTable extends StatelessWidget {
   final List<SubscriptionPlan> plans;
@@ -75,10 +76,10 @@ class SubscriptionComparisonTable extends StatelessWidget {
           width: 180,
           child: Text(
             tr('subscription_features_header'),
-            style: const TextStyle(
+            style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 13,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ),
@@ -155,9 +156,9 @@ class SubscriptionComparisonTable extends StatelessWidget {
                           'note': tr('subscription_yearly_note'),
                         },
                       ),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ),
@@ -212,7 +213,7 @@ class SubscriptionComparisonTable extends StatelessWidget {
                     included ? Icons.check_circle : Icons.cancel,
                     size: 18,
                     color:
-                        included ? AppColors.success : AppColors.textDisabled,
+                        included ? AppColors.success : context.palette.textDisabled,
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -223,8 +224,8 @@ class SubscriptionComparisonTable extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 12,
                         color: included
-                            ? AppColors.textPrimary
-                            : AppColors.textSecondary,
+                            ? context.palette.textPrimary
+                            : context.palette.textSecondary,
                       ),
                       maxLines: 3,
                       overflow: TextOverflow.ellipsis,

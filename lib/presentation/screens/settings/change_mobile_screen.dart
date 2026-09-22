@@ -5,6 +5,7 @@ import '../../../data/repositories/user_repository.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 /// Change the mobile number on the account.
 ///
@@ -121,7 +122,7 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t('change_mobile_current'),
-                    style: const TextStyle(color: AppColors.textSecondary)),
+                    style: TextStyle(color: context.palette.textSecondary)),
                 const SizedBox(height: 4),
                 Text(currentNumber,
                     style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -148,7 +149,7 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
                   Text(
                     t('change_mobile_code_sent',
                         args: {'phone': _newPhoneNumber}),
-                    style: const TextStyle(color: AppColors.textSecondary),
+                    style: TextStyle(color: context.palette.textSecondary),
                   ),
                   const SizedBox(height: 12),
                   TextField(

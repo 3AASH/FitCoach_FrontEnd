@@ -4,6 +4,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import 'dart:async';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutTimerScreen extends StatefulWidget {
   final String exerciseName;
@@ -63,7 +64,7 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
           // Progress indicator
           LinearProgressIndicator(
             value: _currentSet / widget.sets,
-            backgroundColor: AppColors.surface,
+            backgroundColor: context.palette.surfaceVariant,
             valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primary),
           ),
 
@@ -123,9 +124,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                             const SizedBox(height: 8),
                             Text(
                               languageProvider.t('workouts_rest_time'),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           ] else ...[
@@ -146,9 +147,9 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
                             const SizedBox(height: 8),
                             Text(
                               languageProvider.t('reps'),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 20,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           ],

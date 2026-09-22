@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
 import '../providers/quota_provider.dart';
 import '../providers/language_provider.dart';
+import '../../core/theme/app_palette.dart';
 
 class QuotaIndicator extends StatelessWidget {
   final String type; // 'message' or 'videoCall'
@@ -122,10 +123,10 @@ class QuotaIndicator extends StatelessWidget {
                   isMessage
                       ? translator('messages_remaining_label')
                       : translator('video_calls_remaining_label'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.palette.textPrimary,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
@@ -153,9 +154,9 @@ class QuotaIndicator extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 '/ $limit',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -287,9 +288,9 @@ class QuotaBanner extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   translator('quota_upgrade_prompt'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ],

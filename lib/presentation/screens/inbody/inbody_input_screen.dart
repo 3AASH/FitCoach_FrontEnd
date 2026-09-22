@@ -13,6 +13,7 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../subscription/subscription_manager_screen.dart';
 import '../subscription/subscription_upgrade_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class InBodyInputScreen extends StatefulWidget {
   const InBodyInputScreen({super.key});
@@ -95,9 +96,9 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
             isArabic
                 ? 'كيف تريد إدخال بيانات InBody الخاصة بك؟'
                 : 'How would you like to enter your InBody data?',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
           const SizedBox(height: 32),
@@ -138,13 +139,13 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                               : null,
                           color: isPremium
                               ? null
-                              : AppColors.textDisabled.withValues(alpha: 0.2),
+                              : context.palette.textDisabled.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.auto_awesome,
                           color:
-                              isPremium ? Colors.white : AppColors.textDisabled,
+                              isPremium ? Colors.white : context.palette.textDisabled,
                           size: 30,
                         ),
                       ),
@@ -166,10 +167,10 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                                 ),
                                 const SizedBox(width: 8),
                                 if (!isPremium)
-                                  const Icon(
+                                  Icon(
                                     Icons.lock,
                                     size: 16,
-                                    color: AppColors.textDisabled,
+                                    color: context.palette.textDisabled,
                                   ),
                               ],
                             ),
@@ -178,9 +179,9 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                               isArabic
                                   ? 'التقط صورة لتقرير InBody الخاص بك'
                                   : 'Take a photo of your InBody report',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 13,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                             if (isPremium)
@@ -232,8 +233,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       Icon(
                         Icons.chevron_right,
                         color: isPremium
-                            ? AppColors.textSecondary
-                            : AppColors.textDisabled,
+                            ? context.palette.textSecondary
+                            : context.palette.textDisabled,
                       ),
                     ],
                   ),
@@ -318,9 +319,9 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                         isArabic
                             ? 'أدخل القياسات يدوياً'
                             : 'Enter measurements manually',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -336,9 +337,9 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                             isArabic
                                 ? 'متاح لجميع المستخدمين'
                                 : 'Available for all users',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -348,7 +349,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 ),
                 Icon(
                   isArabic ? Icons.chevron_left : Icons.chevron_right,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
               ],
             ),
@@ -372,9 +373,9 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     isArabic
                         ? 'يساعدك تحليل InBody على تتبع تكوين جسمك بدقة وتحديد أهداف واقعية'
                         : 'InBody analysis helps you track your body composition accurately and set realistic goals',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ),
@@ -423,7 +424,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.palette.border),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.08),
@@ -462,7 +463,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 isArabic
                     ? 'التقط صورة واضحة لتقرير InBody وسنملأ الأرقام تلقائياً.'
                     : 'Capture a clear photo of your InBody report and we will fill every metric for you.',
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 20),
@@ -534,7 +535,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.palette.border),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.08),
@@ -589,7 +590,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       ? 'نستخرج تلقائياً كل البيانات المهمة من تقريرك.'
                       : 'We extract every important metric from your report.',
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
                 const SizedBox(height: 12),
                 const LinearProgressIndicator(value: 0.65, minHeight: 6),
@@ -604,7 +605,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                   isArabic
                       ? 'راجع أبرز القياسات ثم تابع لتعديل أي قيمة قبل الحفظ.'
                       : 'Review the highlighted metrics, then continue to fine-tune before saving.',
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
@@ -640,7 +641,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
               ] else ...[
                 Text(
                   isArabic ? 'جارٍ تجهيز المعاينة...' : 'Preparing preview...',
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
               ],
             ],
@@ -657,7 +658,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           width: 34,
           height: 34,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.palette.surfaceVariant,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Icon(icon, size: 18, color: AppColors.primary),
@@ -666,7 +667,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
         ),
       ],
@@ -745,7 +746,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           Text(
             label,
             style:
-                const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                TextStyle(color: context.palette.textSecondary, fontSize: 12),
           ),
         ],
       ),

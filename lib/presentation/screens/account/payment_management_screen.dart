@@ -7,12 +7,14 @@ import '../../../data/repositories/payment_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class PaymentManagementScreen extends StatefulWidget {
   const PaymentManagementScreen({super.key});
 
   @override
-  State<PaymentManagementScreen> createState() => _PaymentManagementScreenState();
+  State<PaymentManagementScreen> createState() =>
+      _PaymentManagementScreenState();
 }
 
 class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
@@ -70,10 +72,12 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
         children: [
           Text(
             lang.t('payment_management_subtitle'),
-            style: const TextStyle(color: AppColors.textSecondary),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 16),
-          DemoConfig.isDemo ? _buildMethodsCard(lang) : _buildProductionMethodsCard(),
+          DemoConfig.isDemo
+              ? _buildMethodsCard(lang)
+              : _buildProductionMethodsCard(),
           const SizedBox(height: 16),
           _buildHistoryCard(lang),
           const SizedBox(height: 16),
@@ -106,21 +110,26 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           ..._methods.map(
             (method) => Column(
               children: [
-                RadioListTile<String>(
-                  value: method.id,
-                  groupValue: _defaultMethodId,
+                ListTile(
                   contentPadding: EdgeInsets.zero,
-                  activeColor: AppColors.primary,
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => _defaultMethodId = value);
-                  },
+                  leading: Icon(
+                    method.id == _defaultMethodId
+                        ? Icons.radio_button_checked
+                        : Icons.radio_button_unchecked,
+                    color: method.id == _defaultMethodId
+                        ? AppColors.primary
+                        : context.palette.textSecondary,
+                  ),
                   title: Text('${method.brand} •••• ${method.last4}'),
-                  subtitle: Text(method.type == 'card' ? 'Exp ${method.expiry}' : method.holder),
-                  secondary: IconButton(
-                    icon: const Icon(Icons.delete_outline, color: AppColors.textSecondary),
+                  subtitle: Text(method.type == 'card'
+                      ? 'Exp ${method.expiry}'
+                      : method.holder),
+                  trailing: IconButton(
+                    icon: Icon(Icons.delete_outline,
+                        color: context.palette.textSecondary),
                     onPressed: () => _removeMethod(method.id),
                   ),
+                  onTap: () => setState(() => _defaultMethodId = method.id),
                 ),
                 if (method != _methods.last) const Divider(height: 0),
               ],
@@ -132,18 +141,18 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   }
 
   Widget _buildProductionMethodsCard() {
-    return const CustomCard(
+    return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'Payment Methods',
             style: TextStyle(fontWeight: FontWeight.w700),
           ),
-          SizedBox(height: 8),
+          const SizedBox(height: 8),
           Text(
             'Payment methods are managed securely by your payment provider in production mode.',
-            style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+            style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -158,9 +167,9 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
+              const Text(
                 'Recent Payments',
-                style: const TextStyle(fontWeight: FontWeight.w700),
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
               if (!DemoConfig.isDemo)
                 IconButton(
@@ -182,17 +191,19 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               DemoConfig.isDemo
                   ? 'No demo transactions available.'
                   : 'No payment history found yet.',
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             )
           else
             ..._paymentHistory.take(5).map((payment) {
               final amount = payment['amount'];
-              final currency = (payment['currency'] ?? 'SAR').toString().toUpperCase();
+              final currency =
+                  (payment['currency'] ?? 'SAR').toString().toUpperCase();
               final status = (payment['status'] ?? '').toString();
               final tier = (payment['tier'] ?? '').toString();
               return ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.receipt_long, color: AppColors.primary),
+                leading:
+                    const Icon(Icons.receipt_long, color: AppColors.primary),
                 title: Text(
                   '$tier ${amount ?? '-'} $currency',
                   maxLines: 1,
@@ -229,7 +240,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           const Divider(height: 12),
           ListTile(
             contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.work_outline, color: AppColors.secondaryForeground),
+            leading: const Icon(Icons.work_outline,
+                color: AppColors.secondaryForeground),
             title: Text(lang.t('payment_secondary_address')),
             subtitle: const Text('Remote Office Hub, Dammam 12211'),
             trailing: TextButton(
@@ -314,7 +326,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                     _PaymentMethod(
                       id: 'card_${DateTime.now().millisecondsSinceEpoch}',
                       brand: 'Visa',
-                      last4: cardNumberController.text.substring(cardNumberController.text.length - 4),
+                      last4: cardNumberController.text
+                          .substring(cardNumberController.text.length - 4),
                       expiry: expiryController.text,
                       holder: holderController.text,
                       type: 'card',

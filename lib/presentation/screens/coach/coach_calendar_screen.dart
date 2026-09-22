@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../core/constants/colors.dart';
@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../../data/models/appointment.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachCalendarScreen extends StatefulWidget {
   const CoachCalendarScreen({super.key});
@@ -191,9 +192,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                           ),
                           Text(
                             '${selectedDayAppointments.length}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -211,14 +212,15 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                                   Icon(
                                     Icons.event_busy,
                                     size: 64,
-                                    color: AppColors.textDisabled,
+                                    color: context.palette.textDisabled,
                                   ),
                                   const SizedBox(height: 16),
                                   Text(
-                                    lang.t('coach_calendar_no_appointments_day'),
-                                    style: const TextStyle(
+                                    lang.t(
+                                        'coach_calendar_no_appointments_day'),
+                                    style: TextStyle(
                                       fontSize: 16,
-                                      color: AppColors.textSecondary,
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -270,7 +272,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    _formatTime(DateTime.parse(appointment.scheduledAt).toLocal()),
+                    _formatTime(
+                        DateTime.parse(appointment.scheduledAt).toLocal()),
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -301,14 +304,14 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                           Icon(
                             _getTypeIcon(appointment.type ?? ''),
                             size: 14,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                           const SizedBox(width: 4),
                           Text(
                             '${_getTypeDisplayName(appointment.type, lang)} - ${appointment.durationMinutes ?? '-'} ${lang.t('minute_short')}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         ],
@@ -341,9 +344,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               const SizedBox(height: 12),
               Text(
                 appointment.notes!,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -442,7 +445,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               children: [
                 // Client selection
                 DropdownButtonFormField<String>(
-                  value: selectedClientId,
+                  initialValue: selectedClientId,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_calendar_client_label'),
                     border: const OutlineInputBorder(),
@@ -504,7 +507,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
 
                 // Duration
                 DropdownButtonFormField<int>(
-                  value: duration,
+                  initialValue: duration,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_schedule_duration_label'),
                     border: const OutlineInputBorder(),
@@ -526,7 +529,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
 
                 // Type
                 DropdownButtonFormField<String>(
-                  value: type,
+                  initialValue: type,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_calendar_type_label'),
                     border: const OutlineInputBorder(),
@@ -575,6 +578,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               onPressed: selectedClientId == null
                   ? null
                   : () async {
+                      final messenger = ScaffoldMessenger.of(this.context);
                       Navigator.pop(context);
 
                       // Backend stores schedules in UTC
@@ -598,7 +602,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                       );
 
                       if (success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(
                               lang.t('coach_calendar_create_success'),
@@ -608,7 +612,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                         );
                         _loadAppointments();
                       } else if (mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           SnackBar(
                             content: Text(
                               coachProvider.error ??
@@ -633,8 +637,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
     LanguageProvider lang,
   ) {
     DateTime selectedDate = DateTime.parse(appointment.scheduledAt).toLocal();
-    TimeOfDay selectedTime =
-        TimeOfDay.fromDateTime(DateTime.parse(appointment.scheduledAt).toLocal());
+    TimeOfDay selectedTime = TimeOfDay.fromDateTime(
+        DateTime.parse(appointment.scheduledAt).toLocal());
     int duration = appointment.durationMinutes ?? 30;
     final notesController = TextEditingController(text: appointment.notes);
 
@@ -689,7 +693,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
 
                 // Duration
                 DropdownButtonFormField<int>(
-                  value: duration,
+                  initialValue: duration,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_schedule_duration_label'),
                     border: const OutlineInputBorder(),
@@ -728,6 +732,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final coachProvider = this.context.read<CoachProvider>();
+                final messenger = ScaffoldMessenger.of(this.context);
                 Navigator.pop(context);
 
                 // Backend stores schedules in UTC
@@ -739,7 +745,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   selectedTime.minute,
                 ).toUtc();
 
-                final coachProvider = context.read<CoachProvider>();
                 final success = await coachProvider.updateAppointment(
                   coachId: authProvider.user!.id,
                   appointmentId: appointment.id,
@@ -751,7 +756,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                 );
 
                 if (success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(lang.t('coach_calendar_update_success')),
                       backgroundColor: AppColors.success,
@@ -759,7 +764,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   );
                   _loadAppointments();
                 } else if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(
                         coachProvider.error ??
@@ -795,9 +800,10 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final coachProvider = this.context.read<CoachProvider>();
+              final messenger = ScaffoldMessenger.of(this.context);
               Navigator.pop(context);
 
-              final coachProvider = context.read<CoachProvider>();
               final success = await coachProvider.updateAppointment(
                 coachId: authProvider.user!.id,
                 appointmentId: appointment.id,
@@ -805,7 +811,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               );
 
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(lang.t('coach_calendar_cancel_success')),
                     backgroundColor: AppColors.success,
@@ -813,7 +819,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                 );
                 _loadAppointments();
               } else if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(
                       coachProvider.error ??
@@ -853,9 +859,10 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final coachProvider = this.context.read<CoachProvider>();
+              final messenger = ScaffoldMessenger.of(this.context);
               Navigator.pop(context);
 
-              final coachProvider = context.read<CoachProvider>();
               final success = await coachProvider.updateAppointment(
                 coachId: authProvider.user!.id,
                 appointmentId: appointment.id,
@@ -863,7 +870,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               );
 
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(lang.t('coach_calendar_confirm_title')),
                     backgroundColor: AppColors.success,
@@ -871,10 +878,11 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                 );
                 _loadAppointments();
               } else if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(
-                      coachProvider.error ?? lang.t('coach_calendar_update_failed'),
+                      coachProvider.error ??
+                          lang.t('coach_calendar_update_failed'),
                     ),
                     backgroundColor: AppColors.error,
                   ),
@@ -924,18 +932,21 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
           ),
           ElevatedButton(
             onPressed: () async {
+              final coachProvider = this.context.read<CoachProvider>();
+              final messenger = ScaffoldMessenger.of(this.context);
               Navigator.pop(context);
 
-              final coachProvider = context.read<CoachProvider>();
               final success = await coachProvider.updateAppointment(
                 coachId: authProvider.user!.id,
                 appointmentId: appointment.id,
                 status: 'rejected',
-                notes: reasonController.text.isNotEmpty ? reasonController.text : null,
+                notes: reasonController.text.isNotEmpty
+                    ? reasonController.text
+                    : null,
               );
 
               if (success && mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(lang.t('coach_calendar_reject_title')),
                     backgroundColor: AppColors.success,
@@ -943,10 +954,11 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                 );
                 _loadAppointments();
               } else if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
+                messenger.showSnackBar(
                   SnackBar(
                     content: Text(
-                      coachProvider.error ?? lang.t('coach_calendar_update_failed'),
+                      coachProvider.error ??
+                          lang.t('coach_calendar_update_failed'),
                     ),
                     backgroundColor: AppColors.error,
                   ),
@@ -980,7 +992,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
       case 'assessment':
         return AppColors.warning;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -1012,9 +1024,9 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
       case 'rejected':
         return AppColors.error;
       case 'missed':
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
       default:
-        return AppColors.textDisabled;
+        return context.palette.textDisabled;
     }
   }
 

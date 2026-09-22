@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/models/nutrition_plan.dart';
 import '../../providers/language_provider.dart';
+import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
+import '../../../core/theme/app_palette.dart';
 
 class MealDetailScreen extends StatelessWidget {
   final Meal meal;
@@ -16,6 +18,7 @@ class MealDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
+    final mealName = _localizedMealName(meal, isArabic);
 
     return Scaffold(
       appBar: AppBar(
@@ -50,7 +53,7 @@ class MealDetailScreen extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            meal.name,
+                            mealName,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
@@ -60,7 +63,7 @@ class MealDetailScreen extends StatelessWidget {
                           Text(
                             '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
                             style:
-                                const TextStyle(color: AppColors.textSecondary),
+                                TextStyle(color: context.palette.textSecondary),
                           ),
                         ],
                       ),
@@ -84,6 +87,15 @@ class MealDetailScreen extends StatelessWidget {
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
+          if (meal.foods.isEmpty)
+            CustomCard(
+              child: Text(
+                isArabic
+                    ? 'لا توجد مكونات/تفاصيل متاحة'
+                    : 'No ingredients/details available',
+                style: TextStyle(color: context.palette.textSecondary),
+              ),
+            ),
           ...meal.foods.map(
             (food) => CustomCard(
               margin: const EdgeInsets.only(bottom: 8),
@@ -92,18 +104,18 @@ class MealDetailScreen extends StatelessWidget {
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 leading:
                     const Icon(Icons.restaurant_menu, color: AppColors.primary),
-                title: Text(isArabic ? food.nameAr : food.nameEn),
+                title: Text(_localizedFoodName(food, isArabic)),
                 subtitle: Text(
-                  '${food.quantity}${food.unit} • ${food.calories} ${lang.t('cal_unit')}',
+                  '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')}',
                 ),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text('${food.macros.protein.round()}P'),
                     Text('${food.macros.carbs.round()}C',
-                        style: const TextStyle(color: AppColors.textSecondary)),
+                        style: TextStyle(color: context.palette.textSecondary)),
                     Text('${food.macros.fats.round()}F',
-                        style: const TextStyle(color: AppColors.textSecondary)),
+                        style: TextStyle(color: context.palette.textSecondary)),
                   ],
                 ),
               ),
@@ -134,20 +146,55 @@ class MealDetailScreen extends StatelessWidget {
                       : (meal.instructionsEn ??
                           meal.instructions ??
                           meal.instructionsAr))!
-                  : 'No ingredients/details available',
+                  : (isArabic
+                      ? 'لا توجد مكونات/تفاصيل متاحة'
+                      : 'No ingredients/details available'),
               style: const TextStyle(height: 1.5),
             ),
           ),
           const SizedBox(height: 24),
+          // The server refuses a swap once the meal is logged (409
+          // already_logged). Dim the action and say why, rather than letting
+          // the client discover it from an error after a round trip.
           CustomButton(
             text: lang.t('meal_detail_swap'),
-            onPressed: () => _showSwapDialog(context, lang),
+            onPressed:
+                meal.completed ? null : () => _showSwapDialog(context, lang),
             variant: ButtonVariant.secondary,
             fullWidth: true,
           ),
+          if (meal.completed) ...[
+            const SizedBox(height: 8),
+            Text(
+              lang.t('meal_swap_already_logged'),
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: context.palette.textSecondary,
+                fontSize: 12,
+              ),
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _localizedMealName(Meal meal, bool isArabic) {
+    final localized = isArabic ? meal.nameAr : meal.nameEn;
+    return localized.trim().isNotEmpty ? localized : meal.name;
+  }
+
+  String _localizedFoodName(FoodItem food, bool isArabic) {
+    final localized = isArabic ? food.nameAr : food.nameEn;
+    if (localized.trim().isNotEmpty) return localized;
+    return food.name.trim().isNotEmpty ? food.name : '-';
+  }
+
+  String _formatQuantity(FoodItem food) {
+    final amount = food.quantity % 1 == 0
+        ? food.quantity.round().toString()
+        : food.quantity.toStringAsFixed(1);
+    return '$amount${food.unit}';
   }
 
   Color _mealColor(String type) {
@@ -176,18 +223,198 @@ class MealDetailScreen extends StatelessWidget {
     }
   }
 
-  void _showSwapDialog(BuildContext context, LanguageProvider lang) {
-    showDialog(
+  Future<void> _showSwapDialog(BuildContext context, LanguageProvider lang) async {
+    final swapped = await showModalBottomSheet<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(lang.t('meal_detail_swap')),
-        content: Text(lang.t('coach_messages_coming_soon')),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text(lang.t('done')),
-          ),
-        ],
+      isScrollControlled: true,
+      builder: (sheetContext) => MealSwapSheet(meal: meal),
+    );
+    if (swapped != true || !context.mounted) return;
+    // The Meal held by this screen is now stale, so hand control back to the
+    // plan screen, which reloads from the provider.
+    Navigator.of(context).pop(true);
+  }
+
+}
+
+/// Lists the meals this one can be exchanged for and applies the choice.
+///
+/// Public so the nutrition plan screen can open the same sheet straight from a
+/// meal card, without routing through the detail screen first.
+class MealSwapSheet extends StatefulWidget {
+  final Meal meal;
+
+  const MealSwapSheet({super.key, required this.meal});
+
+  @override
+  State<MealSwapSheet> createState() => _MealSwapSheetState();
+}
+
+class _MealSwapSheetState extends State<MealSwapSheet> {
+  List<MealAlternative>? _alternatives;
+  String? _applyingVariantId;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _load());
+  }
+
+  Future<void> _load() async {
+    final provider = context.read<NutritionProvider>();
+    final alternatives = await provider.getMealAlternatives(widget.meal.id);
+    if (!mounted) return;
+    setState(() => _alternatives = alternatives);
+  }
+
+  Future<void> _apply(MealAlternative alternative) async {
+    if (_applyingVariantId != null) return;
+    setState(() {
+      _applyingVariantId = alternative.variantId;
+      _error = null;
+    });
+
+    final provider = context.read<NutritionProvider>();
+    final ok = await provider.swapMeal(widget.meal.id, alternative.variantId);
+    if (!mounted) return;
+
+    if (!ok) {
+      setState(() {
+        _applyingVariantId = null;
+        // Show the reason the server gave, which distinguishes "already
+        // logged" from "not an option" rather than flattening both. The
+        // provider stores `Exception.toString()`, so strip that prefix -- it
+        // was being shown to the client verbatim as "Exception: ...".
+        var reason = provider.error?.trim() ?? '';
+        for (final prefix in const ['Exception:', '_Exception:', 'DioException:']) {
+          if (reason.startsWith(prefix)) {
+            reason = reason.substring(prefix.length).trim();
+            break;
+          }
+        }
+        _error = reason.isNotEmpty
+            ? reason
+            : context.read<LanguageProvider>().t('meal_swap_failed');
+      });
+      return;
+    }
+    Navigator.of(context).pop(true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lang = context.watch<LanguageProvider>();
+    final isArabic = lang.isArabic;
+    final alternatives = _alternatives;
+
+    // The list rows carried no colour of their own and the light theme's
+    // listTileTheme.titleTextStyle has none either, so the meal names were left
+    // to whatever colour the surrounding sheet happened to inherit -- white on
+    // a white sheet in light mode. Resolve against the sheet's own surface so
+    // both themes stay readable.
+    final colors = Theme.of(context).colorScheme;
+    final onSurface = colors.onSurface;
+    final onSurfaceVariant = colors.onSurfaceVariant;
+
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    lang.t('meal_swap_title'),
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: onSurface),
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(false),
+                  icon: const Icon(Icons.close),
+                ),
+              ],
+            ),
+            Text(
+              lang.t('meal_swap_subtitle'),
+              style: TextStyle(color: context.palette.textSecondary, fontSize: 12),
+            ),
+            if (_error != null) ...[
+              const SizedBox(height: 8),
+              Text(_error!, style: const TextStyle(color: AppColors.error)),
+            ],
+            const SizedBox(height: 12),
+            if (alternatives == null)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 32),
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (alternatives.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 32),
+                child: Center(
+                  child: Text(
+                    lang.t('meal_swap_none'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: context.palette.textSecondary),
+                  ),
+                ),
+              )
+            else
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: alternatives.length,
+                  separatorBuilder: (_, __) => const Divider(height: 1),
+                  itemBuilder: (context, index) {
+                    final alternative = alternatives[index];
+                    final busy = _applyingVariantId == alternative.variantId;
+                    final delta = alternative.calorieDelta;
+                    final deltaText = delta == 0
+                        ? ''
+                        : ' (${delta > 0 ? '+' : ''}$delta)';
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      enabled: _applyingVariantId == null,
+                      title: Text(
+                        alternative.displayName(isArabic),
+                        style: TextStyle(color: onSurface),
+                      ),
+                      subtitle: Text(
+                        '${alternative.calories} ${lang.t('cal_unit')}$deltaText  •  '
+                        '${alternative.protein.round()}P '
+                        '${alternative.carbs.round()}C '
+                        '${alternative.fats.round()}F',
+                        style: TextStyle(color: onSurfaceVariant),
+                      ),
+                      leading: alternative.suggestedByTemplate
+                          ? Tooltip(
+                              message: lang.t('meal_swap_suggested'),
+                              child: const Icon(Icons.star,
+                                  color: AppColors.primary, size: 20),
+                            )
+                          : Icon(Icons.swap_horiz,
+                              color: context.palette.textSecondary, size: 20),
+                      trailing: busy
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.chevron_right),
+                      onTap: () => _apply(alternative),
+                    );
+                  },
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -244,17 +471,17 @@ class _MacroChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: context.palette.surfaceVariant,
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: context.palette.border),
         ),
         child: Column(
           children: [
             Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 12,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
             const SizedBox(height: 4),

@@ -204,6 +204,13 @@ class Exercise {
   final String? notes;
   final List<String> contraindications;
   final List<String> alternatives;
+
+  /// The primary muscle this exercise trains. Swap options are the exercises
+  /// sharing it.
+  final String? mainMuscle;
+
+  /// Where the exercise can be trained: `home`, `gym` or `both`.
+  final String? locationType;
   final bool isCompleted;
   final int order;
 
@@ -229,6 +236,8 @@ class Exercise {
     this.notes,
     this.contraindications = const [],
     this.alternatives = const [],
+    this.mainMuscle,
+    this.locationType,
     this.isCompleted = false,
     this.order = 0,
   });
@@ -261,6 +270,12 @@ class Exercise {
       nameEn: nameEn,
       category: asString(json['category']),
       muscleGroup: asString(json['muscleGroup']),
+      mainMuscle: asString(
+        json['mainMuscle'] ?? json['main_muscle'] ?? json['muscle_group'] ?? json['muscleGroup'],
+      ),
+      locationType: asString(
+        json['locationType'] ?? json['location_type'] ?? json['location'],
+      ),
       equipment: asString(json['equipment']),
       difficulty: asString(json['difficulty']),
       videoUrl: asString(json['videoUrl'] ?? json['video_url']),
@@ -291,6 +306,8 @@ class Exercise {
       'nameEn': nameEn,
       'category': category,
       'muscleGroup': muscleGroup,
+      'mainMuscle': mainMuscle,
+      'locationType': locationType,
       'equipment': equipment,
       'difficulty': difficulty,
       'videoUrl': videoUrl,
@@ -316,6 +333,8 @@ class Exercise {
     String? nameEn,
     String? category,
     String? muscleGroup,
+    String? mainMuscle,
+    String? locationType,
     String? equipment,
     String? difficulty,
     String? videoUrl,
@@ -334,6 +353,8 @@ class Exercise {
       nameEn: nameEn ?? this.nameEn,
       category: category ?? this.category,
       muscleGroup: muscleGroup ?? this.muscleGroup,
+      mainMuscle: mainMuscle ?? this.mainMuscle,
+      locationType: locationType ?? this.locationType,
       equipment: equipment ?? this.equipment,
       difficulty: difficulty ?? this.difficulty,
       videoUrl: videoUrl ?? this.videoUrl,

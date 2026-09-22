@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 class CustomStatCard extends StatelessWidget {
   final String title;
@@ -61,7 +62,7 @@ class CustomStatCard extends StatelessWidget {
                   value,
                   maxLines: 1,
                   style:
-                      AppTextStyles.h3.copyWith(color: AppColors.textPrimary),
+                      AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
                 ),
               ),
             ),
@@ -69,7 +70,7 @@ class CustomStatCard extends StatelessWidget {
             Text(
               title,
               style:
-                  AppTextStyles.small.copyWith(color: AppColors.textSecondary),
+                  AppTextStyles.small.copyWith(color: context.palette.textSecondary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -138,7 +139,7 @@ class CustomInfoCard extends StatelessWidget {
                   Text(
                     title,
                     style: AppTextStyles.bodyMedium
-                        .copyWith(color: AppColors.textPrimary),
+                        .copyWith(color: context.palette.textPrimary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -147,7 +148,7 @@ class CustomInfoCard extends StatelessWidget {
                     Text(
                       subtitle!,
                       style: AppTextStyles.small
-                          .copyWith(color: AppColors.textSecondary),
+                          .copyWith(color: context.palette.textSecondary),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -155,7 +156,7 @@ class CustomInfoCard extends StatelessWidget {
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textDisabled),
+            Icon(Icons.chevron_right, color: context.palette.textDisabled),
           ],
         ),
       ),

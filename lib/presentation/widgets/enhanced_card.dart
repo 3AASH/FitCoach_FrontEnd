@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 /// Enhanced card that EXACTLY matches React card design
 /// - Exact border radius (10px)
@@ -141,7 +142,7 @@ class CardHeader extends StatelessWidget {
                   Text(
                     subtitle!,
                     style: AppTextStyles.small.copyWith(
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

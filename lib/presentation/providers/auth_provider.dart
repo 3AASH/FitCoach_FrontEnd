@@ -17,6 +17,10 @@ class AuthProvider extends ChangeNotifier {
   String? _phoneFieldError;
   String? _lastPhoneNumber;
 
+  /// False after an OTP sign-up until the remaining questions are answered.
+  bool _registrationComplete = true;
+  bool get registrationComplete => _registrationComplete;
+
   AuthProvider(
     this._repository, {
     PushNotificationRegistrationService? pushNotifications,
@@ -102,7 +106,67 @@ class AuthProvider extends ChangeNotifier {
   }
 
   // Request OTP
-  Future<bool> requestOTP(String phoneNumber) async {
+  /// Whether the number already has an account, so the screen shows a password
+  /// prompt instead of sending a sign-up code. Null when the check failed.
+  Future<PhoneStatus?> checkPhone(String phoneNumber) async {
+    if (DemoConfig.isDemo) {
+      return const PhoneStatus(
+        registered: false,
+        hasPassword: false,
+        nextStep: 'send_otp',
+      );
+    }
+    _isLoading = true;
+    _error = null;
+    _phoneFieldError = null;
+    _lastPhoneNumber = phoneNumber;
+    notifyListeners();
+
+    try {
+      final status = await _repository.checkPhone(phoneNumber);
+      _isLoading = false;
+      notifyListeners();
+      return status;
+    } catch (e) {
+      _setAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// Record the rest of the sign-up answers for an account created by OTP.
+  Future<bool> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  }) async {
+    if (DemoConfig.isDemo) return true;
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await _repository.completeRegistration(
+        fullName: fullName,
+        password: password,
+        email: email,
+      );
+      // The token from OTP verification is still the live one.
+      _user = response.user;
+      _isAuthenticated = true;
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _setAuthError(e);
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> requestOTP(String phoneNumber, {String? purpose}) async {
     if (DemoConfig.isDemo) {
       _enableDemoUser(role: 'user');
       return true;
@@ -114,7 +178,7 @@ class AuthProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.requestOTP(phoneNumber);
+      await _repository.requestOTP(phoneNumber, purpose: purpose);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -148,6 +212,7 @@ class AuthProvider extends ChangeNotifier {
       await _repository.storeToken(authResponse.token);
       _registerPushNotifications();
 
+      _registrationComplete = authResponse.registrationComplete;
       _isLoading = false;
       notifyListeners();
       return true;

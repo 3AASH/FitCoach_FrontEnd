@@ -10,15 +10,24 @@ import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
+import 'meal_detail_screen.dart' show MealSwapSheet;
 import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
 import '../../../data/repositories/nutrition_repository.dart';
 import '../subscription/subscription_manager_screen.dart';
+import '../intake/first_intake_screen.dart';
+import '../intake/second_intake_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class NutritionScreen extends StatefulWidget {
   final VoidCallback? onBack;
+  final VoidCallback? onOpenWorkout;
 
-  const NutritionScreen({super.key, this.onBack});
+  const NutritionScreen({
+    super.key,
+    this.onBack,
+    this.onOpenWorkout,
+  });
 
   @override
   State<NutritionScreen> createState() => _NutritionScreenState();
@@ -28,6 +37,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
   bool _showIntro = false;
   bool _introLoaded = false;
   bool _showPreferencesIntake = false;
+  bool _editingPreferences = false;
+  List<Map<String, dynamic>> _nutritionHistory = [];
   bool _preferencesLoaded = false;
 
   Future<void> _handleBack() async {
@@ -52,7 +63,24 @@ class _NutritionScreenState extends State<NutritionScreen> {
     await provider.loadActivePlan();
     await provider.checkTrialStatus();
     if (!mounted) return;
+
+    if (provider.accessStatus?.hasAccess == false) {
+      setState(() {
+        _showPreferencesIntake = false;
+        _preferencesLoaded = true;
+      });
+      return;
+    }
+
+    // Always ask the server what is still missing, even when a plan exists. A
+    // plan can predate the preference questions (or have been generated from
+    // defaults), so "has a plan" is not evidence the client ever answered them.
+    await provider.loadIntakeRequirements();
+    if (!mounted) return;
+
     await _loadPreferencesFlag(hasPlan: provider.activePlan != null);
+    final history = await NutritionRepository().getNutritionHistory();
+    if (mounted) setState(() => _nutritionHistory = history);
   }
 
   Future<void> _loadIntroFlag() async {
@@ -78,6 +106,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   Future<void> _loadPreferencesFlag({bool hasPlan = false}) async {
     final authUserId = context.read<AuthProvider>().user?.id;
+    final nutritionProvider = context.read<NutritionProvider>();
     final userId =
         authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
     final prefs = await SharedPreferences.getInstance();
@@ -90,12 +119,41 @@ class _NutritionScreenState extends State<NutritionScreen> {
       }
       return;
     }
+
+    if (nutritionProvider.accessStatus?.hasAccess == false) {
+      if (mounted) {
+        setState(() {
+          _showPreferencesIntake = false;
+          _preferencesLoaded = true;
+        });
+      }
+      return;
+    }
+
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
 
+    // The server's missing-field list wins over any local flag. This used to
+    // short-circuit on `hasPlan` and write completed=true, which meant a plan
+    // created from defaults permanently convinced the client that the
+    // preference questions had been answered when they never were.
+    final requirements = nutritionProvider.intakeRequirements;
+    if (requirements != null) {
+      final complete = requirements.isComplete;
+      await prefs.setBool(completedKey, complete);
+      await prefs.setBool(pendingKey, !complete);
+      if (mounted) {
+        setState(() {
+          _showPreferencesIntake = !complete;
+          _preferencesLoaded = true;
+        });
+      }
+      return;
+    }
+
+    // Requirements unavailable (offline, or the call failed). An existing plan
+    // is then the best evidence the questions were answered at some point.
     if (hasPlan) {
-      await prefs.setBool(completedKey, true);
-      await prefs.setBool(pendingKey, false);
       if (mounted) {
         setState(() {
           _showPreferencesIntake = false;
@@ -126,34 +184,114 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final pendingKey = 'pending_nutrition_intake_$userId';
     final completedKey = 'nutrition_preferences_completed_$userId';
     final prefsKey = 'nutrition_preferences_$userId';
-
-    try {
-      if (!DemoConfig.isDemo) {
+    await prefs.setString(prefsKey, jsonEncode(preferences));
+    if (!DemoConfig.isDemo) {
+      try {
         final repository = NutritionRepository();
-        await repository.generatePlan(preferences);
-        if (mounted) {
-          await nutritionProvider.loadActivePlan();
+        final response = await repository.generatePlan(preferences);
+        final status = response['status']?.toString();
+        final success = response['success'] == true;
+
+        if (status == 'missing_fields' || success == false) {
+          await prefs.setBool(completedKey, false);
+          await prefs.setBool(pendingKey, true);
+          await nutritionProvider.loadIntakeRequirements(planType: 'starter');
+          if (mounted) {
+            setState(() => _showPreferencesIntake = true);
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  response['message']?.toString() ??
+                      'Additional nutrition information is required',
+                ),
+              ),
+            );
+          }
+          return;
         }
+
+        await prefs.setBool(completedKey, true);
+        await prefs.setBool(pendingKey, false);
+
+        if (mounted) {
+          await nutritionProvider.selectDate(DateTime.now());
+        }
+
+        if (status == 'professional_review_required' && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                response['message']?.toString() ??
+                    'Nutrition plan requires professional review before activation.',
+              ),
+            ),
+          );
+        }
+      } catch (error) {
+        await prefs.setBool(completedKey, false);
+        await prefs.setBool(pendingKey, true);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.toString()),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+        return;
       }
-      await prefs.setString(prefsKey, jsonEncode(preferences));
+    } else {
       await prefs.setBool(completedKey, true);
       await prefs.setBool(pendingKey, false);
-      if (mounted) {
-        setState(() {
-          _showPreferencesIntake = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save nutrition preferences: $e'),
-            backgroundColor: AppColors.error,
-          ),
-        );
-      }
-      rethrow;
     }
+    if (mounted) {
+      setState(() {
+        _showPreferencesIntake = false;
+      });
+    }
+  }
+
+  // The single "finish your workout intake" screen. Both reasons the nutrition
+  // tab can be blocked on an intake render through here so the user only ever
+  // sees one such screen, and it always lands on the intake that is actually
+  // outstanding instead of restarting from the first one.
+  Widget _buildIntakeGate({
+    required LanguageProvider languageProvider,
+    required bool isArabic,
+    required bool needsFirstIntake,
+    required String message,
+  }) {
+    void completed() {
+      Navigator.of(context).pop();
+      _loadNutritionState();
+    }
+
+    return Scaffold(
+      appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(message, textAlign: TextAlign.center),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).push(MaterialPageRoute(
+                  builder: (_) => needsFirstIntake
+                      ? FirstIntakeScreen(
+                          onComplete: completed,
+                          onSkip: () => Navigator.of(context).pop(),
+                        )
+                      : SecondIntakeScreen(onComplete: completed),
+                )),
+                child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -170,13 +308,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
     }
 
-    if (_showIntro) {
-      return NutritionIntroScreen(onGetStarted: _completeIntro);
-    }
-
-    // Check access
-    final canAccess = nutritionProvider.canAccessNutrition(subscriptionTier);
-
     if (nutritionProvider.isLoading) {
       return const Scaffold(
         body: Center(
@@ -185,13 +316,59 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
     }
 
-    // Locked for non-premium tiers
+    // Check access
+    final canAccess = nutritionProvider.canAccessNutrition(subscriptionTier);
+
+    // The workout intakes come first, ahead of both the onboarding screen and
+    // the preference questions. They used to be spread over two branches on
+    // either side of the intro, so a user missing a first-intake field was sent
+    // to an intake screen, shown the intro, then sent to an intake screen
+    // again -- the "multiple intakes" this is meant to stop. There is now one
+    // gate, and it is the first thing this screen can render.
+    final requiresIntakes =
+        !canAccess && nutritionProvider.accessStatus?.requiresIntakes == true;
+    // A field the first intake owns is still missing, so send the client there
+    // rather than asking the same question again on the nutrition form.
+    final requiresFirstIntakeField = _showPreferencesIntake &&
+        nutritionProvider.intakeRequirements?.requiresFirstIntake == true;
+
+    if (requiresIntakes || requiresFirstIntakeField) {
+      final firstIntakeDone =
+          authProvider.user?.hasCompletedFirstIntake == true &&
+              !requiresFirstIntakeField;
+      return _buildIntakeGate(
+        languageProvider: languageProvider,
+        isArabic: isArabic,
+        needsFirstIntake: !firstIntakeDone,
+        message: requiresIntakes
+            ? (nutritionProvider.accessMessage(isArabic: isArabic) ??
+                (isArabic
+                    ? 'أكمل الاستبيان الأول والثاني قبل بدء التغذية.'
+                    : 'Complete your first and second intake before starting nutrition.'))
+            : (isArabic
+                ? 'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.'
+                : 'We need your basic profile details first so we can calculate your calorie needs.'),
+      );
+    }
+
     if (!canAccess) {
       return _buildLockedAccess(languageProvider, isArabic);
     }
 
+    // Onboarding sits between the intakes and the questions: by here the user
+    // has everything the plan needs from the workout side, so the intro is an
+    // introduction to nutrition rather than an interruption before a gate.
+    if (_showIntro) {
+      return NutritionIntroScreen(onGetStarted: _completeIntro);
+    }
+
     if (_showPreferencesIntake) {
       return NutritionPreferencesIntakeScreen(
+        editMode: _editingPreferences,
+        missingFields: nutritionProvider.intakeRequirements?.missingFields,
+        questions: nutritionProvider.intakeRequirements?.questions,
+        context: nutritionProvider.intakeRequirements?.context,
+        planType: nutritionProvider.intakeRequirements?.planType ?? 'starter',
         onComplete: _completePreferences,
         onBack: () => setState(() => _showPreferencesIntake = false),
       );
@@ -272,8 +449,16 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             IconButton(
                               icon: const Icon(Icons.settings,
                                   color: Colors.white),
-                              onPressed: () =>
-                                  setState(() => _showPreferencesIntake = true),
+                              onPressed: () async {
+                                await nutritionProvider.loadIntakeRequirements(
+                                  planType: subscriptionTier.toLowerCase() == 'freemium' ? 'starter' : 'professional');
+                                if (mounted) {
+                                  setState(() {
+                                    _editingPreferences = true;
+                                    _showPreferencesIntake = true;
+                                  });
+                                }
+                              },
                               tooltip: languageProvider
                                   .t('nutrition_edit_preferences'),
                             ),
@@ -350,13 +535,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     child: Container(
                       padding: const EdgeInsets.all(3),
                       decoration: BoxDecoration(
-                        color: AppColors.surface,
+                        color: context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: AppColors.border),
+                        border: Border.all(color: context.palette.border),
                       ),
                       child: TabBar(
-                        labelColor: AppColors.textPrimary,
-                        unselectedLabelColor: AppColors.textSecondary,
+                        labelColor: context.palette.textPrimary,
+                        unselectedLabelColor: context.palette.textSecondary,
                         labelStyle: const TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w600),
                         unselectedLabelStyle: const TextStyle(
@@ -414,10 +599,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
         children: [
           _buildMacroBreakdownGrid(lang, provider),
           const SizedBox(height: 20),
-          Text(
-            lang.t('todays_meals'),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
-          ),
+          Row(children: [
+            Expanded(child: Text(MaterialLocalizations.of(context).formatFullDate(provider.selectedDate))),
+            IconButton(icon: const Icon(Icons.calendar_month),
+              tooltip: isArabic ? 'اختيار اليوم' : 'Select date',
+              onPressed: () async {
+                final date = await showDatePicker(context: context,
+                  initialDate: provider.selectedDate,
+                  firstDate: DateTime(2020), lastDate: DateTime.now());
+                if (date != null) await provider.selectDate(date);
+              }),
+          ]),
           const SizedBox(height: 12),
           ...(meals.map(
             (meal) => _buildMealCard(
@@ -509,7 +701,21 @@ class _NutritionScreenState extends State<NutritionScreen> {
         children: [
           _buildMacroProgress(provider.activePlan!, lang, isArabic),
           const SizedBox(height: 20),
-          _buildCalorieCounter(provider.activePlan!, lang, isArabic),
+          _buildCalorieCounter(
+            provider.activePlan!,
+            provider.todayProgress,
+            lang,
+            isArabic,
+          ),
+          const SizedBox(height: 20),
+          Text(isArabic ? 'السجل اليومي' : 'Daily history',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
+          ..._nutritionHistory.map((day) => ListTile(
+            title: Text(day['date'].toString().substring(0, 10)),
+            subtitle: Text('${day['protein']} ${lang.t('protein')} | ${day['carbs']} ${lang.t('carbs')} | ${day['fat']} ${lang.t('fats')}'),
+            trailing: Text('${day['calories']} ${lang.t('cal_unit')}'),
+            onTap: () => provider.selectDate(DateTime.parse(day['date'].toString())),
+          )),
         ],
       ),
     );
@@ -534,13 +740,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 style:
                     const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
             Text(label,
-                style: const TextStyle(
-                    color: AppColors.textSecondary, fontSize: 12)),
+                style: TextStyle(
+                    color: context.palette.textSecondary, fontSize: 12)),
             const SizedBox(height: 8),
             LinearProgressIndicator(
               value: progress,
               minHeight: 4,
-              backgroundColor: AppColors.surface,
+              backgroundColor: context.palette.surfaceVariant,
               valueColor: AlwaysStoppedAnimation<Color>(color),
             ),
           ],
@@ -692,9 +898,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
               const SizedBox(height: 16),
               Text(
                 lang.t('upgrade_prompt'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                   height: 1.5,
                 ),
                 textAlign: TextAlign.center,
@@ -716,6 +922,20 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
+  Future<void> _startNutritionGeneration() async {
+    final provider = context.read<NutritionProvider>();
+    final requirements =
+        await provider.loadIntakeRequirements(planType: 'starter');
+    if (!mounted) return;
+
+    if (requirements == null || !requirements.isComplete) {
+      setState(() => _showPreferencesIntake = true);
+      return;
+    }
+
+    await _completePreferences({'plan_type': requirements.planType});
+  }
+
   Widget _buildNoPlan(LanguageProvider lang, bool isArabic) {
     return Scaffold(
       appBar: AppBar(
@@ -725,25 +945,25 @@ class _NutritionScreenState extends State<NutritionScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(
+            Icon(
               Icons.restaurant_outlined,
               size: 80,
-              color: AppColors.textDisabled,
+              color: context.palette.textDisabled,
             ),
             const SizedBox(height: 24),
             Text(
               lang.t('no_active_nutrition_plan'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 18,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
             const SizedBox(height: 16),
             Text(
               lang.t('nutrition_plan_coming_soon'),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 14,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               textAlign: TextAlign.center,
             ),
@@ -756,7 +976,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             ),
             const SizedBox(height: 10),
             OutlinedButton.icon(
-              onPressed: () => setState(() => _showPreferencesIntake = true),
+              onPressed: _startNutritionGeneration,
               icon: const Icon(Icons.auto_awesome),
               label: Text(lang.t('nutrition_generate_plan')),
             ),
@@ -767,6 +987,21 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Widget _buildLockedAccess(LanguageProvider lang, bool isArabic) {
+    final nutritionProvider = context.read<NutritionProvider>();
+    final requiresFirstWorkout = nutritionProvider.requiresFirstWorkout;
+    final lockedTitle = requiresFirstWorkout
+        ? (isArabic ? 'أكمل التمرين الأول' : 'Complete First Workout')
+        : lang.t('nutrition_locked_title');
+    final lockedMessage = requiresFirstWorkout
+        ? (nutritionProvider.accessMessage(isArabic: isArabic) ??
+            (isArabic
+                ? 'أكمل تمرينك الأول قبل بدء خطتك الغذائية.'
+                : 'Complete your first workout before starting your nutrition plan.'))
+        : lang.t('nutrition_locked_desc');
+    final actionLabel = requiresFirstWorkout
+        ? (isArabic ? 'فتح التمرين' : 'Open Workout')
+        : lang.t('nutrition_unlock_button');
+
     return Scaffold(
       body: Column(
         children: [
@@ -829,15 +1064,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        lang.t('nutrition_locked_title'),
+                        lockedTitle,
                         style: const TextStyle(
                             fontSize: 18, fontWeight: FontWeight.w600),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        lang.t('nutrition_locked_desc'),
-                        style: const TextStyle(color: AppColors.textSecondary),
+                        lockedMessage,
+                        style: TextStyle(color: context.palette.textSecondary),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -857,13 +1092,26 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton.icon(
-                          onPressed: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    const SubscriptionManagerScreen()),
+                          onPressed: requiresFirstWorkout
+                              ? () {
+                                  if (widget.onOpenWorkout != null) {
+                                    widget.onOpenWorkout!.call();
+                                  } else {
+                                    Navigator.of(context).maybePop();
+                                  }
+                                }
+                              : () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const SubscriptionManagerScreen(),
+                                    ),
+                                  ),
+                          icon: Icon(
+                            requiresFirstWorkout
+                                ? Icons.fitness_center
+                                : Icons.workspace_premium,
                           ),
-                          icon: const Icon(Icons.workspace_premium),
-                          label: Text(lang.t('nutrition_unlock_button')),
+                          label: Text(actionLabel),
                         ),
                       ),
                     ],
@@ -886,7 +1134,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
           child: Text(
             label,
             style:
-                const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
             textAlign: isArabic ? TextAlign.right : TextAlign.left,
           ),
         ),
@@ -950,6 +1198,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 painter: _MacroRingPainter(
                   percentage: percentage,
                   color: color,
+                  trackColor: context.palette.surfaceVariant,
                 ),
               ),
               Column(
@@ -965,9 +1214,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                   Text(
                     '/ ${target.toInt()}g',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -978,10 +1227,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
         const SizedBox(height: 8),
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
+            color: context.palette.textPrimary,
           ),
         ),
       ],
@@ -990,10 +1239,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   Widget _buildCalorieCounter(
     NutritionPlan plan,
+    NutritionTodayProgress? todayProgress,
     LanguageProvider lang,
     bool isArabic,
   ) {
-    final progress = plan.todayProgress;
+    final progress = todayProgress ?? plan.todayProgress;
     final consumed = (progress?.consumedCalories ?? 0).round();
     final target =
         (progress?.targetCalories ?? plan.dailyCalories ?? 0).round();
@@ -1029,9 +1279,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                   Text(
                     lang.t('consumed'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1049,9 +1299,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   ),
                   Text(
                     lang.t('remaining'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1063,7 +1313,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             borderRadius: BorderRadius.circular(8),
             child: LinearProgressIndicator(
               value: percentage,
-              backgroundColor: AppColors.surface,
+              backgroundColor: context.palette.surfaceVariant,
               valueColor:
                   const AlwaysStoppedAnimation<Color>(AppColors.primary),
               minHeight: 12,
@@ -1092,7 +1342,48 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
+  String _localizedMealName(Meal meal, bool isArabic) {
+    final localized = isArabic ? meal.nameAr : meal.nameEn;
+    return localized.trim().isNotEmpty ? localized : meal.name;
+  }
+
+  String _localizedFoodName(FoodItem food, bool isArabic) {
+    final localized = isArabic ? food.nameAr : food.nameEn;
+    if (localized.trim().isNotEmpty) return localized;
+    return food.name.trim().isNotEmpty ? food.name : '-';
+  }
+
+  String _formatQuantity(FoodItem food) {
+    final amount = food.quantity % 1 == 0
+        ? food.quantity.round().toString()
+        : food.quantity.toStringAsFixed(1);
+    return '$amount${food.unit}';
+  }
+
+  String _macroLine(Meal meal, LanguageProvider lang) {
+    return '${lang.t('protein')} ${meal.macros.protein.round()}g - '
+        '${lang.t('carbs')} ${meal.macros.carbs.round()}g - '
+        '${lang.t('fats')} ${meal.macros.fats.round()}g';
+  }
+
+  String _foodMacroLine(FoodItem food, LanguageProvider lang) {
+    return '${lang.t('protein')} ${food.macros.protein.round()}g - '
+        '${lang.t('carbs')} ${food.macros.carbs.round()}g - '
+        '${lang.t('fats')} ${food.macros.fats.round()}g';
+  }
+
+  String _mealInstructions(Meal meal, bool isArabic) {
+    final text = isArabic
+        ? (meal.instructionsAr ?? meal.instructions ?? meal.instructionsEn)
+        : (meal.instructionsEn ?? meal.instructions ?? meal.instructionsAr);
+    if (text != null && text.trim().isNotEmpty) return text;
+    return isArabic
+        ? 'لا توجد مكونات/تفاصيل متاحة'
+        : 'No ingredients/details available';
+  }
+
   Widget _buildMealCard(Meal meal, LanguageProvider lang, bool isArabic) {
+    final mealName = _localizedMealName(meal, isArabic);
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -1119,7 +1410,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      meal.name,
+                      mealName,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -1128,9 +1419,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     const SizedBox(height: 4),
                     Text(
                       '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      _macroLine(meal, lang),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -1144,14 +1443,22 @@ class _NutritionScreenState extends State<NutritionScreen> {
               ),
               Checkbox(
                 value: meal.completed,
-                onChanged: meal.completed
+                onChanged: meal.completed || !meal.canLog
                     ? null
                     : (value) async {
                         if (value != true) return;
                         final provider = context.read<NutritionProvider>();
                         // logMeal already updates local state + notifies;
                         // no full reload needed (avoids full-screen spinner).
-                        await provider.logMeal(meal.id, {'completed': true});
+                        final success = await provider.logMeal(meal.id, {'completed': true});
+                        if (!mounted) return;
+                        if (!success) {
+                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content: Text(provider.error ?? (isArabic ? 'تعذر تسجيل الوجبة' : 'Could not log meal'))));
+                        } else {
+                          final history = await NutritionRepository().getNutritionHistory();
+                          if (mounted) setState(() => _nutritionHistory = history);
+                        }
                       },
               ),
             ],
@@ -1166,18 +1473,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
               child: Row(
                 children: [
                   const SizedBox(width: 8),
-                  const Icon(
+                  Icon(
                     Icons.circle,
                     size: 6,
-                    color: AppColors.textDisabled,
+                    color: context.palette.textDisabled,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '${isArabic ? food.nameAr : food.nameEn} (${food.quantity}${food.unit})',
-                      style: const TextStyle(
+                      '${_localizedFoodName(food, isArabic)} (${_formatQuantity(food)})',
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ),
@@ -1195,9 +1502,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   'more_items',
                   args: {'count': (meal.foods.length - 3).toString()},
                 ),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
               ),
             ),
@@ -1218,7 +1525,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       case 'snack':
         return AppColors.accent;
       default:
-        return AppColors.textDisabled;
+        return context.palette.textDisabled;
     }
   }
 
@@ -1238,6 +1545,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   void _showMealDetail(Meal meal, LanguageProvider lang, bool isArabic) {
+    final mealName = _localizedMealName(meal, isArabic);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1263,7 +1571,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     width: 40,
                     height: 4,
                     decoration: BoxDecoration(
-                      color: AppColors.border,
+                      color: context.palette.border,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -1272,16 +1580,35 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
                 // Meal name
                 Text(
-                  meal.name,
+                  mealName,
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
 
+                const SizedBox(height: 8),
+                Text(
+                  '${meal.calories} ${lang.t('cal_unit')} - ${_macroLine(meal, lang)}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: context.palette.textSecondary,
+                  ),
+                ),
+
                 const SizedBox(height: 24),
 
                 // All food items
+                if (meal.foods.isEmpty)
+                  Text(
+                    isArabic
+                        ? 'لا توجد مكونات/تفاصيل متاحة'
+                        : 'No ingredients/details available',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: context.palette.textSecondary,
+                    ),
+                  ),
                 ...meal.foods.map((food) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 16),
@@ -1293,7 +1620,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                isArabic ? food.nameAr : food.nameEn,
+                                _localizedFoodName(food, isArabic),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -1301,10 +1628,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${food.quantity}${food.unit} • ${food.calories} ${lang.t('cal_unit')}',
-                                style: const TextStyle(
+                                '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')} - ${_foodMacroLine(food, lang)}',
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                             ],
@@ -1326,35 +1653,63 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  (isArabic
-                                  ? (meal.instructionsAr ??
-                                      meal.instructions ??
-                                      meal.instructionsEn)
-                                  : (meal.instructionsEn ??
-                                      meal.instructions ??
-                                      meal.instructionsAr))
-                              ?.trim()
-                              .isNotEmpty ==
-                          true
-                      ? (isArabic
-                          ? (meal.instructionsAr ??
-                              meal.instructions ??
-                              meal.instructionsEn)
-                          : (meal.instructionsEn ??
-                              meal.instructions ??
-                              meal.instructionsAr))!
-                      : 'No ingredients/details available',
-                  style: const TextStyle(
+                  _mealInstructions(meal, isArabic),
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                     height: 1.5,
                   ),
                 ),
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  // Swapping a logged meal is refused by the server with a 409,
+                  // so the action is dimmed once it has been logged and the
+                  // reason is spelled out underneath.
+                  child: OutlinedButton.icon(
+                    onPressed: meal.completed
+                        ? null
+                        : () async {
+                            // Close the detail sheet first so the swap list is
+                            // not stacked on top of a sheet showing the old meal.
+                            Navigator.of(context).pop();
+                            await _openMealSwap(meal);
+                          },
+                    icon: const Icon(Icons.swap_horiz),
+                    label: Text(lang.t('meal_detail_swap')),
+                  ),
+                ),
+                if (meal.completed) ...[
+                  const SizedBox(height: 8),
+                  Text(
+                    lang.t('meal_swap_already_logged'),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: context.palette.textSecondary,
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  /// Opens the swap list for a meal and reports the outcome. The provider
+  /// reloads the plan on success, so nothing here has to patch local state.
+  Future<void> _openMealSwap(Meal meal) async {
+    final lang = context.read<LanguageProvider>();
+    final swapped = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => MealSwapSheet(meal: meal),
+    );
+    if (swapped != true || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(lang.t('meal_swap_done'))),
     );
   }
 }
@@ -1364,9 +1719,14 @@ class _MacroRingPainter extends CustomPainter {
   final double percentage;
   final Color color;
 
+  /// A painter has no BuildContext, so the theme-dependent track colour is
+  /// resolved by the caller and passed in rather than read from a global.
+  final Color trackColor;
+
   _MacroRingPainter({
     required this.percentage,
     required this.color,
+    required this.trackColor,
   });
 
   @override
@@ -1377,7 +1737,7 @@ class _MacroRingPainter extends CustomPainter {
 
     // Background circle
     final bgPaint = Paint()
-      ..color = AppColors.surface
+      ..color = trackColor
       ..style = PaintingStyle.stroke
       ..strokeWidth = strokeWidth;
 
@@ -1401,6 +1761,8 @@ class _MacroRingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_MacroRingPainter oldDelegate) {
-    return oldDelegate.percentage != percentage;
+    return oldDelegate.percentage != percentage ||
+        oldDelegate.color != color ||
+        oldDelegate.trackColor != trackColor;
   }
 }

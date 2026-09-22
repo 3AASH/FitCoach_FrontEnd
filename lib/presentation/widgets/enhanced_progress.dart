@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 
 /// Enhanced progress bar that EXACTLY matches React Progress component
 class EnhancedProgress extends StatelessWidget {
@@ -35,13 +36,13 @@ class EnhancedProgress extends StatelessWidget {
                 Text(
                   customLabel!,
                   style: AppTextStyles.small.copyWith(
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               Text(
                 '$percentage%',
                 style: AppTextStyles.small.copyWith(
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -52,7 +53,7 @@ class EnhancedProgress extends StatelessWidget {
         Container(
           height: height,
           decoration: BoxDecoration(
-            color: backgroundColor ?? AppColors.surface,
+            color: backgroundColor ?? context.palette.surfaceVariant,
             borderRadius: BorderRadius.circular(height / 2),
           ),
           child: ClipRRect(
@@ -101,7 +102,7 @@ class EnhancedCircularProgress extends StatelessWidget {
         value: value,
         color: color ?? AppColors.primary,
         strokeWidth: strokeWidth,
-        backgroundColor: AppColors.surface,
+        backgroundColor: context.palette.surfaceVariant,
       ),
     );
   }
@@ -127,16 +128,16 @@ class EnhancedBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: _getBackgroundColor(),
+        color: _getBackgroundColor(context),
         borderRadius: BorderRadius.circular(AppRadius.small),
         border: variant == BadgeVariant.outline
-            ? Border.all(color: _getBorderColor(), width: 1)
+            ? Border.all(color: _getBorderColor(context), width: 1)
             : null,
       ),
       child: Text(
         text,
         style: AppTextStyles.small.copyWith(
-          color: _getTextColor(),
+          color: _getTextColor(context),
           fontWeight: FontWeight.w500,
           fontSize: 12,
         ),
@@ -144,7 +145,7 @@ class EnhancedBadge extends StatelessWidget {
     );
   }
 
-  Color _getBackgroundColor() {
+  Color _getBackgroundColor(BuildContext context) {
     if (color != null) return color!;
     
     switch (variant) {
@@ -163,7 +164,7 @@ class EnhancedBadge extends StatelessWidget {
     }
   }
 
-  Color _getTextColor() {
+  Color _getTextColor(BuildContext context) {
     if (textColor != null) return textColor!;
     
     switch (variant) {
@@ -172,7 +173,7 @@ class EnhancedBadge extends StatelessWidget {
       case BadgeVariant.secondary:
         return AppColors.secondaryForeground;
       case BadgeVariant.outline:
-        return AppColors.textPrimary;
+        return context.palette.textPrimary;
       case BadgeVariant.destructive:
         return Colors.white;
       case BadgeVariant.success:
@@ -182,8 +183,8 @@ class EnhancedBadge extends StatelessWidget {
     }
   }
 
-  Color _getBorderColor() {
-    return _getBackgroundColor();
+  Color _getBorderColor(BuildContext context) {
+    return _getBackgroundColor(context);
   }
 }
 
@@ -219,7 +220,7 @@ class EnhancedSeparator extends StatelessWidget {
           Expanded(
             child: Divider(
               thickness: thickness,
-              color: color ?? AppColors.border,
+              color: color ?? context.palette.border,
             ),
           ),
           Padding(
@@ -227,14 +228,14 @@ class EnhancedSeparator extends StatelessWidget {
             child: Text(
               label!,
               style: AppTextStyles.small.copyWith(
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
           Expanded(
             child: Divider(
               thickness: thickness,
-              color: color ?? AppColors.border,
+              color: color ?? context.palette.border,
             ),
           ),
         ],
@@ -245,13 +246,13 @@ class EnhancedSeparator extends StatelessWidget {
       return Container(
         width: thickness,
         height: double.infinity,
-        color: color ?? AppColors.border,
+        color: color ?? context.palette.border,
       );
     }
     
     return Divider(
       thickness: thickness,
-      color: color ?? AppColors.border,
+      color: color ?? context.palette.border,
     );
   }
 }
@@ -274,10 +275,10 @@ class EnhancedSwitch extends StatelessWidget {
     return Switch(
       value: value,
       onChanged: onChanged,
-      activeColor: activeColor ?? AppColors.primary,
+      activeThumbColor: activeColor ?? AppColors.primary,
       activeTrackColor: (activeColor ?? AppColors.primary).withValues(alpha: 0.5),
       inactiveThumbColor: Colors.white,
-      inactiveTrackColor: AppColors.border,
+      inactiveTrackColor: context.palette.border,
     );
   }
 }
@@ -305,7 +306,7 @@ class EnhancedCheckbox extends StatelessWidget {
         borderRadius: BorderRadius.circular(4),
       ),
       side: BorderSide(
-        color: AppColors.border,
+        color: context.palette.border,
         width: 2,
       ),
     );

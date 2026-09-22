@@ -14,6 +14,7 @@ import 'admin_workout_templates_screen.dart';
 import 'admin_nutrition_templates_screen.dart';
 import 'store_management_screen.dart';
 import 'subscription_management_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
@@ -58,7 +59,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         onTap: (index) => setState(() => _selectedIndex = index),
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
-        unselectedItemColor: AppColors.textDisabled,
+        unselectedItemColor: context.palette.textDisabled,
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.dashboard),
@@ -112,9 +113,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         const SizedBox(height: 4),
                         Text(
                           languageProvider.t('admin_dashboard_subtitle'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 14,
-                            color: AppColors.textSecondary,
+                            color: context.palette.textSecondary,
                           ),
                         ),
                       ],
@@ -315,9 +316,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                     ),
                                     Text(
                                       '${percentage.toStringAsFixed(1)}%',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.textSecondary,
+                                        color: context.palette.textSecondary,
                                       ),
                                     ),
                                   ],
@@ -360,9 +361,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             children: [
                               Text(
                                 languageProvider.t('admin_sessions_today'),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 14,
-                                  color: AppColors.textSecondary,
+                                  color: context.palette.textSecondary,
                                 ),
                               ),
                               const SizedBox(height: 4),
@@ -399,7 +400,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       case 'smart_premium':
         return AppColors.accent;
       default:
-        return AppColors.textSecondary;
+        return context.palette.textSecondary;
     }
   }
 
@@ -550,9 +551,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -607,15 +608,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                     fontSize: 13,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right, color: AppColors.textDisabled),
+          Icon(Icons.chevron_right, color: context.palette.textDisabled),
         ],
       ),
     );
@@ -649,9 +650,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       subtitle: Text(subtitle),
       trailing: Text(
         time,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 12,
-          color: AppColors.textDisabled,
+          color: context.palette.textDisabled,
         ),
       ),
     );

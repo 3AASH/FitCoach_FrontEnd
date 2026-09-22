@@ -14,7 +14,28 @@ import 'package:fitapp/data/models/nutrition_plan.dart';
 
 class MockAuthRepository implements AuthRepositoryBase {
   @override
-  Future<void> requestOTP(String phoneNumber) async {}
+  Future<PhoneStatus> checkPhone(String phoneNumber) async => const PhoneStatus(
+        registered: false,
+        hasPassword: false,
+        nextStep: 'send_otp',
+      );
+
+  @override
+  Future<AuthResponse> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  }) async =>
+      AuthResponse(
+        token: '',
+        user: UserProfile(
+            id: 'mock_id', phoneNumber: '+201027856024', name: fullName),
+        isNewUser: true,
+        registrationComplete: true,
+      );
+
+  @override
+  Future<void> requestOTP(String phoneNumber, {String? purpose}) async {}
 
   @override
   Future<AuthResponse> verifyOTP(String phoneNumber, String otp) async {
@@ -22,6 +43,24 @@ class MockAuthRepository implements AuthRepositoryBase {
       token: 'mock_token',
       user: UserProfile(
           id: 'mock_id', phoneNumber: phoneNumber, name: 'Test User', age: 30),
+      isNewUser: false,
+    );
+  }
+
+  @override
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async {
+    return AuthResponse(
+      token: 'mock_token',
+      user: UserProfile(
+        id: 'mock_id',
+        phoneNumber: phoneNumber,
+        name: 'Test User',
+        age: 30,
+      ),
       isNewUser: false,
     );
   }
@@ -54,6 +93,7 @@ class MockAuthRepository implements AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   }) async {
     return AuthResponse(
       token: 'mock_token',
@@ -89,6 +129,15 @@ class MockAuthRepository implements AuthRepositoryBase {
 }
 
 class MockNutritionRepository extends NutritionRepository {
+  @override
+  Future<NutritionAccessStatus> getAccessStatus() async {
+    return NutritionAccessStatus(
+      hasAccess: false,
+      tier: 'freemium',
+      reason: 'subscription_required',
+    );
+  }
+
   @override
   Future<NutritionPlan?> getActivePlan() async => null;
 

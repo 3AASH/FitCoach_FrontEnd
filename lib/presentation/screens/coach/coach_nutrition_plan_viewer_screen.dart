@@ -7,6 +7,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
 import 'nutrition_plan_editor_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class CoachNutritionPlanViewerScreen extends StatefulWidget {
   final String clientId;
@@ -133,7 +134,7 @@ class _CoachNutritionPlanViewerScreenState
               const SizedBox(height: 8),
               Text(
                 plan.description!,
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ],
             const SizedBox(height: 12),
@@ -186,7 +187,7 @@ class _CoachNutritionPlanViewerScreenState
             child: Center(
               child: Text(
                 lang.t('coach_no_meal_days'),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
             ),
           ),
@@ -206,7 +207,7 @@ class _CoachNutritionPlanViewerScreenState
               leading: Icon(
                 meal.completed ? Icons.check_circle : Icons.schedule,
                 color:
-                    meal.completed ? AppColors.success : AppColors.textDisabled,
+                    meal.completed ? AppColors.success : context.palette.textDisabled,
               ),
               title: Text(meal.name),
               subtitle: Text('${meal.calories} kcal - ${meal.time}'),
@@ -225,7 +226,7 @@ class _CoachNutritionPlanViewerScreenState
           Text(
             label,
             style:
-                const TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                TextStyle(fontSize: 11, color: context.palette.textSecondary),
           ),
           Text(
             value,
@@ -244,13 +245,13 @@ class _CoachNutritionPlanViewerScreenState
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.restaurant_outlined,
-                size: 64, color: AppColors.textDisabled),
+            Icon(Icons.restaurant_outlined,
+                size: 64, color: context.palette.textDisabled),
             const SizedBox(height: 16),
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
           ],
         ),

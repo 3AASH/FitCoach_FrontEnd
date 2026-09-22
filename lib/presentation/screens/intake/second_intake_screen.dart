@@ -6,6 +6,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/nutrition_provider.dart';
+import '../../../core/theme/app_palette.dart';
 
 class SecondIntakeScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -183,8 +184,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                             ),
                             Text(
                               '${_currentStep + 1}/5',
-                              style: const TextStyle(
-                                  color: AppColors.textSecondary),
+                              style: TextStyle(
+                                  color: context.palette.textSecondary),
                             ),
                           ],
                         ),
@@ -192,12 +193,12 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                         Text(
                           languageProvider.t('intake_second_subtitle'),
                           style:
-                              const TextStyle(color: AppColors.textSecondary),
+                              TextStyle(color: context.palette.textSecondary),
                         ),
                         const SizedBox(height: 12),
                         LinearProgressIndicator(
                           value: (_currentStep + 1) / 5,
-                          backgroundColor: AppColors.surface,
+                          backgroundColor: context.palette.surfaceVariant,
                           valueColor: const AlwaysStoppedAnimation<Color>(
                               AppColors.secondaryForeground),
                         ),
@@ -405,7 +406,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
           description: lang.t('intake_second_frequency_desc'),
           children: [
             DropdownButtonFormField<int>(
-              value: _selectedFrequency,
+              initialValue: _selectedFrequency,
               decoration: InputDecoration(
                 labelText: lang.t('workout_frequency'),
               ),
@@ -481,7 +482,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color:
-                  isSelected ? AppColors.secondaryForeground : AppColors.border,
+                  isSelected ? AppColors.secondaryForeground : context.palette.border,
               width: 1.2,
             ),
             boxShadow: [
@@ -537,16 +538,19 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color:
-                isSelected ? AppColors.secondaryForeground : AppColors.border,
+                isSelected ? AppColors.secondaryForeground : context.palette.border,
             width: 1.5,
           ),
         ),
         child: Row(
           children: [
-            Radio<bool>(
-              value: true,
-              groupValue: isSelected,
-              onChanged: (_) => onTap(),
+            Icon(
+              isSelected
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
+              color: isSelected
+                  ? AppColors.secondaryForeground
+                  : context.palette.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -561,9 +565,9 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
@@ -607,7 +611,7 @@ class _StepSection extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               description,
-              style: const TextStyle(color: AppColors.textSecondary),
+              style: TextStyle(color: context.palette.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],
@@ -688,13 +692,13 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
                 Text(
                   widget.lang.t('intake_generating_desc'),
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary),
+                  style: TextStyle(color: context.palette.textSecondary),
                 ),
                 const SizedBox(height: 20),
-                const LinearProgressIndicator(
+                LinearProgressIndicator(
                   value: 0.75,
-                  backgroundColor: AppColors.surface,
-                  valueColor: AlwaysStoppedAnimation<Color>(
+                  backgroundColor: context.palette.surfaceVariant,
+                  valueColor: const AlwaysStoppedAnimation<Color>(
                       AppColors.secondaryForeground),
                 ),
               ],

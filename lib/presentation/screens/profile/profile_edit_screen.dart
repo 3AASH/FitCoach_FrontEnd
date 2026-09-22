@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
+import '../../../core/theme/app_palette.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   final UserRepository? userRepository;
@@ -184,9 +185,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   children: [
                     Text(
                       languageProvider.t('gender'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -309,7 +310,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         decoration: BoxDecoration(
           color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
           border: Border.all(
-            color: isSelected ? AppColors.primary : AppColors.border,
+            color: isSelected ? AppColors.primary : context.palette.border,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -319,7 +320,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.primary : AppColors.textSecondary,
+              color: isSelected ? AppColors.primary : context.palette.textSecondary,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -328,7 +329,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primary : AppColors.textPrimary,
+                color: isSelected ? AppColors.primary : context.palette.textPrimary,
               ),
             ),
           ],

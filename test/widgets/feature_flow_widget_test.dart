@@ -28,14 +28,54 @@ class _MockAuthRepository implements AuthRepositoryBase {
       );
 
   @override
-  Future<void> requestOTP(String phoneNumber) async {}
+  Future<PhoneStatus> checkPhone(String phoneNumber) async => const PhoneStatus(
+        registered: false,
+        hasPassword: false,
+        nextStep: 'send_otp',
+      );
 
   @override
-  Future<AuthResponse> verifyOTP(String phoneNumber, String otp) async => AuthResponse(
+  Future<AuthResponse> completeRegistration({
+    required String fullName,
+    required String password,
+    String? email,
+  }) async =>
+      AuthResponse(
+        token: '',
+        user: UserProfile(
+            id: 'mock_id', phoneNumber: '+201027856024', name: fullName),
+        isNewUser: true,
+        registrationComplete: true,
+      );
+
+  @override
+  Future<void> requestOTP(String phoneNumber, {String? purpose}) async {}
+
+  @override
+  Future<AuthResponse> verifyOTP(String phoneNumber, String otp) async =>
+      AuthResponse(
         token: 'token',
         user: UserProfile(
           id: 'user-1',
           phoneNumber: '+966500000001',
+          name: 'Test User',
+          role: 'user',
+          age: 30,
+        ),
+        isNewUser: false,
+      );
+
+  @override
+  Future<AuthResponse> resetPassword({
+    required String phoneNumber,
+    required String otpCode,
+    required String newPassword,
+  }) async =>
+      AuthResponse(
+        token: 'token',
+        user: UserProfile(
+          id: 'user-1',
+          phoneNumber: phoneNumber,
           name: 'Test User',
           role: 'user',
           age: 30,
@@ -56,11 +96,13 @@ class _MockAuthRepository implements AuthRepositoryBase {
     required String email,
     required String phone,
     required String password,
+    String? otpCode,
   }) async =>
       throw UnimplementedError();
 
   @override
-  Future<AuthResponse> socialLogin(String provider) async => throw UnimplementedError();
+  Future<AuthResponse> socialLogin(String provider) async =>
+      throw UnimplementedError();
 
   @override
   Future<void> storeToken(String token) async {}
@@ -135,13 +177,13 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<LanguageProvider> _languageProvider() async {
+  Future<LanguageProvider> languageProvider0() async {
     final provider = LanguageProvider();
     await provider.setLanguage('en');
     return provider;
   }
 
-  Widget _wrap({
+  Widget wrap({
     required Widget child,
     required LanguageProvider languageProvider,
     required AuthProvider authProvider,
@@ -155,13 +197,14 @@ void main() {
     );
   }
 
-  testWidgets('profile photo remove flow triggers repository remove', (tester) async {
-    final languageProvider = await _languageProvider();
+  testWidgets('profile photo remove flow triggers repository remove',
+      (tester) async {
+    final languageProvider = await languageProvider0();
     final authProvider = AuthProvider(_MockAuthRepository());
     final repository = _FakeUserRepository();
 
     await tester.pumpWidget(
-      _wrap(
+      wrap(
         child: ProfileEditScreen(
           userRepository: repository,
           imagePicker: ImagePicker(),
@@ -179,13 +222,14 @@ void main() {
     expect(repository.removePhotoCalled, isTrue);
   });
 
-  testWidgets('account settings save flow updates notification settings', (tester) async {
-    final languageProvider = await _languageProvider();
+  testWidgets('account settings save flow updates notification settings',
+      (tester) async {
+    final languageProvider = await languageProvider0();
     final authProvider = AuthProvider(_MockAuthRepository());
     final repository = _FakeUserRepository();
 
     await tester.pumpWidget(
-      _wrap(
+      wrap(
         child: NotificationSettingsScreen(userRepository: repository),
         languageProvider: languageProvider,
         authProvider: authProvider,
@@ -203,16 +247,20 @@ void main() {
 
   testWidgets('rating submit flow sends rating to repository', (tester) async {
     final repository = _FakeRatingRepository();
+    final languageProvider = await languageProvider0();
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: VideoCallScreen(
-            appointmentId: 'appt-1',
-            coachId: 'coach-1',
-            coachName: 'Coach',
-            autoInitialize: false,
-            ratingRepository: repository,
+      ChangeNotifierProvider<LanguageProvider>.value(
+        value: languageProvider,
+        child: MaterialApp(
+          home: Scaffold(
+            body: VideoCallScreen(
+              appointmentId: 'appt-1',
+              coachId: 'coach-1',
+              coachName: 'Coach',
+              autoInitialize: false,
+              ratingRepository: repository,
+            ),
           ),
         ),
       ),

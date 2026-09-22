@@ -232,8 +232,9 @@ class WorkoutProvider extends ChangeNotifier {
 
   Future<List<Exercise>> getExerciseAlternatives(
     String exerciseId,
-    List<String> userInjuries,
-  ) async {
+    List<String> userInjuries, {
+    String? workoutLocation,
+  }) async {
     if (_demoConfig.isDemo) {
       final alternatives =
           await _demoRepository.getExerciseAlternatives(exerciseId);
@@ -247,6 +248,7 @@ class WorkoutProvider extends ChangeNotifier {
       final alternatives = await _repository.getExerciseAlternatives(
         exerciseId,
         userInjuries,
+        workoutLocation: workoutLocation,
       );
       await _ensureCatalogLoaded();
       _isLoading = false;
@@ -316,7 +318,8 @@ class WorkoutProvider extends ChangeNotifier {
     final catalog = _catalogService.catalog;
     if (catalog == null) return exercise;
 
-    ExerciseCatalogItem? item = catalog.byId[exercise.id];
+    ExerciseCatalogItem? item =
+        catalog.byId[exercise.exerciseId] ?? catalog.byId[exercise.id];
     item ??= _findCatalogByName(catalog, exercise.nameEn, exercise.nameAr);
     if (item == null) return exercise;
 
@@ -366,6 +369,32 @@ class WorkoutProvider extends ChangeNotifier {
       }
     }
     return null;
+  }
+
+  /// Record an injured body part and reload the plan the backend rebuilt around
+  /// it. Returns true when the injury was accepted.
+  Future<bool> reportInjury(List<String> injuries) async {
+    if (injuries.isEmpty) return false;
+    if (_demoConfig.isDemo) {
+      _error = null;
+      notifyListeners();
+      return true;
+    }
+    _isLoading = true;
+    notifyListeners();
+    try {
+      await _repository.reportInjury(injuries);
+      // The backend regenerates the plan, so pull the rebuilt one.
+      await loadActivePlan();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
   }
 
   Future<bool> substituteExercise(

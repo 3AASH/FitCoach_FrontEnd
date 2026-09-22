@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../data/repositories/progress_repository.dart';
+import '../../../data/repositories/nutrition_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_stat_info_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class ProgressEntry {
   final String id;
@@ -153,6 +155,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
     try {
       final repository = ProgressRepository();
       final entries = await repository.getEntries();
+      try {
+        _nutritionHistory = await NutritionRepository().getNutritionHistory();
+      } catch (_) {
+        // Other progress remains available when nutrition access is unavailable.
+      }
       if (!mounted) return;
       setState(() {
         _entries = entries.map(ProgressEntry.fromJson).toList()
@@ -231,11 +238,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
           .toList();
     }
 
-    const values = <double>[];
-
-    if (values.length <= 7) return values;
-    return values.sublist(values.length - 7);
+    final today = DateTime.now();
+    final byDate = {for (final day in _nutritionHistory)
+      day['date'].toString().substring(0, 10): double.tryParse(day['calories'].toString()) ?? 0.0};
+    return List.generate(7, (index) {
+      final date = DateTime(today.year, today.month, today.day - 6 + index);
+      return byDate[date.toIso8601String().substring(0, 10)] ?? 0.0;
+    });
   }
+
+  List<Map<String, dynamic>> _nutritionHistory = [];
 
   int get _workoutCount {
     if (DemoConfig.isDemo) {
@@ -452,18 +464,18 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 isArabic
                     ? 'البداية: ${weights.isNotEmpty ? weights.first.toStringAsFixed(1) : '--'} كجم'
                     : 'Start: ${weights.isNotEmpty ? weights.first.toStringAsFixed(1) : '--'}kg',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               Text(
                 isArabic
                     ? 'الحالي: ${weights.isNotEmpty ? weights.last.toStringAsFixed(1) : '--'} كجم'
                     : 'Current: ${weights.isNotEmpty ? weights.last.toStringAsFixed(1) : '--'}kg',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -497,9 +509,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 children: [
                   Text(
                     days[index],
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textSecondary,
+                      color: context.palette.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -507,7 +519,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: hasWorkout ? AppColors.success : AppColors.surface,
+                      color: hasWorkout ? AppColors.success : context.palette.surfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: hasWorkout
@@ -569,9 +581,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
             isArabic
                 ? 'متوسط: ${_averageCalories?.toString() ?? '--'} سعرة/يوم'
                 : 'Average: ${_averageCalories?.toString() ?? '--'} cal/day',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
             textAlign: TextAlign.center,
           ),
@@ -601,8 +613,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   isArabic
                       ? 'لا توجد إدخالات تقدم بعد'
                       : 'No progress entries yet',
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),
@@ -706,8 +718,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
             const SizedBox(height: 12),
             Text(
               entry.notes!,
-              style: const TextStyle(
-                color: AppColors.textSecondary,
+              style: TextStyle(
+                color: context.palette.textSecondary,
               ),
             ),
           ],
@@ -731,7 +743,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                       errorBuilder: (_, __, ___) => Container(
                         width: 88,
                         height: 88,
-                        color: AppColors.surface,
+                        color: context.palette.surfaceVariant,
                         child: const Icon(Icons.image_not_supported_outlined),
                       ),
                     ),
@@ -801,12 +813,12 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   decoration: BoxDecoration(
                     color: unlocked
                         ? AppColors.accent.withValues(alpha: 0.1)
-                        : AppColors.surface,
+                        : context.palette.surfaceVariant,
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     achievement['icon'] as IconData,
-                    color: unlocked ? AppColors.accent : AppColors.textDisabled,
+                    color: unlocked ? AppColors.accent : context.palette.textDisabled,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -820,16 +832,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
                           color: unlocked
-                              ? AppColors.textPrimary
-                              : AppColors.textDisabled,
+                              ? context.palette.textPrimary
+                              : context.palette.textDisabled,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         achievement['description'] as String,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],

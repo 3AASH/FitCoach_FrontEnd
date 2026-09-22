@@ -11,6 +11,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutExerciseDetailScreen extends StatefulWidget {
   final Exercise exercise;
@@ -54,13 +55,15 @@ class _WorkoutExerciseDetailScreenState
   }
 
   Future<void> _openExerciseVideo(bool isArabic) async {
-    final videoUrl = _exercise.videoUrl;
+    final videoUrl = _exercise.videoUrl?.trim().isNotEmpty == true
+        ? _exercise.videoUrl
+        : _exercise.thumbnailUrl;
     if (videoUrl == null || videoUrl.trim().isEmpty) {
       _showVideoUnavailable(isArabic);
       return;
     }
 
-    final uri = Uri.tryParse(videoUrl.trim());
+    final uri = Uri.tryParse(VideoThumbnailResolver.assetUrl(videoUrl.trim())!);
     if (uri == null ||
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
@@ -104,6 +107,9 @@ class _WorkoutExerciseDetailScreenState
     final lang = context.read<LanguageProvider>();
     final authProvider = context.read<AuthProvider>();
     final injuries = authProvider.user?.injuries ?? [];
+    // The same profile object the injuries come from already carries where the
+    // user trains, so the swap list can be restricted to what they can do.
+    final workoutLocation = authProvider.user?.workoutLocation;
 
     await showModalBottomSheet<void>(
       context: context,
@@ -115,6 +121,7 @@ class _WorkoutExerciseDetailScreenState
             future: provider.getExerciseAlternatives(
               _exercise.exerciseId ?? _exercise.id,
               injuries,
+              workoutLocation: workoutLocation,
             ),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
@@ -130,7 +137,7 @@ class _WorkoutExerciseDetailScreenState
                   child: Center(
                     child: Text(
                       lang.t('exercise_no_alternatives'),
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                     ),
                   ),
                 );
@@ -142,10 +149,10 @@ class _WorkoutExerciseDetailScreenState
                   children: [
                     Text(
                       lang.t('exercise_alternative_exercises'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: context.palette.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 12),
@@ -158,19 +165,19 @@ class _WorkoutExerciseDetailScreenState
                           return ListTile(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: AppColors.border),
+                              side: BorderSide(color: context.palette.border),
                             ),
                             title: Text(
                               alt.nameEn,
-                              style: const TextStyle(
-                                color: AppColors.textPrimary,
+                              style: TextStyle(
+                                color: context.palette.textPrimary,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
                             subtitle: Text(
                               '${alt.sets} ${lang.t('sets')} \u2022 ${alt.reps} ${lang.t('reps')}',
-                              style: const TextStyle(
-                                color: AppColors.textSecondary,
+                              style: TextStyle(
+                                color: context.palette.textSecondary,
                               ),
                             ),
                             trailing: Icon(
@@ -222,8 +229,11 @@ class _WorkoutExerciseDetailScreenState
         .toList();
   }
 
-  String? _thumbnailFromVideoUrl(String? videoUrl) {
-    return VideoThumbnailResolver.fromVideoUrl(videoUrl);
+  String? _resolveHeroThumbnail(String? thumbnailUrl, String? videoUrl) {
+    return VideoThumbnailResolver.resolveDemo(
+      thumbnailUrl: thumbnailUrl,
+      videoUrl: videoUrl,
+    );
   }
 
   @override
@@ -251,9 +261,10 @@ class _WorkoutExerciseDetailScreenState
     final equipmentLabel =
         _localizeEquipment(exercise.equipment, isArabic, lang.t('equipment'));
     final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
-    final derivedVideoThumbnail = _thumbnailFromVideoUrl(exercise.videoUrl);
-    final heroImage = exercise.thumbnailUrl ??
-        derivedVideoThumbnail ??
+    final heroImage = _resolveHeroThumbnail(
+          exercise.thumbnailUrl,
+          exercise.videoUrl,
+        ) ??
         'assets/placeholders/splash_onboarding/workout_onboarding.png';
     final instructions = _splitLines(
       isArabic
@@ -264,11 +275,12 @@ class _WorkoutExerciseDetailScreenState
 
     Widget buildHeroImage() {
       if (heroImage.startsWith('assets/')) {
-        return Image.asset(heroImage, fit: BoxFit.cover);
+        return Image.asset(heroImage, fit: BoxFit.contain);
       }
       return Image.network(
         heroImage,
-        fit: BoxFit.cover,
+        key: const ValueKey('exercise-detail-demo'),
+        fit: BoxFit.contain,
         errorBuilder: (_, __, ___) => Image.asset(
           'assets/placeholders/splash_onboarding/workout_onboarding.png',
           fit: BoxFit.cover,
@@ -282,11 +294,7 @@ class _WorkoutExerciseDetailScreenState
         body: Stack(
           children: [
             Positioned.fill(
-              child: Opacity(
-                opacity: 0.8,
-                child: buildHeroImage(),
-              ),
-            ),
+                child: ColoredBox(color: context.palette.background)),
             SafeArea(
               child: Column(
                 children: [
@@ -348,65 +356,16 @@ class _WorkoutExerciseDetailScreenState
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          CustomCard(
-                            padding: EdgeInsets.zero,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
+                          Material(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(8),
+                            clipBehavior: Clip.antiAlias,
+                            child: InkWell(
+                              onTap: () => _openExerciseVideo(isArabic),
                               child: SizedBox(
-                                height: 180,
+                                height: 220,
                                 width: double.infinity,
-                                child: Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    buildHeroImage(),
-                                    Container(
-                                      color:
-                                          Colors.black.withValues(alpha: 0.28),
-                                    ),
-                                    Center(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          const Icon(
-                                            Icons.play_circle_fill,
-                                            size: 56,
-                                            color: AppColors.textWhite,
-                                          ),
-                                          const SizedBox(height: 8),
-                                          Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                horizontal: 16),
-                                            child: Text(
-                                              '${isArabic ? exercise.nameAr : exercise.nameEn} ${lang.t('exercise_demo')}',
-                                              style: const TextStyle(
-                                                color: AppColors.textWhite,
-                                                fontWeight: FontWeight.w600,
-                                              ),
-                                              maxLines: 2,
-                                              overflow: TextOverflow.ellipsis,
-                                              textAlign: TextAlign.center,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 8),
-                                          OutlinedButton.icon(
-                                            onPressed: () =>
-                                                _openExerciseVideo(isArabic),
-                                            style: OutlinedButton.styleFrom(
-                                              backgroundColor: Colors.white
-                                                  .withValues(alpha: 0.92),
-                                              foregroundColor:
-                                                  AppColors.textPrimary,
-                                            ),
-                                            icon: const Icon(Icons.play_arrow),
-                                            label: Text(lang
-                                                .t('exercise_watch_video_btn')),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                child: buildHeroImage(),
                               ),
                             ),
                           ),
@@ -432,13 +391,13 @@ class _WorkoutExerciseDetailScreenState
                           const SizedBox(height: 16),
                           Container(
                             decoration: BoxDecoration(
-                              color: AppColors.surface.withValues(alpha: 0.9),
+                              color: context.palette.surfaceVariant.withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(16),
-                              border: Border.all(color: AppColors.border),
+                              border: Border.all(color: context.palette.border),
                             ),
                             child: TabBar(
                               labelColor: AppColors.primary,
-                              unselectedLabelColor: AppColors.textSecondary,
+                              unselectedLabelColor: context.palette.textSecondary,
                               indicatorColor: AppColors.primary,
                               indicatorWeight: 3,
                               labelStyle:
@@ -716,7 +675,7 @@ class _QuickStat extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
         ),
       ],
     );
@@ -779,13 +738,13 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.surface,
+        color: context.palette.surfaceVariant,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
       ),
       child: Text(
         text,
-        style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+        style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
       ),
     );
   }
@@ -805,7 +764,7 @@ class _TutorialOverlay extends StatelessWidget {
     final lang = context.watch<LanguageProvider>();
     return Positioned.fill(
       child: Container(
-        color: AppColors.textPrimary.withValues(alpha: 0.7),
+        color: context.palette.textPrimary.withValues(alpha: 0.7),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -912,8 +871,8 @@ class _TutorialStep extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 description,
-                style: const TextStyle(
-                    fontSize: 12, color: AppColors.textSecondary),
+                style: TextStyle(
+                    fontSize: 12, color: context.palette.textSecondary),
               ),
             ],
           ),

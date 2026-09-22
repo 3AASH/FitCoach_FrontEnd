@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../core/constants/colors.dart';
 import '../providers/language_provider.dart';
+import '../../core/theme/app_palette.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   final VoidCallback onLanguageSelected;
@@ -284,16 +284,16 @@ class _LanguageCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   language,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.palette.textPrimary,
                   ),
                 ),
               ),
               Icon(
                 isRtl ? Icons.arrow_back_ios_new : Icons.arrow_forward_ios,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
                 size: 20,
               ),
             ],

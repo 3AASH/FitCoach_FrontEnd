@@ -61,7 +61,7 @@ void main() {
       var pressed = false;
 
       await tester.pumpWidget(
-        MaterialApp(
+        const MaterialApp(
           home: Scaffold(
             body: CustomButton(
               text: 'Test Button',

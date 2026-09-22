@@ -207,6 +207,127 @@ class NutritionTodayProgress {
       };
 }
 
+class NutritionAccessStatus {
+  final bool hasAccess;
+  final bool requiresFirstWorkout;
+  final bool requiresIntakes;
+  final String? tier;
+  final String? reason;
+  final String? message;
+  final String? messageAr;
+  final Map<String, dynamic>? action;
+  final DateTime? trialStartedAt;
+  final DateTime? trialExpiresAt;
+  final int? daysRemaining;
+  final bool isTrialActive;
+
+  NutritionAccessStatus({
+    required this.hasAccess,
+    this.requiresFirstWorkout = false,
+    this.requiresIntakes = false,
+    this.tier,
+    this.reason,
+    this.message,
+    this.messageAr,
+    this.action,
+    this.trialStartedAt,
+    this.trialExpiresAt,
+    this.daysRemaining,
+    this.isTrialActive = false,
+  });
+
+  factory NutritionAccessStatus.fromJson(Map<String, dynamic> json) {
+    final source = _asMap(json['access']) ?? json;
+    return NutritionAccessStatus(
+      hasAccess: asBool(source['hasAccess'] ?? source['has_access']) ?? false,
+      requiresIntakes: asBool(source['requiresIntakes']) ?? false,
+      requiresFirstWorkout: asBool(source['requiresFirstWorkout'] ??
+              source['requires_first_workout']) ??
+          false,
+      tier: asString(source['tier']),
+      reason: asString(source['reason']),
+      message: asString(source['message']),
+      messageAr: asString(source['messageAr'] ?? source['message_ar']),
+      action: _asMap(source['action']),
+      trialStartedAt:
+          _asDateTime(source['trialStartedAt'] ?? source['trial_started_at']),
+      trialExpiresAt:
+          _asDateTime(source['trialExpiresAt'] ?? source['trial_expires_at']),
+      daysRemaining:
+          _asInt(source['daysRemaining'] ?? source['days_remaining']),
+      isTrialActive:
+          asBool(source['isTrialActive'] ?? source['is_trial_active']) ?? false,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'hasAccess': hasAccess,
+        'requiresFirstWorkout': requiresFirstWorkout,
+        'requiresIntakes': requiresIntakes,
+        'tier': tier,
+        'reason': reason,
+        'message': message,
+        'messageAr': messageAr,
+        'action': action,
+        'trialStartedAt': trialStartedAt?.toIso8601String(),
+        'trialExpiresAt': trialExpiresAt?.toIso8601String(),
+        'daysRemaining': daysRemaining,
+        'isTrialActive': isTrialActive,
+      };
+}
+
+class NutritionIntakeRequirements {
+  final String planType;
+  final List<String> missingFields;
+  final List<Map<String, dynamic>> questions;
+  final Map<String, dynamic>? context;
+  final NutritionAccessStatus? access;
+
+  /// Set when a field the first workout intake owns (currently sex) is absent.
+  /// The nutrition form does not ask for it a second time; the client is sent
+  /// back to the intake that owns the question instead.
+  final bool requiresFirstIntake;
+
+  NutritionIntakeRequirements({
+    required this.planType,
+    required this.missingFields,
+    required this.questions,
+    this.context,
+    this.access,
+    this.requiresFirstIntake = false,
+  });
+
+  bool get isComplete => missingFields.isEmpty;
+
+  factory NutritionIntakeRequirements.fromJson(Map<String, dynamic> json) {
+    final missing = _asList(json['missingFields'] ?? json['missing_fields']) ??
+        const <dynamic>[];
+    final rawQuestions = _asList(json['questions']) ?? const <dynamic>[];
+    return NutritionIntakeRequirements(
+      planType: asString(json['planType'] ?? json['plan_type']) ?? 'starter',
+      missingFields: missing.map((item) => item.toString()).toList(),
+      questions: rawQuestions
+          .map((item) => _asMap(item) ?? <String, dynamic>{'field': '$item'})
+          .toList(),
+      context: _asMap(json['context']),
+      access: json['access'] != null
+          ? NutritionAccessStatus.fromJson(_asMap(json['access']) ?? const {})
+          : null,
+      requiresFirstIntake:
+          json['requiresFirstIntake'] == true || json['requires_first_intake'] == true,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        'planType': planType,
+        'missingFields': missingFields,
+        'questions': questions,
+        'context': context,
+        'access': access?.toJson(),
+        'requiresFirstIntake': requiresFirstIntake,
+      };
+}
+
 class DayMealPlan {
   final String id;
   final String dayName;
@@ -254,6 +375,8 @@ class DayMealPlan {
 }
 
 class Meal {
+  final DateTime? scheduledDate;
+  final bool canLog;
   final String id;
   final String name;
   final String nameAr;
@@ -271,6 +394,8 @@ class Meal {
   bool completed;
 
   Meal({
+    this.scheduledDate,
+    this.canLog = true,
     required this.id,
     required this.name,
     required this.nameAr,
@@ -290,23 +415,34 @@ class Meal {
 
   factory Meal.fromJson(Map<String, dynamic> json) {
     final fallbackName = resolveMealName(json);
+    final foodsSource = _asList(json['foods']) ?? _asList(json['ingredients']);
+    final macrosSource = _asMap(json['macros']) ??
+        <String, dynamic>{
+          'protein': json['protein'] ?? json['protein_g'],
+          'carbs': json['carbs'] ?? json['carbs_g'],
+          'fats': json['fats'] ?? json['fat'] ?? json['fat_g'],
+        };
     return Meal(
+      scheduledDate: _asDateTime(json['scheduledDate']),
+      canLog: asBool(json['canLog']) ?? true,
       id: asString(json['id']) ?? '',
       name: fallbackName,
       nameAr: asString(json['nameAr'] ?? json['name_ar']) ?? fallbackName,
       nameEn: asString(json['nameEn'] ?? json['name_en']) ?? fallbackName,
       type: asString(json['type']) ?? '',
       time: asString(json['time']) ?? '',
-      foods: (_asList(json['foods']) ?? const [])
+      foods: (foodsSource ?? const [])
           .map((food) => FoodItem.fromJson(_asMap(food) ?? const {}))
           .toList(),
-      macros: MacroTargets.fromJson(_asMap(json['macros']) ?? const {}),
+      macros: MacroTargets.fromJson(macrosSource),
       calories: _asInt(json['calories']) ?? 0,
       instructions: asString(json['instructions']),
-      instructionsAr: asString(json['instructionsAr']),
-      instructionsEn: asString(json['instructionsEn']),
-      imageUrl: asString(json['imageUrl']),
-      order: _asInt(json['order']) ?? 0,
+      instructionsAr:
+          asString(json['instructionsAr'] ?? json['instructions_ar']),
+      instructionsEn:
+          asString(json['instructionsEn'] ?? json['instructions_en']),
+      imageUrl: asString(json['imageUrl'] ?? json['image_url']),
+      order: _asInt(json['order'] ?? json['order_index']) ?? 0,
       completed: asBool(json['completed'] ??
               json['isCompleted'] ??
               json['is_completed']) ??
@@ -331,7 +467,84 @@ class Meal {
       'imageUrl': imageUrl,
       'order': order,
       'completed': completed,
+      'scheduledDate': scheduledDate?.toIso8601String(),
+      'canLog': canLog,
     };
+  }
+}
+
+/// One meal the client may swap the current one for.
+///
+/// The server decides what is offered; this only carries enough to let someone
+/// choose between them, which is the name, the macros, and how far the swap
+/// moves the day's calories.
+class MealAlternative {
+  final String variantId;
+  final String recipeId;
+  final String? nameEn;
+  final String? nameAr;
+  final String? portionCode;
+  final int calories;
+  final double protein;
+  final double carbs;
+  final double fats;
+
+  /// Signed difference against the meal being replaced, so the UI can say
+  /// "+40 kcal" rather than making the client compare two numbers.
+  final int calorieDelta;
+
+  /// True when this was one of the three the plan itself proposed, which are
+  /// shown first because they were chosen to fit the day.
+  final bool suggestedByTemplate;
+  final String? imageUrl;
+
+  const MealAlternative({
+    required this.variantId,
+    required this.recipeId,
+    this.nameEn,
+    this.nameAr,
+    this.portionCode,
+    this.calories = 0,
+    this.protein = 0,
+    this.carbs = 0,
+    this.fats = 0,
+    this.calorieDelta = 0,
+    this.suggestedByTemplate = false,
+    this.imageUrl,
+  });
+
+  String displayName(bool isArabic) {
+    final preferred = isArabic ? nameAr : nameEn;
+    final fallback = isArabic ? nameEn : nameAr;
+    final name = (preferred?.trim().isNotEmpty ?? false)
+        ? preferred!.trim()
+        : (fallback?.trim().isNotEmpty ?? false)
+            ? fallback!.trim()
+            : recipeId;
+    return name;
+  }
+
+  factory MealAlternative.fromJson(Map<String, dynamic> json) {
+    double toDouble(dynamic value) =>
+        value is num ? value.toDouble() : double.tryParse('$value') ?? 0;
+    int toInt(dynamic value) =>
+        value is num ? value.round() : int.tryParse('$value') ?? 0;
+
+    return MealAlternative(
+      variantId: asString(json['variantId'] ?? json['variant_id']) ?? '',
+      recipeId: asString(json['recipeId'] ?? json['recipe_id']) ?? '',
+      nameEn: asString(json['nameEn'] ?? json['name_en']),
+      nameAr: asString(json['nameAr'] ?? json['name_ar']),
+      portionCode: asString(json['portionCode'] ?? json['portion_code']),
+      calories: toInt(json['calories']),
+      protein: toDouble(json['protein']),
+      carbs: toDouble(json['carbs']),
+      fats: toDouble(json['fats']),
+      calorieDelta: toInt(json['calorieDelta'] ?? json['calorie_delta']),
+      suggestedByTemplate:
+          json['suggestedByTemplate'] == true || json['suggested_by_template'] == true,
+      imageUrl: asString(json['imageUrl'] ?? json['image_url']),
+    );
   }
 }
 
@@ -480,18 +693,25 @@ class FoodItem {
   });
 
   factory FoodItem.fromJson(Map<String, dynamic> json) {
+    final fallbackName =
+        asString(json['name'] ?? json['nameEn'] ?? json['name_en']) ?? '';
+    final quantity = _asDouble(
+      json['quantity'] ?? json['grams'] ?? json['amount'],
+    );
+    final macrosSource = _asMap(json['macros']) ??
+        <String, dynamic>{
+          'protein': json['protein'] ?? json['protein_g'],
+          'carbs': json['carbs'] ?? json['carbs_g'],
+          'fats': json['fats'] ?? json['fat'] ?? json['fat_g'],
+        };
     return FoodItem(
       id: asString(json['id']) ?? '',
-      name: asString(json['name']) ?? '',
-      nameAr: asString(json['nameAr'] ?? json['name_ar']) ??
-          asString(json['name']) ??
-          '',
-      nameEn: asString(json['nameEn'] ?? json['name_en']) ??
-          asString(json['name']) ??
-          '',
-      quantity: _asDouble(json['quantity']),
-      unit: asString(json['unit']) ?? '',
-      macros: MacroTargets.fromJson(_asMap(json['macros']) ?? const {}),
+      name: fallbackName,
+      nameAr: asString(json['nameAr'] ?? json['name_ar']) ?? fallbackName,
+      nameEn: asString(json['nameEn'] ?? json['name_en']) ?? fallbackName,
+      quantity: quantity,
+      unit: asString(json['unit']) ?? (quantity > 0 ? 'g' : ''),
+      macros: MacroTargets.fromJson(macrosSource),
       calories: _asInt(json['calories']) ?? 0,
     );
   }
@@ -523,9 +743,9 @@ class MacroTargets {
 
   factory MacroTargets.fromJson(Map<String, dynamic> json) {
     return MacroTargets(
-      protein: _asDouble(json['protein']),
-      carbs: _asDouble(json['carbs']),
-      fats: _asDouble(json['fats']),
+      protein: _asDouble(json['protein'] ?? json['protein_g']),
+      carbs: _asDouble(json['carbs'] ?? json['carbs_g']),
+      fats: _asDouble(json['fats'] ?? json['fat'] ?? json['fat_g']),
     );
   }
 

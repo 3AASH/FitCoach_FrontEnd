@@ -5,6 +5,7 @@ import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
+import '../../../core/theme/app_palette.dart';
 
 class StoreProductDetailData {
   final String id;
@@ -74,10 +75,10 @@ class StoreProductDetailScreen extends StatelessWidget {
                           data.imageUrl,
                           fit: BoxFit.cover,
                           errorBuilder: (_, __, ___) => Container(
-                            color: AppColors.surface,
-                            child: const Icon(
+                            color: context.palette.surfaceVariant,
+                            child: Icon(
                               Icons.image_not_supported,
-                              color: AppColors.textDisabled,
+                              color: context.palette.textDisabled,
                               size: 48,
                             ),
                           ),
@@ -103,8 +104,8 @@ class StoreProductDetailScreen extends StatelessWidget {
                                   padding: const EdgeInsets.only(top: 4),
                                   child: Text(
                                     data.subtitle!,
-                                    style: const TextStyle(
-                                      color: AppColors.textSecondary,
+                                    style: TextStyle(
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ),
@@ -146,9 +147,9 @@ class StoreProductDetailScreen extends StatelessWidget {
                             padding: const EdgeInsets.only(left: 8),
                             child: Text(
                               data.originalPrice!.toStringAsFixed(2),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 decoration: TextDecoration.lineThrough,
-                                color: AppColors.textSecondary,
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           ),
@@ -162,7 +163,7 @@ class StoreProductDetailScreen extends StatelessWidget {
                         const SizedBox(width: 4),
                         Text(
                           lang.t('reviews_count', args: {'count': data.reviews.toString()}),
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                          style: TextStyle(color: context.palette.textSecondary, fontSize: 12),
                         ),
                       ],
                     ),
@@ -177,8 +178,8 @@ class StoreProductDetailScreen extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),
-                                  color: AppColors.surface,
-                                  border: Border.all(color: AppColors.border),
+                                  color: context.palette.surfaceVariant,
+                                  border: Border.all(color: context.palette.border),
                                 ),
                                 child: Text(
                                   badge,
@@ -197,8 +198,8 @@ class StoreProductDetailScreen extends StatelessWidget {
                     const SizedBox(height: 8),
                     Text(
                       data.description,
-                      style: const TextStyle(
-                        color: AppColors.textSecondary,
+                      style: TextStyle(
+                        color: context.palette.textSecondary,
                         height: 1.5,
                       ),
                     ),
@@ -244,7 +245,7 @@ class StoreProductDetailScreen extends StatelessWidget {
                                       Expanded(
                                         child: Text(
                                           entry.key,
-                                          style: const TextStyle(color: AppColors.textSecondary),
+                                          style: TextStyle(color: context.palette.textSecondary),
                                         ),
                                       ),
                                       Expanded(

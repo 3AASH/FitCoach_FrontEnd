@@ -51,7 +51,7 @@ class _AnimatedRevealState extends State<AnimatedReveal> {
     if (_delayStarted || !mounted) return;
 
     // Only start counting the delay once tickers are enabled for this subtree.
-    if (!TickerMode.of(context)) return;
+    if (!TickerMode.valuesOf(context).enabled) return;
 
     _delayStarted = true;
     if (widget.delay == Duration.zero) {
@@ -73,7 +73,7 @@ class _AnimatedRevealState extends State<AnimatedReveal> {
     // Important for IndexedStack/Offstage: when not visible, Flutter disables
     // tickers via TickerMode, which prevents implicit animations from running.
     // If we flip `_visible` while offstage, the animation is effectively skipped.
-    if (!TickerMode.of(context)) {
+    if (!TickerMode.valuesOf(context).enabled) {
       _scheduleRevealCheck();
       return;
     }
@@ -102,7 +102,7 @@ class _AnimatedRevealState extends State<AnimatedReveal> {
 
   @override
   Widget build(BuildContext context) {
-    final tickerActive = TickerMode.of(context);
+    final tickerActive = TickerMode.valuesOf(context).enabled;
     if (tickerActive) {
       _startDelayIfNeeded();
     }

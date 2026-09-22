@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/workout_provider.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutExerciseSessionScreen extends StatefulWidget {
   final List<Exercise> exercises;
@@ -161,6 +164,50 @@ class _WorkoutExerciseSessionScreenState
 
   Exercise get currentExercise => widget.exercises[_currentIndex];
 
+  Widget _buildExerciseDemo(Exercise exercise, LanguageProvider lang) {
+    final resolved = VideoThumbnailResolver.resolveDemo(
+      thumbnailUrl: exercise.thumbnailUrl,
+      videoUrl: exercise.videoUrl,
+    );
+
+    if (resolved == null) {
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.play_circle,
+                size: 48, color: context.palette.textSecondary),
+            const SizedBox(height: 8),
+            Text(
+              lang.t('workouts_exercise_demo'),
+              style: TextStyle(color: context.palette.textSecondary),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Image.network(
+      resolved,
+      width: double.infinity,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.play_circle,
+                size: 48, color: context.palette.textSecondary),
+            const SizedBox(height: 8),
+            Text(
+              lang.t('workouts_exercise_demo'),
+              style: TextStyle(color: context.palette.textSecondary),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   String _formatTime(int seconds) {
     final mins = seconds ~/ 60;
     final secs = seconds % 60;
@@ -277,24 +324,29 @@ class _WorkoutExerciseSessionScreenState
                         _SessionCard(
                           child: Container(
                             height: 160,
+                            clipBehavior: Clip.antiAlias,
                             decoration: BoxDecoration(
-                              color: AppColors.surface,
+                              color: context.palette.surfaceVariant,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Icon(Icons.play_circle,
-                                      size: 48, color: AppColors.textSecondary),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    lang.t('workouts_exercise_demo'),
-                                    style: const TextStyle(
-                                        color: AppColors.textSecondary),
-                                  ),
-                                ],
-                              ),
+                            child: InkWell(
+                              onTap: () async {
+                                final url = VideoThumbnailResolver.assetUrl(
+                                  currentExercise.videoUrl ??
+                                      currentExercise.thumbnailUrl,
+                                );
+                                if (url == null) return;
+                                final opened = await launchUrl(Uri.parse(url),
+                                    mode: LaunchMode.externalApplication);
+                                if (!opened && context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text(lang
+                                            .t('exercise_video_unavailable'))),
+                                  );
+                                }
+                              },
+                              child: _buildExerciseDemo(currentExercise, lang),
                             ),
                           ),
                         ),
@@ -485,7 +537,7 @@ class _SessionCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color ?? Colors.white,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.palette.border),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.04),
@@ -519,7 +571,7 @@ class _MetricItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+          style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
         ),
       ],
     );
@@ -563,14 +615,14 @@ class _NumberFieldState extends State<_NumberField> {
       children: [
         Text(widget.label,
             style:
-                const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary)),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 4),
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.palette.surfaceVariant,
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.palette.border),
           ),
           child: Row(
             children: [

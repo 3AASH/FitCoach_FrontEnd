@@ -8,6 +8,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/library_picker_field.dart';
+import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutPlanEditorScreen extends StatefulWidget {
   final String clientId;
@@ -40,7 +43,18 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
   void initState() {
     super.initState();
     _loadCurrentPlan();
+    // Reference data for the exercise picker. Deliberately not awaited: the
+    // field falls back to plain free text while it is in flight, so the editor
+    // stays usable if the library is slow or unavailable.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<CoachProvider>().loadPlanLibraries();
+    });
   }
+
+  List<ExerciseLibraryOption> get _exerciseOptions =>
+      ExerciseLibraryOption.fromRows(
+          context.watch<CoachProvider>().exerciseLibrary);
 
   @override
   void dispose() {
@@ -303,26 +317,26 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     ),
                   TextField(
                     controller: _nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Plan Name',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_plan_name'),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _descriptionController,
                     maxLines: 2,
-                    decoration: const InputDecoration(
-                      labelText: 'Description',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_description'),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
                   TextField(
                     controller: _goalController,
-                    decoration: const InputDecoration(
-                      labelText: 'Goal',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_goal'),
+                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -363,7 +377,10 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                         'Day ${dayIndex + 1}',
                                     enabled: _isEditable,
                                     decoration: InputDecoration(
-                                      labelText: 'Day ${dayIndex + 1} Name',
+                                      labelText: lang.t(
+                                        'plan_editor_day_name',
+                                        args: {'day': '${dayIndex + 1}'},
+                                      ),
                                     ),
                                     onChanged: (value) =>
                                         _days[dayIndex]['name'] = value,
@@ -383,7 +400,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                               final exIndex = exEntry.key;
                               final ex = exEntry.value;
                               return Card(
-                                color: AppColors.surface,
+                                color: context.palette.surfaceVariant,
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
@@ -392,15 +409,34 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: TextFormField(
+                                            child: LibraryPickerField<
+                                                ExerciseLibraryOption>(
                                               initialValue:
                                                   _asString(ex['name']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Exercise name'),
-                                              onChanged: (value) =>
+                                              labelText: lang.t(
+                                                'plan_editor_exercise_name',
+                                              ),
+                                              options: _exerciseOptions,
+                                              optionLabel: (option) =>
+                                                  option.name,
+                                              optionDetail: (option) =>
+                                                  option.detail,
+                                              onTextChanged: (value) =>
                                                   _updateExercise(dayIndex,
                                                       exIndex, 'name', value),
+                                              onSelected: (option) {
+                                                // Carry the id, not just the
+                                                // label: the name alone is what
+                                                // let a plan reference an
+                                                // exercise the library has
+                                                // never heard of.
+                                                _updateExercise(dayIndex,
+                                                    exIndex, 'name', option.name);
+                                                _updateExercise(dayIndex,
+                                                    exIndex, 'exerciseId',
+                                                    option.id);
+                                              },
                                             ),
                                           ),
                                           IconButton(
@@ -424,8 +460,10 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                               enabled: _isEditable,
                                               keyboardType:
                                                   TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Sets'),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    lang.t('plan_editor_sets'),
+                                              ),
                                               onChanged: (value) =>
                                                   _updateExercise(
                                                 dayIndex,
@@ -441,8 +479,10 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                               initialValue:
                                                   _asString(ex['reps']) ?? '10',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Reps'),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    lang.t('plan_editor_reps'),
+                                              ),
                                               onChanged: (value) =>
                                                   _updateExercise(dayIndex,
                                                       exIndex, 'reps', value),
@@ -462,7 +502,8 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                     ? () => _addExercise(dayIndex)
                                     : null,
                                 icon: const Icon(Icons.add),
-                                label: Text(lang.t('coach_plan_editor_add_exercise')),
+                                label: Text(
+                                    lang.t('coach_plan_editor_add_exercise')),
                               ),
                             )
                           ],

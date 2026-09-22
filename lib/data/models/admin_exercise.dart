@@ -8,6 +8,14 @@ class AdminExercise {
   final String? category;
   final String? difficulty;
   final List<String> muscleGroups;
+
+  /// The primary muscle the exercise trains. The swap list groups on this, so a
+  /// wrong value here shows a client the wrong alternatives.
+  final String? mainMuscle;
+
+  /// Where the exercise can be trained: `home`, `gym` or `both`. The swap list
+  /// is filtered by the client's first-intake location.
+  final String? locationType;
   final List<String> equipment;
   final List<String> alternatives;
   final int? alternativesCount;
@@ -25,6 +33,8 @@ class AdminExercise {
     this.category,
     this.difficulty,
     this.muscleGroups = const [],
+    this.mainMuscle,
+    this.locationType,
     this.equipment = const [],
     this.alternatives = const [],
     this.alternativesCount,
@@ -55,6 +65,12 @@ class AdminExercise {
       category: _string(json['category']),
       difficulty: _string(json['difficulty']),
       muscleGroups: _stringList(json['muscle_groups'] ?? json['muscleGroups']),
+      mainMuscle: _string(
+        json['main_muscle'] ?? json['mainMuscle'] ?? json['muscle_group'] ?? json['muscleGroup'],
+      ),
+      locationType: _string(
+        json['location_type'] ?? json['locationType'] ?? json['location'],
+      ),
       equipment: _stringList(json['equipment']),
       alternatives: parsedAlternatives,
       alternativesCount: parsedAlternativeCount ??
@@ -77,6 +93,9 @@ class AdminExercise {
       if (_nonEmpty(category) != null) 'category': _nonEmpty(category),
       if (_nonEmpty(difficulty) != null) 'difficulty': _nonEmpty(difficulty),
       'muscleGroups': muscleGroups,
+      if (_nonEmpty(mainMuscle) != null) 'mainMuscle': _nonEmpty(mainMuscle),
+      if (_nonEmpty(locationType) != null)
+        'locationType': _nonEmpty(locationType),
       'equipment': equipment,
       'alternatives': alternatives,
       if (_nonEmpty(videoUrl) != null) 'videoUrl': _nonEmpty(videoUrl),
@@ -97,6 +116,8 @@ class AdminExercise {
     String? category,
     String? difficulty,
     List<String>? muscleGroups,
+    String? mainMuscle,
+    String? locationType,
     List<String>? equipment,
     List<String>? alternatives,
     int? alternativesCount,
@@ -114,6 +135,8 @@ class AdminExercise {
       category: category ?? this.category,
       difficulty: difficulty ?? this.difficulty,
       muscleGroups: muscleGroups ?? this.muscleGroups,
+      mainMuscle: mainMuscle ?? this.mainMuscle,
+      locationType: locationType ?? this.locationType,
       equipment: equipment ?? this.equipment,
       alternatives: alternatives ?? this.alternatives,
       alternativesCount: alternativesCount ?? this.alternativesCount,

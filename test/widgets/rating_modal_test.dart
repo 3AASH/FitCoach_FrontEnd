@@ -11,13 +11,13 @@ void main() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  Future<LanguageProvider> _createEnglishLanguageProvider() async {
+  Future<LanguageProvider> createEnglishLanguageProvider() async {
     final provider = LanguageProvider();
     await provider.setLanguage('en');
     return provider;
   }
 
-  Widget _wrapWithLanguageProvider({
+  Widget wrapWithLanguageProvider({
     required Widget child,
     required LanguageProvider languageProvider,
   }) {
@@ -33,9 +33,9 @@ void main() {
 
   group('RatingModal Widget Tests', () {
     testWidgets('renders modal', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -47,9 +47,9 @@ void main() {
     });
 
     testWidgets('shows 5 stars', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -63,9 +63,9 @@ void main() {
     });
 
     testWidgets('tapping star updates selection', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -82,9 +82,9 @@ void main() {
     });
 
     testWidgets('submit button enabled only after rating', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -103,11 +103,11 @@ void main() {
     });
 
     testWidgets('onSubmit called with correct rating and feedback', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       int? submittedRating;
       String? submittedFeedback;
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -132,11 +132,11 @@ void main() {
     });
 
     testWidgets('onSubmit called with null feedback if empty', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       int? submittedRating;
       String? submittedFeedback;
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -158,9 +158,9 @@ void main() {
     });
 
     testWidgets('skip button closes modal', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -178,7 +178,7 @@ void main() {
     });
 
     testWidgets('shows correct title and subtitle for each type', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       final types = {
         'workout': 'Rate Workout',
         'nutrition': 'Rate Nutrition Plan',
@@ -187,7 +187,7 @@ void main() {
       };
       for (final entry in types.entries) {
         await tester.pumpWidget(
-          _wrapWithLanguageProvider(
+          wrapWithLanguageProvider(
             languageProvider: languageProvider,
             child: RatingModal(
               type: entry.key,
@@ -201,9 +201,9 @@ void main() {
     });
 
     testWidgets('shows correct rating label and color', (WidgetTester tester) async {
-      final languageProvider = await _createEnglishLanguageProvider();
+      final languageProvider = await createEnglishLanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',
@@ -224,7 +224,7 @@ void main() {
       // This test assumes LanguageProvider is mocked or set to Arabic
       final languageProvider = LanguageProvider();
       await tester.pumpWidget(
-        _wrapWithLanguageProvider(
+        wrapWithLanguageProvider(
           languageProvider: languageProvider,
           child: RatingModal(
             type: 'workout',

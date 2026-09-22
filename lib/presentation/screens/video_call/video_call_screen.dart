@@ -364,7 +364,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               const SizedBox(height: 20),
               Text(
                 _tr('video_call_connecting'),
-                style: TextStyle(color: Colors.white, fontSize: 16),
+                style: const TextStyle(color: Colors.white, fontSize: 16),
               ),
             ],
           ),
@@ -379,14 +379,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.error_outline, color: Colors.red, size: 64),
+              const Icon(Icons.error_outline, color: Colors.red, size: 64),
               const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 32),
                 child: Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),
               const SizedBox(height: 30),
@@ -516,7 +516,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.person, size: 80, color: Colors.white54),
+            const Icon(Icons.person, size: 80, color: Colors.white54),
             const SizedBox(height: 16),
             Text(
               widget.coachName,

@@ -28,6 +28,11 @@ class AdminProvider extends ChangeNotifier {
   List<AdminExercise> _exercises = [];
   List<AdminWorkoutTemplate> _workoutTemplates = [];
   List<Map<String, dynamic>> _nutritionMealTemplates = [];
+  List<Map<String, dynamic>> _nutritionIngredients = [];
+  List<Map<String, dynamic>> _nutritionRecipeVariants = [];
+  List<Map<String, dynamic>> _nutritionEngineRecipes = [];
+  List<Map<String, dynamic>> _nutritionEnginePlans = [];
+  List<Map<String, dynamic>> _nutritionEngineImports = [];
   RevenueAnalytics? _revenueAnalytics;
   List<AuditLog> _auditLogs = [];
 
@@ -44,6 +49,15 @@ class AdminProvider extends ChangeNotifier {
   List<AdminWorkoutTemplate> get workoutTemplates => _workoutTemplates;
   List<Map<String, dynamic>> get nutritionMealTemplates =>
       _nutritionMealTemplates;
+    List<Map<String, dynamic>> get nutritionIngredients =>
+      _nutritionIngredients;
+      List<Map<String, dynamic>> get nutritionRecipeVariants =>
+        _nutritionRecipeVariants;
+  List<Map<String, dynamic>> get nutritionEngineRecipes =>
+      _nutritionEngineRecipes;
+  List<Map<String, dynamic>> get nutritionEnginePlans => _nutritionEnginePlans;
+  List<Map<String, dynamic>> get nutritionEngineImports =>
+      _nutritionEngineImports;
   List<AdminCoach> get pendingCoaches =>
       _coaches.where((c) => c.isPending).toList();
   void _upsertCoach(AdminCoach coach) {
@@ -786,13 +800,19 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> saveWorkoutTemplate(Map<String, dynamic> template) async {
+  Future<bool> saveWorkoutTemplate(
+    Map<String, dynamic> template, {
+    bool includeCoachEdited = false,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _repository.saveWorkoutTemplate(template);
+      await _repository.saveWorkoutTemplate(
+        template,
+        includeCoachEdited: includeCoachEdited,
+      );
       await loadWorkoutTemplates();
       _isLoading = false;
       notifyListeners();
@@ -824,13 +844,19 @@ class AdminProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> refreshWorkoutTemplateUsers(String planId) async {
+  Future<bool> refreshWorkoutTemplateUsers(
+    String planId, {
+    bool includeCoachEdited = false,
+  }) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      await _repository.refreshWorkoutTemplateUsers(planId);
+      await _repository.refreshWorkoutTemplateUsers(
+        planId,
+        includeCoachEdited: includeCoachEdited,
+      );
       _isLoading = false;
       notifyListeners();
       return true;
@@ -908,6 +934,286 @@ class AdminProvider extends ChangeNotifier {
         await _repository.importNutritionMealTemplatesFromFile(filePath);
       }
       await loadNutritionMealTemplates();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionEngineRecipes({
+    String? search,
+    String? validationStatus,
+    bool? active,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _nutritionEngineRecipes = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionEngineRecipes(
+              search: search,
+              validationStatus: validationStatus,
+              active: active,
+            );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> loadNutritionIngredients({String? search}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      _nutritionIngredients = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionIngredients(search: search);
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> createNutritionIngredient(
+      Map<String, dynamic> ingredient) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      final created = DemoConfig.isDemo
+          ? <String, dynamic>{...ingredient, 'ingredient_id': 'demo_ingredient'}
+          : await _repository.createNutritionIngredient(ingredient);
+      await loadNutritionIngredients();
+      _isLoading = false;
+      notifyListeners();
+      return created;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> updateNutritionIngredient(
+    String ingredientId,
+    Map<String, dynamic> ingredient,
+  ) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.updateNutritionIngredient(ingredientId, ingredient);
+      }
+      await loadNutritionIngredients();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionRecipeVariants() async {
+    try {
+      _nutritionRecipeVariants = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionRecipeVariants();
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> getNutritionEngineRecipe(
+      String recipeId) async {
+    try {
+      return await _repository.getNutritionEngineRecipe(recipeId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> saveNutritionEngineRecipe(Map<String, dynamic> recipe) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.saveNutritionEngineRecipe(recipe);
+      }
+      await loadNutritionEngineRecipes();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> createNutritionEngineRecipe(Map<String, dynamic> recipe) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.createNutritionEngineRecipe(recipe);
+      }
+      await loadNutritionEngineRecipes();
+      await loadNutritionRecipeVariants();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionEnginePlans({
+    String? planType,
+    String? market,
+    int? calorieBand,
+    String? macroProfile,
+    String? validationStatus,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _nutritionEnginePlans = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionEnginePlans(
+              planType: planType,
+              market: market,
+              calorieBand: calorieBand,
+              macroProfile: macroProfile,
+              validationStatus: validationStatus,
+            );
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<Map<String, dynamic>?> getNutritionEnginePlan(String planId) async {
+    try {
+      return await _repository.getNutritionEnginePlan(planId);
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  Future<bool> saveNutritionEnginePlan(
+    Map<String, dynamic> plan, {
+    bool includeCoachEdited = false,
+  }) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.saveNutritionEnginePlan(
+          plan,
+          includeCoachEdited: includeCoachEdited,
+        );
+      }
+      await loadNutritionEnginePlans();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> createNutritionEnginePlan(Map<String, dynamic> plan) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    try {
+      if (!DemoConfig.isDemo) await _repository.createNutritionEnginePlan(plan);
+      await loadNutritionEnginePlans();
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<void> loadNutritionEngineImports() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      _nutritionEngineImports = DemoConfig.isDemo
+          ? const []
+          : await _repository.getNutritionEngineImports();
+      _isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> importNutritionEngineSeed({String? packageRoot}) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      if (!DemoConfig.isDemo) {
+        await _repository.importNutritionEngineSeed(packageRoot: packageRoot);
+      }
+      await Future.wait([
+        loadNutritionEngineRecipes(),
+        loadNutritionEnginePlans(),
+        loadNutritionEngineImports(),
+      ]);
       _isLoading = false;
       notifyListeners();
       return true;

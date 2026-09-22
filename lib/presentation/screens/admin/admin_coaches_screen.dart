@@ -8,6 +8,7 @@ import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../../data/models/admin_coach.dart';
+import '../../../core/theme/app_palette.dart';
 
 class AdminCoachesScreen extends StatefulWidget {
   const AdminCoachesScreen({super.key});
@@ -302,17 +303,17 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const Icon(
+                                Icon(
                                   Icons.fitness_center,
                                   size: 64,
-                                  color: AppColors.textDisabled,
+                                  color: context.palette.textDisabled,
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
                                   lang.t('admin_coaches_empty'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 18,
-                                    color: AppColors.textSecondary,
+                                    color: context.palette.textSecondary,
                                   ),
                                 ),
                               ],
@@ -396,9 +397,9 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         if (coach.email != null)
                           Text(
                             coach.email!,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
-                              color: AppColors.textSecondary,
+                              color: context.palette.textSecondary,
                             ),
                           ),
                         const SizedBox(height: 8),
@@ -577,13 +578,13 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: AppColors.background,
+        color: context.palette.surface,
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 12, color: AppColors.textSecondary),
+          Icon(icon, size: 12, color: context.palette.textSecondary),
           const SizedBox(width: 4),
           Text(
             value,
@@ -595,9 +596,9 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           const SizedBox(width: 2),
           Text(
             label,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
-              color: AppColors.textSecondary,
+              color: context.palette.textSecondary,
             ),
           ),
         ],
@@ -656,9 +657,9 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                 const SizedBox(height: 8),
                 Text(
                   lang.t('admin_specializations_label'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -696,9 +697,9 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
             width: 100,
             child: Text(
               '$label:',
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -994,7 +995,7 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: context.palette.border,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -1009,9 +1010,9 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
               const SizedBox(height: 8),
               Text(
                 lang.t('admin_create_coach_subtitle'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 20),
@@ -1115,8 +1116,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
               else
                 Text(
                   lang.t('admin_no_specializations'),
-                  style: const TextStyle(
-                      color: AppColors.textSecondary, fontSize: 12),
+                  style: TextStyle(
+                      color: context.palette.textSecondary, fontSize: 12),
                 ),
               if (_submitError != null) ...[
                 const SizedBox(height: 16),
@@ -1300,7 +1301,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: AppColors.border,
+                    color: context.palette.border,
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
@@ -1462,8 +1463,8 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
               else
                 Text(
                   lang.t('admin_no_specializations'),
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                     fontSize: 12,
                   ),
                 ),

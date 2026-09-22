@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
@@ -6,6 +6,9 @@ import '../../providers/auth_provider.dart';
 import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/library_picker_field.dart';
+import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class NutritionPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -38,7 +41,15 @@ class _NutritionPlanBuilderScreenState
   void initState() {
     super.initState();
     _initializeMeals();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<CoachProvider>().loadPlanLibraries();
+    });
   }
+
+  List<RecipeLibraryOption> get _recipeOptions =>
+      RecipeLibraryOption.fromRows(
+          context.read<CoachProvider>().recipeLibrary);
 
   void _initializeMeals() {
     _meals = [
@@ -186,9 +197,9 @@ class _NutritionPlanBuilderScreenState
                     children: [
                       Text(
                         lang.t('coach_nutrition_builder_client_label'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textSecondary,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                       Text(
@@ -338,7 +349,7 @@ class _NutritionPlanBuilderScreenState
             ),
             const SizedBox(height: 12),
 
-            ..._meals.map((meal) => _buildMealCard(meal, lang)).toList(),
+            ..._meals.map((meal) => _buildMealCard(meal, lang)),
 
             const SizedBox(height: 32),
 
@@ -421,8 +432,8 @@ class _NutritionPlanBuilderScreenState
               child: Center(
                 child: Text(
                   lang.t('coach_nutrition_builder_no_foods'),
-                  style: const TextStyle(
-                    color: AppColors.textSecondary,
+                  style: TextStyle(
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),
@@ -448,7 +459,7 @@ class _NutritionPlanBuilderScreenState
                   },
                 ),
               );
-            }).toList(),
+            }),
         ],
       ),
     );
@@ -496,6 +507,7 @@ class _NutritionPlanBuilderScreenState
       context: context,
       builder: (context) {
         String foodName = '';
+        String? recipeId;
         int calories = 0;
         int protein = 0;
         int carbs = 0;
@@ -507,11 +519,21 @@ class _NutritionPlanBuilderScreenState
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: lang.t('coach_nutrition_builder_food_name_label'),
-                  ),
-                  onChanged: (value) => foodName = value,
+                LibraryPickerField<RecipeLibraryOption>(
+                  initialValue: foodName,
+                  labelText:
+                      lang.t('coach_nutrition_builder_food_name_label'),
+                  options: _recipeOptions,
+                  optionLabel: (option) => option.name,
+                  optionDetail: (option) => option.detail,
+                  onTextChanged: (value) {
+                    foodName = value;
+                    recipeId = null;
+                  },
+                  onSelected: (option) {
+                    foodName = option.name;
+                    recipeId = option.id;
+                  },
                 ),
                 const SizedBox(height: 12),
                 TextField(
@@ -571,6 +593,7 @@ class _NutritionPlanBuilderScreenState
                     final meal = _meals.firstWhere((m) => m['type'] == mealType);
                     (meal['foods'] as List).add({
                       'name': foodName,
+                      if (recipeId != null) 'recipeId': recipeId,
                       'calories': calories,
                       'protein': protein,
                       'carbs': carbs,

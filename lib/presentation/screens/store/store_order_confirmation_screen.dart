@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
 import 'store_checkout_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class StoreOrderConfirmationScreen extends StatelessWidget {
   final StoreCheckoutResult order;
@@ -77,10 +78,10 @@ class StoreOrderConfirmationScreen extends StatelessWidget {
                         args: {'email': (order['shippingInfo']?['email'] ?? 'you') as String},
                       ),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                     ),
                     const SizedBox(height: 24),
-                    _buildSummaryCard(lang, total, date),
+                    _buildSummaryCard(context, lang, total, date),
                     const SizedBox(height: 24),
                     _buildMiniList(lang),
                     const SizedBox(height: 32),
@@ -120,7 +121,7 @@ class StoreOrderConfirmationScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryCard(LanguageProvider lang, double total, DateTime? date) {
+  Widget _buildSummaryCard(BuildContext context, LanguageProvider lang, double total, DateTime? date) {
     return CustomCard(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -130,7 +131,7 @@ class StoreOrderConfirmationScreen extends StatelessWidget {
             children: [
               Text(
                 lang.t('total'),
-                style: const TextStyle(color: AppColors.textSecondary),
+                style: TextStyle(color: context.palette.textSecondary),
               ),
               Text(
                 '${total.toStringAsFixed(2)} ${lang.t('currency_sar')}',
@@ -145,7 +146,7 @@ class StoreOrderConfirmationScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(lang.t('store_order_status'), style: const TextStyle(color: AppColors.textSecondary)),
+                    Text(lang.t('store_order_status'), style: TextStyle(color: context.palette.textSecondary)),
                     const SizedBox(height: 4),
                     Text(
                       lang.t('store_status_processing'),
@@ -159,7 +160,7 @@ class StoreOrderConfirmationScreen extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text(lang.t('date'), style: const TextStyle(color: AppColors.textSecondary)),
+                      Text(lang.t('date'), style: TextStyle(color: context.palette.textSecondary)),
                       const SizedBox(height: 4),
                       Text(DateFormat('MMM d, HH:mm').format(date)),
                     ],
@@ -230,7 +231,7 @@ class _MiniInfoRow extends StatelessWidget {
           width: 36,
           height: 36,
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.palette.surfaceVariant,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Icon(icon, color: AppColors.primary),
@@ -242,9 +243,9 @@ class _MiniInfoRow extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 12,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 4),

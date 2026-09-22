@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_calendar.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../../data/models/user_profile.dart';
@@ -17,6 +18,7 @@ import '../messaging/coach_messaging_screen.dart';
 import './workout_intro_screen.dart';
 import './workout_exercise_session_screen.dart';
 import './workout_exercise_detail_screen.dart';
+import '../../../core/theme/app_palette.dart';
 
 class WorkoutScreen extends StatefulWidget {
   final bool isActive;
@@ -198,17 +200,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.textPrimary,
+                    color: context.palette.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 12,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
                 if (badgeText != null) ...[
@@ -358,9 +360,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 const SizedBox(height: 16),
                 Text(
                   workoutProvider.error!,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                   textAlign: TextAlign.center,
                 ),
@@ -391,17 +393,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.fitness_center_outlined,
                 size: 80,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               const SizedBox(height: 24),
               Text(
                 languageProvider.t('no_active_workout_plan'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
@@ -427,25 +429,25 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.fitness_center_outlined,
                 size: 80,
-                color: AppColors.textDisabled,
+                color: context.palette.textDisabled,
               ),
               const SizedBox(height: 24),
               Text(
                 languageProvider.t('no_active_workout_plan'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 18,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
               const SizedBox(height: 16),
               Text(
                 languageProvider.t('workout_plan_coming_soon'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
-                  color: AppColors.textDisabled,
+                  color: context.palette.textDisabled,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -524,7 +526,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       languageProvider.t('workout_select_day'),
-                      style: const TextStyle(color: AppColors.textSecondary),
+                      style: TextStyle(color: context.palette.textSecondary),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -715,23 +717,23 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   children: [
                     Text(
                       lang.t('intake_banner_title'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontWeight: FontWeight.w600,
-                        color: AppColors.textPrimary,
+                        color: context.palette.textPrimary,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       lang.t('intake_banner_desc'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.textSecondary,
+                        color: context.palette.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
-              const Icon(Icons.info_outline, color: AppColors.textSecondary),
+              Icon(Icons.info_outline, color: context.palette.textSecondary),
             ],
           ),
           const SizedBox(height: 12),
@@ -740,17 +742,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Expanded(
                 child: Text(
                   lang.t('intake_banner_progress'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.textSecondary,
+                    color: context.palette.textSecondary,
                   ),
                 ),
               ),
               Text(
                 '$percent%',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
-                  color: AppColors.textSecondary,
+                  color: context.palette.textSecondary,
                 ),
               ),
             ],
@@ -772,9 +774,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Text(
               lang.t('intake_banner_benefits'),
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 11,
-                color: AppColors.textSecondary,
+                color: context.palette.textSecondary,
               ),
             ),
           ),
@@ -1354,6 +1356,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Text(isCompleted ? 'Done' : 'Start'),
           );
 
+          final thumbnail = _buildExerciseThumbnail(exercise);
+
           final details = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1449,7 +1453,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                details,
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    thumbnail,
+                    const SizedBox(width: 12),
+                    Expanded(child: details),
+                  ],
+                ),
                 const SizedBox(height: 10),
                 Align(alignment: Alignment.centerRight, child: actionButton),
               ],
@@ -1459,6 +1470,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           return Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              thumbnail,
+              const SizedBox(width: 12),
               Expanded(child: details),
               const SizedBox(width: 12),
               actionButton,
@@ -1481,6 +1494,42 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return labels.join(', ');
   }
 
+  Widget _buildExerciseThumbnail(Exercise exercise) {
+    final resolved = VideoThumbnailResolver.resolve(
+      thumbnailUrl: exercise.thumbnailUrl,
+      videoUrl: exercise.videoUrl,
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child: SizedBox(
+        width: 64,
+        height: 64,
+        child: resolved == null
+            ? Container(
+                color: const Color(0xFFE8EAF0),
+                child: const Icon(
+                  Icons.fitness_center,
+                  color: Color(0xFF6C6F83),
+                  size: 26,
+                ),
+              )
+            : Image.network(
+                resolved,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  color: const Color(0xFFE8EAF0),
+                  child: const Icon(
+                    Icons.fitness_center,
+                    color: Color(0xFF6C6F83),
+                    size: 26,
+                  ),
+                ),
+              ),
+      ),
+    );
+  }
+
   void _openExerciseSession(WorkoutDay day, int startIndex) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -1490,7 +1539,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           onShowSubstitute: (exercise) {
             final provider = context.read<WorkoutProvider>();
             final lang = context.read<LanguageProvider>();
-            _showSubstituteDialog(exercise, provider, lang, lang.isArabic);
+            // The button says "Report injury", so ask where the user is hurt.
+            // It used to open the exercise-substitute list, which never
+            // recorded the injury and only changed the current exercise.
+            _showReportInjuryDialog(provider, lang);
           },
         ),
       ),
@@ -1509,83 +1561,91 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
-  Future<void> _showSubstituteDialog(
-    Exercise exercise,
+  /// The body parts an injury can be reported against. These are the parts the
+  /// injury-swap data is keyed on, so anything offered here can actually be
+  /// acted upon.
+  static const List<String> _reportableInjuries = [
+    'shoulder',
+    'knee',
+    'lower_back',
+    'neck',
+    'ankle',
+    'wrist',
+    'elbow',
+    'hip',
+  ];
+
+  Future<void> _showReportInjuryDialog(
     WorkoutProvider provider,
     LanguageProvider lang,
-    bool isArabic,
   ) async {
-    final authProvider = context.read<AuthProvider>();
-    final userInjuries = authProvider.user?.injuries ?? [];
+    final selected = <String>{};
 
-    showDialog(
+    final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(lang.t('substitute_exercise')),
-        content: FutureBuilder<List<Exercise>>(
-          future: provider.getExerciseAlternatives(
-            exercise.exerciseId ?? exercise.id,
-            userInjuries,
-          ),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            if (snapshot.hasError ||
-                !snapshot.hasData ||
-                snapshot.data!.isEmpty) {
-              return Text(
-                lang.t('no_alternatives_available'),
-              );
-            }
-
-            final alternatives = snapshot.data!;
-
-            return SizedBox(
-              width: double.maxFinite,
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: alternatives.length,
-                itemBuilder: (context, index) {
-                  final alt = alternatives[index];
-                  return ListTile(
-                    title: Text(isArabic ? alt.nameAr : alt.nameEn),
-                    subtitle: Text(alt.muscleGroup ?? ''),
-                    trailing: Icon(
-                        isArabic ? Icons.chevron_left : Icons.chevron_right),
-                    onTap: () async {
-                      final messenger = ScaffoldMessenger.of(this.context);
-                      Navigator.pop(context);
-                      final success = await provider.substituteExercise(
-                        exercise.id,
-                        alt.id,
-                      );
-
-                      if (success && mounted) {
-                        messenger.showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              lang.t('exercise_substituted_successfully'),
-                            ),
-                            backgroundColor: AppColors.success,
-                          ),
-                        );
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (dialogContext, setDialogState) => AlertDialog(
+          title: Text(lang.t('workouts_report_injury_title')),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  lang.t('workouts_report_injury_desc'),
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: context.palette.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                for (final injury in _reportableInjuries)
+                  CheckboxListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    value: selected.contains(injury),
+                    title: Text(lang.t('injury_$injury')),
+                    onChanged: (checked) => setDialogState(() {
+                      if (checked == true) {
+                        selected.add(injury);
+                      } else {
+                        selected.remove(injury);
                       }
-                    },
-                  );
-                },
-              ),
-            );
-          },
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(lang.t('cancel')),
+                    }),
+                  ),
+              ],
+            ),
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext, false),
+              child: Text(lang.t('cancel')),
+            ),
+            FilledButton(
+              onPressed: selected.isEmpty
+                  ? null
+                  : () => Navigator.pop(dialogContext, true),
+              child: Text(lang.t('workouts_report_injury_submit')),
+            ),
+          ],
+        ),
+      ),
+    );
+
+    if (confirmed != true || !mounted) return;
+
+    final ok = await provider.reportInjury(selected.toList());
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? lang.t('workouts_report_injury_done')
+            : provider.error ?? lang.t('workouts_report_injury_failed')),
+        backgroundColor: ok ? AppColors.success : AppColors.error,
       ),
     );
   }
+
 }

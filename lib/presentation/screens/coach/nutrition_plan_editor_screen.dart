@@ -9,6 +9,9 @@ import '../../providers/coach_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_button.dart';
+import '../../widgets/library_picker_field.dart';
+import 'plan_library_options.dart';
+import '../../../core/theme/app_palette.dart';
 
 class NutritionPlanEditorScreen extends StatefulWidget {
   final String clientId;
@@ -42,7 +45,15 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   void initState() {
     super.initState();
     _loadCurrentPlan();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      context.read<CoachProvider>().loadPlanLibraries();
+    });
   }
+
+  List<RecipeLibraryOption> get _recipeOptions =>
+      RecipeLibraryOption.fromRows(
+          context.watch<CoachProvider>().recipeLibrary);
 
   @override
   void dispose() {
@@ -162,6 +173,10 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                       meal['title'],
                 ) ??
                 'Meal ${mealIndex + 1}',
+            // Carried through the round trip so re-saving a plan does not
+            // quietly downgrade an existing library reference to free text.
+            if (_asString(meal['recipeId'] ?? meal['recipe_id']) != null)
+              'recipeId': _asString(meal['recipeId'] ?? meal['recipe_id']),
             'type': _asString(meal['type']) ?? 'meal',
             'time': _asString(meal['time']) ?? '',
             'calories': _asInt(meal['calories']) ?? 0,
@@ -196,8 +211,13 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       final day = entry.value;
       final meals = (_asList(day['meals']) ?? const <dynamic>[]).map((rawMeal) {
         final meal = _asMap(rawMeal) ?? const <String, dynamic>{};
+        final recipeId = _asString(meal['recipeId']);
         return <String, dynamic>{
           'name': _asString(meal['name']) ?? 'Meal',
+          // Only present when the coach picked the meal out of the library.
+          // Without it the save would keep the name and drop the reference,
+          // which is exactly the free-text plan the picker exists to avoid.
+          if (recipeId != null && recipeId.isNotEmpty) 'recipeId': recipeId,
           'type': _asString(meal['type']) ?? 'meal',
           'time': _asString(meal['time']) ?? '',
           'calories': _asInt(meal['calories']) ?? 0,
@@ -303,7 +323,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                     controller: _caloriesController,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-                      labelText: lang.t('calories'),
+                      labelText: lang.t('plan_editor_calories'),
                       border: const OutlineInputBorder(),
                     ),
                   ),
@@ -315,7 +335,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           controller: _proteinController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: lang.t('protein'),
+                            labelText: lang.t('plan_editor_protein'),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -326,7 +346,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           controller: _carbsController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: lang.t('carbs'),
+                            labelText: lang.t('plan_editor_carbs'),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -337,7 +357,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           controller: _fatsController,
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
-                            labelText: lang.t('fat'),
+                            labelText: lang.t('plan_editor_fat'),
                             border: const OutlineInputBorder(),
                           ),
                         ),
@@ -381,7 +401,10 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                         'Day ${dayIndex + 1}',
                                     enabled: _isEditable,
                                     decoration: InputDecoration(
-                                      labelText: 'Day ${dayIndex + 1} Name',
+                                      labelText: lang.t(
+                                        'plan_editor_day_name',
+                                        args: {'day': '${dayIndex + 1}'},
+                                      ),
                                     ),
                                     onChanged: (value) =>
                                         _days[dayIndex]['dayName'] = value,
@@ -401,7 +424,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                               final mealIndex = mealEntry.key;
                               final meal = mealEntry.value;
                               return Card(
-                                color: AppColors.surface,
+                                color: context.palette.surfaceVariant,
                                 margin: const EdgeInsets.only(bottom: 8),
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
@@ -410,17 +433,31 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                       Row(
                                         children: [
                                           Expanded(
-                                            child: TextFormField(
+                                            child: LibraryPickerField<
+                                                RecipeLibraryOption>(
                                               initialValue:
                                                   _asString(meal['name']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Meal name'),
-                                              onChanged: (value) => _updateMeal(
-                                                  dayIndex,
-                                                  mealIndex,
-                                                  'name',
-                                                  value),
+                                              labelText: lang
+                                                  .t('plan_editor_meal_name'),
+                                              options: _recipeOptions,
+                                              optionLabel: (option) =>
+                                                  option.name,
+                                              optionDetail: (option) =>
+                                                  option.detail,
+                                              onTextChanged: (value) =>
+                                                  _updateMeal(dayIndex,
+                                                      mealIndex, 'name', value),
+                                              onSelected: (option) {
+                                                // Keep the recipe id so the
+                                                // plan points at a real
+                                                // library entry rather than a
+                                                // name that merely looks right.
+                                                _updateMeal(dayIndex, mealIndex,
+                                                    'name', option.name);
+                                                _updateMeal(dayIndex, mealIndex,
+                                                    'recipeId', option.id);
+                                              },
                                             ),
                                           ),
                                           IconButton(
@@ -441,8 +478,10 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                               initialValue:
                                                   _asString(meal['time']) ?? '',
                                               enabled: _isEditable,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Time'),
+                                              decoration: InputDecoration(
+                                                labelText:
+                                                    lang.t('plan_editor_time'),
+                                              ),
                                               onChanged: (value) => _updateMeal(
                                                   dayIndex,
                                                   mealIndex,
@@ -460,8 +499,11 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                               enabled: _isEditable,
                                               keyboardType:
                                                   TextInputType.number,
-                                              decoration: const InputDecoration(
-                                                  labelText: 'Calories'),
+                                              decoration: InputDecoration(
+                                                labelText: lang.t(
+                                                  'plan_editor_calories',
+                                                ),
+                                              ),
                                               onChanged: (value) => _updateMeal(
                                                 dayIndex,
                                                 mealIndex,
@@ -484,7 +526,8 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                     ? () => _addMeal(dayIndex)
                                     : null,
                                 icon: const Icon(Icons.add),
-                                label: Text(lang.t('coach_plan_editor_add_meal')),
+                                label:
+                                    Text(lang.t('coach_plan_editor_add_meal')),
                               ),
                             ),
                           ],

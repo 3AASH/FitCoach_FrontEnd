@@ -29,11 +29,56 @@ class NutritionRepository {
     );
   }
 
+  Future<NutritionAccessStatus> getAccessStatus() async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/access-status',
+        options: await _getAuthOptions(),
+      );
+
+      return NutritionAccessStatus.fromJson(
+        _asMap(response.data) ?? const <String, dynamic>{},
+      );
+    } on DioException catch (e) {
+      final message = _readErrorMessage(e.response?.data);
+      throw Exception(message ?? 'Failed to get nutrition access status');
+    }
+  }
+
+  /// Omitting [planType] lets the server derive it from the subscription tier,
+  /// which is what /nutrition/generate does when it validates the answers.
+  Future<NutritionIntakeRequirements> getIntakeRequirements({
+    String? planType,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/intake/requirements',
+        queryParameters: {
+          if (planType != null) 'planType': planType,
+        },
+        options: await _getAuthOptions(),
+      );
+
+      return NutritionIntakeRequirements.fromJson(
+        _asMap(response.data) ?? const <String, dynamic>{},
+      );
+    } on DioException catch (e) {
+      final message = _readErrorMessage(e.response?.data);
+      throw Exception(message ?? 'Failed to get nutrition intake requirements');
+    }
+  }
+
   // Get active nutrition plan
-  Future<NutritionPlan?> getActivePlan() async {
+  Future<NutritionPlan?> getActivePlan() => getPlanForDate(DateTime.now());
+
+  Future<NutritionPlan?> getPlanForDate(DateTime date) async {
     try {
       final response = await _dio.get(
         '/nutrition/plan',
+        queryParameters: {
+          'date': date.toIso8601String().substring(0, 10),
+          'timezoneOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+        },
         options: await _getAuthOptions(),
       );
 
@@ -114,6 +159,44 @@ class NutritionRepository {
     }
   }
 
+  /// Meals the client may swap this one for. The server decides what is on
+  /// offer: same slot, same market, comparable calories, and nothing that
+  /// clashes with their allergies or disliked foods.
+  Future<List<MealAlternative>> getMealAlternatives(String mealId) async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/meals/$mealId/alternatives',
+        options: await _getAuthOptions(),
+      );
+      final map = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = map['alternatives'];
+      if (list is! List) return const <MealAlternative>[];
+      return list
+          .map((item) => _asMap(item))
+          .whereType<Map<String, dynamic>>()
+          .map(MealAlternative.fromJson)
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(
+          e.response?.data['message'] ?? 'Failed to load meal alternatives');
+    }
+  }
+
+  /// Applies a swap. Returns the replacement as the server stored it, so the
+  /// caller shows the saved meal rather than what it hoped it saved.
+  Future<Map<String, dynamic>> swapMeal(String mealId, String variantId) async {
+    try {
+      final response = await _dio.post(
+        '/nutrition/meals/$mealId/swap',
+        data: {'variantId': variantId},
+        options: await _getAuthOptions(),
+      );
+      return _asMap(response.data) ?? const <String, dynamic>{};
+    } on DioException catch (e) {
+      throw Exception(e.response?.data['message'] ?? 'Failed to swap meal');
+    }
+  }
+
   // Get nutrition history
   Future<List<Map<String, dynamic>>> getNutritionHistory() async {
     try {
@@ -132,16 +215,18 @@ class NutritionRepository {
   Future<Map<String, dynamic>> generatePlan(
       Map<String, dynamic> preferences) async {
     try {
+      final options = await _getAuthOptions();
+      options.validateStatus = (status) => status != null && status < 500;
       final response = await _dio.post(
         '/nutrition/generate',
         data: preferences,
-        options: await _getAuthOptions(),
+        options: options,
       );
 
-      return response.data as Map<String, dynamic>;
+      return _asMap(response.data) ?? const <String, dynamic>{};
     } on DioException catch (e) {
-      throw Exception(
-          e.response?.data['message'] ?? 'Failed to generate nutrition plan');
+      final message = _readErrorMessage(e.response?.data);
+      throw Exception(message ?? 'Failed to generate nutrition plan');
     }
   }
 
