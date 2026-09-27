@@ -111,7 +111,7 @@ class SubscriptionComparisonTable extends StatelessWidget {
                     ),
                     if (plan.badge != null)
                       Container(
-                        margin: const EdgeInsets.only(left: 6),
+                        margin: const EdgeInsetsDirectional.only(start: 6),
                         padding: const EdgeInsets.symmetric(
                           horizontal: 8,
                           vertical: 2,

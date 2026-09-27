@@ -427,7 +427,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
 
   Widget _buildHeader(LanguageProvider lang, bool isArabic) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 10, 16, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(8, 10, 16, 10),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
@@ -439,8 +439,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
         children: [
           IconButton(
             onPressed: () => _onBack(lang),
-            icon: Icon(
-              isArabic ? Icons.arrow_forward : Icons.arrow_back,
+            icon: const Icon(
+              Icons.arrow_back,
               color: Colors.white,
             ),
           ),

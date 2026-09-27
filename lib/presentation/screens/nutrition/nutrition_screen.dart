@@ -5,6 +5,7 @@ import 'dart:math' as math;
 import 'dart:convert';
 import '../../../core/config/demo_config.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/bidi_text.dart';
 import '../../../data/models/nutrition_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
@@ -256,8 +257,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   // sees one such screen, and it always lands on the intake that is actually
   // outstanding instead of restarting from the first one.
   Widget _buildIntakeGate({
-    required LanguageProvider languageProvider,
-    required bool isArabic,
+    required LanguageProvider lang,
     required bool needsFirstIntake,
     required String message,
   }) {
@@ -267,7 +267,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: Text(languageProvider.t('nutrition_title'))),
+      appBar: AppBar(title: Text(lang.t('nutrition_title'))),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -285,7 +285,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         )
                       : SecondIntakeScreen(onComplete: completed),
                 )),
-                child: Text(isArabic ? 'إكمال الاستبيان' : 'Complete intake'),
+                child: Text(lang.t('intake_first_complete')),
               ),
             ],
           ),
@@ -296,11 +296,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
     final nutritionProvider = context.watch<NutritionProvider>();
     final authProvider = context.watch<AuthProvider>();
-    final isArabic = languageProvider.isArabic;
-    final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
+        final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
 
     if (!_introLoaded || !_preferencesLoaded) {
       return const Scaffold(
@@ -337,22 +336,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
           authProvider.user?.hasCompletedFirstIntake == true &&
               !requiresFirstIntakeField;
       return _buildIntakeGate(
-        languageProvider: languageProvider,
-        isArabic: isArabic,
+        lang: lang,
         needsFirstIntake: !firstIntakeDone,
         message: requiresIntakes
-            ? (nutritionProvider.accessMessage(isArabic: isArabic) ??
-                (isArabic
-                    ? 'أكمل الاستبيان الأول والثاني قبل بدء التغذية.'
-                    : 'Complete your first and second intake before starting nutrition.'))
-            : (isArabic
-                ? 'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.'
-                : 'We need your basic profile details first so we can calculate your calorie needs.'),
+            ? (nutritionProvider.accessMessage(isArabic: lang.isArabic) ??
+                (lang.t('nutrition_complete_your_first_and_second_intake')))
+            : (lang.t('nutrition_we_need_your_basic_profile_details')),
       );
     }
 
     if (!canAccess) {
-      return _buildLockedAccess(languageProvider, isArabic);
+      return _buildLockedAccess(lang);
     }
 
     // Onboarding sits between the intakes and the questions: by here the user
@@ -375,7 +369,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
 
     if (nutritionProvider.activePlan == null) {
-      return _buildNoPlan(languageProvider, isArabic);
+      return _buildNoPlan(lang);
     }
 
     final macroTargets = nutritionProvider.macroTargets;
@@ -417,10 +411,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           children: [
                             IconButton(
                               onPressed: () => _handleBack(),
-                              icon: Icon(
-                                isArabic
-                                    ? Icons.arrow_forward
-                                    : Icons.arrow_back,
+                              icon: const Icon(
+                                Icons.arrow_back,
                                 color: Colors.white,
                               ),
                             ),
@@ -429,7 +421,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    languageProvider.t('nutrition_title'),
+                                    lang.t('nutrition_title'),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontSize: 20,
@@ -437,7 +429,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                     ),
                                   ),
                                   Text(
-                                    languageProvider.t('nutrition_tracking'),
+                                    lang.t('nutrition_tracking'),
                                     style: const TextStyle(
                                       color: Colors.white70,
                                       fontSize: 12,
@@ -459,7 +451,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   });
                                 }
                               },
-                              tooltip: languageProvider
+                              tooltip: lang
                                   .t('nutrition_edit_preferences'),
                             ),
                           ],
@@ -481,7 +473,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    languageProvider
+                                    lang
                                         .t('nutrition_todays_progress'),
                                     style: const TextStyle(
                                       color: Colors.white,
@@ -552,11 +544,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         ),
                         indicatorSize: TabBarIndicatorSize.tab,
                         tabs: [
-                          Tab(text: languageProvider.t('nutrition_tab_today')),
-                          Tab(text: languageProvider.t('nutrition_tab_meals')),
+                          Tab(text: lang.t('nutrition_tab_today')),
+                          Tab(text: lang.t('nutrition_tab_meals')),
                           Tab(
                               text:
-                                  languageProvider.t('nutrition_tab_tracking')),
+                                  lang.t('nutrition_tab_tracking')),
                         ],
                       ),
                     ),
@@ -565,12 +557,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   Expanded(
                     child: TabBarView(
                       children: [
-                        _buildTodayTab(
-                            languageProvider, nutritionProvider, isArabic),
-                        _buildMealsTab(
-                            languageProvider, nutritionProvider, isArabic),
-                        _buildTrackingTab(
-                            languageProvider, nutritionProvider, isArabic),
+                        _buildTodayTab(lang, nutritionProvider),
+                        _buildMealsTab(lang, nutritionProvider),
+                        _buildTrackingTab(lang, nutritionProvider),
                       ],
                     ),
                   ),
@@ -586,7 +575,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget _buildTodayTab(
     LanguageProvider lang,
     NutritionProvider provider,
-    bool isArabic,
   ) {
     final meals = provider.dayPlans.isNotEmpty
         ? provider.getMealsForToday()
@@ -602,7 +590,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
           Row(children: [
             Expanded(child: Text(MaterialLocalizations.of(context).formatFullDate(provider.selectedDate))),
             IconButton(icon: const Icon(Icons.calendar_month),
-              tooltip: isArabic ? 'اختيار اليوم' : 'Select date',
+              tooltip: lang.t('nutrition_select_date'),
               onPressed: () async {
                 final date = await showDatePicker(context: context,
                   initialDate: provider.selectedDate,
@@ -611,13 +599,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
               }),
           ]),
           const SizedBox(height: 12),
-          ...(meals.map(
-            (meal) => _buildMealCard(
-              meal,
-              lang,
-              isArabic,
-            ),
-          )),
+          ...(meals.map((meal) => _buildMealCard(meal, lang))),
         ],
       ),
     );
@@ -626,7 +608,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget _buildMealsTab(
     LanguageProvider lang,
     NutritionProvider provider,
-    bool isArabic,
   ) {
     final plan = provider.activePlan;
     final dayPlans = provider.dayPlans;
@@ -647,13 +628,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
           if (plan == null)
             const SizedBox.shrink()
           else if (dayPlans.isEmpty)
-            ...((plan.meals ?? const <Meal>[]).map(
-              (meal) => _buildMealCard(
-                meal,
-                lang,
-                isArabic,
-              ),
-            ))
+            ...((plan.meals ?? const <Meal>[])
+                .map((meal) => _buildMealCard(meal, lang)))
           else
             ...dayPlans.map(
               (dayPlan) => CustomCard(
@@ -674,11 +650,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
                     children: [
                       for (final meal in dayPlan.meals)
-                        _buildMealCard(
-                          meal,
-                          lang,
-                          isArabic,
-                        ),
+                        _buildMealCard(meal, lang),
                     ],
                   ),
                 ),
@@ -692,23 +664,21 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget _buildTrackingTab(
     LanguageProvider lang,
     NutritionProvider provider,
-    bool isArabic,
   ) {
     return SingleChildScrollView(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildMacroProgress(provider.activePlan!, lang, isArabic),
+          _buildMacroProgress(provider.activePlan!, lang),
           const SizedBox(height: 20),
           _buildCalorieCounter(
             provider.activePlan!,
             provider.todayProgress,
             lang,
-            isArabic,
           ),
           const SizedBox(height: 20),
-          Text(isArabic ? 'السجل اليومي' : 'Daily history',
+          Text(lang.t('nutrition_daily_history'),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600)),
           ..._nutritionHistory.map((day) => ListTile(
             title: Text(day['date'].toString().substring(0, 10)),
@@ -798,7 +768,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget _buildTrialBanner(
     NutritionProvider provider,
     LanguageProvider lang,
-    bool isArabic,
   ) {
     final daysRemaining = provider.trialDaysRemaining;
     final isExpiringSoon = daysRemaining <= 3;
@@ -870,7 +839,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   // ignore: unused_element
-  Widget _buildTrialExpired(LanguageProvider lang, bool isArabic) {
+  Widget _buildTrialExpired(LanguageProvider lang) {
     return Scaffold(
       appBar: AppBar(
         title: Text(lang.t('nutrition')),
@@ -936,7 +905,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     await _completePreferences({'plan_type': requirements.planType});
   }
 
-  Widget _buildNoPlan(LanguageProvider lang, bool isArabic) {
+  Widget _buildNoPlan(LanguageProvider lang) {
     return Scaffold(
       appBar: AppBar(
         title: Text(lang.t('nutrition')),
@@ -986,20 +955,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
-  Widget _buildLockedAccess(LanguageProvider lang, bool isArabic) {
+  Widget _buildLockedAccess(LanguageProvider lang) {
     final nutritionProvider = context.read<NutritionProvider>();
     final requiresFirstWorkout = nutritionProvider.requiresFirstWorkout;
     final lockedTitle = requiresFirstWorkout
-        ? (isArabic ? 'أكمل التمرين الأول' : 'Complete First Workout')
+        ? (lang.t('nutrition_complete_first_workout'))
         : lang.t('nutrition_locked_title');
     final lockedMessage = requiresFirstWorkout
-        ? (nutritionProvider.accessMessage(isArabic: isArabic) ??
-            (isArabic
-                ? 'أكمل تمرينك الأول قبل بدء خطتك الغذائية.'
-                : 'Complete your first workout before starting your nutrition plan.'))
+        ? (nutritionProvider.accessMessage(isArabic: lang.isArabic) ??
+            (lang.t('nutrition_complete_your_first_workout_before_starting')))
         : lang.t('nutrition_locked_desc');
     final actionLabel = requiresFirstWorkout
-        ? (isArabic ? 'فتح التمرين' : 'Open Workout')
+        ? (lang.t('nutrition_open_workout'))
         : lang.t('nutrition_unlock_button');
 
     return Scaffold(
@@ -1014,8 +981,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 children: [
                   IconButton(
                     onPressed: () => Navigator.of(context).maybePop(),
-                    icon: Icon(
-                      isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                    icon: const Icon(
+                      Icons.arrow_back,
                       color: Colors.white,
                     ),
                   ),
@@ -1079,13 +1046,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       Column(
                         children: [
                           _buildLockedFeatureRow(Icons.track_changes,
-                              lang.t('nutrition_feature1'), isArabic),
+                              lang.t('nutrition_feature1'), lang),
                           const SizedBox(height: 8),
                           _buildLockedFeatureRow(Icons.restaurant_menu,
-                              lang.t('nutrition_feature2'), isArabic),
+                              lang.t('nutrition_feature2'), lang),
                           const SizedBox(height: 8),
                           _buildLockedFeatureRow(Icons.trending_up,
-                              lang.t('nutrition_feature3'), isArabic),
+                              lang.t('nutrition_feature3'), lang),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -1125,7 +1092,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
-  Widget _buildLockedFeatureRow(IconData icon, String label, bool isArabic) {
+  Widget _buildLockedFeatureRow(IconData icon, String label, LanguageProvider lang) {
     return Row(
       children: [
         Icon(icon, size: 18, color: const Color(0xFF16A34A)),
@@ -1135,7 +1102,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             label,
             style:
                 TextStyle(fontSize: 12, color: context.palette.textSecondary),
-            textAlign: isArabic ? TextAlign.right : TextAlign.left,
+            textAlign: TextAlign.start,
           ),
         ),
       ],
@@ -1145,13 +1112,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget _buildMacroProgress(
     NutritionPlan plan,
     LanguageProvider lang,
-    bool isArabic,
   ) {
     return Row(
       children: [
         Expanded(
           child: _buildMacroRing(
             label: lang.t('protein'),
+            unit: lang.t('gram_unit'),
             value: 120,
             target: plan.macros?['protein'] ?? 0,
             color: AppColors.primary,
@@ -1160,6 +1127,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         Expanded(
           child: _buildMacroRing(
             label: lang.t('carbs'),
+            unit: lang.t('gram_unit'),
             value: 200,
             target: plan.macros?['carbs'] ?? 0,
             color: AppColors.secondary,
@@ -1168,6 +1136,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         Expanded(
           child: _buildMacroRing(
             label: lang.t('fats'),
+            unit: lang.t('gram_unit'),
             value: 50,
             target: plan.macros?['fats'] ?? 0,
             color: AppColors.accent,
@@ -1179,6 +1148,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   Widget _buildMacroRing({
     required String label,
+    required String unit,
     required double value,
     required double target,
     required Color color,
@@ -1205,7 +1175,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '${value.toInt()}g',
+                    measurement(value.toInt(), unit),
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -1213,7 +1183,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     ),
                   ),
                   Text(
-                    '/ ${target.toInt()}g',
+                    '/ ${measurement(target.toInt(), unit)}',
                     style: TextStyle(
                       fontSize: 12,
                       color: context.palette.textSecondary,
@@ -1241,7 +1211,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
     NutritionPlan plan,
     NutritionTodayProgress? todayProgress,
     LanguageProvider lang,
-    bool isArabic,
   ) {
     final progress = todayProgress ?? plan.todayProgress;
     final consumed = (progress?.consumedCalories ?? 0).round();
@@ -1328,7 +1297,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Widget _buildMealsList(
     NutritionPlan plan,
     LanguageProvider lang,
-    bool isArabic,
   ) {
     // Get today's meals (simplified - use day index in real app)
     final todayMeals = (plan.days != null && plan.days!.isNotEmpty)
@@ -1337,18 +1305,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
     return Column(
       children: todayMeals
-          .map<Widget>((meal) => _buildMealCard(meal, lang, isArabic))
+          .map<Widget>((meal) => _buildMealCard(meal, lang))
           .toList(),
     );
   }
 
-  String _localizedMealName(Meal meal, bool isArabic) {
-    final localized = isArabic ? meal.nameAr : meal.nameEn;
+  String _localizedMealName(Meal meal, LanguageProvider lang) {
+    final localized = lang.isArabic ? meal.nameAr : meal.nameEn;
     return localized.trim().isNotEmpty ? localized : meal.name;
   }
 
-  String _localizedFoodName(FoodItem food, bool isArabic) {
-    final localized = isArabic ? food.nameAr : food.nameEn;
+  String _localizedFoodName(FoodItem food, LanguageProvider lang) {
+    final localized = lang.isArabic ? food.nameAr : food.nameEn;
     if (localized.trim().isNotEmpty) return localized;
     return food.name.trim().isNotEmpty ? food.name : '-';
   }
@@ -1357,33 +1325,35 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final amount = food.quantity % 1 == 0
         ? food.quantity.round().toString()
         : food.quantity.toStringAsFixed(1);
-    return '$amount${food.unit}';
+    return measurement(amount, food.unit);
   }
 
-  String _macroLine(Meal meal, LanguageProvider lang) {
-    return '${lang.t('protein')} ${meal.macros.protein.round()}g - '
-        '${lang.t('carbs')} ${meal.macros.carbs.round()}g - '
-        '${lang.t('fats')} ${meal.macros.fats.round()}g';
+  /// `Protein 30g - Carbs 40g - Fats 10g`, with each weight isolated so the
+  /// three pairs keep their order and their labels in Arabic. See
+  /// [bidiIsolate].
+  String _macrosFor(MacroTargets macros, LanguageProvider lang) {
+    final g = lang.t('gram_unit');
+    return '${lang.t('protein')} ${measurement(macros.protein.round(), g)} - '
+        '${lang.t('carbs')} ${measurement(macros.carbs.round(), g)} - '
+        '${lang.t('fats')} ${measurement(macros.fats.round(), g)}';
   }
 
-  String _foodMacroLine(FoodItem food, LanguageProvider lang) {
-    return '${lang.t('protein')} ${food.macros.protein.round()}g - '
-        '${lang.t('carbs')} ${food.macros.carbs.round()}g - '
-        '${lang.t('fats')} ${food.macros.fats.round()}g';
-  }
+  String _macroLine(Meal meal, LanguageProvider lang) =>
+      _macrosFor(meal.macros, lang);
 
-  String _mealInstructions(Meal meal, bool isArabic) {
-    final text = isArabic
+  String _foodMacroLine(FoodItem food, LanguageProvider lang) =>
+      _macrosFor(food.macros, lang);
+
+  String _mealInstructions(Meal meal, LanguageProvider lang) {
+    final text = lang.isArabic
         ? (meal.instructionsAr ?? meal.instructions ?? meal.instructionsEn)
         : (meal.instructionsEn ?? meal.instructions ?? meal.instructionsAr);
     if (text != null && text.trim().isNotEmpty) return text;
-    return isArabic
-        ? 'لا توجد مكونات/تفاصيل متاحة'
-        : 'No ingredients/details available';
+    return lang.t('nutrition_no_ingredients_details_available');
   }
 
-  Widget _buildMealCard(Meal meal, LanguageProvider lang, bool isArabic) {
-    final mealName = _localizedMealName(meal, isArabic);
+  Widget _buildMealCard(Meal meal, LanguageProvider lang) {
+    final mealName = _localizedMealName(meal, lang);
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 16),
       child: Column(
@@ -1436,9 +1406,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 ),
               ),
               IconButton(
-                icon: Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                icon: const Icon(Icons.chevron_right),
                 onPressed: () {
-                  _showMealDetail(meal, lang, isArabic);
+                  _showMealDetail(meal, lang);
                 },
               ),
               Checkbox(
@@ -1454,7 +1424,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         if (!mounted) return;
                         if (!success) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(provider.error ?? (isArabic ? 'تعذر تسجيل الوجبة' : 'Could not log meal'))));
+                            content: Text(provider.error ?? (lang.t('nutrition_could_not_log_meal')))));
                         } else {
                           final history = await NutritionRepository().getNutritionHistory();
                           if (mounted) setState(() => _nutritionHistory = history);
@@ -1481,7 +1451,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      '${_localizedFoodName(food, isArabic)} (${_formatQuantity(food)})',
+                      '${_localizedFoodName(food, lang)} (${_formatQuantity(food)})',
                       style: TextStyle(
                         fontSize: 14,
                         color: context.palette.textSecondary,
@@ -1496,7 +1466,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
           if (meal.foods.length > 3) ...[
             const SizedBox(height: 4),
             Padding(
-              padding: const EdgeInsets.only(left: 20),
+              padding: const EdgeInsetsDirectional.only(start: 20),
               child: Text(
                 lang.t(
                   'more_items',
@@ -1544,8 +1514,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
     }
   }
 
-  void _showMealDetail(Meal meal, LanguageProvider lang, bool isArabic) {
-    final mealName = _localizedMealName(meal, isArabic);
+  void _showMealDetail(Meal meal, LanguageProvider lang) {
+    final mealName = _localizedMealName(meal, lang);
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -1589,7 +1559,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
                 const SizedBox(height: 8),
                 Text(
-                  '${meal.calories} ${lang.t('cal_unit')} - ${_macroLine(meal, lang)}',
+                  '${bidiIsolate('${meal.calories}')} ${lang.t('cal_unit')}'
+                  ' - ${_macroLine(meal, lang)}',
                   style: TextStyle(
                     fontSize: 14,
                     color: context.palette.textSecondary,
@@ -1601,9 +1572,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 // All food items
                 if (meal.foods.isEmpty)
                   Text(
-                    isArabic
-                        ? 'لا توجد مكونات/تفاصيل متاحة'
-                        : 'No ingredients/details available',
+                    lang.t('nutrition_no_ingredients_details_available'),
                     style: TextStyle(
                       fontSize: 14,
                       color: context.palette.textSecondary,
@@ -1620,7 +1589,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _localizedFoodName(food, isArabic),
+                                _localizedFoodName(food, lang),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -1628,7 +1597,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')} - ${_foodMacroLine(food, lang)}',
+                                '${_formatQuantity(food)}'
+                                ' - ${bidiIsolate('${food.calories}')}'
+                                ' ${lang.t('cal_unit')}'
+                                ' - ${_foodMacroLine(food, lang)}',
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: context.palette.textSecondary,
@@ -1653,7 +1625,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  _mealInstructions(meal, isArabic),
+                  _mealInstructions(meal, lang),
                   style: TextStyle(
                     fontSize: 14,
                     color: context.palette.textSecondary,

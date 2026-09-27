@@ -16,11 +16,9 @@ class _FakeAdminRepository extends AdminRepository {
     this.workoutTemplates = const <AdminWorkoutTemplate>[],
     this.workoutTemplateById = const <String, Map<String, dynamic>>{},
     this.exercises = const <AdminExercise>[],
-    this.nutritionEngineRecipes = const <Map<String, dynamic>>[],
     this.nutritionEnginePlans = const <Map<String, dynamic>>[],
     this.nutritionIngredients = const <Map<String, dynamic>>[],
     this.nutritionRecipeVariants = const <Map<String, dynamic>>[],
-    this.nutritionEngineImports = const <Map<String, dynamic>>[],
     this.nutritionEnginePlanById = const <String, Map<String, dynamic>>{},
   }) : super(tokenReader: _tokenReader);
 
@@ -29,15 +27,20 @@ class _FakeAdminRepository extends AdminRepository {
   final List<AdminWorkoutTemplate> workoutTemplates;
   final Map<String, Map<String, dynamic>> workoutTemplateById;
   final List<AdminExercise> exercises;
-  final List<Map<String, dynamic>> nutritionEngineRecipes;
+  // The catalogue lists these two but no test varies them yet, so they are
+  // fixed here rather than being constructor knobs nobody turns.
+  final List<Map<String, dynamic>> nutritionEngineRecipes =
+      const <Map<String, dynamic>>[];
+  final List<Map<String, dynamic>> nutritionEngineImports =
+      const <Map<String, dynamic>>[];
   final List<Map<String, dynamic>> nutritionEnginePlans;
   final List<Map<String, dynamic>> nutritionIngredients;
   final List<Map<String, dynamic>> nutritionRecipeVariants;
-  final List<Map<String, dynamic>> nutritionEngineImports;
   final Map<String, Map<String, dynamic>> nutritionEnginePlanById;
 
   @override
   Future<List<AdminWorkoutTemplate>> getWorkoutTemplates({
+    String? search,
     String? type,
     String? goal,
     String? location,
@@ -51,38 +54,45 @@ class _FakeAdminRepository extends AdminRepository {
   }
 
   @override
-  Future<List<AdminExercise>> getExercises({
+  Future<AdminPage<AdminExercise>> getExercises({
     String? search,
     String? category,
     String? difficulty,
-    int limit = 100,
+    int limit = 200,
     int offset = 0,
   }) async {
-    return exercises;
+    return AdminPage(items: exercises, total: exercises.length);
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getNutritionEngineRecipes({
+  Future<AdminPage<Map<String, dynamic>>> getNutritionEngineRecipes({
     String? search,
     String? validationStatus,
     bool? active,
-    int limit = 100,
+    int limit = 200,
     int offset = 0,
   }) async {
-    return nutritionEngineRecipes;
+    return AdminPage(
+      items: nutritionEngineRecipes,
+      total: nutritionEngineRecipes.length,
+    );
   }
 
   @override
-  Future<List<Map<String, dynamic>>> getNutritionEnginePlans({
+  Future<AdminPage<Map<String, dynamic>>> getNutritionEnginePlans({
+    String? search,
     String? planType,
     String? market,
     int? calorieBand,
     String? macroProfile,
     String? validationStatus,
-    int limit = 100,
+    int limit = 200,
     int offset = 0,
   }) async {
-    return nutritionEnginePlans;
+    return AdminPage(
+      items: nutritionEnginePlans,
+      total: nutritionEnginePlans.length,
+    );
   }
 
   @override

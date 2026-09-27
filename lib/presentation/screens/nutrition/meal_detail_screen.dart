@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/bidi_text.dart';
 import '../../../data/models/nutrition_plan.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
@@ -90,9 +91,7 @@ class MealDetailScreen extends StatelessWidget {
           if (meal.foods.isEmpty)
             CustomCard(
               child: Text(
-                isArabic
-                    ? 'لا توجد مكونات/تفاصيل متاحة'
-                    : 'No ingredients/details available',
+                lang.t('meal_detail_no_ingredients'),
                 style: TextStyle(color: context.palette.textSecondary),
               ),
             ),
@@ -106,15 +105,22 @@ class MealDetailScreen extends StatelessWidget {
                     const Icon(Icons.restaurant_menu, color: AppColors.primary),
                 title: Text(_localizedFoodName(food, isArabic)),
                 subtitle: Text(
-                  '${_formatQuantity(food)} - ${food.calories} ${lang.t('cal_unit')}',
+                  '${_formatQuantity(food)}'
+                  ' - ${bidiIsolate('${food.calories}')}'
+                  ' ${lang.t('cal_unit')}',
                 ),
                 trailing: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('${food.macros.protein.round()}P'),
-                    Text('${food.macros.carbs.round()}C',
+                    Text(measurement(
+                        food.macros.protein.round(), lang.t('protein_short'))),
+                    Text(
+                        measurement(
+                            food.macros.carbs.round(), lang.t('carbs_short')),
                         style: TextStyle(color: context.palette.textSecondary)),
-                    Text('${food.macros.fats.round()}F',
+                    Text(
+                        measurement(
+                            food.macros.fats.round(), lang.t('fats_short')),
                         style: TextStyle(color: context.palette.textSecondary)),
                   ],
                 ),
@@ -146,9 +152,7 @@ class MealDetailScreen extends StatelessWidget {
                       : (meal.instructionsEn ??
                           meal.instructions ??
                           meal.instructionsAr))!
-                  : (isArabic
-                      ? 'لا توجد مكونات/تفاصيل متاحة'
-                      : 'No ingredients/details available'),
+                  : lang.t('meal_detail_no_ingredients'),
               style: const TextStyle(height: 1.5),
             ),
           ),
@@ -194,7 +198,7 @@ class MealDetailScreen extends StatelessWidget {
     final amount = food.quantity % 1 == 0
         ? food.quantity.round().toString()
         : food.quantity.toStringAsFixed(1);
-    return '$amount${food.unit}';
+    return measurement(amount, food.unit);
   }
 
   Color _mealColor(String type) {
@@ -376,9 +380,12 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
                     final alternative = alternatives[index];
                     final busy = _applyingVariantId == alternative.variantId;
                     final delta = alternative.calorieDelta;
+                    // The sign has to stay glued to its number: a bare `+` or
+                    // `-` is direction-neutral and drifts to the far side of
+                    // the value in Arabic.
                     final deltaText = delta == 0
                         ? ''
-                        : ' (${delta > 0 ? '+' : ''}$delta)';
+                        : ' ${bidiIsolate('(${delta > 0 ? '+' : ''}$delta)')}';
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
                       enabled: _applyingVariantId == null,
@@ -387,10 +394,11 @@ class _MealSwapSheetState extends State<MealSwapSheet> {
                         style: TextStyle(color: onSurface),
                       ),
                       subtitle: Text(
-                        '${alternative.calories} ${lang.t('cal_unit')}$deltaText  •  '
-                        '${alternative.protein.round()}P '
-                        '${alternative.carbs.round()}C '
-                        '${alternative.fats.round()}F',
+                        '${bidiIsolate('${alternative.calories}')} '
+                        '${lang.t('cal_unit')}$deltaText  •  '
+                        '${measurement(alternative.protein.round(), lang.t('protein_short'))} '
+                        '${measurement(alternative.carbs.round(), lang.t('carbs_short'))} '
+                        '${measurement(alternative.fats.round(), lang.t('fats_short'))}',
                         style: TextStyle(color: onSurfaceVariant),
                       ),
                       leading: alternative.suggestedByTemplate

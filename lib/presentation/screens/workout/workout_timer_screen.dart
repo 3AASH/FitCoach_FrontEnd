@@ -5,6 +5,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import 'dart:async';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class WorkoutTimerScreen extends StatefulWidget {
   final String exerciseName;
@@ -347,6 +348,8 @@ class _WorkoutTimerScreenState extends State<WorkoutTimerScreen> {
             );
           }).toList(),
         ),
+        // Opening this mid-set should not force a change to the rest timer.
+        actions: [dialogCancelAction(context)],
       ),
     );
   }

@@ -104,15 +104,14 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
-    final isArabic = lang.isArabic;
-    final hasAssignedCoach =
+        final hasAssignedCoach =
         DemoConfig.isDemo || ((authProvider.user?.coachId ?? '').isNotEmpty);
     final coachData = _resolveCoachData(lang, authProvider);
 
     return Scaffold(
       body: Column(
         children: [
-          _buildHeader(lang, isArabic),
+          _buildHeader(lang),
           Expanded(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(16),
@@ -120,25 +119,25 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (hasAssignedCoach)
-                    _buildCoachCard(lang, isArabic, coachData)
+                    _buildCoachCard(lang, coachData)
                   else
-                    _buildNoCoachAssigned(isArabic),
+                    _buildNoCoachAssigned(lang),
                   const SizedBox(height: 20),
-                  _buildDateSection(lang, isArabic, hasAssignedCoach),
+                  _buildDateSection(lang, hasAssignedCoach),
                   const SizedBox(height: 20),
-                  if (_selectedDate != null) _buildTimeSection(lang, isArabic),
+                  if (_selectedDate != null) _buildTimeSection(lang),
                   if (_selectedDate != null) ...[
                     const SizedBox(height: 20),
-                    _buildBookingDetailsSection(isArabic),
+                    _buildBookingDetailsSection(lang),
                   ],
                   const SizedBox(height: 24),
                   CustomButton(
-                    text: isArabic ? 'تأكيد الحجز' : 'Confirm Booking',
+                    text: lang.t('video_booking_confirm_booking'),
                     onPressed: (_selectedDate != null &&
                             _selectedTime != null &&
                             hasAssignedCoach &&
                             !_isBooking)
-                        ? () => _showConfirmDialog(lang, isArabic)
+                        ? () => _showConfirmDialog(lang)
                         : null,
                     variant: ButtonVariant.primary,
                     size: ButtonSize.large,
@@ -155,7 +154,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     );
   }
 
-  Widget _buildHeader(LanguageProvider lang, bool isArabic) {
+  Widget _buildHeader(LanguageProvider lang) {
     return Container(
       padding: EdgeInsets.fromLTRB(
         16,
@@ -174,8 +173,8 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(
-              isArabic ? Icons.arrow_forward : Icons.arrow_back,
+            icon: const Icon(
+              Icons.arrow_back,
               color: Colors.white,
             ),
           ),
@@ -183,7 +182,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           Expanded(
             child: Column(
               crossAxisAlignment:
-                  isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                  lang.isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -191,7 +190,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                     const Icon(Icons.videocam, color: Colors.white, size: 24),
                     const SizedBox(width: 8),
                     Text(
-                      isArabic ? 'حجز جلسة فيديو' : 'Book Video Session',
+                      lang.t('video_booking_book_video_session'),
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -202,9 +201,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isArabic
-                      ? 'احجز جلسة فردية مع مدربك'
-                      : 'Reserve a 1-on-1 session with your coach',
+                  lang.t('video_booking_reserve_a_1_on_1_session'),
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
@@ -242,13 +239,12 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
 
   Widget _buildCoachCard(
     LanguageProvider lang,
-    bool isArabic,
     Map<String, dynamic> coachData,
   ) {
-    final coachName = isArabic
+    final coachName = lang.isArabic
         ? (coachData['nameAr'] ?? coachData['name'])
         : coachData['name'];
-    final specialties = isArabic
+    final specialties = lang.isArabic
         ? (coachData['specialtiesAr'] as List<String>)
         : (coachData['specialties'] as List<String>);
     final rating = coachData['rating'] as num?;
@@ -266,9 +262,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
             const SizedBox(width: 12),
             Expanded(
               child: Text(
-                isArabic
-                    ? 'جارٍ تحميل بيانات المدرب...'
-                    : 'Loading coach details...',
+                lang.t('video_booking_loading_coach_details'),
                 style: TextStyle(color: context.palette.textSecondary),
               ),
             ),
@@ -280,9 +274,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     if (_coachError != null && _coachProfile == null && !DemoConfig.isDemo) {
       return _buildInfoCard(
         child: Text(
-          isArabic
-              ? 'تعذر تحميل بيانات المدرب'
-              : 'Unable to load coach details',
+          lang.t('video_booking_unable_to_load_coach_details'),
           style: const TextStyle(color: Color(0xFF9A3412)),
         ),
       );
@@ -321,7 +313,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isArabic ? 'المدرب المعين لك' : 'Your Assigned Coach',
+                  lang.t('video_booking_your_assigned_coach'),
                   style: TextStyle(
                     fontSize: 11,
                     color: context.palette.textSecondary,
@@ -353,7 +345,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                       if (yearsExperience != null) ...[
                         if (rating != null) const SizedBox(width: 12),
                         Text(
-                          '$yearsExperience ${isArabic ? 'سنوات خبرة' : 'years exp'}',
+                          '$yearsExperience ${lang.t('video_booking_years_exp')}',
                           style: TextStyle(
                             fontSize: 12,
                             color: context.palette.textSecondary,
@@ -392,7 +384,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     );
   }
 
-  Widget _buildNoCoachAssigned(bool isArabic) {
+  Widget _buildNoCoachAssigned(LanguageProvider lang) {
     return _buildInfoCard(
       child: Row(
         children: [
@@ -400,9 +392,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              isArabic
-                  ? 'لم يتم تعيين مدرب لك بعد. سيتم تفعيل الحجز بعد التعيين.'
-                  : 'No coach is assigned yet. Booking will be available once a coach is assigned.',
+              lang.t('video_booking_no_coach_is_assigned_yet_booking'),
               style: const TextStyle(color: Color(0xFF9A3412)),
             ),
           ),
@@ -413,7 +403,6 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
 
   Widget _buildDateSection(
     LanguageProvider lang,
-    bool isArabic,
     bool hasAssignedCoach,
   ) {
     return CustomCard(
@@ -429,7 +418,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                     size: 20, color: Color(0xFF9333EA)),
                 const SizedBox(width: 8),
                 Text(
-                  isArabic ? 'اختر التاريخ' : 'Select Date',
+                  lang.t('video_booking_select_date'),
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -443,7 +432,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
             selectedDayPredicate: (day) => isSameDay(_selectedDate, day),
             calendarFormat: CalendarFormat.month,
             startingDayOfWeek: StartingDayOfWeek.sunday,
-            locale: isArabic ? 'ar' : 'en',
+            locale: lang.locale.languageCode,
             headerStyle: const HeaderStyle(
               formatButtonVisible: false,
               titleCentered: true,
@@ -481,7 +470,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     );
   }
 
-  Widget _buildTimeSection(LanguageProvider lang, bool isArabic) {
+  Widget _buildTimeSection(LanguageProvider lang) {
     final dateKey = _selectedDate?.toIso8601String().split('T').first;
     final availableSlots = DemoConfig.isDemo
         ? <String>['09:00', '10:00', '11:00', '16:00']
@@ -498,7 +487,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
               const Icon(Icons.access_time, size: 20, color: Color(0xFF9333EA)),
               const SizedBox(width: 8),
               Text(
-                isArabic ? 'الأوقات المتاحة' : 'Available Slots',
+                lang.t('video_booking_available_slots'),
                 style:
                     const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
@@ -506,7 +495,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           ),
           const SizedBox(height: 6),
           Text(
-            '${isArabic ? 'التاريخ' : 'Date'}: ${DateFormat('EEE, MMM d', isArabic ? 'ar' : 'en').format(_selectedDate!)}',
+            '${lang.t('date')}: ${DateFormat('EEE, MMM d', lang.locale.languageCode).format(_selectedDate!)}',
             style: TextStyle(
               fontSize: 13,
               color: context.palette.textSecondary,
@@ -521,12 +510,8 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 child: Text(
                   _slotsError != null
-                      ? (isArabic
-                          ? 'تعذر تحميل المواعيد المتاحة'
-                          : 'Unable to load available slots')
-                      : (isArabic
-                          ? 'لا توجد أوقات متاحة'
-                          : 'No available slots'),
+                      ? (lang.t('video_booking_unable_to_load_available_slots'))
+                      : (lang.t('video_booking_no_available_slots')),
                   style: TextStyle(color: context.palette.textSecondary),
                 ),
               ),
@@ -559,18 +544,18 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     );
   }
 
-  Widget _buildBookingDetailsSection(bool isArabic) {
+  Widget _buildBookingDetailsSection(LanguageProvider lang) {
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isArabic ? 'تفاصيل الجلسة' : 'Session Details',
+            lang.t('video_booking_session_details'),
             style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
           Text(
-            isArabic ? 'المدة' : 'Duration',
+            lang.t('coach_plan_duration'),
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -584,7 +569,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
             children: [30, 45, 60, 90].map((duration) {
               final isSelected = _selectedDuration == duration;
               return ChoiceChip(
-                label: Text('$duration ${isArabic ? 'د' : 'min'}'),
+                label: Text('$duration ${lang.t('minute_short')}'),
                 selected: isSelected,
                 onSelected: (_) => setState(() => _selectedDuration = duration),
                 selectedColor: const Color(0xFF9333EA),
@@ -605,10 +590,8 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
             controller: _notesController,
             maxLines: 3,
             decoration: InputDecoration(
-              labelText: isArabic ? 'ملاحظات إضافية' : 'Notes (optional)',
-              hintText: isArabic
-                  ? 'مثال: أحتاج مراجعة فورم التمرين'
-                  : 'Example: Need form check',
+              labelText: lang.t('video_booking_notes_optional'),
+              hintText: lang.t('video_booking_example_need_form_check'),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -619,12 +602,12 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     );
   }
 
-  void _showConfirmDialog(LanguageProvider lang, bool isArabic) {
+  void _showConfirmDialog(LanguageProvider lang) {
     final coachName = DemoConfig.isDemo
-        ? (isArabic
+        ? (lang.isArabic
             ? (_demoCoach['nameAr'] ?? _demoCoach['name'])
             : _demoCoach['name'])
-        : (_coachProfile?.name ?? (isArabic ? 'المدرب' : 'Coach'));
+        : (_coachProfile?.name ?? (lang.t('admin_coach_label')));
 
     showDialog<void>(
       context: context,
@@ -632,7 +615,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         return AlertDialog(
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          title: Text(isArabic ? 'تأكيد الحجز' : 'Confirm Booking'),
+          title: Text(lang.t('video_booking_confirm_booking')),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -643,24 +626,24 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
               ),
               const SizedBox(height: 12),
               _buildDetailRow(
-                isArabic ? 'التاريخ' : 'Date',
-                DateFormat('EEEE, MMM d, yyyy', isArabic ? 'ar' : 'en')
+                lang.t('date'),
+                DateFormat('EEEE, MMM d, yyyy', lang.locale.languageCode)
                     .format(_selectedDate!),
               ),
               const SizedBox(height: 8),
               _buildDetailRow(
-                isArabic ? 'الوقت' : 'Time',
+                lang.t('coach_schedule_time'),
                 _selectedTime!,
               ),
               const SizedBox(height: 8),
               _buildDetailRow(
-                isArabic ? 'المدة' : 'Duration',
-                '$_selectedDuration ${isArabic ? 'دقيقة' : 'minutes'}',
+                lang.t('coach_plan_duration'),
+                '$_selectedDuration ${lang.t('video_booking_minutes')}',
               ),
               if (_notesController.text.trim().isNotEmpty) ...[
                 const SizedBox(height: 8),
                 _buildDetailRow(
-                  isArabic ? 'ملاحظات' : 'Notes',
+                  lang.t('coach_workout_editor_notes_label'),
                   _notesController.text.trim(),
                 ),
               ],
@@ -669,15 +652,15 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text(isArabic ? 'إلغاء' : 'Cancel'),
+              child: Text(lang.t('cancel')),
             ),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.of(context).pop();
-                _confirmBooking(isArabic);
+                _confirmBooking(lang);
               },
               icon: const Icon(Icons.videocam, size: 18),
-              label: Text(isArabic ? 'احجز الآن' : 'Book Now'),
+              label: Text(lang.t('video_booking_book_now')),
             ),
           ],
         );
@@ -708,7 +691,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     );
   }
 
-  Future<void> _confirmBooking(bool isArabic) async {
+  Future<void> _confirmBooking(LanguageProvider lang) async {
     if (_selectedDate == null || _selectedTime == null || _isBooking) {
       return;
     }
@@ -745,9 +728,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic
-                ? 'تم حجز الجلسة بنجاح'
-                : 'Video session booked successfully',
+            lang.t('video_booking_video_session_booked_successfully'),
           ),
           backgroundColor: AppColors.success,
         ),
@@ -769,9 +750,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         messenger.showSnackBar(
           SnackBar(
             content: Text(
-              isArabic
-                  ? 'هذا الموعد لم يعد متاحًا. تم تحديث الأوقات.'
-                  : 'Selected time slot is no longer available. Slots were refreshed.',
+              lang.t('video_booking_selected_time_slot_is_no_longer'),
             ),
             backgroundColor: AppColors.warning,
           ),
@@ -779,12 +758,8 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       } else {
         final message = e.response?.data is Map<String, dynamic>
             ? ((e.response?.data['message'] as String?) ??
-                (isArabic
-                    ? 'تعذر إتمام الحجز. حاول مرة أخرى.'
-                    : 'Unable to complete booking. Please try again.'))
-            : (isArabic
-                ? 'تعذر إتمام الحجز. حاول مرة أخرى.'
-                : 'Unable to complete booking. Please try again.');
+                (lang.t('video_booking_unable_to_complete_booking_please_try')))
+            : (lang.t('video_booking_unable_to_complete_booking_please_try'));
         messenger.showSnackBar(
           SnackBar(
             content: Text(message),
@@ -799,9 +774,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic
-                ? 'تعذر إتمام الحجز. حاول مرة أخرى.'
-                : 'Unable to complete booking. Please try again.',
+            lang.t('video_booking_unable_to_complete_booking_please_try'),
           ),
           backgroundColor: AppColors.error,
         ),

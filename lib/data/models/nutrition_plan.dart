@@ -391,6 +391,17 @@ class Meal {
   final String? instructionsEn;
   final String? imageUrl;
   final int order;
+
+  /// Which library recipe and which portion of it this meal is.
+  ///
+  /// The model used to drop these, so a plan loaded into the coach editor came
+  /// back as a meal name with no reference behind it and was re-saved as free
+  /// text. They are carried through [fromJson] and [toJson] so the reference
+  /// survives an edit.
+  final String? plannedRecipeId;
+  final String? plannedVariantId;
+  final String? portionCode;
+
   bool completed;
 
   Meal({
@@ -410,6 +421,9 @@ class Meal {
     this.instructionsEn,
     this.imageUrl,
     this.order = 0,
+    this.plannedRecipeId,
+    this.plannedVariantId,
+    this.portionCode,
     this.completed = false,
   });
 
@@ -443,6 +457,15 @@ class Meal {
           asString(json['instructionsEn'] ?? json['instructions_en']),
       imageUrl: asString(json['imageUrl'] ?? json['image_url']),
       order: _asInt(json['order'] ?? json['order_index']) ?? 0,
+      plannedRecipeId: asString(json['plannedRecipeId'] ??
+          json['planned_recipe_id'] ??
+          json['recipeId'] ??
+          json['recipe_id']),
+      plannedVariantId: asString(json['plannedVariantId'] ??
+          json['planned_variant_id'] ??
+          json['variantId'] ??
+          json['variant_id']),
+      portionCode: asString(json['portionCode'] ?? json['portion_code']),
       completed: asBool(json['completed'] ??
               json['isCompleted'] ??
               json['is_completed']) ??
@@ -466,6 +489,9 @@ class Meal {
       'instructionsEn': instructionsEn,
       'imageUrl': imageUrl,
       'order': order,
+      'plannedRecipeId': plannedRecipeId,
+      'plannedVariantId': plannedVariantId,
+      'portionCode': portionCode,
       'completed': completed,
       'scheduledDate': scheduledDate?.toIso8601String(),
       'canLog': canLog,

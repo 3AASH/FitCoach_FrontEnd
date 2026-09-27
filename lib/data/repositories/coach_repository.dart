@@ -118,6 +118,38 @@ class CoachRepository {
     }
   }
 
+  /// The portion variants (S / M / L …) of the recipe library.
+  ///
+  /// The recipe listing alone says which meals exist but not how big a serving
+  /// is or what it contains, so a coach who picked a meal had to type its
+  /// calories by hand. Each variant carries its own nutrition block, which is
+  /// what lets the editor fill the macros in the moment a portion is chosen.
+  Future<List<Map<String, dynamic>>> getRecipeVariantLibrary({
+    String? search,
+    int limit = 2000,
+  }) async {
+    try {
+      final response = await _dio.get(
+        '/nutrition/library/recipe-variants',
+        queryParameters: {
+          'limit': limit,
+          if (search != null && search.trim().isNotEmpty) 'search': search,
+        },
+        options: await _getAuthOptions(),
+      );
+
+      final data = _asMap(response.data) ?? const <String, dynamic>{};
+      final list = _asList(data['variants']) ?? const <dynamic>[];
+      return list
+          .map((item) => _asMap(item) ?? const <String, dynamic>{})
+          .where((item) => item.isNotEmpty)
+          .toList();
+    } on DioException catch (e) {
+      throw Exception(_asMap(e.response?.data)?['message'] ??
+          'Failed to load the recipe variant library');
+    }
+  }
+
   /// Get coach's clients
   Future<List<CoachClient>> getClients({
     required String coachId,

@@ -292,7 +292,7 @@ class _LanguageCard extends StatelessWidget {
                 ),
               ),
               Icon(
-                isRtl ? Icons.arrow_back_ios_new : Icons.arrow_forward_ios,
+                Icons.arrow_forward_ios,
                 color: context.palette.textSecondary,
                 size: 20,
               ),

@@ -8,6 +8,7 @@ import '../../../data/models/admin_exercise.dart';
 import '../../../data/models/admin_workout_template.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/catalog_search_field.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -21,18 +22,29 @@ class AdminWorkoutTemplatesScreen extends StatefulWidget {
 
 class _AdminWorkoutTemplatesScreenState
     extends State<AdminWorkoutTemplatesScreen> {
+  String _search = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<AdminProvider>();
       provider.loadWorkoutTemplates();
+      // The whole library, so the exercise picker inside a template can find
+      // any exercise rather than only the first page of them.
       provider.loadExercises();
     });
   }
 
   Future<void> _refresh() {
-    return context.read<AdminProvider>().loadWorkoutTemplates();
+    return context
+        .read<AdminProvider>()
+        .loadWorkoutTemplates(search: _search.isEmpty ? null : _search);
+  }
+
+  void _onSearchChanged(String query) {
+    _search = query;
+    _refresh();
   }
 
   Future<void> _importJsonFile() async {
@@ -89,35 +101,56 @@ class _AdminWorkoutTemplatesScreenState
         label: Text(lang.t('admin_new_template')),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refresh,
-          child: provider.isLoading && provider.workoutTemplates.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : provider.workoutTemplates.isEmpty
-                  ? ListView(
-                      children: [
-                        const SizedBox(height: 160),
-                        Center(
-                          child: Text(
-                            lang.t('plan_editor_no_workout_templates'),
-                            style:
-                                TextStyle(color: context.palette.textSecondary),
-                          ),
-                        ),
-                      ],
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                      itemCount: provider.workoutTemplates.length,
-                      itemBuilder: (context, index) {
-                        final template = provider.workoutTemplates[index];
-                        return _TemplateCard(
-                          template: template,
-                          onEdit: () => _openEditor(template: template),
-                          onRefreshUsers: () => _refreshUsers(template.planId),
-                        );
-                      },
+        child: Column(
+          children: [
+            CatalogSearchField(
+              hintText: lang.t('admin_template_search_hint'),
+              onChanged: _onSearchChanged,
+              resultLabel: provider.isLoading &&
+                      provider.workoutTemplates.isEmpty
+                  ? null
+                  : catalogResultLabel(
+                      lang,
+                      shown: provider.workoutTemplates.length,
+                      total: provider.workoutTemplates.length,
+                      query: _search,
                     ),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refresh,
+                child: provider.isLoading && provider.workoutTemplates.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : provider.workoutTemplates.isEmpty
+                        ? ListView(
+                            children: [
+                              const SizedBox(height: 160),
+                              Center(
+                                child: Text(
+                                  lang.t('plan_editor_no_workout_templates'),
+                                  style: TextStyle(
+                                      color: context.palette.textSecondary),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                            itemCount: provider.workoutTemplates.length,
+                            itemBuilder: (context, index) {
+                              final template =
+                                  provider.workoutTemplates[index];
+                              return _TemplateCard(
+                                template: template,
+                                onEdit: () => _openEditor(template: template),
+                                onRefreshUsers: () =>
+                                    _refreshUsers(template.planId),
+                              );
+                            },
+                          ),
+              ),
+            ),
+          ],
         ),
       ),
     );

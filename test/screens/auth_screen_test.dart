@@ -132,6 +132,12 @@ class MockAuthRepository implements AuthRepositoryBase {
 
   @override
   Future<String?> refreshToken() async => null;
+
+  @override
+  Future<DateTime?> getLastActiveAt() async => DateTime.now().toUtc();
+
+  @override
+  Future<void> markActive() async {}
 }
 
 void main() {

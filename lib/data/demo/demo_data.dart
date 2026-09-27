@@ -1,3 +1,4 @@
+import '../../presentation/providers/language_provider.dart';
 import '../models/admin_analytics.dart';
 import '../models/admin_coach.dart';
 import '../models/admin_user.dart';
@@ -1163,9 +1164,8 @@ class DemoData {
       id: '${userId}_$coachId',
       userId: userId,
       coachId: coachId,
-      lastMessageContent: isArabic
-          ? 'خطة التمرين جاهزة للمراجعة.'
-          : 'Your plan is ready for review.',
+      lastMessageContent:
+          LanguageProvider.textFor(isArabic, 'demo_msg_plan_ready'),
       lastMessageAt: now.subtract(const Duration(minutes: 15)),
       unreadCount: 1,
       createdAt: now.subtract(const Duration(days: 30)),
@@ -1184,9 +1184,7 @@ class DemoData {
         conversationId: conversationId,
         senderId: 'demo-coach',
         receiverId: 'demo-user',
-        content: isArabic
-            ? 'مرحباً! هل أنت مستعد لجلسة اليوم؟'
-            : 'Welcome! Ready for today\'s session?',
+        content: LanguageProvider.textFor(isArabic, 'demo_msg_welcome_session'),
         type: MessageType.text,
         isRead: true,
         createdAt: now.subtract(const Duration(days: 1, hours: 2)),
@@ -1197,9 +1195,7 @@ class DemoData {
         conversationId: conversationId,
         senderId: 'demo-user',
         receiverId: 'demo-coach',
-        content: isArabic
-            ? 'نعم، أشعر أني بخير. هل يمكننا مراجعة إشارات وضعية الجسم؟'
-            : 'Yes, feeling good. Can we review my form cues?',
+        content: LanguageProvider.textFor(isArabic, 'demo_msg_feeling_good'),
         type: MessageType.text,
         isRead: true,
         createdAt: now.subtract(const Duration(days: 1, hours: 1)),
@@ -1210,9 +1206,7 @@ class DemoData {
         conversationId: conversationId,
         senderId: 'demo-coach',
         receiverId: 'demo-user',
-        content: isArabic
-            ? 'بالتأكيد. أضفت ملاحظات داخل خطتك.'
-            : 'Absolutely. I added notes in your plan.',
+        content: LanguageProvider.textFor(isArabic, 'demo_msg_added_notes'),
         type: MessageType.text,
         isRead: false,
         createdAt: now.subtract(const Duration(minutes: 20)),
@@ -1222,9 +1216,7 @@ class DemoData {
         conversationId: conversationId,
         senderId: 'demo-user',
         receiverId: 'demo-coach',
-        content: isArabic
-            ? 'سأطلع عليها الليلة قبل الجلسة.'
-            : 'I will review them tonight before the session.',
+        content: LanguageProvider.textFor(isArabic, 'demo_msg_review_tonight'),
         type: MessageType.text,
         isRead: false,
         createdAt: now.subtract(const Duration(minutes: 8)),
@@ -1234,9 +1226,7 @@ class DemoData {
         conversationId: conversationId,
         senderId: 'demo-coach',
         receiverId: 'demo-user',
-        content: isArabic
-            ? 'رائع، سأرسل لك أيضاً خطة المغذيات المحدثة.'
-            : 'Great, I will also send the updated nutrition targets.',
+        content: LanguageProvider.textFor(isArabic, 'demo_msg_nutrition_targets'),
         type: MessageType.text,
         isRead: false,
         createdAt: now.subtract(const Duration(minutes: 3)),

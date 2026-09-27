@@ -180,10 +180,8 @@ class _WorkoutExerciseDetailScreenState
                                 color: context.palette.textSecondary,
                               ),
                             ),
-                            trailing: Icon(
-                              Directionality.of(context) == TextDirection.rtl
-                                  ? Icons.chevron_left
-                                  : Icons.chevron_right,
+                            trailing: const Icon(
+                              Icons.chevron_right,
                             ),
                             onTap: () async {
                               final scaffoldMessenger =
@@ -311,8 +309,8 @@ class _WorkoutExerciseDetailScreenState
                       children: [
                         IconButton(
                           onPressed: () => Navigator.pop(context),
-                          icon: Icon(
-                            isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                          icon: const Icon(
+                            Icons.arrow_back,
                             color: AppColors.textWhite,
                           ),
                         ),

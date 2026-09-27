@@ -250,8 +250,8 @@ class _WorkoutExerciseSessionScreenState
                         children: [
                           IconButton(
                             onPressed: () => Navigator.of(context).pop(),
-                            icon: Icon(
-                              isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                            icon: const Icon(
+                              Icons.arrow_back,
                               color: Colors.white,
                             ),
                           ),

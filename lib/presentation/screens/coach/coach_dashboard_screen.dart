@@ -760,9 +760,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                       borderRadius: BorderRadius.circular(999),
                                     ),
                                     child: Text(
-                                      lang.isArabic
-                                          ? 'بدون درجة لياقة'
-                                          : 'Needs score',
+                                      lang.t('coach_clients_needs_score'),
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w700,

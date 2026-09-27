@@ -36,6 +36,19 @@ class AdminProvider extends ChangeNotifier {
   RevenueAnalytics? _revenueAnalytics;
   List<AuditLog> _auditLogs = [];
 
+  // How many rows match the current query, which is not the same as how many
+  // came back: these catalogues are paginated, and a screen that cannot tell
+  // the difference shows a truncated first page as if it were everything.
+  int _exerciseTotal = 0;
+  int _nutritionEngineRecipeTotal = 0;
+  int _nutritionEnginePlanTotal = 0;
+
+  // The query each catalogue was last loaded with, so a screen can label its
+  // count as filtered rather than total.
+  String _exerciseSearch = '';
+  String _nutritionEngineRecipeSearch = '';
+  String _nutritionEnginePlanSearch = '';
+
   // Getters
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -58,6 +71,13 @@ class AdminProvider extends ChangeNotifier {
   List<Map<String, dynamic>> get nutritionEnginePlans => _nutritionEnginePlans;
   List<Map<String, dynamic>> get nutritionEngineImports =>
       _nutritionEngineImports;
+
+  int get exerciseTotal => _exerciseTotal;
+  int get nutritionEngineRecipeTotal => _nutritionEngineRecipeTotal;
+  int get nutritionEnginePlanTotal => _nutritionEnginePlanTotal;
+  String get exerciseSearch => _exerciseSearch;
+  String get nutritionEngineRecipeSearch => _nutritionEngineRecipeSearch;
+  String get nutritionEnginePlanSearch => _nutritionEnginePlanSearch;
   List<AdminCoach> get pendingCoaches =>
       _coaches.where((c) => c.isPending).toList();
   void _upsertCoach(AdminCoach coach) {
@@ -625,39 +645,45 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _exercises = DemoConfig.isDemo
-          ? DemoData.fallbackExerciseLibrary()
-              .map(
-                (exercise) => AdminExercise(
-                  id: exercise.id,
-                  exId: exercise.id,
-                  nameEn: exercise.nameEn,
-                  nameAr: exercise.nameAr,
-                  category: exercise.category,
-                  difficulty: exercise.difficulty,
-                  muscleGroups: (exercise.muscleGroup ?? '')
-                      .split(',')
-                      .map((item) => item.trim())
-                      .where((item) => item.isNotEmpty)
-                      .toList(),
-                  equipment: (exercise.equipment ?? '')
-                      .split(',')
-                      .map((item) => item.trim())
-                      .where((item) => item.isNotEmpty)
-                      .toList(),
-                  alternatives: exercise.alternatives,
-                  alternativesCount: exercise.alternatives.length,
-                  videoUrl: exercise.videoUrl,
-                  thumbnailUrl: exercise.thumbnailUrl,
-                  instructions: exercise.instructions,
-                ),
-              )
-              .toList()
-          : await _repository.getExercises(
-              search: search,
-              category: category,
-              difficulty: difficulty,
-            );
+      if (DemoConfig.isDemo) {
+        _exercises = DemoData.fallbackExerciseLibrary()
+            .map(
+              (exercise) => AdminExercise(
+                id: exercise.id,
+                exId: exercise.id,
+                nameEn: exercise.nameEn,
+                nameAr: exercise.nameAr,
+                category: exercise.category,
+                difficulty: exercise.difficulty,
+                muscleGroups: (exercise.muscleGroup ?? '')
+                    .split(',')
+                    .map((item) => item.trim())
+                    .where((item) => item.isNotEmpty)
+                    .toList(),
+                equipment: (exercise.equipment ?? '')
+                    .split(',')
+                    .map((item) => item.trim())
+                    .where((item) => item.isNotEmpty)
+                    .toList(),
+                alternatives: exercise.alternatives,
+                alternativesCount: exercise.alternatives.length,
+                videoUrl: exercise.videoUrl,
+                thumbnailUrl: exercise.thumbnailUrl,
+                instructions: exercise.instructions,
+              ),
+            )
+            .toList();
+        _exerciseTotal = _exercises.length;
+      } else {
+        final page = await _repository.getExercises(
+          search: search,
+          category: category,
+          difficulty: difficulty,
+        );
+        _exercises = page.items;
+        _exerciseTotal = page.total;
+      }
+      _exerciseSearch = search?.trim() ?? '';
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -765,6 +791,7 @@ class AdminProvider extends ChangeNotifier {
   }
 
   Future<void> loadWorkoutTemplates({
+    String? search,
     String? type,
     String? goal,
     String? location,
@@ -777,6 +804,7 @@ class AdminProvider extends ChangeNotifier {
       _workoutTemplates = DemoConfig.isDemo
           ? const []
           : await _repository.getWorkoutTemplates(
+              search: search,
               type: type,
               goal: goal,
               location: location,
@@ -955,13 +983,19 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _nutritionEngineRecipes = DemoConfig.isDemo
-          ? const []
-          : await _repository.getNutritionEngineRecipes(
-              search: search,
-              validationStatus: validationStatus,
-              active: active,
-            );
+      if (DemoConfig.isDemo) {
+        _nutritionEngineRecipes = const [];
+        _nutritionEngineRecipeTotal = 0;
+      } else {
+        final page = await _repository.getNutritionEngineRecipes(
+          search: search,
+          validationStatus: validationStatus,
+          active: active,
+        );
+        _nutritionEngineRecipes = page.items;
+        _nutritionEngineRecipeTotal = page.total;
+      }
+      _nutritionEngineRecipeSearch = search?.trim() ?? '';
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -1098,6 +1132,7 @@ class AdminProvider extends ChangeNotifier {
   }
 
   Future<void> loadNutritionEnginePlans({
+    String? search,
     String? planType,
     String? market,
     int? calorieBand,
@@ -1109,15 +1144,22 @@ class AdminProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _nutritionEnginePlans = DemoConfig.isDemo
-          ? const []
-          : await _repository.getNutritionEnginePlans(
-              planType: planType,
-              market: market,
-              calorieBand: calorieBand,
-              macroProfile: macroProfile,
-              validationStatus: validationStatus,
-            );
+      if (DemoConfig.isDemo) {
+        _nutritionEnginePlans = const [];
+        _nutritionEnginePlanTotal = 0;
+      } else {
+        final page = await _repository.getNutritionEnginePlans(
+          search: search,
+          planType: planType,
+          market: market,
+          calorieBand: calorieBand,
+          macroProfile: macroProfile,
+          validationStatus: validationStatus,
+        );
+        _nutritionEnginePlans = page.items;
+        _nutritionEnginePlanTotal = page.total;
+      }
+      _nutritionEnginePlanSearch = search?.trim() ?? '';
       _isLoading = false;
       notifyListeners();
     } catch (e) {

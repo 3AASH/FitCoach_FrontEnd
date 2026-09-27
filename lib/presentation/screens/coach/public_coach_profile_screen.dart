@@ -329,7 +329,6 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
-    final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(
       bottomNavigationBar: (widget.onMessage != null ||
@@ -389,8 +388,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                             context.palette.background.withValues(alpha: 0),
                         leading: IconButton(
                           onPressed: () => Navigator.of(context).maybePop(),
-                          icon: Icon(
-                            isRtl ? Icons.arrow_forward : Icons.arrow_back,
+                          icon: const Icon(
+                            Icons.arrow_back,
                             color: AppColors.textWhite,
                           ),
                         ),

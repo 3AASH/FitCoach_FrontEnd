@@ -87,7 +87,8 @@ class WorkoutIntroScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(40),
                         boxShadow: [
                           BoxShadow(
-                            color: context.palette.textPrimary.withValues(alpha: 0.35),
+                            color: context.palette.textPrimary
+                                .withValues(alpha: 0.35),
                             blurRadius: 12,
                             offset: const Offset(0, 6),
                           ),
@@ -107,7 +108,8 @@ class WorkoutIntroScreen extends StatelessWidget {
                     initialScale: 0.9,
                     child: Text(
                       languageProvider.t('workouts_intro_title'),
-                      style: AppTextStyles.h2.copyWith(color: AppColors.textWhite),
+                      style:
+                          AppTextStyles.h2.copyWith(color: AppColors.textWhite),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -156,15 +158,16 @@ class WorkoutIntroScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: onGetStarted,
-                        icon: Icon(
-                          isArabic ? Icons.arrow_back : Icons.arrow_forward,
+                        icon: const Icon(
+                          Icons.arrow_forward,
                           color: AppColors.textWhite,
                         ),
                         label: Text(languageProvider.t('workouts_get_started')),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primary,
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                          textStyle: const TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.w600),
                         ),
                       ),
                     ),
@@ -218,81 +221,42 @@ class _FeatureCard extends StatelessWidget {
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: isArabic
-            ? [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textWhite,
-                        ),
-                        textAlign: TextAlign.right,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textWhite.withValues(alpha: 0.7),
-                          height: 1.4,
-                        ),
-                        textAlign: TextAlign.right,
-                      ),
-                    ],
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: iconColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon, color: iconColor, size: 22),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.textWhite,
                   ),
                 ),
-                const SizedBox(width: 12),
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: iconColor, size: 22),
-                ),
-              ]
-            : [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.2),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(icon, color: iconColor, size: 22),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: AppColors.textWhite,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textWhite.withValues(alpha: 0.7),
-                          height: 1.4,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textWhite.withValues(alpha: 0.7),
+                    height: 1.4,
                   ),
                 ),
               ],
+            ),
+          ),
+        ],
       ),
     );
   }

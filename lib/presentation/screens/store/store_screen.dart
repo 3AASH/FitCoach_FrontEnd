@@ -12,6 +12,7 @@ import '../../widgets/custom_button.dart';
 import 'store_intro_screen.dart';
 import 'store_checkout_screen.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class StoreScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -455,7 +456,7 @@ class _StoreScreenState extends State<StoreScreen> {
           final isSelected = _selectedCategory == category;
 
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: FilterChip(
               label: Text(_categoryLabel(category, lang)),
               selected: isSelected,
@@ -698,7 +699,8 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SheetCloseButton(),
+                const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: imageUrl == null
@@ -1013,7 +1015,6 @@ class _StoreScreenState extends State<StoreScreen> {
 
   Widget _buildHeader(
       LanguageProvider lang, int cartItemCount, BuildContext tabContext) {
-    final isRTL = Directionality.of(tabContext) == TextDirection.rtl;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
       decoration: const BoxDecoration(
@@ -1029,7 +1030,7 @@ class _StoreScreenState extends State<StoreScreen> {
           Row(
             children: [
               IconButton(
-                icon: Icon(isRTL ? Icons.arrow_forward : Icons.arrow_back,
+                icon: const Icon(Icons.arrow_back,
                     color: Colors.white),
                 onPressed: _handleBack,
               ),
@@ -1300,12 +1301,8 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  order['id'].toString(),
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.w800),
-                ),
+                const SizedBox(height: 8),
+                SheetHeader(title: order['id'].toString()),
                 const SizedBox(height: 6),
                 Text(
                   _statusLabel(
@@ -1457,7 +1454,7 @@ class _StoreScreenState extends State<StoreScreen> {
           final isSelected = _selectedCategory == category;
 
           return Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: const EdgeInsetsDirectional.only(end: 8),
             child: FilterChip(
               label: Text(_categoryLabel(category, lang)),
               selected: isSelected,
@@ -1754,7 +1751,8 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SheetCloseButton(),
+                const SizedBox(height: 8),
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: Image.network(

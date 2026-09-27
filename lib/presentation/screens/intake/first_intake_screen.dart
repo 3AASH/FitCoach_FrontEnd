@@ -67,7 +67,6 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final userProvider = context.watch<UserProvider>();
-    final isArabic = languageProvider.isArabic;
 
     return Scaffold(
       body: Stack(
@@ -156,10 +155,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
-                                      isArabic
-                                          ? Icons.arrow_forward
-                                          : Icons.arrow_back,
+                                    const Icon(
+                                      Icons.arrow_back,
                                       size: 18,
                                     ),
                                     const SizedBox(width: 6),
@@ -214,10 +211,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                                     .t('continue'),
                                           ),
                                           const SizedBox(width: 6),
-                                          Icon(
-                                            isArabic
-                                                ? Icons.arrow_back
-                                                : Icons.arrow_forward,
+                                          const Icon(
+                                            Icons.arrow_forward,
                                             size: 18,
                                           ),
                                         ],

@@ -9,6 +9,7 @@ import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../../data/models/admin_coach.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class AdminCoachesScreen extends StatefulWidget {
   const AdminCoachesScreen({super.key});
@@ -130,9 +131,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
     final adminProvider = context.watch<AdminProvider>();
-    final lang = languageProvider;
     final coachesError = adminProvider.coachesError;
 
     return Scaffold(
@@ -243,7 +243,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                           ),
                           DropdownMenuItem(
                             value: 'suspended',
-                            child: Text(lang.isArabic ? 'معلّق' : 'Suspended'),
+                            child: Text(lang.t('admin_coaches_suspended')),
                           ),
                         ],
                         onChanged: (value) {
@@ -567,7 +567,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
       case 'approved':
         return lang.t('admin_status_approved');
       case 'suspended':
-        return lang.isArabic ? 'معلّق' : 'Suspended';
+        return lang.t('admin_coaches_suspended');
       case 'pending':
       default:
         return lang.t('admin_status_pending');
@@ -635,17 +635,17 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               ),
               if (coach.fullNameAr != null)
                 _buildDetailRow(
-                  lang.isArabic ? 'الاسم بالعربية' : 'Arabic name',
+                  lang.t('admin_exercise_arabic_name'),
                   coach.fullNameAr!,
                 ),
               if (coach.bio != null)
                 _buildDetailRow(
-                  lang.isArabic ? 'نبذة' : 'Bio',
+                  lang.t('admin_coaches_bio'),
                   coach.bio!,
                 ),
               if (coach.experienceYears != null)
                 _buildDetailRow(
-                  lang.isArabic ? 'سنوات الخبرة' : 'Experience',
+                  lang.t('admin_coaches_experience'),
                   '${coach.experienceYears}',
                 ),
               _buildDetailRow(
@@ -809,9 +809,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                     success
                         ? lang.t('admin_coach_suspended_success')
                         : (adminProvider.error ??
-                            (lang.isArabic
-                                ? 'فشل تعليق المدرب'
-                                : 'Failed to suspend coach')),
+                            (lang.t('admin_coaches_failed_to_suspend_coach'))),
                   ),
                   backgroundColor:
                       success ? AppColors.success : AppColors.error,
@@ -850,7 +848,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               messenger.showSnackBar(
                 SnackBar(
                   content:
-                      Text(lang.isArabic ? 'تم تحديث المدرب' : 'Coach updated'),
+                      Text(lang.t('admin_coaches_coach_updated')),
                   backgroundColor: AppColors.success,
                 ),
               );
@@ -860,9 +858,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               SnackBar(
                 content: Text(
                   adminProvider.error ??
-                      (lang.isArabic
-                          ? 'فشل تحديث المدرب'
-                          : 'Failed to update coach'),
+                      (lang.t('admin_coaches_failed_to_update_coach')),
                 ),
                 backgroundColor: AppColors.error,
               ),
@@ -880,9 +876,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
       builder: (dialogContext) => AlertDialog(
         title: Text(lang.t('admin_delete_user_title')),
         content: Text(
-          lang.isArabic
-              ? 'هل تريد حذف المدرب ${coach.fullName}؟ لا يمكن التراجع عن هذا الإجراء.'
-              : 'Delete coach ${coach.fullName}? This action cannot be undone.',
+          lang.t('admin_coaches_delete_confirm',
+              args: {'name': coach.fullName}),
         ),
         actions: [
           TextButton(
@@ -901,11 +896,9 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                 SnackBar(
                   content: Text(
                     success
-                        ? (lang.isArabic ? 'تم حذف المدرب' : 'Coach deleted')
+                        ? (lang.t('admin_coaches_coach_deleted'))
                         : (adminProvider.error ??
-                            (lang.isArabic
-                                ? 'فشل حذف المدرب'
-                                : 'Failed to delete coach')),
+                            (lang.t('admin_coaches_failed_to_delete_coach'))),
                   ),
                   backgroundColor:
                       success ? AppColors.success : AppColors.error,
@@ -1000,13 +993,7 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                   ),
                 ),
               ),
-              Text(
-                lang.t('admin_create_coach_title'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              SheetHeader(title: lang.t('admin_create_coach_title')),
               const SizedBox(height: 8),
               Text(
                 lang.t('admin_create_coach_subtitle'),
@@ -1306,13 +1293,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                   ),
                 ),
               ),
-              Text(
-                lang.isArabic ? 'تعديل بيانات المدرب' : 'Edit coach',
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              SheetHeader(title: lang.t('admin_coaches_edit_coach')),
               const SizedBox(height: 20),
               TextFormField(
                 controller: _fullNameController,
@@ -1333,7 +1314,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
               TextFormField(
                 controller: _fullNameArController,
                 decoration: InputDecoration(
-                  labelText: lang.isArabic ? 'الاسم بالعربية' : 'Arabic name',
+                  labelText: lang.t('admin_exercise_arabic_name'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1375,9 +1356,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 controller: _photoUrlController,
                 keyboardType: TextInputType.url,
                 decoration: InputDecoration(
-                  labelText: lang.isArabic
-                      ? 'رابط الصورة الشخصية'
-                      : 'Profile photo URL',
+                  labelText: lang.t('admin_coaches_profile_photo_url'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1389,7 +1368,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText:
-                      lang.isArabic ? 'سنوات الخبرة' : 'Years of experience',
+                      lang.t('public_coach_profile_years_exp'),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -1400,7 +1379,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 controller: _bioController,
                 maxLines: 4,
                 decoration: InputDecoration(
-                  labelText: lang.isArabic ? 'نبذة' : 'Bio',
+                  labelText: lang.t('admin_coaches_bio'),
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -1473,9 +1452,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 contentPadding: EdgeInsets.zero,
                 title: Text(lang.t('admin_status_approved')),
                 subtitle: Text(
-                  lang.isArabic
-                      ? 'تحديد ما إذا كان المدرب معتمدًا'
-                      : 'Whether the coach is approved',
+                  lang.t('admin_coaches_whether_the_coach_is_approved'),
                 ),
                 value: _isApproved,
                 onChanged: _isSubmitting
@@ -1488,11 +1465,9 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
               ),
               SwitchListTile.adaptive(
                 contentPadding: EdgeInsets.zero,
-                title: Text(lang.isArabic ? 'نشط' : 'Active'),
+                title: Text(lang.t('admin_status_active')),
                 subtitle: Text(
-                  lang.isArabic
-                      ? 'تعطيل هذا الخيار سيجعل حالة المدرب معلّقة'
-                      : 'Turning this off will mark the coach as suspended',
+                  lang.t('admin_coaches_turning_this_off_will_mark_the'),
                 ),
                 value: _isActive,
                 onChanged: _isSubmitting
@@ -1506,8 +1481,8 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
               const SizedBox(height: 24),
               CustomButton(
                 text: _isSubmitting
-                    ? (lang.isArabic ? 'جارٍ الحفظ...' : 'Saving...')
-                    : (lang.isArabic ? 'حفظ التغييرات' : 'Save changes'),
+                    ? (lang.t('subscription_admin_form_saving'))
+                    : (lang.t('coach_workout_editor_save_changes')),
                 onPressed: _isSubmitting ? null : _handleSubmit,
                 fullWidth: true,
                 size: ButtonSize.large,
