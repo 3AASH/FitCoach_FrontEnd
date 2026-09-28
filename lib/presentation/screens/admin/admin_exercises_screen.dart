@@ -433,7 +433,11 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         builder: (context, scrollController) => Material(
-          color: Colors.white,
+          // Not Colors.white: the field labels come from the theme
+          // (textSecondary, #D1D5DB in dark mode) and were being drawn on a
+          // sheet that stayed white, which is about 1.5:1 contrast — the
+          // labels simply were not there.
+          color: context.palette.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           child: Form(
             key: _formKey,

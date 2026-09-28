@@ -140,12 +140,16 @@ class _NutritionScreenState extends State<NutritionScreen> {
     // preference questions had been answered when they never were.
     final requirements = nutritionProvider.intakeRequirements;
     if (requirements != null) {
-      final complete = requirements.isComplete;
-      await prefs.setBool(completedKey, complete);
-      await prefs.setBool(pendingKey, !complete);
+      // `isComplete` covers every field the target calculation needs,
+      // including `sex`, which this form cannot ask. Whether to *show* the
+      // form depends only on what it can collect — otherwise a missing `sex`
+      // reopened the whole questionnaire on every visit.
+      final needsForm = requirements.needsPreferenceAnswers;
+      await prefs.setBool(completedKey, !needsForm);
+      await prefs.setBool(pendingKey, needsForm);
       if (mounted) {
         setState(() {
-          _showPreferencesIntake = !complete;
+          _showPreferencesIntake = needsForm;
           _preferencesLoaded = true;
         });
       }
@@ -539,7 +543,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         unselectedLabelStyle: const TextStyle(
                             fontSize: 13, fontWeight: FontWeight.w500),
                         indicator: BoxDecoration(
-                          color: Colors.white,
+                          color: context.palette.surface,
                           borderRadius: BorderRadius.circular(10),
                         ),
                         indicatorSize: TabBarIndicatorSize.tab,
@@ -897,7 +901,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         await provider.loadIntakeRequirements(planType: 'starter');
     if (!mounted) return;
 
-    if (requirements == null || !requirements.isComplete) {
+    if (requirements == null || requirements.needsPreferenceAnswers) {
       setState(() => _showPreferencesIntake = true);
       return;
     }
@@ -1525,9 +1529,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
         minChildSize: 0.5,
         maxChildSize: 0.9,
         builder: (context, scrollController) => Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          decoration: BoxDecoration(
+            color: context.palette.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: SingleChildScrollView(
             controller: scrollController,

@@ -422,13 +422,13 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildPeopleHub(LanguageProvider lang) {
     return _buildHubTab(
-      title: 'Users',
-      subtitle: 'Manage customers, coaches, and admin access points.',
+      title: lang.t('admin_hub_people'),
+      subtitle: lang.t('admin_hub_people_desc'),
       children: [
         _buildAdminActionTile(
           icon: Icons.person_outline,
-          title: 'Customers',
-          subtitle: 'View, suspend, assign coaches, and edit subscriptions.',
+          title: lang.t('admin_hub_customers'),
+          subtitle: lang.t('admin_hub_customers_desc'),
           color: AppColors.primary,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'customers'),
@@ -436,8 +436,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         _buildAdminActionTile(
           icon: Icons.sports,
-          title: 'Coaches',
-          subtitle: 'Approve, create, suspend, and update coach accounts.',
+          title: lang.t('admin_hub_coaches'),
+          subtitle: lang.t('admin_hub_coaches_desc'),
           color: AppColors.secondary,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'coaches'),
@@ -445,8 +445,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         _buildAdminActionTile(
           icon: Icons.admin_panel_settings,
-          title: 'Admins',
-          subtitle: 'Create admin accounts and manage platform admins.',
+          title: lang.t('admin_hub_admins'),
+          subtitle: lang.t('admin_hub_admins_desc'),
           color: AppColors.accent,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'admins'),
@@ -458,28 +458,27 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildFitnessHub(LanguageProvider lang) {
     return _buildHubTab(
-      title: 'Fitness Plans',
-      subtitle: 'Manage the content used for user workout and nutrition plans.',
+      title: lang.t('admin_hub_fitness'),
+      subtitle: lang.t('admin_hub_fitness_desc'),
       children: [
         _buildAdminActionTile(
           icon: Icons.fitness_center,
-          title: 'Exercise Library',
-          subtitle: 'Edit exercises, videos, thumbnails, and instructions.',
+          title: lang.t('admin_hub_exercise_library'),
+          subtitle: lang.t('admin_hub_exercise_library_desc'),
           color: AppColors.primary,
           onTap: () => _pushAdminScreen(const AdminExercisesScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.view_week,
-          title: 'Workout Templates',
-          subtitle: 'Import JSON or edit workout combinations one by one.',
+          title: lang.t('admin_hub_workout_templates'),
+          subtitle: lang.t('admin_hub_workout_templates_desc'),
           color: AppColors.secondary,
           onTap: () => _pushAdminScreen(const AdminWorkoutTemplatesScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.restaurant_menu,
-          title: 'Nutrition Templates',
-          subtitle:
-              'Import JSON or edit meal templates used in generated plans.',
+          title: lang.t('admin_hub_nutrition_templates'),
+          subtitle: lang.t('admin_hub_nutrition_templates_desc'),
           color: AppColors.success,
           onTap: () => _pushAdminScreen(const AdminNutritionTemplatesScreen()),
         ),
@@ -489,34 +488,34 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Widget _buildBusinessHub(LanguageProvider lang) {
     return _buildHubTab(
-      title: 'Business',
-      subtitle: 'Manage subscriptions, revenue, store operations, and logs.',
+      title: lang.t('admin_hub_business'),
+      subtitle: lang.t('admin_hub_business_desc'),
       children: [
         _buildAdminActionTile(
           icon: Icons.credit_card,
-          title: 'Subscription Plans',
-          subtitle: 'Edit package names, prices, features, and requests.',
+          title: lang.t('admin_hub_subscription_plans'),
+          subtitle: lang.t('admin_hub_subscription_plans_desc'),
           color: AppColors.primary,
           onTap: () => _pushAdminScreen(const SubscriptionManagementScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.attach_money,
-          title: 'Revenue',
-          subtitle: 'Review payment and subscription performance.',
+          title: lang.t('admin_hub_revenue'),
+          subtitle: lang.t('admin_hub_revenue_desc'),
           color: AppColors.success,
           onTap: () => _pushAdminScreen(const AdminRevenueScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.store,
-          title: 'Store',
-          subtitle: 'Manage store products and order operations.',
+          title: lang.t('admin_hub_store'),
+          subtitle: lang.t('admin_hub_store_desc'),
           color: AppColors.secondary,
           onTap: () => _pushAdminScreen(const StoreManagementScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.history,
-          title: 'Audit Logs',
-          subtitle: 'Review important admin and platform activity.',
+          title: lang.t('admin_hub_audit_logs'),
+          subtitle: lang.t('admin_hub_audit_logs_desc'),
           color: AppColors.warning,
           onTap: () => _pushAdminScreen(const AdminAuditLogsScreen()),
         ),

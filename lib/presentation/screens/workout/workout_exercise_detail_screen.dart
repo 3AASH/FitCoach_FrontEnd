@@ -355,7 +355,7 @@ class _WorkoutExerciseDetailScreenState
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Material(
-                            color: Colors.white,
+                            color: context.palette.surface,
                             borderRadius: BorderRadius.circular(8),
                             clipBehavior: Clip.antiAlias,
                             child: InkWell(

@@ -404,7 +404,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: context.palette.border),
             boxShadow: [
@@ -505,7 +505,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: context.palette.border),
             boxShadow: [

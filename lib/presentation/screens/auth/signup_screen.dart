@@ -543,7 +543,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       Expanded(
                         child: _buildSocialButton(
                           icon: Icons.g_mobiledata,
-                          label: 'Google',
+                          label: lang.t('auth_oauth_google'),
                           color: const Color(0xFFDB4437),
                           onPressed: () => _socialSignup('google', lang),
                         ),
@@ -552,7 +552,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       Expanded(
                         child: _buildSocialButton(
                           icon: Icons.facebook,
-                          label: 'Facebook',
+                          label: lang.t('auth_oauth_facebook'),
                           color: const Color(0xFF4267B2),
                           onPressed: () => _socialSignup('facebook', lang),
                         ),
@@ -561,7 +561,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       Expanded(
                         child: _buildSocialButton(
                           icon: Icons.apple,
-                          label: 'Apple',
+                          label: lang.t('auth_oauth_apple'),
                           color: Colors.black,
                           onPressed: () => _socialSignup('apple', lang),
                         ),

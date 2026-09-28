@@ -655,7 +655,7 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
             margin: const EdgeInsets.all(24),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.palette.surface,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(

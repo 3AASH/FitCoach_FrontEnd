@@ -299,6 +299,24 @@ class NutritionIntakeRequirements {
 
   bool get isComplete => missingFields.isEmpty;
 
+  /// The gaps the nutrition preferences form can actually close.
+  ///
+  /// `sex` is reported as missing so the target calculation can refuse to
+  /// guess, but the first workout intake owns that question and the client is
+  /// redirected there rather than asked twice. It is therefore not something
+  /// this form can fix.
+  List<String> get answerableFields =>
+      missingFields.where((field) => field != 'sex').toList();
+
+  /// Whether the preferences form has anything left to ask.
+  ///
+  /// Distinct from [isComplete] on purpose. A client who has answered every
+  /// nutrition question but has no `sex` on record is *not* complete, yet the
+  /// form has nothing to ask them — and asking anyway is what made it re-run
+  /// the whole questionnaire, age and height and weight included, over a
+  /// field it was never going to collect.
+  bool get needsPreferenceAnswers => answerableFields.isNotEmpty;
+
   factory NutritionIntakeRequirements.fromJson(Map<String, dynamic> json) {
     final missing = _asList(json['missingFields'] ?? json['missing_fields']) ??
         const <dynamic>[];

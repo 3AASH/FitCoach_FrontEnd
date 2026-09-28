@@ -102,10 +102,15 @@ class _NutritionPreferencesIntakeScreenState
       return _allFields;
     }
 
-    // 'sex' arrives without a question descriptor and is handled by the
-    // redirect to the first intake, so it must not become an empty section.
-    final asked = missing.where((field) => field != 'sex').toList();
-    return asked.isEmpty ? _allFields : asked;
+    // 'sex' is owned by the first workout intake and is handled by the
+    // redirect there, so it is never a question on this form.
+    //
+    // If that leaves nothing, ask nothing. Falling back to the whole form
+    // here — which is what this used to do — meant a client missing only
+    // `sex` was put through the entire questionnaire again, re-entering the
+    // age, height, weight and goal they had already given the workout
+    // intakes, to fix a field this form cannot even collect.
+    return missing.where((field) => field != 'sex').toList();
   }
 
   @override

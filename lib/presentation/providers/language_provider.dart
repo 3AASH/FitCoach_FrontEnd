@@ -952,6 +952,45 @@ class LanguageProvider with ChangeNotifier {
 
     // Nutrition engine vocabularies. These are free-text columns, so
     // catalogLabel() falls back to the raw value for anything not listed.
+    // Admin dashboard hubs and their tiles.
+    'admin_hub_people': 'Users',
+    'admin_hub_people_desc': 'Manage customers, coaches, and admin access points.',
+    'admin_hub_customers': 'Customers',
+    'admin_hub_customers_desc':
+        'View, suspend, assign coaches, and edit subscriptions.',
+    'admin_hub_coaches': 'Coaches',
+    'admin_hub_coaches_desc':
+        'Approve, create, suspend, and update coach accounts.',
+    'admin_hub_admins': 'Admins',
+    'admin_hub_admins_desc':
+        'Create admin accounts and manage platform admins.',
+    'admin_hub_fitness': 'Fitness Plans',
+    'admin_hub_fitness_desc':
+        'Manage the content used for user workout and nutrition plans.',
+    'admin_hub_exercise_library': 'Exercise Library',
+    'admin_hub_exercise_library_desc':
+        'Edit exercises, videos, thumbnails, and instructions.',
+    'admin_hub_workout_templates': 'Workout Templates',
+    'admin_hub_workout_templates_desc':
+        'Import JSON or edit workout combinations one by one.',
+    'admin_hub_nutrition_templates': 'Nutrition Templates',
+    'admin_hub_nutrition_templates_desc':
+        'Import JSON or edit meal templates used in generated plans.',
+    'admin_hub_business': 'Business',
+    'admin_hub_business_desc':
+        'Manage subscriptions, revenue, store operations, and logs.',
+    'admin_hub_subscription_plans': 'Subscription Plans',
+    'admin_hub_subscription_plans_desc':
+        'Edit package names, prices, features, and requests.',
+    'admin_hub_revenue': 'Revenue',
+    'admin_hub_revenue_desc':
+        'Review payment and subscription performance.',
+    'admin_hub_store': 'Store',
+    'admin_hub_store_desc': 'Manage store products and order operations.',
+    'admin_hub_audit_logs': 'Audit Logs',
+    'admin_hub_audit_logs_desc':
+        'Review important admin and platform activity.',
+
     'catalog_plan_type_professional': 'Professional',
     'catalog_plan_type_starter': 'Starter',
     'catalog_market_sa': 'Saudi Arabia',
@@ -2271,6 +2310,13 @@ class LanguageProvider with ChangeNotifier {
     'admin_dashboard_business': 'Business',
     'admin_dashboard_fitness': 'Fitness',
     'admin_dashboard_users': 'Users',
+
+    // Untranslated strings from audit.
+    'auth_oauth_google': 'Google',
+    'auth_oauth_facebook': 'Facebook',
+    'auth_oauth_apple': 'Apple',
+    'calendar_previous': 'Previous',
+    'calendar_upcoming': 'Upcoming',
 };
 
   // Arabic translations
@@ -3536,6 +3582,42 @@ class LanguageProvider with ChangeNotifier {
 
     // Nutrition engine vocabularies. These are free-text columns, so
     // catalogLabel() falls back to the raw value for anything not listed.
+    // Admin dashboard hubs and their tiles.
+    'admin_hub_people': 'المستخدمون',
+    'admin_hub_people_desc': 'إدارة العملاء والمدربين وصلاحيات المشرفين.',
+    'admin_hub_customers': 'العملاء',
+    'admin_hub_customers_desc':
+        'عرض العملاء وإيقافهم وتعيين المدربين وتعديل الاشتراكات.',
+    'admin_hub_coaches': 'المدربون',
+    'admin_hub_coaches_desc':
+        'اعتماد حسابات المدربين وإنشاؤها وإيقافها وتحديثها.',
+    'admin_hub_admins': 'المشرفون',
+    'admin_hub_admins_desc': 'إنشاء حسابات المشرفين وإدارة مشرفي المنصة.',
+    'admin_hub_fitness': 'الخطط الرياضية',
+    'admin_hub_fitness_desc':
+        'إدارة المحتوى المستخدم في خطط التمارين والتغذية للمستخدمين.',
+    'admin_hub_exercise_library': 'مكتبة التمارين',
+    'admin_hub_exercise_library_desc':
+        'تعديل التمارين والفيديوهات والصور المصغرة والتعليمات.',
+    'admin_hub_workout_templates': 'قوالب التمارين',
+    'admin_hub_workout_templates_desc':
+        'استيراد JSON أو تعديل تركيبات التمارين واحدة تلو الأخرى.',
+    'admin_hub_nutrition_templates': 'قوالب التغذية',
+    'admin_hub_nutrition_templates_desc':
+        'استيراد JSON أو تعديل قوالب الوجبات المستخدمة في الخطط المولدة.',
+    'admin_hub_business': 'الأعمال',
+    'admin_hub_business_desc':
+        'إدارة الاشتراكات والإيرادات وعمليات المتجر والسجلات.',
+    'admin_hub_subscription_plans': 'باقات الاشتراك',
+    'admin_hub_subscription_plans_desc':
+        'تعديل أسماء الباقات والأسعار والمزايا والطلبات.',
+    'admin_hub_revenue': 'الإيرادات',
+    'admin_hub_revenue_desc': 'مراجعة أداء المدفوعات والاشتراكات.',
+    'admin_hub_store': 'المتجر',
+    'admin_hub_store_desc': 'إدارة منتجات المتجر وعمليات الطلبات.',
+    'admin_hub_audit_logs': 'سجلات التدقيق',
+    'admin_hub_audit_logs_desc': 'مراجعة أنشطة المشرفين والمنصة المهمة.',
+
     'catalog_plan_type_professional': 'احترافية',
     'catalog_plan_type_starter': 'مبتدئة',
     'catalog_market_sa': 'السعودية',
@@ -4387,5 +4469,12 @@ class LanguageProvider with ChangeNotifier {
     'admin_dashboard_business': 'الأعمال',
     'admin_dashboard_fitness': 'اللياقة',
     'admin_dashboard_users': 'المستخدمون',
+
+    // Untranslated strings from audit.
+    'auth_oauth_google': 'Google',
+    'auth_oauth_facebook': 'Facebook',
+    'auth_oauth_apple': 'Apple',
+    'calendar_previous': 'السابق',
+    'calendar_upcoming': 'القادم',
 };
 }

@@ -395,7 +395,9 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
         minChildSize: 0.5,
         maxChildSize: 0.96,
         builder: (context, scrollController) => Material(
-          color: Colors.white,
+          // See admin_exercises_screen: a pinned white sheet hides every
+          // theme-coloured label on it in dark mode.
+          color: context.palette.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           child: ListView(
             controller: scrollController,

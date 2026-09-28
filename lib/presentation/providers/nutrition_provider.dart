@@ -37,8 +37,10 @@ class NutritionProvider extends ChangeNotifier {
   NutritionIntakeRequirements? get intakeRequirements => _intakeRequirements;
   bool get requiresFirstWorkout => _accessStatus?.requiresFirstWorkout == true;
   bool get hasNutritionAccess => _accessStatus?.hasAccess ?? false;
+  /// True only when the preferences form has questions of its own to ask.
+  /// A missing `sex` is handled by the first-intake redirect, not here.
   bool get requiresNutritionIntake =>
-      _intakeRequirements != null && !_intakeRequirements!.isComplete;
+      _intakeRequirements?.needsPreferenceAnswers ?? false;
   String? accessMessage({bool isArabic = false}) {
     if (_accessStatus == null) return null;
     return isArabic

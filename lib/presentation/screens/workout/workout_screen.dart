@@ -848,8 +848,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     return CustomCard(
       padding: const EdgeInsets.all(16),
-      border: Border.all(color: const Color(0xFFDCDDE4)),
-      color: Colors.white,
+      border: Border.all(color: context.palette.border),
+      color: context.palette.surface,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -950,7 +950,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         ],
         if (previous.isNotEmpty)
           _buildCalendarSection(
-            title: 'Previous',
+            title: lang.t('calendar_previous'),
             days: previous,
             isArabic: isArabic,
             onTap: (day) => _openCalendarDay(provider, day),
@@ -959,7 +959,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           const SizedBox(height: 10),
         if (upcoming.isNotEmpty)
           _buildCalendarSection(
-            title: 'Upcoming',
+            title: lang.t('calendar_upcoming'),
             days: upcoming,
             isArabic: isArabic,
             onTap: (day) => _openCalendarDay(provider, day),
@@ -976,8 +976,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   }) {
     return CustomCard(
       padding: const EdgeInsets.all(12),
-      color: Colors.white,
-      border: Border.all(color: const Color(0xFFDCDDE4)),
+      color: context.palette.surface,
+      border: Border.all(color: context.palette.border),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
