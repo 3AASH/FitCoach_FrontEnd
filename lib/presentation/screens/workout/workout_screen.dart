@@ -863,10 +863,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       : AlignmentDirectional.centerStart,
                   child: Text(
                     planTitle,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 30,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF161827),
+                      color: context.palette.textPrimary,
                       height: 1.1,
                     ),
                     maxLines: 1,
@@ -983,10 +983,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         children: [
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
-              color: Color(0xFF181A27),
+              color: context.palette.textPrimary,
             ),
           ),
           const SizedBox(height: 8),
@@ -1114,7 +1114,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   }) {
     return Column(
       children: [
-        Icon(icon, size: 26, color: const Color(0xFF7D8095)),
+        Icon(icon, size: 26, color: context.palette.textSecondary),
         const SizedBox(height: 6),
         SizedBox(
           width: double.infinity,
@@ -1122,10 +1122,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             fit: BoxFit.scaleDown,
             child: Text(
               value,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.w600,
-                color: Color(0xFF272938),
+                color: context.palette.textPrimary,
               ),
               textAlign: TextAlign.center,
               maxLines: 1,
@@ -1136,8 +1136,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         const SizedBox(height: 2),
         Text(
           label,
-          style: const TextStyle(
-              fontSize: 14, color: Color(0xFF7C7F92), height: 1.1),
+          style: TextStyle(
+              fontSize: 14, color: context.palette.textSecondary, height: 1.1),
           textAlign: TextAlign.center,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,

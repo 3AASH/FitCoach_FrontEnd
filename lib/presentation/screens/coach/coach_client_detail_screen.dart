@@ -1396,7 +1396,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
         return AppColors.primary;
       case 'freemium':
       default:
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
     }
   }
 
@@ -1411,7 +1412,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       case 'new':
         return AppColors.info;
       default:
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
     }
   }
 

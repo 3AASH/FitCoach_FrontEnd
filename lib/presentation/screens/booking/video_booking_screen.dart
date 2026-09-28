@@ -275,7 +275,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       return _buildInfoCard(
         child: Text(
           lang.t('video_booking_unable_to_load_coach_details'),
-          style: const TextStyle(color: Color(0xFF9A3412)),
+          style: TextStyle(color: context.palette.textPrimary),
         ),
       );
     }
@@ -388,12 +388,12 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
     return _buildInfoCard(
       child: Row(
         children: [
-          const Icon(Icons.info_outline, color: Color(0xFF9A3412)),
+          const Icon(Icons.info_outline, color: AppColors.warning),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               lang.t('video_booking_no_coach_is_assigned_yet_booking'),
-              style: const TextStyle(color: Color(0xFF9A3412)),
+              style: TextStyle(color: context.palette.textPrimary),
             ),
           ),
         ],
@@ -527,7 +527,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                   selected: isSelected,
                   onSelected: (_) => setState(() => _selectedTime = slot),
                   selectedColor: const Color(0xFF9333EA),
-                  backgroundColor: Colors.white,
+                  backgroundColor: context.palette.surface,
                   side: BorderSide(
                     color:
                         isSelected ? const Color(0xFF9333EA) : context.palette.border,
@@ -573,7 +573,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 selected: isSelected,
                 onSelected: (_) => setState(() => _selectedDuration = duration),
                 selectedColor: const Color(0xFF9333EA),
-                backgroundColor: Colors.white,
+                backgroundColor: context.palette.surface,
                 side: BorderSide(
                   color:
                       isSelected ? const Color(0xFF9333EA) : context.palette.border,

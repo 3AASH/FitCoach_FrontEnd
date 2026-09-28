@@ -34,15 +34,24 @@ import 'data/repositories/appointment_repository.dart';
 import 'data/repositories/store_repository.dart';
 import 'data/repositories/subscription_plan_repository.dart';
 import 'data/repositories/booking_repository.dart';
+import 'data/services/crash_reporter.dart';
 import 'data/services/push_notification_registration_service.dart';
 import 'data/demo/repositories/demo_workout_repository.dart';
 import 'data/demo/repositories/demo_messaging_repository.dart';
 import 'data/demo/repositories/demo_subscription_plan_repository.dart';
 import 'data/demo/repositories/demo_metrics_repository.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+void main() {
+  // The binding must be created inside the same zone that later calls
+  // runApp, so the whole body runs within the guard rather than around it.
+  CrashReporter.guard(() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    CrashReporter.install();
+    await _startApp();
+  });
+}
 
+Future<void> _startApp() async {
   // Initialize Hive for local storage
   await Hive.initFlutter();
   try {

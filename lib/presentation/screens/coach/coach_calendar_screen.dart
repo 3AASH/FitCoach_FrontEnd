@@ -1024,7 +1024,8 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
       case 'rejected':
         return AppColors.error;
       case 'missed':
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
       default:
         return context.palette.textDisabled;
     }

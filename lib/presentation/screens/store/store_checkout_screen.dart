@@ -492,7 +492,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
         textColor = Colors.white;
       } else {
         borderColor = context.palette.border;
-        fillColor = Colors.white;
+        fillColor = context.palette.surface;
         textColor = context.palette.textSecondary;
       }
 

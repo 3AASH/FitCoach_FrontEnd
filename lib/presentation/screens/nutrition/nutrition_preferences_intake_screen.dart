@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 
 class NutritionPreferencesIntakeScreen extends StatefulWidget {
@@ -197,7 +198,7 @@ class _NutritionPreferencesIntakeScreenState
           children: [
             Text(
               _copy('subtitle', lang),
-              style: const TextStyle(color: Colors.black54),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
             const SizedBox(height: 12),
             const SizedBox(height: 20),
@@ -218,7 +219,7 @@ class _NutritionPreferencesIntakeScreenState
                 children: [
                   Text(
                     _copy('dislikedDesc', lang),
-                    style: const TextStyle(color: Colors.black54),
+                    style: TextStyle(color: context.palette.textSecondary),
                   ),
                   const SizedBox(height: 12),
                   // Every code here is mapped to real ingredient ids by the
@@ -368,7 +369,7 @@ class _NutritionPreferencesIntakeScreenState
         const SizedBox(height: 10),
         Text(
           _copy('halalNote', lang),
-          style: const TextStyle(color: Colors.black54, fontSize: 12),
+          style: TextStyle(color: context.palette.textSecondary, fontSize: 12),
         ),
       ],
     );
@@ -398,7 +399,7 @@ class _NutritionPreferencesIntakeScreenState
       children: [
         Text(
           _copy('medicalDesc', lang),
-          style: const TextStyle(color: Colors.black54),
+          style: TextStyle(color: context.palette.textSecondary),
         ),
         const SizedBox(height: 12),
         _buildMultiSelect(

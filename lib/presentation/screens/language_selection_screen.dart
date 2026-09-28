@@ -260,7 +260,7 @@ class _LanguageCard extends StatelessWidget {
             vertical: 16,
           ),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.95),
+            color: context.palette.surface.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
               color: Colors.white.withValues(alpha: 0.3),

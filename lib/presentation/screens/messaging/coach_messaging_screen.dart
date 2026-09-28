@@ -22,6 +22,7 @@ import '../../widgets/animated_reveal.dart';
 import '../../widgets/custom_card.dart';
 import '../booking/video_booking_screen.dart';
 import '../coach/public_coach_profile_screen.dart';
+import '../subscription/subscription_upgrade_screen.dart';
 import 'coach_intro_screen.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -754,7 +755,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: context.palette.surface,
                       foregroundColor: context.palette.textPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -879,7 +880,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isMe ? AppColors.primary : Colors.white,
+                color: isMe ? AppColors.primary : context.palette.surface,
                 borderRadius: BorderRadius.circular(16).copyWith(
                   bottomRight: isMe ? const Radius.circular(4) : null,
                   bottomLeft: !isMe ? const Radius.circular(4) : null,
@@ -1097,13 +1098,42 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     }
 
     if (messagingProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      _showFailure(messagingProvider);
+    }
+  }
+
+  /// A refusal by the subscription gate is not an error, so it is not shown
+  /// as one: the server returns 403 with `upgradeRequired`, and the client
+  /// used to print that as a red "Exception: ...".
+  void _showFailure(MessagingProvider provider) {
+    final lang = context.read<LanguageProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+
+    if (provider.upgradeRequired) {
+      messenger.showSnackBar(
         SnackBar(
-          content: Text(messagingProvider.error!),
-          backgroundColor: AppColors.error,
+          content: Text(provider.error!),
+          action: SnackBarAction(
+            label: lang.t('upgrade'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SubscriptionUpgradeScreen(),
+              ),
+            ),
+          ),
+          duration: const Duration(seconds: 8),
         ),
       );
+      return;
     }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(provider.error!),
+        backgroundColor: AppColors.error,
+      ),
+    );
   }
 
   void _showAttachmentOptions(LanguageProvider lang) {
@@ -1213,12 +1243,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       }
 
       if (messagingProvider.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(messagingProvider.error!),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        _showFailure(messagingProvider);
       }
     } catch (e) {
       if (!mounted) {
