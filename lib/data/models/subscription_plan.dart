@@ -1,3 +1,10 @@
+double? _asDouble(dynamic value) {
+  if (value == null) return null;
+  if (value is num) return value.toDouble();
+  if (value is String) return double.tryParse(value);
+  return null;
+}
+
 class SubscriptionPlan {
   final String id;
   final String name;
@@ -73,13 +80,13 @@ class SubscriptionPlan {
           }).whereType<SubscriptionPlanFeature>().toList()
         : const <SubscriptionPlanFeature>[];
 
-    final monthlyPrice = (json['monthlyPrice'] as num?)?.toDouble() ??
-        (json['monthly_price'] as num?)?.toDouble() ??
-        (json['price'] as num?)?.toDouble() ??
+    final monthlyPrice = _asDouble(json['monthlyPrice']) ??
+        _asDouble(json['monthly_price']) ??
+        _asDouble(json['price']) ??
         0;
 
-    final yearlyPrice = (json['yearlyPrice'] as num?)?.toDouble() ??
-        (json['yearly_price'] as num?)?.toDouble();
+    final yearlyPrice = _asDouble(json['yearlyPrice']) ??
+        _asDouble(json['yearly_price']);
 
     final metadata = <String, dynamic>{
       ...((json['metadata'] as Map<String, dynamic>?) ?? const {}),
