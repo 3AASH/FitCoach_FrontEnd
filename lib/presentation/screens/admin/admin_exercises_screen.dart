@@ -6,6 +6,7 @@ import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/admin_exercise.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/catalog_search_field.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -25,7 +26,7 @@ class AdminExercisesScreen extends StatefulWidget {
 }
 
 class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
-  final TextEditingController _searchController = TextEditingController();
+  String _search = '';
 
   @override
   void initState() {
@@ -35,18 +36,25 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
     });
   }
 
-  @override
-  void dispose() {
-    _searchController.dispose();
-    super.dispose();
+  Future<void> _refresh() {
+    return context
+        .read<AdminProvider>()
+        .loadExercises(search: _search.isEmpty ? null : _search);
   }
 
-  Future<void> _refresh() {
-    return context.read<AdminProvider>().loadExercises(
-          search: _searchController.text.trim().isEmpty
-              ? null
-              : _searchController.text.trim(),
-        );
+  void _onSearchChanged(String query) {
+    _search = query;
+    _refresh();
+  }
+
+  String? _resultLabel(LanguageProvider lang, AdminProvider provider) {
+    if (provider.isLoading && provider.exercises.isEmpty) return null;
+    return catalogResultLabel(
+      lang,
+      shown: provider.exercises.length,
+      total: provider.exerciseTotal,
+      query: provider.exerciseSearch,
+    );
   }
 
   @override
@@ -73,29 +81,10 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: TextField(
-                controller: _searchController,
-                textInputAction: TextInputAction.search,
-                onSubmitted: (_) => _refresh(),
-                decoration: InputDecoration(
-                  hintText: lang.t('admin_exercise_search_hint'),
-                  prefixIcon: const Icon(Icons.search),
-                  suffixIcon: _searchController.text.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            _searchController.clear();
-                            _refresh();
-                          },
-                        ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppRadius.medium),
-                  ),
-                ),
-              ),
+            CatalogSearchField(
+              hintText: lang.t('admin_exercise_search_hint'),
+              onChanged: _onSearchChanged,
+              resultLabel: _resultLabel(lang, provider),
             ),
             if (provider.error != null)
               Padding(
@@ -116,7 +105,7 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                               const SizedBox(height: 160),
                               Center(
                                 child: Text(
-                                  'No exercises found',
+                                  lang.t('admin_no_exercises_found'),
                                   style:
                                       TextStyle(color: context.palette.textSecondary),
                                 ),
@@ -444,7 +433,11 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         builder: (context, scrollController) => Material(
-          color: Colors.white,
+          // Not Colors.white: the field labels come from the theme
+          // (textSecondary, #D1D5DB in dark mode) and were being drawn on a
+          // sheet that stayed white, which is about 1.5:1 contrast — the
+          // labels simply were not there.
+          color: context.palette.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           child: Form(
             key: _formKey,

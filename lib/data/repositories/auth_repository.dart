@@ -77,6 +77,25 @@ abstract class AuthRepositoryBase {
   Future<UserProfile?> getUserProfile();
   Future<void> logout();
   Future<String?> refreshToken();
+
+  /// When the session was last used, or null if it was never recorded.
+  Future<DateTime?> getLastActiveAt();
+
+  /// Marks the session as used now, restarting the inactivity window.
+  Future<void> markActive();
+}
+
+/// The server rejected the token: it is expired, revoked, or for a user who
+/// no longer exists.
+///
+/// Distinct from a network failure on purpose. Only this means "signed out";
+/// a timeout means "ask again later", and conflating the two is what used to
+/// dump people back at the login screen whenever their connection hiccuped.
+class SessionExpiredException implements Exception {
+  const SessionExpiredException();
+
+  @override
+  String toString() => 'SessionExpiredException';
 }
 
 class AuthResponse {
@@ -111,6 +130,7 @@ class AuthRepository implements AuthRepositoryBase {
   final SocialAuthClient _socialAuthClient;
 
   static const String _tokenKey = 'fitcoach_auth_token';
+  static const String _lastActiveKey = 'fitcoach_last_active_at';
   static String get _authBasePath =>
       ApiConfig.baseUrl.endsWith('/v2') ? '/auth' : '/api/v2/auth';
 
@@ -443,8 +463,35 @@ class AuthRepository implements AuthRepositoryBase {
   Future<void> storeToken(String token) async {
     try {
       await _secureStorage.write(key: _tokenKey, value: token);
+      // A freshly stored token means the person just signed in or refreshed,
+      // which starts the inactivity window over.
+      await markActive();
     } catch (e) {
       throw Exception('Failed to store authentication token');
+    }
+  }
+
+  @override
+  Future<DateTime?> getLastActiveAt() async {
+    try {
+      final raw = await _secureStorage.read(key: _lastActiveKey);
+      if (raw == null) return null;
+      return DateTime.tryParse(raw)?.toUtc();
+    } catch (e) {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> markActive() async {
+    try {
+      await _secureStorage.write(
+        key: _lastActiveKey,
+        value: DateTime.now().toUtc().toIso8601String(),
+      );
+    } catch (e) {
+      // Losing the timestamp is not worth failing a request over: the
+      // session simply keeps whatever window it already had.
     }
   }
 
@@ -465,14 +512,19 @@ class AuthRepository implements AuthRepositoryBase {
         ),
       );
 
+      await markActive();
       return UserProfile.fromJson(response.data as Map<String, dynamic>);
     } on DioException catch (e) {
       if (e.response?.statusCode == 401) {
-        // Token expired, clear it
-        await logout();
-        return null;
+        // The server has rejected the token. Say so, and let the caller
+        // decide whether to refresh or sign out — this used to wipe the
+        // token on the spot, which made a recoverable 401 permanent.
+        throw const SessionExpiredException();
       }
-      return null;
+      // Anything else is a connection problem, not an authentication one.
+      // Returning null here (as this used to) told the app the person was
+      // signed out every time the network was briefly unavailable.
+      rethrow;
     }
   }
 
@@ -481,6 +533,7 @@ class AuthRepository implements AuthRepositoryBase {
   Future<void> removeToken() async {
     try {
       await _secureStorage.delete(key: _tokenKey);
+      await _secureStorage.delete(key: _lastActiveKey);
     } catch (e) {
       throw Exception('Failed to remove authentication token');
     }
@@ -502,6 +555,7 @@ class AuthRepository implements AuthRepositoryBase {
       logoutError = e;
     } finally {
       await _secureStorage.delete(key: _tokenKey);
+      await _secureStorage.delete(key: _lastActiveKey);
     }
 
     if (logoutError != null) {

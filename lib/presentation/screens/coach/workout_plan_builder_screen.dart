@@ -9,6 +9,7 @@ import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
 import 'plan_library_options.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class WorkoutPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -616,6 +617,9 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
             ),
           ],
         ),
+        // Every row here replaces the plan being built, so there has to be a
+        // row that does not.
+        actions: [dialogCancelAction(context)],
       ),
     );
   }

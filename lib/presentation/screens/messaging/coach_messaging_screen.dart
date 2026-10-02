@@ -22,6 +22,7 @@ import '../../widgets/animated_reveal.dart';
 import '../../widgets/custom_card.dart';
 import '../booking/video_booking_screen.dart';
 import '../coach/public_coach_profile_screen.dart';
+import '../subscription/subscription_upgrade_screen.dart';
 import 'coach_intro_screen.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -123,7 +124,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
 
   Future<void> _initializeMessaging() async {
     final messagingProvider = context.read<MessagingProvider>();
-    final languageProvider = context.read<LanguageProvider>();
+    final lang = context.read<LanguageProvider>();
     final authProvider = context.read<AuthProvider>();
 
     final currentUserId = authProvider.user?.id;
@@ -144,7 +145,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       await messagingProvider.connect(
         targetClientId,
         currentUserId,
-        isArabic: languageProvider.isArabic,
+        isArabic: lang.isArabic,
         currentUserId: currentUserId,
       );
       return;
@@ -158,7 +159,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       await messagingProvider.connect(
         currentUserId,
         assignedCoachId,
-        isArabic: languageProvider.isArabic,
+        isArabic: lang.isArabic,
         currentUserId: currentUserId,
       );
       return;
@@ -166,7 +167,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
 
     await messagingProvider.connectSocket();
     await messagingProvider.loadConversations(
-      isArabic: languageProvider.isArabic,
+      isArabic: lang.isArabic,
       isCoach: isCoach,
       currentUserId: currentUserId,
       autoSelectConversation: !isCoachInboxView,
@@ -177,7 +178,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
         messagingProvider.conversations.isNotEmpty) {
       await messagingProvider.selectConversation(
         messagingProvider.conversations.first.id,
-        isArabic: languageProvider.isArabic,
+        isArabic: lang.isArabic,
       );
     }
   }
@@ -401,8 +402,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).maybePop(),
-                icon: Icon(
-                  lang.isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                icon: const Icon(
+                  Icons.arrow_back,
                   color: Colors.white,
                 ),
               ),
@@ -412,9 +413,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   children: [
                     Text(
                       isCoachInboxView
-                          ? (lang.isArabic
-                              ? 'رسائل العملاء'
-                              : 'Client Messages')
+                          ? (lang.t('notification_client_messages'))
                           : _threadTitle(lang),
                       style: const TextStyle(
                         color: Colors.white,
@@ -424,9 +423,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     ),
                     Text(
                       isCoachInboxView
-                          ? (lang.isArabic
-                              ? 'اختر عميلًا لفتح المحادثة'
-                              : 'Choose a client to open the chat')
+                          ? (lang.t('coach_messaging_choose_a_client_to_open_the'))
                           : (statusText ?? _threadSubtitle(lang)),
                       style: const TextStyle(
                         fontSize: 12,
@@ -466,10 +463,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
         children: [
           _buildEmptyState(
             lang,
-            title: lang.isArabic ? 'لا يوجد عملاء بعد' : 'No clients yet',
-            description: lang.isArabic
-                ? 'سيظهر عملاؤك هنا لبدء المحادثة معهم.'
-                : 'Your clients will appear here so you can start chatting.',
+            title: lang.t('coach_messaging_no_clients_yet'),
+            description: lang.t('coach_messaging_your_clients_will_appear_here_so'),
           ),
         ],
       );
@@ -515,7 +510,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     final timestamp = conversation?.lastMessageAt ?? client.lastActivity;
     final subtitle = conversation?.lastMessageContent?.trim().isNotEmpty == true
         ? conversation!.lastMessageContent!
-        : (lang.isArabic ? 'لا توجد رسائل بعد' : 'No messages yet');
+        : (lang.t('coach_messaging_no_messages_yet'));
 
     return InkWell(
       borderRadius: BorderRadius.circular(18),
@@ -616,8 +611,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
         now.month == timestamp.month &&
         now.day == timestamp.day;
     final format = sameDay
-        ? DateFormat('h:mm a', lang.isArabic ? 'ar' : 'en')
-        : DateFormat('MMM d', lang.isArabic ? 'ar' : 'en');
+        ? DateFormat('h:mm a', lang.locale.languageCode)
+        : DateFormat('MMM d', lang.locale.languageCode);
     return format.format(timestamp);
   }
 
@@ -632,10 +627,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     if (provider.messages.isEmpty) {
       return _buildEmptyState(
         lang,
-        title: lang.isArabic ? 'لا توجد رسائل بعد' : 'No messages yet',
-        description: lang.isArabic
-            ? 'ابدأ المحادثة وستظهر الرسائل الحقيقية هنا فورًا.'
-            : 'Start the conversation and real messages will appear here.',
+        title: lang.t('coach_messaging_no_messages_yet'),
+        description: lang.t('coach_messaging_start_the_conversation_and_real_messages'),
       );
     }
 
@@ -679,9 +672,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    lang.isArabic
-                        ? 'محادثة مباشرة مع العميل.'
-                        : 'Direct 1-to-1 chat with your client.',
+                    lang.t('coach_messaging_direct_1_to_1_chat_with'),
                     style: TextStyle(
                       fontSize: 12,
                       color: context.palette.textSecondary,
@@ -729,9 +720,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      lang.isArabic
-                          ? 'محادثة مباشرة مع مدربك المعتمد.'
-                          : 'Direct 1-to-1 chat with your assigned coach.',
+                      lang.t('coach_messaging_direct_1_to_1_chat_with_2'),
                       style: TextStyle(
                         fontSize: 12,
                         color: context.palette.textSecondary,
@@ -766,7 +755,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                      backgroundColor: context.palette.surface,
                       foregroundColor: context.palette.textPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -891,7 +880,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isMe ? AppColors.primary : Colors.white,
+                color: isMe ? AppColors.primary : context.palette.surface,
                 borderRadius: BorderRadius.circular(16).copyWith(
                   bottomRight: isMe ? const Radius.circular(4) : null,
                   bottomLeft: !isMe ? const Radius.circular(4) : null,
@@ -1016,14 +1005,12 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     final canCompose = canSend && messagingProvider.hasConversationTarget;
     final hintText = messagingProvider.hasConversationTarget
         ? lang.t('type_a_message')
-        : (lang.isArabic
-            ? 'لا يمكن بدء المحادثة من هنا بعد'
-            : 'Open a direct chat target to start messaging');
+        : (lang.t('coach_messaging_open_a_direct_chat_target_to'));
 
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: context.palette.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -1111,13 +1098,42 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     }
 
     if (messagingProvider.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      _showFailure(messagingProvider);
+    }
+  }
+
+  /// A refusal by the subscription gate is not an error, so it is not shown
+  /// as one: the server returns 403 with `upgradeRequired`, and the client
+  /// used to print that as a red "Exception: ...".
+  void _showFailure(MessagingProvider provider) {
+    final lang = context.read<LanguageProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.hideCurrentSnackBar();
+
+    if (provider.upgradeRequired) {
+      messenger.showSnackBar(
         SnackBar(
-          content: Text(messagingProvider.error!),
-          backgroundColor: AppColors.error,
+          content: Text(provider.error!),
+          action: SnackBarAction(
+            label: lang.t('upgrade'),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SubscriptionUpgradeScreen(),
+              ),
+            ),
+          ),
+          duration: const Duration(seconds: 8),
         ),
       );
+      return;
     }
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(provider.error!),
+        backgroundColor: AppColors.error,
+      ),
+    );
   }
 
   void _showAttachmentOptions(LanguageProvider lang) {
@@ -1227,12 +1243,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       }
 
       if (messagingProvider.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(messagingProvider.error!),
-            backgroundColor: AppColors.error,
-          ),
-        );
+        _showFailure(messagingProvider);
       }
     } catch (e) {
       if (!mounted) {
@@ -1291,20 +1302,16 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     }
     return widget.targetClientName?.trim().isNotEmpty == true
         ? widget.targetClientName!
-        : (lang.isArabic ? 'محادثة العميل' : 'Client chat');
+        : (lang.t('coach_messaging_client_chat'));
   }
 
   String _threadSubtitle(LanguageProvider lang) {
     final authProvider = context.read<AuthProvider>();
     final isCoach = (authProvider.user?.role ?? 'user') == 'coach';
     if (isCoach) {
-      return lang.isArabic
-          ? 'محادثة مباشرة واحدة فقط'
-          : 'One direct conversation only';
+      return lang.t('coach_messaging_one_direct_conversation_only');
     }
-    return lang.isArabic
-        ? 'تواصل مباشر مع مدربك'
-        : 'Direct chat with your coach';
+    return lang.t('coach_messaging_direct_chat_with_your_coach');
   }
 
   String? _statusText(
@@ -1312,13 +1319,13 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     MessagingProvider messagingProvider,
   ) {
     if (messagingProvider.isOtherUserTyping) {
-      return lang.isArabic ? 'يكتب الآن...' : 'typing...';
+      return lang.t('coach_messaging_typing');
     }
     if (messagingProvider.isReconnecting) {
-      return lang.isArabic ? 'جارٍ إعادة الاتصال...' : 'Reconnecting...';
+      return lang.t('coach_messaging_reconnecting');
     }
     if (!messagingProvider.isConnected && !DemoConfig.isDemo) {
-      return lang.isArabic ? 'غير متصل' : 'Offline';
+      return lang.t('coach_messaging_offline');
     }
     return null;
   }
@@ -1351,7 +1358,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       }
     }
 
-    return lang.isArabic ? 'العميل' : 'Client';
+    return lang.t('coach_workout_builder_client_label');
   }
 
   String _initialsForName(String name) {
@@ -1367,7 +1374,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
   }
 
   String _formatTime(DateTime timestamp, LanguageProvider lang) {
-    final formatter = DateFormat('MMM d • h:mm a', lang.isArabic ? 'ar' : 'en');
+    final formatter = DateFormat('MMM d • h:mm a', lang.locale.languageCode);
     return formatter.format(timestamp);
   }
 }

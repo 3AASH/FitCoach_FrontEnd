@@ -110,9 +110,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
-    final isArabic = languageProvider.isArabic;
-
+    final lang = context.watch<LanguageProvider>();
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -122,13 +120,11 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     if (_error != null) {
       return Scaffold(
         appBar: AppBar(
-          title: Text(isArabic ? 'مكتبة التمارين' : 'Exercise Library'),
+          title: Text(lang.t('exercise_library_exercise_library')),
         ),
         body: Center(
           child: Text(
-            isArabic
-                ? 'تعذر تحميل مكتبة التمارين'
-                : 'Failed to load exercise library',
+            lang.t('exercise_library_failed_to_load_exercise_library'),
             style: TextStyle(color: context.palette.textSecondary),
           ),
         ),
@@ -145,7 +141,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       }
       if (_searchQuery.isNotEmpty) {
         final query = _searchQuery.toLowerCase();
-        final name = isArabic ? ex['nameAr'] : ex['nameEn'];
+        final name = lang.isArabic ? ex['nameAr'] : ex['nameEn'];
         return name.toLowerCase().contains(query);
       }
       return true;
@@ -153,11 +149,11 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isArabic ? 'مكتبة التمارين' : 'Exercise Library'),
+        title: Text(lang.t('exercise_library_exercise_library')),
         actions: [
           IconButton(
             icon: const Icon(Icons.filter_list),
-            onPressed: () => _showFilters(context, isArabic),
+            onPressed: () => _showFilters(context, lang),
           ),
         ],
       ),
@@ -174,7 +170,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 });
               },
               decoration: InputDecoration(
-                hintText: isArabic ? 'ابحث عن تمرين...' : 'Search exercises...',
+                hintText: lang.t('exercise_library_search_exercises'),
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -197,9 +193,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 final category = _categories[index];
                 final isSelected = _selectedCategory == category;
                 return Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsetsDirectional.only(end: 8),
                   child: FilterChip(
-                    label: Text(_getCategoryName(category, isArabic)),
+                    label: Text(_getCategoryName(category, lang)),
                     selected: isSelected,
                     onSelected: (selected) {
                       setState(() {
@@ -228,9 +224,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         ),
                         const SizedBox(height: 24),
                         Text(
-                          isArabic
-                              ? 'لم يتم العثور على تمارين'
-                              : 'No exercises found',
+                          lang.t('exercise_library_no_exercises_found'),
                           style: TextStyle(
                             fontSize: 18,
                             color: context.palette.textSecondary,
@@ -245,7 +239,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     itemBuilder: (context, index) {
                       return _buildExerciseCard(
                         filteredExercises[index],
-                        isArabic,
+                        lang,
                       );
                     },
                   ),
@@ -255,16 +249,16 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  Widget _buildExerciseCard(Map<String, dynamic> exercise, bool isArabic) {
+  Widget _buildExerciseCard(Map<String, dynamic> exercise, LanguageProvider lang) {
     final equipmentLabel =
-        _formatEquip(exercise['equipmentList'] as List<dynamic>, isArabic);
+        _formatEquip(exercise['equipmentList'] as List<dynamic>, lang);
     final musclesLabel =
-        _formatMuscles(exercise['muscleList'] as List<dynamic>, isArabic);
+        _formatMuscles(exercise['muscleList'] as List<dynamic>, lang);
     final thumbnail = _resolveThumbnail(
         exercise['thumbnail'] as String?, exercise['videoUrl'] as String?);
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
-      onTap: () => _showExerciseDetail(exercise, isArabic),
+      onTap: () => _showExerciseDetail(exercise, lang),
       child: Row(
         children: [
           // Thumbnail
@@ -278,7 +272,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isArabic ? exercise['nameAr'] : exercise['nameEn'],
+                  lang.isArabic ? exercise['nameAr'] : exercise['nameEn'],
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -296,7 +290,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 Row(
                   children: [
                     _buildBadge(
-                      _getDifficultyLabel(exercise['difficulty'], isArabic),
+                      _getDifficultyLabel(exercise['difficulty'], lang),
                       _getDifficultyColor(exercise['difficulty']),
                     ),
                     const SizedBox(width: 8),
@@ -311,7 +305,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           ),
 
           Icon(
-            isArabic ? Icons.chevron_left : Icons.chevron_right,
+            Icons.chevron_right,
             color: context.palette.textDisabled,
           ),
         ],
@@ -337,25 +331,25 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  String _getCategoryName(String category, bool isArabic) {
+  String _getCategoryName(String category, LanguageProvider lang) {
     final names = {
-      'all': isArabic ? 'الكل' : 'All',
-      'chest': isArabic ? 'صدر' : 'Chest',
-      'back': isArabic ? 'ظهر' : 'Back',
-      'shoulders': isArabic ? 'أكتاف' : 'Shoulders',
-      'arms': isArabic ? 'ذراعين' : 'Arms',
-      'legs': isArabic ? 'أرجل' : 'Legs',
-      'core': isArabic ? 'بطن' : 'Core',
-      'cardio': isArabic ? 'كارديو' : 'Cardio',
+      'all': lang.t('admin_filter_all'),
+      'chest': lang.t('exercise_library_chest'),
+      'back': lang.t('exercise_library_back'),
+      'shoulders': lang.t('exercise_library_shoulders'),
+      'arms': lang.t('exercise_library_arms'),
+      'legs': lang.t('exercise_library_legs'),
+      'core': lang.t('exercise_library_core'),
+      'cardio': lang.t('exercise_library_cardio'),
     };
     return names[category] ?? category;
   }
 
-  String _getDifficultyLabel(String difficulty, bool isArabic) {
+  String _getDifficultyLabel(String difficulty, LanguageProvider lang) {
     final labels = {
-      'beginner': isArabic ? 'مبتدئ' : 'Beginner',
-      'intermediate': isArabic ? 'متوسط' : 'Intermediate',
-      'advanced': isArabic ? 'متقدم' : 'Advanced',
+      'beginner': lang.t('coach_workout_template_beginner'),
+      'intermediate': lang.t('coach_workout_template_intermediate'),
+      'advanced': lang.t('coach_workout_template_advanced'),
     };
     return labels[difficulty] ?? difficulty;
   }
@@ -373,7 +367,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     }
   }
 
-  void _showFilters(BuildContext context, bool isArabic) {
+  void _showFilters(BuildContext context, LanguageProvider lang) {
     showModalBottomSheet(
       context: context,
       builder: (context) => Container(
@@ -383,7 +377,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              isArabic ? 'المستوى' : 'Difficulty Level',
+              lang.t('exercise_library_difficulty_level'),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -396,7 +390,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               children: _difficulties.map((diff) {
                 final isSelected = _selectedDifficulty == diff;
                 return FilterChip(
-                  label: Text(_getDifficultyLabel(diff, isArabic)),
+                  label: Text(_getDifficultyLabel(diff, lang)),
                   selected: isSelected,
                   onSelected: (selected) {
                     setState(() {
@@ -415,12 +409,12 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  void _showExerciseDetail(Map<String, dynamic> exercise, bool isArabic) {
+  void _showExerciseDetail(Map<String, dynamic> exercise, LanguageProvider lang) {
     final equipmentLabel =
-        _formatEquip(exercise['equipmentList'] as List<dynamic>, isArabic);
+        _formatEquip(exercise['equipmentList'] as List<dynamic>, lang);
     final musclesLabel =
-        _formatMuscles(exercise['muscleList'] as List<dynamic>, isArabic);
-    final instructions = isArabic
+        _formatMuscles(exercise['muscleList'] as List<dynamic>, lang);
+    final instructions = lang.isArabic
         ? (exercise['instructionsAr'] as List<dynamic>)
         : (exercise['instructions'] as List<dynamic>);
     final thumbnail = _resolveThumbnail(
@@ -470,7 +464,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     ),
                     InkWell(
                       onTap: () =>
-                          _openVideo(exercise['videoUrl'] as String?, isArabic),
+                          _openVideo(exercise['videoUrl'] as String?, lang),
                       borderRadius: BorderRadius.circular(30),
                       child: Container(
                         width: 60,
@@ -493,7 +487,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
                 // Title
                 Text(
-                  isArabic ? exercise['nameAr'] : exercise['nameEn'],
+                  lang.isArabic ? exercise['nameAr'] : exercise['nameEn'],
                   style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -506,7 +500,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 Row(
                   children: [
                     _buildBadge(
-                      _getDifficultyLabel(exercise['difficulty'], isArabic),
+                      _getDifficultyLabel(exercise['difficulty'], lang),
                       _getDifficultyColor(exercise['difficulty']),
                     ),
                     const SizedBox(width: 8),
@@ -521,16 +515,16 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
                 // Target muscles
                 _buildSection(
-                  isArabic ? 'العضلات المستهدفة' : 'Target Muscles',
+                  lang.t('exercise_library_target_muscles'),
                   musclesLabel,
-                  isArabic,
+                  lang,
                 ),
 
                 const SizedBox(height: 24),
 
                 // Instructions
                 Text(
-                  isArabic ? 'التعليمات' : 'Instructions',
+                  lang.t('instructions'),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -580,15 +574,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: CustomButton(
-                    text: isArabic ? 'إضافة إلى التمرين' : 'Add to Workout',
+                    text: lang.t('exercise_library_add_to_workout'),
                     onPressed: () {
                       Navigator.pop(context);
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(
-                            isArabic
-                                ? 'تمت الإضافة إلى التمرين'
-                                : 'Added to workout',
+                            lang.t('exercise_library_added_to_workout'),
                           ),
                           backgroundColor: AppColors.success,
                         ),
@@ -607,7 +599,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  Widget _buildSection(String title, String content, bool isArabic) {
+  Widget _buildSection(String title, String content, LanguageProvider lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -724,12 +716,12 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  Future<void> _openVideo(String? videoUrl, bool isArabic) async {
+  Future<void> _openVideo(String? videoUrl, LanguageProvider lang) async {
     if (videoUrl == null || videoUrl.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
-                Text(isArabic ? 'Video unavailable' : 'Video unavailable')),
+                Text(lang.t('exercise_library_video_unavailable'))),
       );
       return;
     }
@@ -741,7 +733,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
             content:
-                Text(isArabic ? 'Video unavailable' : 'Video unavailable')),
+                Text(lang.t('exercise_library_video_unavailable'))),
       );
     }
   }
@@ -779,19 +771,19 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     return 'all';
   }
 
-  String _formatEquip(List<dynamic> equip, bool isArabic) {
+  String _formatEquip(List<dynamic> equip, LanguageProvider lang) {
     final labels = equip
         .map((e) =>
-            _catalogService.getEquipLabel(e.toString(), isArabic: isArabic) ??
+            _catalogService.getEquipLabel(e.toString(), isArabic: lang.isArabic) ??
             e.toString())
         .toList();
     return labels.join(', ');
   }
 
-  String _formatMuscles(List<dynamic> muscles, bool isArabic) {
+  String _formatMuscles(List<dynamic> muscles, LanguageProvider lang) {
     final labels = muscles
         .map((m) =>
-            _catalogService.getMuscleLabel(m.toString(), isArabic: isArabic) ??
+            _catalogService.getMuscleLabel(m.toString(), isArabic: lang.isArabic) ??
             m.toString())
         .toList();
     return labels.join(', ');

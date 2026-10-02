@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 
 class NutritionPreferencesIntakeScreen extends StatefulWidget {
@@ -102,10 +103,15 @@ class _NutritionPreferencesIntakeScreenState
       return _allFields;
     }
 
-    // 'sex' arrives without a question descriptor and is handled by the
-    // redirect to the first intake, so it must not become an empty section.
-    final asked = missing.where((field) => field != 'sex').toList();
-    return asked.isEmpty ? _allFields : asked;
+    // 'sex' is owned by the first workout intake and is handled by the
+    // redirect there, so it is never a question on this form.
+    //
+    // If that leaves nothing, ask nothing. Falling back to the whole form
+    // here — which is what this used to do — meant a client missing only
+    // `sex` was put through the entire questionnaire again, re-entering the
+    // age, height, weight and goal they had already given the workout
+    // intakes, to fix a field this form cannot even collect.
+    return missing.where((field) => field != 'sex').toList();
   }
 
   @override
@@ -177,12 +183,10 @@ class _NutritionPreferencesIntakeScreenState
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
-    final isArabic = lang.isArabic;
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(isArabic ? Icons.arrow_forward : Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
         title: Text(lang.t('nutrition_intake_title')),
@@ -193,8 +197,8 @@ class _NutritionPreferencesIntakeScreenState
           padding: const EdgeInsets.all(20),
           children: [
             Text(
-              _copy('subtitle', isArabic),
-              style: const TextStyle(color: Colors.black54),
+              _copy('subtitle', lang),
+              style: TextStyle(color: context.palette.textSecondary),
             ),
             const SizedBox(height: 12),
             const SizedBox(height: 20),
@@ -205,38 +209,38 @@ class _NutritionPreferencesIntakeScreenState
               'goal',
               'training_days_per_week'
             ]))
-              _buildBodyAndTrainingSection(isArabic),
-            if (_needs('daily_movement')) _buildDailyMovementSection(isArabic),
+              _buildBodyAndTrainingSection(lang),
+            if (_needs('daily_movement')) _buildDailyMovementSection(lang),
             if (_needs('dietary_exclusions'))
-              _buildDietaryExclusionsSection(isArabic),
+              _buildDietaryExclusionsSection(lang),
             if (_needs('disliked_foods'))
               _Section(
-                title: _copy('dislikedTitle', isArabic),
+                title: _copy('dislikedTitle', lang),
                 children: [
                   Text(
-                    _copy('dislikedDesc', isArabic),
-                    style: const TextStyle(color: Colors.black54),
+                    _copy('dislikedDesc', lang),
+                    style: TextStyle(color: context.palette.textSecondary),
                   ),
                   const SizedBox(height: 12),
                   // Every code here is mapped to real ingredient ids by the
                   // engine, so each chip removes meals from the plan.
                   _buildMultiSelect(options: [
-                    _Option('chicken', isArabic ? 'دجاج' : 'Chicken'),
-                    _Option('beef', isArabic ? 'لحم بقري' : 'Beef'),
-                    _Option('lamb', isArabic ? 'لحم ضأن' : 'Lamb'),
-                    _Option('fish', isArabic ? 'سمك' : 'Fish'),
-                    _Option('shrimp', isArabic ? 'جمبري' : 'Shrimp'),
-                    _Option('liver', isArabic ? 'كبدة' : 'Liver'),
-                    _Option('egg', isArabic ? 'بيض' : 'Eggs'),
-                    _Option('oats', isArabic ? 'شوفان' : 'Oats'),
-                    _Option('lentils', isArabic ? 'عدس' : 'Lentils'),
-                    _Option('foul', isArabic ? 'فول' : 'Foul'),
+                    _Option('chicken', lang.t('nutrition_option_chicken')),
+                    _Option('beef', lang.t('nutrition_option_beef')),
+                    _Option('lamb', lang.t('nutrition_preferences_intake_lamb')),
+                    _Option('fish', lang.t('nutrition_option_fish')),
+                    _Option('shrimp', lang.t('nutrition_preferences_intake_shrimp')),
+                    _Option('liver', lang.t('nutrition_preferences_intake_liver')),
+                    _Option('egg', lang.t('nutrition_option_eggs')),
+                    _Option('oats', lang.t('nutrition_preferences_intake_oats')),
+                    _Option('lentils', lang.t('nutrition_preferences_intake_lentils')),
+                    _Option('foul', lang.t('nutrition_preferences_intake_foul')),
                   ], selection: _dislikedFoods),
                 ],
               ),
-            if (_needs('meals_per_day')) _buildMealsPerDaySection(isArabic),
+            if (_needs('meals_per_day')) _buildMealsPerDaySection(lang),
             if (_needs('medical_nutrition_safety_screen'))
-              _buildMedicalSafetySection(isArabic),
+              _buildMedicalSafetySection(lang),
             const SizedBox(height: 12),
             Row(
               children: [
@@ -271,39 +275,39 @@ class _NutritionPreferencesIntakeScreenState
     );
   }
 
-  Widget _buildBodyAndTrainingSection(bool isArabic) {
+  Widget _buildBodyAndTrainingSection(LanguageProvider lang) {
     return _Section(
-      title: _copy('bodyTrainingTitle', isArabic),
+      title: _copy('bodyTrainingTitle', lang),
       children: [
         if (_needs('age'))
           _buildNumberField(
             controller: _ageController,
-            label: _copy('age', isArabic),
+            label: _copy('age', lang),
             min: 13,
             max: 90,
           ),
         if (_needs('height_cm'))
           _buildNumberField(
             controller: _heightController,
-            label: _copy('height', isArabic),
+            label: _copy('height', lang),
             min: 120,
             max: 230,
           ),
         if (_needs('weight_kg'))
           _buildNumberField(
             controller: _weightController,
-            label: _copy('weight', isArabic),
+            label: _copy('weight', lang),
             min: 35,
             max: 250,
           ),
         if (_needs('goal'))
           _buildSingleChoice(
-            title: _copy('goal', isArabic),
+            title: _copy('goal', lang),
             options: [
-              _Option('fat_loss', _copy('fatLoss', isArabic)),
-              _Option('general_fitness', _copy('generalFitness', isArabic)),
-              _Option('muscle_gain', _copy('muscleGain', isArabic)),
-              _Option('maintenance', _copy('maintenance', isArabic)),
+              _Option('fat_loss', _copy('fatLoss', lang)),
+              _Option('general_fitness', _copy('generalFitness', lang)),
+              _Option('muscle_gain', _copy('muscleGain', lang)),
+              _Option('maintenance', _copy('maintenance', lang)),
             ],
             value: _goal,
             onChanged: (value) => setState(() => _goal = value),
@@ -311,7 +315,7 @@ class _NutritionPreferencesIntakeScreenState
         if (_needs('training_days_per_week'))
           _buildNumberField(
             controller: _trainingDaysController,
-            label: _copy('trainingDays', isArabic),
+            label: _copy('trainingDays', lang),
             min: 1,
             max: 7,
           ),
@@ -319,17 +323,17 @@ class _NutritionPreferencesIntakeScreenState
     );
   }
 
-  Widget _buildDailyMovementSection(bool isArabic) {
+  Widget _buildDailyMovementSection(LanguageProvider lang) {
     return _Section(
-      title: _copy('dailyMovement', isArabic),
+      title: _copy('dailyMovement', lang),
       children: [
         _buildSingleChoice(
-          title: _copy('dailyMovementPrompt', isArabic),
+          title: _copy('dailyMovementPrompt', lang),
           options: [
-            _Option('mostly_sitting', _copy('mostlySitting', isArabic)),
-            _Option('some_walking', _copy('someWalking', isArabic)),
-            _Option('on_feet_most_day', _copy('onFeet', isArabic)),
-            _Option('very_physical_job', _copy('physicalJob', isArabic)),
+            _Option('mostly_sitting', _copy('mostlySitting', lang)),
+            _Option('some_walking', _copy('someWalking', lang)),
+            _Option('on_feet_most_day', _copy('onFeet', lang)),
+            _Option('very_physical_job', _copy('physicalJob', lang)),
           ],
           value: _dailyMovement,
           onChanged: (value) => setState(() => _dailyMovement = value),
@@ -338,9 +342,9 @@ class _NutritionPreferencesIntakeScreenState
     );
   }
 
-  Widget _buildDietaryExclusionsSection(bool isArabic) {
+  Widget _buildDietaryExclusionsSection(LanguageProvider lang) {
     return _Section(
-      title: _copy('restrictions', isArabic),
+      title: _copy('restrictions', lang),
       children: [
         // Only codes the engine maps onto the recipe allergen vocabulary are
         // offered. "Soy" was removed because no recipe or ingredient in the
@@ -349,34 +353,34 @@ class _NutritionPreferencesIntakeScreenState
         // silently ignored.
         _buildMultiSelect(
           options: [
-            _Option('none', _copy('none', isArabic)),
-            _Option('nuts', isArabic ? 'مكسرات' : 'Nuts'),
-            _Option('sesame', isArabic ? 'سمسم' : 'Sesame'),
-            _Option('eggs', isArabic ? 'بيض' : 'Eggs'),
-            _Option('fish', isArabic ? 'سمك' : 'Fish'),
-            _Option('shellfish', isArabic ? 'محار وقشريات' : 'Shellfish'),
-            _Option('dairy_lactose', _copy('dairy', isArabic)),
-            _Option('gluten', _copy('gluten', isArabic)),
-            _Option('vegetarian', _copy('vegetarian', isArabic)),
-            _Option('vegan', _copy('vegan', isArabic)),
+            _Option('none', _copy('none', lang)),
+            _Option('nuts', lang.t('nutrition_option_nuts')),
+            _Option('sesame', lang.t('nutrition_preferences_intake_sesame')),
+            _Option('eggs', lang.t('nutrition_option_eggs')),
+            _Option('fish', lang.t('nutrition_option_fish')),
+            _Option('shellfish', lang.t('nutrition_preferences_intake_shellfish')),
+            _Option('dairy_lactose', _copy('dairy', lang)),
+            _Option('gluten', _copy('gluten', lang)),
+            _Option('vegetarian', _copy('vegetarian', lang)),
+            _Option('vegan', _copy('vegan', lang)),
           ],
           selection: _dietaryExclusions,
         ),
         const SizedBox(height: 10),
         Text(
-          _copy('halalNote', isArabic),
-          style: const TextStyle(color: Colors.black54, fontSize: 12),
+          _copy('halalNote', lang),
+          style: TextStyle(color: context.palette.textSecondary, fontSize: 12),
         ),
       ],
     );
   }
 
-  Widget _buildMealsPerDaySection(bool isArabic) {
+  Widget _buildMealsPerDaySection(LanguageProvider lang) {
     return _Section(
-      title: _copy('mealsPerDay', isArabic),
+      title: _copy('mealsPerDay', lang),
       children: [
         _buildSingleChoice(
-          title: _copy('mealsPerDayPrompt', isArabic),
+          title: _copy('mealsPerDayPrompt', lang),
           options: const [
             _Option('3', '3'),
             _Option('4', '4'),
@@ -389,26 +393,26 @@ class _NutritionPreferencesIntakeScreenState
     );
   }
 
-  Widget _buildMedicalSafetySection(bool isArabic) {
+  Widget _buildMedicalSafetySection(LanguageProvider lang) {
     return _Section(
-      title: _copy('medicalTitle', isArabic),
+      title: _copy('medicalTitle', lang),
       children: [
         Text(
-          _copy('medicalDesc', isArabic),
-          style: const TextStyle(color: Colors.black54),
+          _copy('medicalDesc', lang),
+          style: TextStyle(color: context.palette.textSecondary),
         ),
         const SizedBox(height: 12),
         _buildMultiSelect(
           options: [
-            _Option('none', _copy('none', isArabic)),
-            _Option('pregnancy', _copy('pregnancy', isArabic)),
-            _Option('eating_disorder', _copy('eatingDisorder', isArabic)),
-            _Option('kidney_liver_disease', _copy('kidneyLiver', isArabic)),
-            _Option('type_1_diabetes', _copy('type1Diabetes', isArabic)),
+            _Option('none', _copy('none', lang)),
+            _Option('pregnancy', _copy('pregnancy', lang)),
+            _Option('eating_disorder', _copy('eatingDisorder', lang)),
+            _Option('kidney_liver_disease', _copy('kidneyLiver', lang)),
+            _Option('type_1_diabetes', _copy('type1Diabetes', lang)),
             _Option('complex_diabetes_medication',
-                _copy('diabetesMedication', isArabic)),
-            _Option('bariatric_surgery', _copy('bariatric', isArabic)),
-            _Option('therapeutic_diet', _copy('therapeuticDiet', isArabic)),
+                _copy('diabetesMedication', lang)),
+            _Option('bariatric_surgery', _copy('bariatric', lang)),
+            _Option('therapeutic_diet', _copy('therapeuticDiet', lang)),
           ],
           selection: _medicalFlags,
         ),
@@ -508,7 +512,7 @@ class _NutritionPreferencesIntakeScreenState
     );
   }
 
-  String _copy(String key, bool isArabic) {
+  String _copy(String key, LanguageProvider lang) {
     final en = {
       'subtitle':
           'Check these details before we build your plan. Anything you have already answered is filled in.',
@@ -590,7 +594,7 @@ class _NutritionPreferencesIntakeScreenState
       'bariatric': 'جراحة سمنة',
       'therapeuticDiet': 'نظام علاجي',
     };
-    return (isArabic ? ar : en)[key] ?? key;
+    return (lang.isArabic ? ar : en)[key] ?? key;
   }
 }
 

@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "flutter-test-workout-plan-model",
+			"type": "shell",
+			"command": "d:\\mobile applicatio\\software\\flutter\\bin\\flutter.bat",
+			"args": [
+				"test",
+				"--no-pub",
+				"test/models/workout_plan_test.dart"
+			],
+			"isBackground": false
+		}
+	]
+}

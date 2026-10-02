@@ -309,7 +309,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(16),
-          color: isCurrent ? context.palette.surfaceVariant : Colors.white,
+          color: isCurrent
+              ? context.palette.surfaceVariant
+              : context.palette.surface,
         ),
         padding: const EdgeInsets.all(20),
         child: Column(

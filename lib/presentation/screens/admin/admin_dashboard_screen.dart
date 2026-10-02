@@ -41,17 +41,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
-    final isArabic = languageProvider.isArabic;
-
+    final lang = context.watch<LanguageProvider>();
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _buildDashboardTab(languageProvider, isArabic),
-          _buildPeopleHub(languageProvider),
-          _buildFitnessHub(languageProvider),
-          _buildBusinessHub(languageProvider),
+          _buildDashboardTab(lang),
+          _buildPeopleHub(lang),
+          _buildFitnessHub(lang),
+          _buildBusinessHub(lang),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -63,26 +61,26 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         items: [
           BottomNavigationBarItem(
             icon: const Icon(Icons.dashboard),
-            label: languageProvider.t('admin_tab_dashboard'),
+            label: lang.t('admin_tab_dashboard'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.people),
-            label: isArabic ? 'Users' : 'Users',
+            label: lang.t('admin_dashboard_users'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.fitness_center),
-            label: isArabic ? 'Fitness' : 'Fitness',
+            label: lang.t('admin_dashboard_fitness'),
           ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.business_center),
-            label: isArabic ? 'Business' : 'Business',
+            label: lang.t('admin_dashboard_business'),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildDashboardTab(LanguageProvider languageProvider, bool isArabic) {
+  Widget _buildDashboardTab(LanguageProvider lang) {
     final adminProvider = context.watch<AdminProvider>();
     final analytics = adminProvider.analytics;
     final isLoading = adminProvider.isLoading;
@@ -104,7 +102,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          languageProvider.t('admin_dashboard_title'),
+                          lang.t('admin_dashboard_title'),
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -112,7 +110,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          languageProvider.t('admin_dashboard_subtitle'),
+                          lang.t('admin_dashboard_subtitle'),
                           style: TextStyle(
                             fontSize: 14,
                             color: context.palette.textSecondary,
@@ -151,7 +149,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   children: [
                     Expanded(
                       child: CustomStatCard(
-                        title: languageProvider.t('admin_metric_total_users'),
+                        title: lang.t('admin_metric_total_users'),
                         value: '${analytics.users.total}',
                         icon: Icons.people,
                         color: AppColors.primary,
@@ -165,7 +163,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: CustomStatCard(
-                        title: languageProvider.t('admin_metric_active_users'),
+                        title: lang.t('admin_metric_active_users'),
                         value: '${analytics.users.active}',
                         icon: Icons.people_alt,
                         color: AppColors.success,
@@ -185,7 +183,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   children: [
                     Expanded(
                       child: CustomStatCard(
-                        title: languageProvider.t('admin_metric_total_coaches'),
+                        title: lang.t('admin_metric_total_coaches'),
                         value: '${analytics.coaches.total}',
                         icon: Icons.sports,
                         color: AppColors.secondary,
@@ -200,7 +198,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     Expanded(
                       child: CustomStatCard(
                         title:
-                            languageProvider.t('admin_metric_active_coaches'),
+                            lang.t('admin_metric_active_coaches'),
                         value: '${analytics.coaches.active}',
                         icon: Icons.fitness_center,
                         color: AppColors.accent,
@@ -220,7 +218,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   children: [
                     Expanded(
                       child: CustomStatCard(
-                        title: languageProvider.t('admin_metric_revenue_30d'),
+                        title: lang.t('admin_metric_revenue_30d'),
                         value:
                             '\$${analytics.revenue.last30Days.toStringAsFixed(0)}',
                         icon: Icons.attach_money,
@@ -233,7 +231,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: CustomStatCard(
-                        title: languageProvider.t('admin_metric_new_users_7d'),
+                        title: lang.t('admin_metric_new_users_7d'),
                         value: '+${analytics.growth.newUsersLast7Days}',
                         icon: Icons.trending_up,
                         color: AppColors.warning,
@@ -246,7 +244,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                 // Subscription Distribution
                 Text(
-                  languageProvider.t('admin_subscription_distribution'),
+                  lang.t('admin_subscription_distribution'),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -360,7 +358,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                languageProvider.t('admin_sessions_today'),
+                                lang.t('admin_sessions_today'),
                                 style: TextStyle(
                                   fontSize: 14,
                                   color: context.palette.textSecondary,
@@ -422,15 +420,15 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     }
   }
 
-  Widget _buildPeopleHub(LanguageProvider languageProvider) {
+  Widget _buildPeopleHub(LanguageProvider lang) {
     return _buildHubTab(
-      title: 'Users',
-      subtitle: 'Manage customers, coaches, and admin access points.',
+      title: lang.t('admin_hub_people'),
+      subtitle: lang.t('admin_hub_people_desc'),
       children: [
         _buildAdminActionTile(
           icon: Icons.person_outline,
-          title: 'Customers',
-          subtitle: 'View, suspend, assign coaches, and edit subscriptions.',
+          title: lang.t('admin_hub_customers'),
+          subtitle: lang.t('admin_hub_customers_desc'),
           color: AppColors.primary,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'customers'),
@@ -438,8 +436,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         _buildAdminActionTile(
           icon: Icons.sports,
-          title: 'Coaches',
-          subtitle: 'Approve, create, suspend, and update coach accounts.',
+          title: lang.t('admin_hub_coaches'),
+          subtitle: lang.t('admin_hub_coaches_desc'),
           color: AppColors.secondary,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'coaches'),
@@ -447,8 +445,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
         ),
         _buildAdminActionTile(
           icon: Icons.admin_panel_settings,
-          title: 'Admins',
-          subtitle: 'Create admin accounts and manage platform admins.',
+          title: lang.t('admin_hub_admins'),
+          subtitle: lang.t('admin_hub_admins_desc'),
           color: AppColors.accent,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'admins'),
@@ -458,30 +456,29 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildFitnessHub(LanguageProvider languageProvider) {
+  Widget _buildFitnessHub(LanguageProvider lang) {
     return _buildHubTab(
-      title: 'Fitness Plans',
-      subtitle: 'Manage the content used for user workout and nutrition plans.',
+      title: lang.t('admin_hub_fitness'),
+      subtitle: lang.t('admin_hub_fitness_desc'),
       children: [
         _buildAdminActionTile(
           icon: Icons.fitness_center,
-          title: 'Exercise Library',
-          subtitle: 'Edit exercises, videos, thumbnails, and instructions.',
+          title: lang.t('admin_hub_exercise_library'),
+          subtitle: lang.t('admin_hub_exercise_library_desc'),
           color: AppColors.primary,
           onTap: () => _pushAdminScreen(const AdminExercisesScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.view_week,
-          title: 'Workout Templates',
-          subtitle: 'Import JSON or edit workout combinations one by one.',
+          title: lang.t('admin_hub_workout_templates'),
+          subtitle: lang.t('admin_hub_workout_templates_desc'),
           color: AppColors.secondary,
           onTap: () => _pushAdminScreen(const AdminWorkoutTemplatesScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.restaurant_menu,
-          title: 'Nutrition Templates',
-          subtitle:
-              'Import JSON or edit meal templates used in generated plans.',
+          title: lang.t('admin_hub_nutrition_templates'),
+          subtitle: lang.t('admin_hub_nutrition_templates_desc'),
           color: AppColors.success,
           onTap: () => _pushAdminScreen(const AdminNutritionTemplatesScreen()),
         ),
@@ -489,36 +486,36 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildBusinessHub(LanguageProvider languageProvider) {
+  Widget _buildBusinessHub(LanguageProvider lang) {
     return _buildHubTab(
-      title: 'Business',
-      subtitle: 'Manage subscriptions, revenue, store operations, and logs.',
+      title: lang.t('admin_hub_business'),
+      subtitle: lang.t('admin_hub_business_desc'),
       children: [
         _buildAdminActionTile(
           icon: Icons.credit_card,
-          title: 'Subscription Plans',
-          subtitle: 'Edit package names, prices, features, and requests.',
+          title: lang.t('admin_hub_subscription_plans'),
+          subtitle: lang.t('admin_hub_subscription_plans_desc'),
           color: AppColors.primary,
           onTap: () => _pushAdminScreen(const SubscriptionManagementScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.attach_money,
-          title: 'Revenue',
-          subtitle: 'Review payment and subscription performance.',
+          title: lang.t('admin_hub_revenue'),
+          subtitle: lang.t('admin_hub_revenue_desc'),
           color: AppColors.success,
           onTap: () => _pushAdminScreen(const AdminRevenueScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.store,
-          title: 'Store',
-          subtitle: 'Manage store products and order operations.',
+          title: lang.t('admin_hub_store'),
+          subtitle: lang.t('admin_hub_store_desc'),
           color: AppColors.secondary,
           onTap: () => _pushAdminScreen(const StoreManagementScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.history,
-          title: 'Audit Logs',
-          subtitle: 'Review important admin and platform activity.',
+          title: lang.t('admin_hub_audit_logs'),
+          subtitle: lang.t('admin_hub_audit_logs_desc'),
           color: AppColors.warning,
           onTap: () => _pushAdminScreen(const AdminAuditLogsScreen()),
         ),

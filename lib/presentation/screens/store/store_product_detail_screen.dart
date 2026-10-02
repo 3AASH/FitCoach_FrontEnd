@@ -144,7 +144,7 @@ class StoreProductDetailScreen extends StatelessWidget {
                         ),
                         if (data.originalPrice != null)
                           Padding(
-                            padding: const EdgeInsets.only(left: 8),
+                            padding: const EdgeInsetsDirectional.only(start: 8),
                             child: Text(
                               data.originalPrice!.toStringAsFixed(2),
                               style: TextStyle(
@@ -318,8 +318,8 @@ class StoreProductDetailScreen extends StatelessWidget {
         children: [
           IconButton(
             onPressed: () => Navigator.of(context).maybePop(),
-            icon: Icon(
-              isArabic ? Icons.arrow_forward : Icons.arrow_back,
+            icon: const Icon(
+              Icons.arrow_back,
             ),
           ),
           const SizedBox(width: 4),

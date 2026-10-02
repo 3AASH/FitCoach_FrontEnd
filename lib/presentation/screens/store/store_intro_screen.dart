@@ -83,8 +83,8 @@ class StoreIntroScreen extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.18),
                     shape: const CircleBorder(),
                     child: IconButton(
-                      icon: Icon(
-                        isArabic ? Icons.chevron_right : Icons.chevron_left,
+                      icon: const Icon(
+                        Icons.chevron_left,
                         color: Colors.white,
                       ),
                       onPressed: onBack,
@@ -114,7 +114,7 @@ class StoreIntroScreen extends StatelessWidget {
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                            textAlign: TextAlign.start,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -128,7 +128,7 @@ class StoreIntroScreen extends StatelessWidget {
                               color: Colors.white.withValues(alpha: 0.9),
                               fontSize: 18,
                             ),
-                            textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                            textAlign: TextAlign.start,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -137,7 +137,8 @@ class StoreIntroScreen extends StatelessWidget {
                           physics: const NeverScrollableScrollPhysics(),
                           padding: EdgeInsets.zero,
                           itemCount: featureCards.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 12),
                           itemBuilder: (context, index) {
                             final data = featureCards[index];
                             return AnimatedReveal(
@@ -157,18 +158,20 @@ class StoreIntroScreen extends StatelessWidget {
                         const SizedBox(height: 20),
                         AnimatedReveal(
                           delay: const Duration(milliseconds: 520),
-                            offset: const Offset(0, 0.2),
-                            initialScale: 0.9,
-                            child: SizedBox(
+                          offset: const Offset(0, 0.2),
+                          initialScale: 0.9,
+                          child: SizedBox(
                             height: 56,
                             child: ElevatedButton(
                               onPressed: onGetStarted,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFEA580C),
                                 foregroundColor: Colors.white,
-                                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                textStyle: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
                               ),
-                              child: Text(languageProvider.t('store_intro_start_shopping')),
+                              child: Text(languageProvider
+                                  .t('store_intro_start_shopping')),
                             ),
                           ),
                         ),
@@ -214,55 +217,30 @@ class _IntroFeatureCard extends StatelessWidget {
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: Row(
-            children: isArabic
-                ? [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.right,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.right,
-                          ),
-                        ],
-                      ),
+            children: [
+              _IntroIcon(icon: icon, color: iconColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(width: 12),
-                    _IntroIcon(icon: icon, color: iconColor),
-                  ]
-                : [
-                    _IntroIcon(icon: icon, color: iconColor),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
                       ),
                     ),
                   ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

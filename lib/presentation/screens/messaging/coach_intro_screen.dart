@@ -65,7 +65,7 @@ class CoachIntroScreen extends StatelessWidget {
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
-                            textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                            textAlign: TextAlign.start,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -78,7 +78,7 @@ class CoachIntroScreen extends StatelessWidget {
                               color: Colors.white.withValues(alpha: 0.9),
                               fontSize: 18,
                             ),
-                            textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                            textAlign: TextAlign.start,
                           ),
                         ),
                         const SizedBox(height: 20),
@@ -88,8 +88,10 @@ class CoachIntroScreen extends StatelessWidget {
                           child: _IntroFeatureCard(
                             icon: Icons.message_outlined,
                             iconColor: const Color(0xFF8B5CF6),
-                            title: languageProvider.t('coach_intro_feature1_title'),
-                            description: languageProvider.t('coach_intro_feature1_desc'),
+                            title: languageProvider
+                                .t('coach_intro_feature1_title'),
+                            description:
+                                languageProvider.t('coach_intro_feature1_desc'),
                             isArabic: isArabic,
                           ),
                         ),
@@ -100,8 +102,10 @@ class CoachIntroScreen extends StatelessWidget {
                           child: _IntroFeatureCard(
                             icon: Icons.videocam_outlined,
                             iconColor: const Color(0xFF3B82F6),
-                            title: languageProvider.t('coach_intro_feature2_title'),
-                            description: languageProvider.t('coach_intro_feature2_desc'),
+                            title: languageProvider
+                                .t('coach_intro_feature2_title'),
+                            description:
+                                languageProvider.t('coach_intro_feature2_desc'),
                             isArabic: isArabic,
                           ),
                         ),
@@ -112,8 +116,10 @@ class CoachIntroScreen extends StatelessWidget {
                           child: _IntroFeatureCard(
                             icon: Icons.calendar_today_outlined,
                             iconColor: const Color(0xFF22C55E),
-                            title: languageProvider.t('coach_intro_feature3_title'),
-                            description: languageProvider.t('coach_intro_feature3_desc'),
+                            title: languageProvider
+                                .t('coach_intro_feature3_title'),
+                            description:
+                                languageProvider.t('coach_intro_feature3_desc'),
                             isArabic: isArabic,
                           ),
                         ),
@@ -124,8 +130,10 @@ class CoachIntroScreen extends StatelessWidget {
                           child: _IntroFeatureCard(
                             icon: Icons.star_outline,
                             iconColor: const Color(0xFFF59E0B),
-                            title: languageProvider.t('coach_intro_feature4_title'),
-                            description: languageProvider.t('coach_intro_feature4_desc'),
+                            title: languageProvider
+                                .t('coach_intro_feature4_title'),
+                            description:
+                                languageProvider.t('coach_intro_feature4_desc'),
                             isArabic: isArabic,
                           ),
                         ),
@@ -140,9 +148,11 @@ class CoachIntroScreen extends StatelessWidget {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF7C3AED),
                                 foregroundColor: Colors.white,
-                                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                                textStyle: const TextStyle(
+                                    fontSize: 18, fontWeight: FontWeight.w600),
                               ),
-                              child: Text(languageProvider.t('coach_intro_get_started')),
+                              child: Text(languageProvider
+                                  .t('coach_intro_get_started')),
                             ),
                           ),
                         ),
@@ -188,55 +198,30 @@ class _IntroFeatureCard extends StatelessWidget {
             border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
           ),
           child: Row(
-            children: isArabic
-                ? [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.right,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.right,
-                          ),
-                        ],
-                      ),
+            children: [
+              _IntroIcon(icon: icon, color: iconColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(width: 12),
-                    _IntroIcon(icon: icon, color: iconColor),
-                  ]
-                : [
-                    _IntroIcon(icon: icon, color: iconColor),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
                       ),
                     ),
                   ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

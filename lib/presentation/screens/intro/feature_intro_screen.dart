@@ -32,9 +32,8 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
-    final isArabic = languageProvider.isArabic;
-    final slides = _getSlides(widget.feature, isArabic);
+    final lang = context.watch<LanguageProvider>();
+    final slides = _getSlides(widget.feature, lang);
     
     return Scaffold(
       // Match the glassy coach intro style with better contrast
@@ -46,7 +45,7 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
           TextButton(
             onPressed: widget.onComplete,
             child: Text(
-              isArabic ? 'تخطي' : 'Skip',
+              lang.t('skip'),
               style: TextStyle(
                 color: context.palette.textSecondary,
                 fontSize: 16,
@@ -102,8 +101,8 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
                   width: double.infinity,
                   child: CustomButton(
                     text: _currentPage == slides.length - 1
-                        ? (isArabic ? 'ابدأ الآن' : 'Get Started')
-                        : (isArabic ? 'التالي' : 'Next'),
+                        ? (lang.t('workouts_get_started'))
+                        : (lang.t('next')),
                     onPressed: () {
                       if (_currentPage < slides.length - 1) {
                         _pageController.nextPage(
@@ -191,33 +190,27 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
     );
   }
   
-  List<Map<String, dynamic>> _getSlides(String feature, bool isArabic) {
+  List<Map<String, dynamic>> _getSlides(String feature, LanguageProvider lang) {
     switch (feature) {
       case 'workout':
         return [
           {
             'icon': Icons.fitness_center,
             'color': AppColors.primary,
-            'title': isArabic ? 'خطط تمرين مخصصة' : 'Personalized Workouts',
-            'description': isArabic
-                ? 'احصل على خطط تمرين مصممة خصيصاً لأهدافك ومستوى لياقتك'
-                : 'Get workout plans tailored to your goals and fitness level',
+            'title': lang.t('feature_intro_personalized_workouts'),
+            'description': lang.t('feature_intro_get_workout_plans_tailored_to_your'),
           },
           {
             'icon': Icons.calendar_today,
             'color': AppColors.primary,
-            'title': isArabic ? 'جدولة أسبوعية' : 'Weekly Schedule',
-            'description': isArabic
-                ? 'تابع تمارينك الأسبوعية واضغط على أي يوم لرؤية التفاصيل'
-                : 'Track your weekly workouts and tap any day to see details',
+            'title': lang.t('feature_intro_weekly_schedule'),
+            'description': lang.t('feature_intro_track_your_weekly_workouts_and_tap'),
           },
           {
             'icon': Icons.swap_horiz,
             'color': AppColors.primary,
-            'title': isArabic ? 'استبدال التمارين' : 'Exercise Substitution',
-            'description': isArabic
-                ? 'احصل على بدائل آمنة للتمارين التي قد تسبب إصابات'
-                : 'Get safe alternatives for exercises that may cause injuries',
+            'title': lang.t('feature_intro_exercise_substitution'),
+            'description': lang.t('feature_intro_get_safe_alternatives_for_exercises_that'),
           },
         ];
         
@@ -226,26 +219,20 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
           {
             'icon': Icons.restaurant,
             'color': AppColors.success,
-            'title': isArabic ? 'خطط تغذية متكاملة' : 'Complete Nutrition Plans',
-            'description': isArabic
-                ? 'احصل على خطط وجبات مفصلة مع تتبع المغذيات الكبرى'
-                : 'Get detailed meal plans with macro nutrient tracking',
+            'title': lang.t('feature_intro_complete_nutrition_plans'),
+            'description': lang.t('feature_intro_get_detailed_meal_plans_with_macro'),
           },
           {
             'icon': Icons.pie_chart,
             'color': AppColors.success,
-            'title': isArabic ? 'تتبع المغذيات' : 'Track Macros',
-            'description': isArabic
-                ? 'تابع السعرات والبروتين والكربوهيدرات والدهون يومياً'
-                : 'Monitor calories, protein, carbs, and fats daily',
+            'title': lang.t('feature_intro_track_macros'),
+            'description': lang.t('feature_intro_monitor_calories_protein_carbs_and_fats'),
           },
           {
             'icon': Icons.timer,
             'color': AppColors.success,
-            'title': isArabic ? 'تجربة مجانية 14 يوم' : '14-Day Free Trial',
-            'description': isArabic
-                ? 'استمتع بالوصول الكامل للتغذية لمدة 14 يوماً مع الاشتراك المجاني'
-                : 'Enjoy full nutrition access for 14 days with Freemium',
+            'title': lang.t('feature_intro_14_day_free_trial'),
+            'description': lang.t('feature_intro_enjoy_full_nutrition_access_for_14'),
           },
         ];
         
@@ -254,26 +241,20 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
           {
             'icon': Icons.shopping_bag,
             'color': AppColors.warning,
-            'title': isArabic ? 'تسوق المنتجات' : 'Shop Products',
-            'description': isArabic
-                ? 'تصفح وشراء مكملات ومعدات رياضية عالية الجودة'
-                : 'Browse and buy high-quality supplements and equipment',
+            'title': lang.t('feature_intro_shop_products'),
+            'description': lang.t('feature_intro_browse_and_buy_high_quality_supplements'),
           },
           {
             'icon': Icons.local_shipping,
             'color': AppColors.warning,
-            'title': isArabic ? 'توصيل سريع' : 'Fast Delivery',
-            'description': isArabic
-                ? 'احصل على طلباتك مع توصيل سريع وموثوق'
-                : 'Get your orders with fast and reliable delivery',
+            'title': lang.t('store_intro_feature3_title'),
+            'description': lang.t('feature_intro_get_your_orders_with_fast_and'),
           },
           {
             'icon': Icons.star,
             'color': AppColors.warning,
-            'title': isArabic ? 'تقييمات ومراجعات' : 'Ratings & Reviews',
-            'description': isArabic
-                ? 'اقرأ تقييمات حقيقية من مستخدمين آخرين'
-                : 'Read real reviews from other users',
+            'title': lang.t('feature_intro_ratings_reviews'),
+            'description': lang.t('feature_intro_read_real_reviews_from_other_users'),
           },
         ];
         
@@ -282,26 +263,20 @@ class _FeatureIntroScreenState extends State<FeatureIntroScreen> {
           {
             'icon': Icons.chat,
             'color': AppColors.primary,
-            'title': isArabic ? 'تواصل مع مدربك' : 'Connect with Coach',
-            'description': isArabic
-                ? 'تحدث مع مدربك في الوقت الفعلي واحصل على إرشادات شخصية'
-                : 'Chat with your coach in real-time and get personalized guidance',
+            'title': lang.t('feature_intro_connect_with_coach'),
+            'description': lang.t('feature_intro_chat_with_your_coach_in_real'),
           },
           {
             'icon': Icons.video_call,
             'color': AppColors.primary,
-            'title': isArabic ? 'مكالمات فيديو' : 'Video Calls',
-            'description': isArabic
-                ? 'احجز مكالمات فيديو مباشرة مع مدربك للحصول على الدعم'
-                : 'Book live video calls with your coach for support',
+            'title': lang.t('feature_intro_video_calls'),
+            'description': lang.t('feature_intro_book_live_video_calls_with_your'),
           },
           {
             'icon': Icons.attach_file,
             'color': AppColors.primary,
-            'title': isArabic ? 'شارك التقدم' : 'Share Progress',
-            'description': isArabic
-                ? 'أرسل صور وفيديوهات لتتبع تقدمك'
-                : 'Send photos and videos to track your progress',
+            'title': lang.t('feature_intro_share_progress'),
+            'description': lang.t('feature_intro_send_photos_and_videos_to_track'),
           },
         ];
         

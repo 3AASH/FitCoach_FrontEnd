@@ -8,6 +8,7 @@ import '../../../data/models/admin_exercise.dart';
 import '../../../data/models/admin_workout_template.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/catalog_search_field.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -21,18 +22,29 @@ class AdminWorkoutTemplatesScreen extends StatefulWidget {
 
 class _AdminWorkoutTemplatesScreenState
     extends State<AdminWorkoutTemplatesScreen> {
+  String _search = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = context.read<AdminProvider>();
       provider.loadWorkoutTemplates();
+      // The whole library, so the exercise picker inside a template can find
+      // any exercise rather than only the first page of them.
       provider.loadExercises();
     });
   }
 
   Future<void> _refresh() {
-    return context.read<AdminProvider>().loadWorkoutTemplates();
+    return context
+        .read<AdminProvider>()
+        .loadWorkoutTemplates(search: _search.isEmpty ? null : _search);
+  }
+
+  void _onSearchChanged(String query) {
+    _search = query;
+    _refresh();
   }
 
   Future<void> _importJsonFile() async {
@@ -89,35 +101,56 @@ class _AdminWorkoutTemplatesScreenState
         label: Text(lang.t('admin_new_template')),
       ),
       body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: _refresh,
-          child: provider.isLoading && provider.workoutTemplates.isEmpty
-              ? const Center(child: CircularProgressIndicator())
-              : provider.workoutTemplates.isEmpty
-                  ? ListView(
-                      children: [
-                        const SizedBox(height: 160),
-                        Center(
-                          child: Text(
-                            lang.t('plan_editor_no_workout_templates'),
-                            style:
-                                TextStyle(color: context.palette.textSecondary),
-                          ),
-                        ),
-                      ],
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.fromLTRB(16, 16, 16, 96),
-                      itemCount: provider.workoutTemplates.length,
-                      itemBuilder: (context, index) {
-                        final template = provider.workoutTemplates[index];
-                        return _TemplateCard(
-                          template: template,
-                          onEdit: () => _openEditor(template: template),
-                          onRefreshUsers: () => _refreshUsers(template.planId),
-                        );
-                      },
+        child: Column(
+          children: [
+            CatalogSearchField(
+              hintText: lang.t('admin_template_search_hint'),
+              onChanged: _onSearchChanged,
+              resultLabel: provider.isLoading &&
+                      provider.workoutTemplates.isEmpty
+                  ? null
+                  : catalogResultLabel(
+                      lang,
+                      shown: provider.workoutTemplates.length,
+                      total: provider.workoutTemplates.length,
+                      query: _search,
                     ),
+            ),
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: _refresh,
+                child: provider.isLoading && provider.workoutTemplates.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : provider.workoutTemplates.isEmpty
+                        ? ListView(
+                            children: [
+                              const SizedBox(height: 160),
+                              Center(
+                                child: Text(
+                                  lang.t('plan_editor_no_workout_templates'),
+                                  style: TextStyle(
+                                      color: context.palette.textSecondary),
+                                ),
+                              ),
+                            ],
+                          )
+                        : ListView.builder(
+                            padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                            itemCount: provider.workoutTemplates.length,
+                            itemBuilder: (context, index) {
+                              final template =
+                                  provider.workoutTemplates[index];
+                              return _TemplateCard(
+                                template: template,
+                                onEdit: () => _openEditor(template: template),
+                                onRefreshUsers: () =>
+                                    _refreshUsers(template.planId),
+                              );
+                            },
+                          ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -362,7 +395,9 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
         minChildSize: 0.5,
         maxChildSize: 0.96,
         builder: (context, scrollController) => Material(
-          color: Colors.white,
+          // See admin_exercises_screen: a pinned white sheet hides every
+          // theme-coloured label on it in dark mode.
+          color: context.palette.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           child: ListView(
             controller: scrollController,
@@ -462,20 +497,30 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
   }
 
   Widget _buildPlanEditor() {
+    // A starter template holds one variant instead of a programs matrix, so it
+    // gets a single-entry dropdown to keep this editor laid out like the
+    // advanced one. Only an advanced template can switch variants, so selecting
+    // the starter entry stays a no-op — routing it through
+    // _selectedAdvancedProgramPath would make _buildTemplate write the sessions
+    // into `programs` and strip the `sessions` the backend reads.
+    final List<String> programPaths =
+        _isAdvancedTemplate ? _advancedProgramPaths : [_starterProgramPath()];
+    final selectedPath =
+        _isAdvancedTemplate ? _selectedAdvancedProgramPath : programPaths.first;
     return Column(
       children: [
-        if (_isAdvancedTemplate && _advancedProgramPaths.isNotEmpty) ...[
+        if (programPaths.isNotEmpty) ...[
           DropdownButtonFormField<String>(
-            initialValue: _selectedAdvancedProgramPath,
+            initialValue: selectedPath,
             decoration: InputDecoration(
               labelText: _tr('plan_editor_workout_days'),
               border: const OutlineInputBorder(),
             ),
-            items: _advancedProgramPaths
+            items: programPaths
               .map((path) => DropdownMenuItem(value: path, child: Text(_formatAdvancedProgramPath(path))))
                 .toList(),
             onChanged: (path) {
-              if (path == null) return;
+              if (path == null || !_isAdvancedTemplate) return;
               setState(() {
                 _selectedAdvancedProgramPath = path;
                 _loadStructured(_rawTemplate);
@@ -914,6 +959,16 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     if (value == null) return fallback;
     final text = value.toString().trim();
     return text.isEmpty ? fallback : text;
+  }
+
+  /// The one location/goal variant a starter template represents, shaped like an
+  /// advanced program path so both editors render the same control. Read from
+  /// the controllers rather than the raw template so it tracks edits to those
+  /// fields.
+  String _starterProgramPath() {
+    final location = _stringValue(_locationController.text, fallback: 'any');
+    final goal = _stringValue(_goalController.text, fallback: 'any');
+    return '$location|$goal|all_levels';
   }
 
   String _formatAdvancedProgramPath(String path) {

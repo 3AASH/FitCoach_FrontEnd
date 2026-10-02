@@ -128,7 +128,6 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final userProvider = context.watch<UserProvider>();
-    final isArabic = languageProvider.isArabic;
 
     return Scaffold(
       body: Stack(
@@ -150,7 +149,10 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.95),
+                      // Follows the theme rather than staying white: the card's
+                      // labels and button text inherit the theme's text colour,
+                      // which is near-white in dark mode and vanished here.
+                      color: context.palette.surface.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -224,10 +226,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
-                                      isArabic
-                                          ? Icons.arrow_forward
-                                          : Icons.arrow_back,
+                                    const Icon(
+                                      Icons.arrow_back,
                                       size: 18,
                                     ),
                                     const SizedBox(width: 6),
@@ -286,10 +286,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                                                     .t('continue'),
                                           ),
                                           const SizedBox(width: 6),
-                                          Icon(
-                                            isArabic
-                                                ? Icons.arrow_back
-                                                : Icons.arrow_forward,
+                                          const Icon(
+                                            Icons.arrow_forward,
                                             size: 18,
                                           ),
                                         ],
@@ -478,7 +476,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
           decoration: BoxDecoration(
             color: isSelected
                 ? AppColors.secondaryForeground.withValues(alpha: 0.08)
-                : Colors.white,
+                : context.palette.surface,
             borderRadius: BorderRadius.circular(14),
             border: Border.all(
               color:
@@ -508,7 +506,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                   style: TextStyle(
                     color: isSelected
                         ? AppColors.secondaryForeground
-                        : Colors.black,
+                        : context.palette.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -534,7 +532,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.secondaryForeground.withValues(alpha: 0.08)
-              : Colors.white,
+              : context.palette.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color:
@@ -660,7 +658,7 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
             margin: const EdgeInsets.all(24),
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.palette.surface,
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(

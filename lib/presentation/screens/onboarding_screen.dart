@@ -159,7 +159,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                   ),
                                 ),
                                 child: Icon(
-                                  isArabic ? Icons.chevron_right : Icons.chevron_left,
+                                  Icons.chevron_left,
                                   color: context.palette.textPrimary,
                                 ),
                               ),
@@ -426,7 +426,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                           style: AppTextStyles.h1.copyWith(
                             color: context.palette.textPrimary,
                           ),
-                          textAlign: widget.isArabic ? TextAlign.right : TextAlign.left,
+                          textAlign: TextAlign.start,
                         ),
                       ),
                     ),
@@ -445,7 +445,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                           style: AppTextStyles.body.copyWith(
                             color: context.palette.textSecondary,
                           ),
-                          textAlign: widget.isArabic ? TextAlign.right : TextAlign.left,
+                          textAlign: TextAlign.start,
                         ),
                       ),
                     ),

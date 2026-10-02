@@ -35,6 +35,7 @@ class MessagingProvider extends ChangeNotifier {
   bool _isReconnecting = false;
   bool _socketCallbacksBound = false;
   String? _error;
+  bool _upgradeRequired = false;
   Timer? _typingStopTimer;
   String? _localTypingConversationId;
 
@@ -60,6 +61,24 @@ class MessagingProvider extends ChangeNotifier {
       _activeConversation != null &&
       _typingConversationId == _activeConversation!.id;
   String? get error => _error;
+
+  /// Whether the last failure was the subscription gate rather than a fault.
+  ///
+  /// The server answers a freemium client with 403 and `upgradeRequired`. That
+  /// is a policy, not a breakage, so the UI offers the upgrade instead of
+  /// showing it in red.
+  bool get upgradeRequired => _upgradeRequired;
+
+  void _clearError() {
+    _error = null;
+    _upgradeRequired = false;
+  }
+
+  void _captureError(Object error) {
+    _error = error.toString();
+    _upgradeRequired =
+        error is MessagingException && error.upgradeRequired;
+  }
 
   Future<void> connect(
     String userId,
@@ -92,7 +111,7 @@ class MessagingProvider extends ChangeNotifier {
       _messagesByConversation[currentChatId] = List<Message>.from(_messages);
       _isConnected = true;
       _isReconnecting = false;
-      _error = null;
+      _clearError();
       notifyListeners();
       return;
     }
@@ -105,7 +124,7 @@ class MessagingProvider extends ChangeNotifier {
       return;
     }
 
-    _error = null;
+    _clearError();
     notifyListeners();
 
     await _initializeSocket();
@@ -155,7 +174,7 @@ class MessagingProvider extends ChangeNotifier {
       _isReconnecting = false;
       notifyListeners();
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       _isConnected = false;
       _isReconnecting = false;
       notifyListeners();
@@ -170,7 +189,7 @@ class MessagingProvider extends ChangeNotifier {
     _repository.onConnect(() {
       _isConnected = true;
       _isReconnecting = false;
-      _error = null;
+      _clearError();
       _joinActiveConversation();
       notifyListeners();
     });
@@ -374,13 +393,13 @@ class MessagingProvider extends ChangeNotifier {
       if (_repository.isConnected) {
         _isConnected = true;
         _isReconnecting = false;
-        _error = null;
+        _clearError();
         _joinActiveConversation();
       }
     } catch (e) {
       _isConnected = false;
       _isReconnecting = false;
-      _error = e.toString();
+      _captureError(e);
     }
     notifyListeners();
   }
@@ -424,7 +443,7 @@ class MessagingProvider extends ChangeNotifier {
     }
 
     _isLoading = true;
-    _error = null;
+    _clearError();
     notifyListeners();
 
     try {
@@ -448,7 +467,7 @@ class MessagingProvider extends ChangeNotifier {
         currentChatId = '';
       }
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -481,7 +500,7 @@ class MessagingProvider extends ChangeNotifier {
     }
 
     _isLoading = true;
-    _error = null;
+    _clearError();
     notifyListeners();
 
     try {
@@ -496,7 +515,7 @@ class MessagingProvider extends ChangeNotifier {
       await markConversationAsRead(conversationId);
       _joinActiveConversation();
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       _activeConversation = null;
       _messages = [];
       _messagesByConversation.clear();
@@ -543,7 +562,7 @@ class MessagingProvider extends ChangeNotifier {
     }
 
     _isSending = true;
-    _error = null;
+    _clearError();
     notifyListeners();
 
     try {
@@ -559,7 +578,7 @@ class MessagingProvider extends ChangeNotifier {
       _stopTyping();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSending = false;
@@ -594,7 +613,7 @@ class MessagingProvider extends ChangeNotifier {
     }
 
     _isSending = true;
-    _error = null;
+    _clearError();
     notifyListeners();
 
     try {
@@ -611,7 +630,7 @@ class MessagingProvider extends ChangeNotifier {
       _stopTyping();
       return true;
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       return false;
     } finally {
       _isSending = false;
@@ -688,7 +707,7 @@ class MessagingProvider extends ChangeNotifier {
     try {
       return await _repository.getConversations();
     } catch (e) {
-      _error = e.toString();
+      _captureError(e);
       notifyListeners();
       return [];
     }
@@ -780,7 +799,7 @@ class MessagingProvider extends ChangeNotifier {
   }
 
   void clearError() {
-    _error = null;
+    _clearError();
     notifyListeners();
   }
 

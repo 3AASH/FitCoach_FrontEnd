@@ -86,7 +86,7 @@ class _SignupScreenState extends State<SignupScreen> {
     _otpController.clear();
   }
 
-  String? _validateAndNormalizePhone(bool isArabic) {
+  String? _validateAndNormalizePhone(LanguageProvider lang) {
     final normalizedPhone = PhoneNumberUtils.normalize(
       rawInput: _phoneController.text,
       country: _selectedCountry,
@@ -95,7 +95,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (!normalizedPhone.isValid) {
       setState(() {
         _phoneErrorText =
-            isArabic ? 'أدخل رقم هاتف صالحاً' : 'Enter a valid phone number';
+            lang.t('auth_phone_invalid');
       });
       return null;
     }
@@ -103,7 +103,7 @@ class _SignupScreenState extends State<SignupScreen> {
     return normalizedPhone.normalizedPhone;
   }
 
-  Future<void> _sendCode(bool isArabic) async {
+  Future<void> _sendCode(LanguageProvider lang) async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -112,9 +112,7 @@ class _SignupScreenState extends State<SignupScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic
-                ? 'الرجاء الموافقة على الشروط والأحكام'
-                : 'Please agree to Terms & Conditions',
+            lang.t('signup_please_agree_to_terms_conditions'),
           ),
           backgroundColor: AppColors.error,
         ),
@@ -122,7 +120,7 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    final normalizedPhone = _validateAndNormalizePhone(isArabic);
+    final normalizedPhone = _validateAndNormalizePhone(lang);
     if (normalizedPhone == null) {
       return;
     }
@@ -164,14 +162,12 @@ class _SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
-    final isArabic = languageProvider.isArabic;
-
-    return Scaffold(
+        return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: Icon(isArabic ? Icons.arrow_forward : Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: widget.onNavigateToLogin,
         ),
       ),
@@ -186,7 +182,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 // Title
                 AnimatedReveal(
                   child: Text(
-                    isArabic ? 'إنشاء حساب جديد' : 'Create Account',
+                    lang.t('signup_create_account'),
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
@@ -201,9 +197,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 100),
                   child: Text(
-                    isArabic
-                        ? 'انضم إلينا وابدأ رحلة اللياقة'
-                        : 'Join us and start your fitness journey',
+                    lang.t('signup_join_us_and_start_your_fitness'),
                     style: TextStyle(
                       fontSize: 14,
                       color: context.palette.textSecondary,
@@ -220,8 +214,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: TextFormField(
                     controller: _nameController,
                     decoration: InputDecoration(
-                      labelText: isArabic ? 'الاسم الكامل' : 'Full Name',
-                      hintText: isArabic ? 'أحمد محمد' : 'John Doe',
+                      labelText: lang.t('auth_full_name'),
+                      hintText: lang.t('signup_john_doe'),
                       prefixIcon: const Icon(Icons.person),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -229,14 +223,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic
-                            ? 'الرجاء إدخال الاسم'
-                            : 'Please enter your name';
+                        return lang.t('signup_please_enter_your_name');
                       }
                       if (value.length < 3) {
-                        return isArabic
-                            ? 'الاسم قصير جداً'
-                            : 'Name is too short';
+                        return lang.t('signup_name_is_too_short');
                       }
                       return null;
                     },
@@ -251,7 +241,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: TextFormField(
                     controller: _emailController,
                     decoration: InputDecoration(
-                      labelText: isArabic ? 'البريد الإلكتروني' : 'Email',
+                      labelText: lang.t('auth_email'),
                       hintText: 'example@email.com',
                       prefixIcon: const Icon(Icons.email),
                       border: OutlineInputBorder(
@@ -261,12 +251,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic
-                            ? 'الرجاء إدخال البريد'
-                            : 'Please enter email';
+                        return lang.t('signup_please_enter_email');
                       }
                       if (!value.contains('@')) {
-                        return isArabic ? 'بريد غير صالح' : 'Invalid email';
+                        return lang.t('signup_invalid_email');
                       }
                       return null;
                     },
@@ -280,8 +268,8 @@ class _SignupScreenState extends State<SignupScreen> {
                   delay: const Duration(milliseconds: 320),
                   child: InternationalPhoneInput(
                     controller: _phoneController,
-                    label: isArabic ? 'رقم الهاتف' : 'Phone Number',
-                    hint: isArabic ? '10 1234 5678' : '10 1234 5678',
+                    label: lang.t('auth_phone'),
+                    hint: lang.t('auth_phone_placeholder'),
                     selectedCountry: _selectedCountry,
                     onCountryChanged: (country) {
                       setState(() {
@@ -312,10 +300,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     controller: _passwordController,
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
-                      labelText: isArabic ? 'كلمة المرور' : 'Password',
-                      hintText: isArabic
-                          ? '8 أحرف على الأقل'
-                          : 'At least 8 characters',
+                      labelText: lang.t('auth_password'),
+                      hintText: lang.t('auth_password_min_length'),
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -335,14 +321,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic
-                            ? 'الرجاء إدخال كلمة المرور'
-                            : 'Please enter password';
+                        return lang.t('signup_please_enter_password');
                       }
                       if (value.length < 8) {
-                        return isArabic
-                            ? 'كلمة المرور قصيرة'
-                            : 'Password too short';
+                        return lang.t('signup_password_too_short');
                       }
                       return null;
                     },
@@ -359,10 +341,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     obscureText: _obscureConfirmPassword,
                     decoration: InputDecoration(
                       labelText:
-                          isArabic ? 'تأكيد كلمة المرور' : 'Confirm Password',
-                      hintText: isArabic
-                          ? 'أعد كتابة كلمة المرور'
-                          : 'Re-enter password',
+                          lang.t('auth_confirm_password'),
+                      hintText: lang.t('signup_re_enter_password'),
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -382,14 +362,10 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return isArabic
-                            ? 'الرجاء تأكيد كلمة المرور'
-                            : 'Please confirm password';
+                        return lang.t('signup_please_confirm_password');
                       }
                       if (value != _passwordController.text) {
-                        return isArabic
-                            ? 'كلمة المرور غير متطابقة'
-                            : 'Passwords don\'t match';
+                        return lang.t('signup_passwords_don_t_match');
                       }
                       return null;
                     },
@@ -432,14 +408,10 @@ class _SignupScreenState extends State<SignupScreen> {
                               ),
                               children: [
                                 TextSpan(
-                                  text: isArabic
-                                      ? 'أوافق على '
-                                      : 'I agree to the ',
+                                  text: lang.t('signup_i_agree_to_the'),
                                 ),
                                 TextSpan(
-                                  text: isArabic
-                                      ? 'الشروط والأحكام'
-                                      : 'Terms & Conditions',
+                                  text: lang.t('account_terms'),
                                   style: const TextStyle(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.bold,
@@ -447,12 +419,10 @@ class _SignupScreenState extends State<SignupScreen> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: isArabic ? ' و' : ' and ',
+                                  text: lang.t('signup_and'),
                                 ),
                                 TextSpan(
-                                  text: isArabic
-                                      ? 'سياسة الخصوصية'
-                                      : 'Privacy Policy',
+                                  text: lang.t('account_privacy'),
                                   style: const TextStyle(
                                     color: AppColors.primary,
                                     fontWeight: FontWeight.bold,
@@ -475,8 +445,8 @@ class _SignupScreenState extends State<SignupScreen> {
                     child: TextFormField(
                       controller: _otpController,
                       decoration: InputDecoration(
-                        labelText: isArabic ? 'رمز التحقق' : 'Verification Code',
-                        hintText: isArabic ? 'أدخل 6 أرقام' : 'Enter 6 digits',
+                        labelText: lang.t('signup_verification_code'),
+                        hintText: lang.t('signup_enter_6_digits'),
                         prefixIcon: const Icon(Icons.lock_clock_outlined),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
@@ -492,12 +462,12 @@ class _SignupScreenState extends State<SignupScreen> {
                     alignment: Alignment.centerRight,
                     child: TextButton(
                       onPressed: _resendEnabled && !_isSendingCode && !_isCreatingAccount
-                          ? () => _sendCode(isArabic)
+                          ? () => _sendCode(lang)
                           : null,
                       child: Text(
                         _resendEnabled
-                            ? (isArabic ? 'إعادة الإرسال' : 'Resend code')
-                            : '${isArabic ? 'إعادة الإرسال خلال' : 'Resend in'} $_resendCountdown',
+                            ? (lang.t('auth_resend'))
+                            : '${lang.t('auth_resend_in')} $_resendCountdown',
                       ),
                     ),
                   ),
@@ -510,15 +480,15 @@ class _SignupScreenState extends State<SignupScreen> {
                   delay: const Duration(milliseconds: 580),
                   child: CustomButton(
                     text: _isSendingCode
-                        ? (isArabic ? 'جارٍ إرسال الرمز...' : 'Sending code...')
+                        ? (lang.t('signup_sending_code'))
                         : _isCreatingAccount
-                            ? (isArabic ? 'جاري الإنشاء...' : 'Creating account...')
+                            ? (lang.t('signup_creating_account'))
                             : _isOtpSent
-                                ? (isArabic ? 'إنشاء حساب' : 'Create Account')
-                                : (isArabic ? 'إرسال الرمز' : 'Send Code'),
+                                ? (lang.t('auth_create_account'))
+                                : (lang.t('signup_send_code')),
                     onPressed: authProvider.isLoading || _isSendingCode || _isCreatingAccount
                         ? null
-                        : () => _isOtpSent ? _handleSignup(isArabic) : _sendCode(isArabic),
+                        : () => _isOtpSent ? _handleSignup(lang) : _sendCode(lang),
                     variant: ButtonVariant.primary,
                     size: ButtonSize.large,
                     fullWidth: true,
@@ -536,7 +506,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16),
                         child: Text(
-                          isArabic ? 'أو' : 'OR',
+                          lang.t('auth_or_divider'),
                           style: TextStyle(
                             color: context.palette.textSecondary,
                             fontSize: 14,
@@ -554,7 +524,7 @@ class _SignupScreenState extends State<SignupScreen> {
                 AnimatedReveal(
                   delay: const Duration(milliseconds: 700),
                   child: Text(
-                    isArabic ? 'أو إنشاء حساب باستخدام' : 'Or sign up with',
+                    lang.t('signup_or_sign_up_with'),
                     style: TextStyle(
                       fontSize: 14,
                       color: context.palette.textSecondary,
@@ -573,27 +543,27 @@ class _SignupScreenState extends State<SignupScreen> {
                       Expanded(
                         child: _buildSocialButton(
                           icon: Icons.g_mobiledata,
-                          label: 'Google',
+                          label: lang.t('auth_oauth_google'),
                           color: const Color(0xFFDB4437),
-                          onPressed: () => _socialSignup('google', isArabic),
+                          onPressed: () => _socialSignup('google', lang),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildSocialButton(
                           icon: Icons.facebook,
-                          label: 'Facebook',
+                          label: lang.t('auth_oauth_facebook'),
                           color: const Color(0xFF4267B2),
-                          onPressed: () => _socialSignup('facebook', isArabic),
+                          onPressed: () => _socialSignup('facebook', lang),
                         ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildSocialButton(
                           icon: Icons.apple,
-                          label: 'Apple',
+                          label: lang.t('auth_oauth_apple'),
                           color: Colors.black,
-                          onPressed: () => _socialSignup('apple', isArabic),
+                          onPressed: () => _socialSignup('apple', lang),
                         ),
                       ),
                     ],
@@ -609,9 +579,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        isArabic
-                            ? 'لديك حساب بالفعل؟'
-                            : 'Already have an account?',
+                        lang.t('auth_have_account'),
                         style: TextStyle(
                           fontSize: 14,
                           color: context.palette.textSecondary,
@@ -620,7 +588,7 @@ class _SignupScreenState extends State<SignupScreen> {
                       TextButton(
                         onPressed: widget.onNavigateToLogin,
                         child: Text(
-                          isArabic ? 'تسجيل الدخول' : 'Sign In',
+                          lang.t('auth_sign_in'),
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
@@ -658,7 +626,7 @@ class _SignupScreenState extends State<SignupScreen> {
     );
   }
 
-  Future<void> _handleSignup(bool isArabic) async {
+  Future<void> _handleSignup(LanguageProvider lang) async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -667,9 +635,7 @@ class _SignupScreenState extends State<SignupScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic
-                ? 'الرجاء الموافقة على الشروط والأحكام'
-                : 'Please agree to Terms & Conditions',
+            lang.t('signup_please_agree_to_terms_conditions'),
           ),
           backgroundColor: AppColors.error,
         ),
@@ -677,7 +643,7 @@ class _SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    final normalizedPhone = _normalizedPhone ?? _validateAndNormalizePhone(isArabic);
+    final normalizedPhone = _normalizedPhone ?? _validateAndNormalizePhone(lang);
     if (normalizedPhone == null) {
       return;
     }
@@ -686,7 +652,7 @@ class _SignupScreenState extends State<SignupScreen> {
     if (otpCode.length != 6) {
       setState(() {
         _verificationErrorText =
-            isArabic ? 'أدخل رمز تحقق مكوناً من 6 أرقام' : 'Enter a 6-digit verification code';
+            lang.t('signup_enter_a_6_digit_verification_code');
       });
       return;
     }
@@ -726,7 +692,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  Future<void> _socialSignup(String provider, bool isArabic) async {
+  Future<void> _socialSignup(String provider, LanguageProvider lang) async {
     final authProvider = context.read<AuthProvider>();
 
     final success = await authProvider.socialLogin(provider);

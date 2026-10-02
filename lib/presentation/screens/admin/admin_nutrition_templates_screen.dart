@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/bidi_text.dart';
+import '../../../core/utils/catalog_labels.dart';
 import '../../providers/admin_provider.dart';
 import '../../providers/language_provider.dart';
+import '../../widgets/catalog_search_field.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -27,6 +30,12 @@ class _AdminNutritionTemplatesScreenState
     extends State<AdminNutritionTemplatesScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _tabController;
+
+  /// Each tab keeps its own query, so switching between meals and plans does
+  /// not drag one tab's search into the other.
+  final Map<int, String> _searches = <int, String>{};
+
+  String get _search => _searches[_tabController.index] ?? '';
 
   @override
   void initState() {
@@ -61,18 +70,89 @@ class _AdminNutritionTemplatesScreenState
 
   Future<void> _refreshCurrent() {
     final provider = context.read<AdminProvider>();
+    final query = _search.isEmpty ? null : _search;
     switch (_tabController.index) {
-      case 0:
-        return provider.loadNutritionEngineRecipes();
       case 1:
-        return provider.loadNutritionIngredients();
+        return provider.loadNutritionIngredients(search: query);
       case 2:
-        return provider.loadNutritionEnginePlans();
+        return provider.loadNutritionEnginePlans(search: query);
       case 3:
         return provider.loadNutritionEngineImports();
       default:
-        return provider.loadNutritionEngineRecipes();
+        return provider.loadNutritionEngineRecipes(search: query);
     }
+  }
+
+  void _onSearchChanged(String query) {
+    _searches[_tabController.index] = query;
+    // The imports tab is a short audit log that arrives whole, so it filters in
+    // place; the other three are paginated and have to ask the server, or a
+    // search would only ever look at the page already on screen.
+    if (_tabController.index == 3) {
+      setState(() {});
+      return;
+    }
+    _refreshCurrent();
+  }
+
+  /// Hint text naming what this tab actually searches, rather than one generic
+  /// "Search" for four different catalogues.
+  String _searchHint(LanguageProvider lang) {
+    switch (_tabController.index) {
+      case 1:
+        return lang.t('admin_ingredient_search_hint');
+      case 2:
+        return lang.t('admin_plan_search_hint');
+      case 3:
+        return lang.t('admin_import_search_hint');
+      default:
+        return lang.t('admin_meal_search_hint');
+    }
+  }
+
+  String? _resultLabel(LanguageProvider lang, AdminProvider provider) {
+    if (provider.isLoading) return null;
+    switch (_tabController.index) {
+      case 1:
+        final count = provider.nutritionIngredients.length;
+        return catalogResultLabel(lang,
+            shown: count, total: count, query: _search);
+      case 2:
+        return catalogResultLabel(
+          lang,
+          shown: provider.nutritionEnginePlans.length,
+          total: provider.nutritionEnginePlanTotal,
+          query: provider.nutritionEnginePlanSearch,
+        );
+      case 3:
+        final imports = _filterImports(provider.nutritionEngineImports);
+        return catalogResultLabel(lang,
+            shown: imports.length, total: imports.length, query: _search);
+      default:
+        return catalogResultLabel(
+          lang,
+          shown: provider.nutritionEngineRecipes.length,
+          total: provider.nutritionEngineRecipeTotal,
+          query: provider.nutritionEngineRecipeSearch,
+        );
+    }
+  }
+
+  /// The imports tab holds every row it has, so its search runs locally.
+  List<Map<String, dynamic>> _filterImports(List<Map<String, dynamic>> rows) {
+    final terms =
+        _search.toLowerCase().split(' ').where((term) => term.isNotEmpty);
+    if (terms.isEmpty) return rows;
+    return rows.where((row) {
+      final haystack = [
+        _stringValue(row['package_name']),
+        _stringValue(row['package_version']),
+        _stringValue(row['package_checksum']),
+        _stringValue(row['status']),
+        _stringValue(row['completed_at']),
+      ].join(' ').toLowerCase();
+      return terms.every(haystack.contains);
+    }).toList();
   }
 
   Future<void> _handleAction(_AdminNutritionAction action) {
@@ -162,6 +242,15 @@ class _AdminNutritionTemplatesScreenState
                 message: provider.error!,
                 onDismiss: provider.clearError,
               ),
+            CatalogSearchField(
+              // Rebuilt per tab so each one starts from its own saved query
+              // instead of inheriting whatever the previous tab was showing.
+              key: ValueKey('nutritionSearch:${_tabController.index}'),
+              initialValue: _search,
+              hintText: _searchHint(lang),
+              onChanged: _onSearchChanged,
+              resultLabel: _resultLabel(lang, provider),
+            ),
             Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -217,11 +306,11 @@ class _AdminNutritionTemplatesScreenState
       return _EmptyList(
         message:
             context.watch<LanguageProvider>().t('plan_editor_no_engine_meals'),
-        onRefresh: () => provider.loadNutritionEngineRecipes(),
+        onRefresh: _refreshCurrent,
       );
     }
     return RefreshIndicator(
-      onRefresh: () => provider.loadNutritionEngineRecipes(),
+      onRefresh: _refreshCurrent,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -246,11 +335,11 @@ class _AdminNutritionTemplatesScreenState
       return _EmptyList(
         message:
             context.watch<LanguageProvider>().t('plan_editor_no_engine_plans'),
-        onRefresh: () => provider.loadNutritionEnginePlans(),
+        onRefresh: _refreshCurrent,
       );
     }
     return RefreshIndicator(
-      onRefresh: () => provider.loadNutritionEnginePlans(),
+      onRefresh: _refreshCurrent,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -275,11 +364,11 @@ class _AdminNutritionTemplatesScreenState
     if (ingredients.isEmpty) {
       return _EmptyList(
         message: lang.t('plan_editor_no_ingredients'),
-        onRefresh: provider.loadNutritionIngredients,
+        onRefresh: _refreshCurrent,
       );
     }
     return RefreshIndicator(
-      onRefresh: provider.loadNutritionIngredients,
+      onRefresh: _refreshCurrent,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 88),
@@ -366,7 +455,7 @@ class _AdminNutritionTemplatesScreenState
   }
 
   Widget _buildImportsTab(AdminProvider provider) {
-    final imports = provider.nutritionEngineImports;
+    final imports = _filterImports(provider.nutritionEngineImports);
     if (provider.isLoading && imports.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
@@ -375,11 +464,11 @@ class _AdminNutritionTemplatesScreenState
         message: context
             .watch<LanguageProvider>()
             .t('plan_editor_no_engine_imports'),
-        onRefresh: () => provider.loadNutritionEngineImports(),
+        onRefresh: _refreshCurrent,
       );
     }
     return RefreshIndicator(
-      onRefresh: () => provider.loadNutritionEngineImports(),
+      onRefresh: _refreshCurrent,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
@@ -497,7 +586,7 @@ class _InlineError extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 10, 8, 10),
       color: AppColors.error.withValues(alpha: 0.08),
       child: Row(
         children: [
@@ -567,14 +656,23 @@ class _NutritionEngineRecipeCard extends StatelessWidget {
     final name = lang.isArabic
         ? _firstText([recipe['name_ar'], recipe['name_en'], recipeId])
         : _firstText([recipe['name_en'], recipeId]);
-    final markets = _listText(recipe['market_tags']);
-    final mealTypes = _listText(recipe['meal_types']);
-    final status = _stringValue(recipe['validation_status']);
+    // An empty list still needs a placeholder in the summary line, the way
+    // the old list formatter did.
+    String listOr(String domain, dynamic raw) {
+      final labels = catalogLabels(lang, domain, _asList(raw) ?? const []);
+      return labels.isEmpty ? '-' : labels;
+    }
+
+    final markets = listOr('market', recipe['market_tags']);
+    final mealTypes = listOr('meal_type', recipe['meal_types']);
+    final status =
+        catalogLabel(lang, 'validation_status', recipe['validation_status']);
     final active = recipe['is_active'] == false
         ? lang.t('plan_editor_inactive')
         : lang.t('plan_editor_active');
     final prep = _stringValue(recipe['prep_time_min'], fallback: '-');
-    final cost = _stringValue(recipe['cost_level'], fallback: '-');
+    final costLabel = catalogLabel(lang, 'cost_level', recipe['cost_level']);
+    final cost = costLabel.isEmpty ? '-' : costLabel;
     final editedAt = _stringValue(recipe['admin_edited_at']);
 
     return CustomCard(
@@ -660,13 +758,15 @@ class _NutritionEnginePlanCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final planId = _stringValue(plan['plan_id']);
-    final planType = _stringValue(plan['plan_type']);
-    final market = _stringValue(plan['market']);
+    final planType = catalogLabel(lang, 'plan_type', plan['plan_type']);
+    final market = catalogLabel(lang, 'market', plan['market']);
     final calories = _stringValue(plan['calorie_band']);
-    final macroProfile = _stringValue(plan['macro_profile']);
+    final macroProfile =
+        catalogLabel(lang, 'macro_profile', plan['macro_profile']);
     final mealCount = _stringValue(plan['meal_count']);
     final rotation = _stringValue(plan['rotation']);
-    final status = _stringValue(plan['validation_status']);
+    final status =
+        catalogLabel(lang, 'validation_status', plan['validation_status']);
     final active = plan['is_active'] == false
         ? lang.t('plan_editor_inactive')
         : lang.t('plan_editor_active');
@@ -697,7 +797,9 @@ class _NutritionEnginePlanCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '$planType - $market - $calories kcal - $macroProfile',
+                    '$planType - $market'
+                    ' - ${measurement(calories, ' ${lang.t('kcal_unit')}')}'
+                    ' - $macroProfile',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -2726,12 +2828,3 @@ List<dynamic>? _asList(dynamic value) {
   return null;
 }
 
-String _listText(dynamic value) {
-  if (value is Iterable) {
-    final items = value.map((item) => item.toString()).where((item) {
-      return item.trim().isNotEmpty;
-    }).toList();
-    return items.isEmpty ? '-' : items.join(', ');
-  }
-  return _stringValue(value, fallback: '-');
-}

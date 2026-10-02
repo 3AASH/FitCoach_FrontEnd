@@ -22,6 +22,30 @@ class CoachCredentials {
   });
 }
 
+/// One page of a catalogue, with how many rows match in total.
+///
+/// The admin catalogues are paginated but used to return a bare list, so a
+/// screen could not tell "these are all of them" from "these are the first
+/// hundred". That is what made a catalogue of 380 nutrition plans look like it
+/// held only the 100 the first page happened to contain — all of one market,
+/// because the ordering groups them that way — and the other market look
+/// deleted.
+class AdminPage<T> {
+  final List<T> items;
+
+  /// Rows matching the current filters across every page.
+  final int total;
+
+  const AdminPage({required this.items, required this.total});
+
+  const AdminPage.empty()
+      : items = const [],
+        total = 0;
+
+  /// True when this page does not contain every match.
+  bool get isTruncated => items.length < total;
+}
+
 class AdminCoachUpdatePayload {
   final String fullName;
   final String? fullNameAr;
@@ -450,11 +474,11 @@ class AdminRepository {
     }
   }
 
-  Future<List<AdminExercise>> getExercises({
+  Future<AdminPage<AdminExercise>> getExercises({
     String? search,
     String? category,
     String? difficulty,
-    int limit = 100,
+    int limit = 200,
     int offset = 0,
   }) async {
     const endpoint = '/admin/exercises';
@@ -480,13 +504,24 @@ class AdminRepository {
             data['data'],
       );
 
-      return list
+      final items = list
           .map((json) =>
               AdminExercise.fromJson(_asMap(json) ?? const <String, dynamic>{}))
           .toList();
+      return AdminPage(items: items, total: _totalOf(data, items.length));
     } on DioException catch (e) {
       throw Exception(_readableError(e, fallback: 'Failed to get exercises'));
     }
+  }
+
+  /// The server's match count, falling back to the page size for an older
+  /// build that does not send one.
+  static int _totalOf(Map<String, dynamic> data, int pageLength) {
+    final total = data['total'];
+    if (total is int) return total;
+    if (total is num) return total.toInt();
+    final parsed = int.tryParse('$total');
+    return parsed ?? pageLength;
   }
 
   Future<AdminExercise> createExercise(AdminExercise exercise) async {
@@ -550,6 +585,7 @@ class AdminRepository {
   }
 
   Future<List<AdminWorkoutTemplate>> getWorkoutTemplates({
+    String? search,
     String? type,
     String? goal,
     String? location,
@@ -558,6 +594,8 @@ class AdminRepository {
       final response = await _dio.get(
         '/admin/workout-templates',
         queryParameters: {
+          if (search != null && search.trim().isNotEmpty)
+            'search': search.trim(),
           if (type != null && type.trim().isNotEmpty) 'type': type,
           if (goal != null && goal.trim().isNotEmpty) 'goal': goal,
           if (location != null && location.trim().isNotEmpty)
@@ -834,11 +872,13 @@ class AdminRepository {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getNutritionEngineRecipes({
+  Future<AdminPage<Map<String, dynamic>>> getNutritionEngineRecipes({
     String? search,
     String? validationStatus,
     bool? active,
-    int limit = 100,
+    // Generous enough to hold the whole meal catalogue in one page. The count
+    // on the search bar says so when it ever stops being enough.
+    int limit = 500,
     int offset = 0,
   }) async {
     try {
@@ -856,9 +896,10 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
       final data = _asMap(response.data) ?? const <String, dynamic>{};
-      return _asList(data['recipes'] ?? data['data'])
+      final items = _asList(data['recipes'] ?? data['data'])
           .map((item) => _asMap(item) ?? const <String, dynamic>{})
           .toList();
+      return AdminPage(items: items, total: _totalOf(data, items.length));
     } on DioException catch (e) {
       throw Exception(_readableError(e,
           fallback: 'Failed to get nutrition engine recipes'));
@@ -914,13 +955,16 @@ class AdminRepository {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getNutritionEnginePlans({
+  Future<AdminPage<Map<String, dynamic>>> getNutritionEnginePlans({
+    String? search,
     String? planType,
     String? market,
     int? calorieBand,
     String? macroProfile,
     String? validationStatus,
-    int limit = 100,
+    // The plan catalogue runs to several hundred rows and is ordered by type
+    // then market, so a small page is one market's plans and nothing else.
+    int limit = 500,
     int offset = 0,
   }) async {
     try {
@@ -929,6 +973,8 @@ class AdminRepository {
         queryParameters: {
           'limit': limit,
           'offset': offset,
+          if (search != null && search.trim().isNotEmpty)
+            'search': search.trim(),
           if (planType != null && planType.trim().isNotEmpty)
             'planType': planType.trim(),
           if (market != null && market.trim().isNotEmpty)
@@ -942,9 +988,10 @@ class AdminRepository {
         options: await _getAuthOptions(),
       );
       final data = _asMap(response.data) ?? const <String, dynamic>{};
-      return _asList(data['plans'] ?? data['data'])
+      final items = _asList(data['plans'] ?? data['data'])
           .map((item) => _asMap(item) ?? const <String, dynamic>{})
           .toList();
+      return AdminPage(items: items, total: _totalOf(data, items.length));
     } on DioException catch (e) {
       throw Exception(
           _readableError(e, fallback: 'Failed to get nutrition engine plans'));

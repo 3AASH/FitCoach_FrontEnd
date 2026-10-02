@@ -463,9 +463,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 ),
               ),
               Icon(
-                Directionality.of(context) == TextDirection.rtl
-                    ? Icons.chevron_left
-                    : Icons.chevron_right,
+                Icons.chevron_right,
                 color: context.palette.textDisabled,
               ),
             ],
