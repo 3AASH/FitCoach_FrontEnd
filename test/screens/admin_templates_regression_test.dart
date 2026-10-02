@@ -53,6 +53,19 @@ class _FakeAdminRepository extends AdminRepository {
     return workoutTemplateById[planId] ?? const <String, dynamic>{};
   }
 
+  /// The payload of the last save, so a test can assert on what the editor
+  /// actually sends rather than only on what it renders.
+  Map<String, dynamic>? savedWorkoutTemplate;
+
+  @override
+  Future<Map<String, dynamic>> saveWorkoutTemplate(
+    Map<String, dynamic> template, {
+    bool includeCoachEdited = false,
+  }) async {
+    savedWorkoutTemplate = template;
+    return <String, dynamic>{'success': true};
+  }
+
   @override
   Future<AdminPage<AdminExercise>> getExercises({
     String? search,
@@ -220,6 +233,96 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Push Up'), findsWidgets);
+  });
+
+  testWidgets(
+      'starter template editor shows its single variant in the program dropdown '
+      'and still saves sessions rather than a programs matrix',
+      (tester) async {
+    final repo = _FakeAdminRepository(
+      workoutTemplates: const [
+        AdminWorkoutTemplate(
+          planId: 'starter_plan_1',
+          type: 'starter',
+          nameEn: 'Starter Plan',
+          goal: 'general_fitness',
+          location: 'gym',
+          trainingDays: 1,
+          weeks: 4,
+        ),
+      ],
+      workoutTemplateById: {
+        'starter_plan_1': {
+          'plan_id': 'starter_plan_1',
+          'type': 'starter',
+          'name_en': 'Starter Plan',
+          'goal': 'general_fitness',
+          'location': 'gym',
+          'training_days': 1,
+          'weeks': 4,
+          'sessions': [
+            {
+              'day': 1,
+              'name_en': 'Day 1',
+              'work': [
+                {'ex_id': 'push_up', 'name_en': 'Push Up', 'sets': 3, 'reps': '10'}
+              ]
+            }
+          ]
+        }
+      },
+      exercises: const [
+        AdminExercise(
+          id: 'exercise-1',
+          exId: 'push_up',
+          nameEn: 'Push Up',
+          nameAr: 'ضغط',
+        ),
+      ],
+    );
+    final adminProvider = AdminProvider(repo);
+    final languageProvider = await _englishLanguageProvider();
+
+    await tester.pumpWidget(
+      _wrapWithProviders(
+        child: const AdminWorkoutTemplatesScreen(),
+        adminProvider: adminProvider,
+        languageProvider: languageProvider,
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byIcon(Icons.data_object).first);
+    await tester.pumpAndSettle();
+
+    // A starter plan has one variant, but it is still surfaced through the same
+    // dropdown the advanced editor uses.
+    expect(find.byType(DropdownButtonFormField<String>), findsOneWidget);
+    expect(find.text('Gym • General Fitness • All Levels'), findsOneWidget);
+
+    final saveButton = find.byIcon(Icons.save);
+    // Not `find.byType(Scrollable).last`: text fields carry their own
+    // horizontal scrollable, so match the sheet's vertical list explicitly.
+    await tester.scrollUntilVisible(
+      saveButton,
+      300,
+      scrollable: find
+          .byWidgetPredicate(
+              (widget) => widget is Scrollable && widget.axisDirection == AxisDirection.down)
+          .last,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(saveButton);
+    await tester.pumpAndSettle();
+
+    final saved = repo.savedWorkoutTemplate;
+    expect(saved, isNotNull);
+    // The dropdown must stay cosmetic for starter plans: routing it through the
+    // advanced path would nest the sessions under `programs` and drop the
+    // top-level `sessions` the backend's starter validator and generator read.
+    expect(saved!['programs'], isNull);
+    expect(saved['sessions'], isA<List<dynamic>>());
+    expect((saved['sessions'] as List<dynamic>), hasLength(1));
   });
 
   testWidgets(

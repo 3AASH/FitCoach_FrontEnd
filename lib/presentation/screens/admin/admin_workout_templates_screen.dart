@@ -497,20 +497,30 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
   }
 
   Widget _buildPlanEditor() {
+    // A starter template holds one variant instead of a programs matrix, so it
+    // gets a single-entry dropdown to keep this editor laid out like the
+    // advanced one. Only an advanced template can switch variants, so selecting
+    // the starter entry stays a no-op — routing it through
+    // _selectedAdvancedProgramPath would make _buildTemplate write the sessions
+    // into `programs` and strip the `sessions` the backend reads.
+    final List<String> programPaths =
+        _isAdvancedTemplate ? _advancedProgramPaths : [_starterProgramPath()];
+    final selectedPath =
+        _isAdvancedTemplate ? _selectedAdvancedProgramPath : programPaths.first;
     return Column(
       children: [
-        if (_isAdvancedTemplate && _advancedProgramPaths.isNotEmpty) ...[
+        if (programPaths.isNotEmpty) ...[
           DropdownButtonFormField<String>(
-            initialValue: _selectedAdvancedProgramPath,
+            initialValue: selectedPath,
             decoration: InputDecoration(
               labelText: _tr('plan_editor_workout_days'),
               border: const OutlineInputBorder(),
             ),
-            items: _advancedProgramPaths
+            items: programPaths
               .map((path) => DropdownMenuItem(value: path, child: Text(_formatAdvancedProgramPath(path))))
                 .toList(),
             onChanged: (path) {
-              if (path == null) return;
+              if (path == null || !_isAdvancedTemplate) return;
               setState(() {
                 _selectedAdvancedProgramPath = path;
                 _loadStructured(_rawTemplate);
@@ -949,6 +959,16 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     if (value == null) return fallback;
     final text = value.toString().trim();
     return text.isEmpty ? fallback : text;
+  }
+
+  /// The one location/goal variant a starter template represents, shaped like an
+  /// advanced program path so both editors render the same control. Read from
+  /// the controllers rather than the raw template so it tracks edits to those
+  /// fields.
+  String _starterProgramPath() {
+    final location = _stringValue(_locationController.text, fallback: 'any');
+    final goal = _stringValue(_goalController.text, fallback: 'any');
+    return '$location|$goal|all_levels';
   }
 
   String _formatAdvancedProgramPath(String path) {
