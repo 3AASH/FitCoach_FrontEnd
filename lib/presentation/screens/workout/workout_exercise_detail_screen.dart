@@ -162,13 +162,30 @@ class _WorkoutExerciseDetailScreenState
                         separatorBuilder: (_, __) => const SizedBox(height: 8),
                         itemBuilder: (context, index) {
                           final alt = alternatives[index];
+                          final altIsArabic = lang.isArabic;
+                          final altName = altIsArabic &&
+                                  alt.nameAr.trim().isNotEmpty
+                              ? alt.nameAr
+                              : alt.nameEn;
+                          final altGifUrl = _resolveHeroThumbnail(
+                            alt.thumbnailUrl,
+                            alt.videoUrl,
+                          );
                           return ListTile(
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
                               side: BorderSide(color: context.palette.border),
                             ),
+                            leading: ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                width: 48,
+                                height: 48,
+                                child: _buildAlternativeThumbnail(altGifUrl),
+                              ),
+                            ),
                             title: Text(
-                              alt.nameEn,
+                              altName,
                               style: TextStyle(
                                 color: context.palette.textPrimary,
                                 fontWeight: FontWeight.w600,
@@ -231,6 +248,21 @@ class _WorkoutExerciseDetailScreenState
     return VideoThumbnailResolver.resolveDemo(
       thumbnailUrl: thumbnailUrl,
       videoUrl: videoUrl,
+    );
+  }
+
+  Widget _buildAlternativeThumbnail(String? imageUrl) {
+    const placeholder = 'assets/placeholders/splash_onboarding/workout_onboarding.png';
+    if (imageUrl == null || imageUrl.isEmpty) {
+      return Image.asset(placeholder, fit: BoxFit.cover);
+    }
+    if (imageUrl.startsWith('assets/')) {
+      return Image.asset(imageUrl, fit: BoxFit.cover);
+    }
+    return Image.network(
+      imageUrl,
+      fit: BoxFit.cover,
+      errorBuilder: (_, __, ___) => Image.asset(placeholder, fit: BoxFit.cover),
     );
   }
 
