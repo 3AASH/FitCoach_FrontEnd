@@ -86,7 +86,8 @@ class NutritionIntroScreen extends StatelessWidget {
                         color: Color(0xFF16A34A),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.local_florist, color: Colors.white, size: 40),
+                      child: const Icon(Icons.local_florist,
+                          color: Colors.white, size: 40),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -142,11 +143,11 @@ class NutritionIntroScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 16),
-                    AnimatedReveal(
-                      delay: const Duration(milliseconds: 520),
-                      offset: const Offset(0, 0.2),
-                      initialScale: 0.9,
-                      child: SizedBox(
+                  AnimatedReveal(
+                    delay: const Duration(milliseconds: 520),
+                    offset: const Offset(0, 0.2),
+                    initialScale: 0.9,
+                    child: SizedBox(
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
@@ -154,14 +155,16 @@ class NutritionIntroScreen extends StatelessWidget {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF16A34A),
                           foregroundColor: Colors.white,
-                          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                          textStyle: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w600),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(languageProvider.t('nutrition_intro_get_started')),
+                            Text(languageProvider
+                                .t('nutrition_intro_get_started')),
                             const SizedBox(width: 8),
-                            Icon(isArabic ? Icons.arrow_back : Icons.arrow_forward),
+                            const Icon(Icons.arrow_forward),
                           ],
                         ),
                       ),
@@ -221,55 +224,30 @@ class _IntroFeatureCard extends StatelessWidget {
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
-            children: isArabic
-                ? [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                            textAlign: TextAlign.right,
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 12,
-                            ),
-                            textAlign: TextAlign.right,
-                          ),
-                        ],
-                      ),
+            children: [
+              _IntroIcon(icon: icon, color: iconColor),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(width: 12),
-                    _IntroIcon(icon: icon, color: iconColor),
-                  ]
-                : [
-                    _IntroIcon(icon: icon, color: iconColor),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            title,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                          ),
-                          const SizedBox(height: 4),
-                          Text(
-                            description,
-                            style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                    const SizedBox(height: 4),
+                    Text(
+                      description,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
                       ),
                     ),
                   ],
+                ),
+              ),
+            ],
           ),
         ),
       ),

@@ -8,6 +8,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class ProgressEntry {
   final String id;
@@ -288,11 +289,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isArabic = context.watch<LanguageProvider>().isArabic;
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isArabic ? 'التقدم' : 'Progress'),
+        title: Text(lang.t('coach_progress_label')),
         actions: [
           IconButton(
             onPressed: DemoConfig.isDemo ? null : _loadProgress,
@@ -319,56 +320,56 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       // Period selector
-                      _buildPeriodSelector(isArabic),
+                      _buildPeriodSelector(lang),
 
                       const SizedBox(height: 24),
 
                       // Summary cards
-                      _buildSummaryCards(isArabic),
+                      _buildSummaryCards(lang),
 
                       const SizedBox(height: 24),
 
                       // Weight chart
-                      _buildWeightChart(isArabic),
+                      _buildWeightChart(lang),
 
                       const SizedBox(height: 24),
 
                       // Workout frequency
-                      _buildWorkoutFrequency(isArabic),
+                      _buildWorkoutFrequency(lang),
 
                       const SizedBox(height: 24),
 
                       // Calories chart
-                      _buildCaloriesChart(isArabic),
+                      _buildCaloriesChart(lang),
 
                       const SizedBox(height: 24),
 
                       // Detailed progress entries
-                      _buildDetailedProgressEntries(isArabic),
+                      _buildDetailedProgressEntries(lang),
 
                       const SizedBox(height: 24),
 
                       // Achievements
-                      _buildAchievements(isArabic),
+                      _buildAchievements(lang),
                     ],
                   ),
                 ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _addProgress(isArabic),
+        onPressed: () => _addProgress(lang),
         icon: const Icon(Icons.add),
-        label: Text(isArabic ? 'سجل تقدم' : 'Log Progress'),
+        label: Text(lang.t('progress_log_progress')),
       ),
     );
   }
 
-  Widget _buildPeriodSelector(bool isArabic) {
+  Widget _buildPeriodSelector(LanguageProvider lang) {
     return Row(
       children: ['week', 'month', 'year'].map((period) {
         final isSelected = _selectedPeriod == period;
         return Padding(
-          padding: const EdgeInsets.only(right: 8),
+          padding: const EdgeInsetsDirectional.only(end: 8),
           child: FilterChip(
-            label: Text(_getPeriodLabel(period, isArabic)),
+            label: Text(_getPeriodLabel(period, lang)),
             selected: isSelected,
             onSelected: (selected) {
               setState(() {
@@ -383,16 +384,16 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  String _getPeriodLabel(String period, bool isArabic) {
+  String _getPeriodLabel(String period, LanguageProvider lang) {
     final labels = {
-      'week': isArabic ? 'أسبوع' : 'Week',
-      'month': isArabic ? 'شهر' : 'Month',
-      'year': isArabic ? 'سنة' : 'Year',
+      'week': lang.t('admin_period_week'),
+      'month': lang.t('admin_period_month'),
+      'year': lang.t('coach_earnings_period_year'),
     };
     return labels[period] ?? period;
   }
 
-  Widget _buildSummaryCards(bool isArabic) {
+  Widget _buildSummaryCards(LanguageProvider lang) {
     final weights = _weightSeries;
     double? lossValue;
     if (weights.length >= 2) {
@@ -402,7 +403,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       children: [
         Expanded(
           child: CustomStatCard(
-            title: isArabic ? 'فقدت' : 'Lost',
+            title: lang.t('progress_lost'),
             value: lossValue == null
                 ? '-1.5kg'
                 : '${lossValue >= 0 ? '-' : '+'}${lossValue.abs().toStringAsFixed(1)}kg',
@@ -413,7 +414,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: CustomStatCard(
-            title: isArabic ? 'تمارين' : 'Workouts',
+            title: lang.t('progress_workouts'),
             value: _workoutCount.toString(),
             icon: Icons.fitness_center,
             color: AppColors.primary,
@@ -422,7 +423,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         const SizedBox(width: 12),
         Expanded(
           child: CustomStatCard(
-            title: isArabic ? 'متتالي' : 'Streak',
+            title: lang.t('progress_streak'),
             value: '${_streakDays}d',
             icon: Icons.local_fire_department,
             color: AppColors.accent,
@@ -432,14 +433,14 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  Widget _buildWeightChart(bool isArabic) {
+  Widget _buildWeightChart(LanguageProvider lang) {
     final weights = _weightSeries;
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isArabic ? 'الوزن' : 'Weight',
+            lang.t('weight'),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -461,18 +462,22 @@ class _ProgressScreenState extends State<ProgressScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                isArabic
-                    ? 'البداية: ${weights.isNotEmpty ? weights.first.toStringAsFixed(1) : '--'} كجم'
-                    : 'Start: ${weights.isNotEmpty ? weights.first.toStringAsFixed(1) : '--'}kg',
+                lang.t('progress_start_weight', args: {
+                  'value': weights.isNotEmpty
+                      ? weights.first.toStringAsFixed(1)
+                      : '--'
+                }),
                 style: TextStyle(
                   fontSize: 12,
                   color: context.palette.textSecondary,
                 ),
               ),
               Text(
-                isArabic
-                    ? 'الحالي: ${weights.isNotEmpty ? weights.last.toStringAsFixed(1) : '--'} كجم'
-                    : 'Current: ${weights.isNotEmpty ? weights.last.toStringAsFixed(1) : '--'}kg',
+                lang.t('progress_current_weight', args: {
+                  'value': weights.isNotEmpty
+                      ? weights.last.toStringAsFixed(1)
+                      : '--'
+                }),
                 style: TextStyle(
                   fontSize: 12,
                   color: context.palette.textSecondary,
@@ -485,13 +490,13 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  Widget _buildWorkoutFrequency(bool isArabic) {
+  Widget _buildWorkoutFrequency(LanguageProvider lang) {
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isArabic ? 'تكرار التمارين' : 'Workout Frequency',
+            lang.t('progress_workout_frequency'),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -539,13 +544,13 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  Widget _buildCaloriesChart(bool isArabic) {
+  Widget _buildCaloriesChart(LanguageProvider lang) {
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isArabic ? 'السعرات الحرارية' : 'Calories',
+            lang.t('progress_calories'),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -578,9 +583,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
           ),
           const SizedBox(height: 16),
           Text(
-            isArabic
-                ? 'متوسط: ${_averageCalories?.toString() ?? '--'} سعرة/يوم'
-                : 'Average: ${_averageCalories?.toString() ?? '--'} cal/day',
+            lang.t('progress_average_calories',
+                args: {'value': _averageCalories?.toString() ?? '--'}),
             style: TextStyle(
               fontSize: 12,
               color: context.palette.textSecondary,
@@ -592,12 +596,12 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  Widget _buildDetailedProgressEntries(bool isArabic) {
+  Widget _buildDetailedProgressEntries(LanguageProvider lang) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isArabic ? 'السجل التفصيلي' : 'Detailed Progress',
+          lang.t('progress_detailed_progress'),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -610,9 +614,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
               padding: const EdgeInsets.all(20),
               child: Center(
                 child: Text(
-                  isArabic
-                      ? 'لا توجد إدخالات تقدم بعد'
-                      : 'No progress entries yet',
+                  lang.t('progress_no_progress_entries_yet'),
                   style: TextStyle(
                     color: context.palette.textSecondary,
                   ),
@@ -623,13 +625,13 @@ class _ProgressScreenState extends State<ProgressScreen> {
         else
           ..._entries.map((entry) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: _buildProgressEntryCard(entry, isArabic),
+                child: _buildProgressEntryCard(entry, lang),
               )),
       ],
     );
   }
 
-  Widget _buildProgressEntryCard(ProgressEntry entry, bool isArabic) {
+  Widget _buildProgressEntryCard(ProgressEntry entry, LanguageProvider lang) {
     final chips = <Widget>[];
     void addChip(String label, String value) {
       chips.add(
@@ -652,24 +654,24 @@ class _ProgressScreenState extends State<ProgressScreen> {
     }
 
     if (entry.weight != null) {
-      addChip(isArabic ? 'الوزن' : 'Weight',
+      addChip(lang.t('weight'),
           '${entry.weight!.toStringAsFixed(1)} kg');
     }
     if (entry.bodyFatPercentage != null) {
-      addChip(isArabic ? 'الدهون' : 'Body Fat',
+      addChip(lang.t('progress_body_fat'),
           '${entry.bodyFatPercentage!.toStringAsFixed(1)}%');
     }
     if (entry.waist != null) {
-      addChip(isArabic ? 'الخصر' : 'Waist',
+      addChip(lang.t('progress_waist'),
           '${entry.waist!.toStringAsFixed(1)} cm');
     }
     if (entry.chest != null) {
-      addChip(isArabic ? 'الصدر' : 'Chest',
+      addChip(lang.t('progress_chest'),
           '${entry.chest!.toStringAsFixed(1)} cm');
     }
     if (entry.hips != null) {
       addChip(
-          isArabic ? 'الورك' : 'Hips', '${entry.hips!.toStringAsFixed(1)} cm');
+          lang.t('progress_hips'), '${entry.hips!.toStringAsFixed(1)} cm');
     }
     if (entry.bicepsLeft != null || entry.bicepsRight != null) {
       final left = entry.bicepsLeft != null
@@ -678,7 +680,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       final right = entry.bicepsRight != null
           ? entry.bicepsRight!.toStringAsFixed(1)
           : '--';
-      addChip(isArabic ? 'الذراعان' : 'Arms', 'L $left / R $right cm');
+      addChip(lang.t('progress_arms'), 'L $left / R $right cm');
     }
     if (entry.thighLeft != null || entry.thighRight != null) {
       final left =
@@ -686,7 +688,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       final right = entry.thighRight != null
           ? entry.thighRight!.toStringAsFixed(1)
           : '--';
-      addChip(isArabic ? 'الفخذان' : 'Thighs', 'L $left / R $right cm');
+      addChip(lang.t('progress_thighs'), 'L $left / R $right cm');
     }
 
     final photoUrls = [
@@ -762,7 +764,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  Widget _buildAchievements(bool isArabic) {
+  Widget _buildAchievements(LanguageProvider lang) {
     final workoutCount = _workoutCount;
     final streakDays = _streakDays;
     final hasFirstWeek = streakDays >= 7 || workoutCount >= 7;
@@ -771,21 +773,21 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final achievements = [
       {
         'icon': Icons.emoji_events,
-        'title': isArabic ? 'أول أسبوع' : 'First Week',
+        'title': lang.t('progress_first_week'),
         'description':
-            isArabic ? 'أكملت أسبوعك الأول' : 'Completed your first week',
+            lang.t('progress_completed_your_first_week'),
         'unlocked': DemoConfig.isDemo ? true : hasFirstWeek,
       },
       {
         'icon': Icons.local_fire_department,
-        'title': isArabic ? 'متتالي 7 أيام' : '7 Day Streak',
-        'description': isArabic ? '7 أيام متتالية' : '7 consecutive days',
+        'title': lang.t('progress_7_day_streak'),
+        'description': lang.t('progress_7_consecutive_days'),
         'unlocked': DemoConfig.isDemo ? true : streakDays >= 7,
       },
       {
         'icon': Icons.star,
-        'title': isArabic ? '20 تمرين' : '20 Workouts',
-        'description': isArabic ? 'أكملت 20 تمرين' : 'Completed 20 workouts',
+        'title': lang.t('progress_20_workouts'),
+        'description': lang.t('progress_completed_20_workouts'),
         'unlocked': DemoConfig.isDemo ? false : hasTwentyWorkouts,
       },
     ];
@@ -794,7 +796,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isArabic ? 'الإنجازات' : 'Achievements',
+          lang.t('public_coach_profile_tab_achievements'),
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -860,7 +862,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  void _addProgress(bool isArabic) {
+  void _addProgress(LanguageProvider lang) {
     _weightController.clear();
     _notesController.clear();
     showModalBottomSheet(
@@ -876,18 +878,12 @@ class _ProgressScreenState extends State<ProgressScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                isArabic ? 'سجل تقدمك' : 'Log Your Progress',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              SheetHeader(title: lang.t('progress_log_title')),
               const SizedBox(height: 24),
               TextField(
                 controller: _weightController,
                 decoration: InputDecoration(
-                  labelText: isArabic ? 'الوزن (كجم)' : 'Weight (kg)',
+                  labelText: lang.t('progress_weight_kg'),
                   border: const OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
@@ -896,7 +892,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
               TextField(
                 controller: _notesController,
                 decoration: InputDecoration(
-                  labelText: isArabic ? 'ملاحظات' : 'Notes',
+                  labelText: lang.t('coach_workout_editor_notes_label'),
                   border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
@@ -905,8 +901,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => _saveProgress(isArabic),
-                  child: Text(isArabic ? 'حفظ' : 'Save'),
+                  onPressed: () => _saveProgress(lang),
+                  child: Text(lang.t('save')),
                 ),
               ),
             ],
@@ -916,7 +912,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     );
   }
 
-  Future<void> _saveProgress(bool isArabic) async {
+  Future<void> _saveProgress(LanguageProvider lang) async {
     final weight = double.tryParse(_weightController.text.trim());
     final notes = _notesController.text.trim();
 
@@ -924,7 +920,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic ? 'أدخل وزنًا صالحًا' : 'Enter a valid weight',
+            lang.t('progress_enter_a_valid_weight'),
           ),
           backgroundColor: AppColors.error,
         ),
@@ -946,7 +942,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              isArabic ? 'فشل حفظ التقدم' : 'Failed to save progress',
+              lang.t('progress_failed_to_save_progress'),
             ),
             backgroundColor: AppColors.error,
           ),
@@ -960,7 +956,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isArabic ? 'تم حفظ التقدم' : 'Progress saved',
+          lang.t('progress_progress_saved'),
         ),
         backgroundColor: AppColors.success,
       ),

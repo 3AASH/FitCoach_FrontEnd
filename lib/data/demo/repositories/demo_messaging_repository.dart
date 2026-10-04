@@ -1,3 +1,4 @@
+import '../../../presentation/providers/language_provider.dart';
 import '../../models/message.dart';
 import '../../models/coach_client.dart';
 import '../demo_data.dart';
@@ -63,9 +64,7 @@ class DemoMessagingRepository {
         userId: client.id,
         coachId: base.coachId,
         lastMessageContent: base.lastMessageContent ??
-            (isArabic
-                ? 'Ready for the next check-in?'
-                : 'Ready for the next check-in?'),
+            LanguageProvider.textFor(isArabic, 'demo_msg_next_checkin'),
         lastMessageAt: base.lastMessageAt?.subtract(
               Duration(minutes: offsetMinutes),
             ) ??

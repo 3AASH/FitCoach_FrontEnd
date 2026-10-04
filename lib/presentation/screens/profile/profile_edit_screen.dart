@@ -63,11 +63,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(languageProvider.t('edit_profile_title')),
+        title: Text(lang.t('edit_profile_title')),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -117,7 +117,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               
               // Basic information
               Text(
-                languageProvider.t('edit_profile_basic_info'),
+                lang.t('edit_profile_basic_info'),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -129,7 +129,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: languageProvider.t('edit_profile_full_name'),
+                  labelText: lang.t('edit_profile_full_name'),
                   prefixIcon: const Icon(Icons.person),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -137,7 +137,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return languageProvider.t('edit_profile_required');
+                    return lang.t('edit_profile_required');
                   }
                   return null;
                 },
@@ -149,7 +149,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               TextFormField(
                 controller: _emailController,
                 decoration: InputDecoration(
-                  labelText: languageProvider.t('auth_email'),
+                  labelText: lang.t('auth_email'),
                   prefixIcon: const Icon(Icons.email),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
@@ -159,7 +159,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 validator: (value) {
                   if (value != null && value.isNotEmpty) {
                     if (!value.contains('@')) {
-                      return languageProvider.t('edit_profile_invalid_email');
+                      return lang.t('edit_profile_invalid_email');
                     }
                   }
                   return null;
@@ -170,7 +170,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               
               // Physical information
               Text(
-                languageProvider.t('edit_profile_physical_info'),
+                lang.t('edit_profile_physical_info'),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -184,7 +184,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      languageProvider.t('gender'),
+                      lang.t('gender'),
                       style: TextStyle(
                         fontSize: 14,
                         color: context.palette.textSecondary,
@@ -194,11 +194,11 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     Row(
                       children: [
                         Expanded(
-                          child: _buildGenderOption('male', languageProvider.t('male'), Icons.male),
+                          child: _buildGenderOption('male', lang.t('male'), Icons.male),
                         ),
                         const SizedBox(width: 12),
                         Expanded(
-                          child: _buildGenderOption('female', languageProvider.t('female'), Icons.female),
+                          child: _buildGenderOption('female', lang.t('female'), Icons.female),
                         ),
                       ],
                     ),
@@ -215,8 +215,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     child: TextFormField(
                       controller: _ageController,
                       decoration: InputDecoration(
-                        labelText: languageProvider.t('age'),
-                        suffixText: languageProvider.t('years'),
+                        labelText: lang.t('age'),
+                        suffixText: lang.t('years'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -224,7 +224,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return languageProvider.t('edit_profile_required');
+                          return lang.t('edit_profile_required');
                         }
                         return null;
                       },
@@ -235,8 +235,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     child: TextFormField(
                       controller: _weightController,
                       decoration: InputDecoration(
-                        labelText: languageProvider.t('weight'),
-                        suffixText: languageProvider.t('kg'),
+                        labelText: lang.t('weight'),
+                        suffixText: lang.t('kg'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -244,7 +244,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return languageProvider.t('edit_profile_required');
+                          return lang.t('edit_profile_required');
                         }
                         return null;
                       },
@@ -255,8 +255,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                     child: TextFormField(
                       controller: _heightController,
                       decoration: InputDecoration(
-                        labelText: languageProvider.t('height'),
-                        suffixText: languageProvider.t('cm'),
+                        labelText: lang.t('height'),
+                        suffixText: lang.t('cm'),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -264,7 +264,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                       keyboardType: TextInputType.number,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return languageProvider.t('edit_profile_required');
+                          return lang.t('edit_profile_required');
                         }
                         return null;
                       },
@@ -280,8 +280,8 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                 width: double.infinity,
                 child: CustomButton(
                   text: _isSaving
-                      ? languageProvider.t('edit_profile_saving')
-                      : languageProvider.t('edit_profile_save'),
+                      ? lang.t('edit_profile_saving')
+                      : lang.t('edit_profile_save'),
                   onPressed: _isSaving ? null : _saveProfile,
                   variant: ButtonVariant.primary,
                   size: ButtonSize.large,
@@ -339,7 +339,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
   
   void _showPhotoOptions() {
-    final languageProvider = context.read<LanguageProvider>();
+    final lang = context.read<LanguageProvider>();
     showModalBottomSheet(
       context: context,
       builder: (context) => SafeArea(
@@ -348,7 +348,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: Text(languageProvider.t('edit_profile_take_photo')),
+              title: Text(lang.t('edit_profile_take_photo')),
               onTap: () {
                 Navigator.pop(context);
                 _pickAndUploadPhoto(ImageSource.camera);
@@ -356,7 +356,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: Text(languageProvider.t('edit_profile_choose_gallery')),
+              title: Text(lang.t('edit_profile_choose_gallery')),
               onTap: () {
                 Navigator.pop(context);
                 _pickAndUploadPhoto(ImageSource.gallery);
@@ -365,7 +365,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ListTile(
               leading: const Icon(Icons.delete, color: AppColors.error),
               title: Text(
-                languageProvider.t('edit_profile_remove_photo'),
+                lang.t('edit_profile_remove_photo'),
                 style: const TextStyle(color: AppColors.error),
               ),
               onTap: () {
@@ -381,7 +381,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   
   Future<void> _pickAndUploadPhoto(ImageSource source) async {
     if (_isUpdatingPhoto) return;
-    final languageProvider = context.read<LanguageProvider>();
+    final lang = context.read<LanguageProvider>();
     final authProvider = context.read<AuthProvider>();
     final selected = await _imagePicker.pickImage(
       source: source,
@@ -404,7 +404,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(languageProvider.isArabic ? 'تم تحديث الصورة الشخصية' : 'Profile photo updated'),
+          content: Text(lang.t('profile_edit_profile_photo_updated')),
           backgroundColor: AppColors.success,
         ),
       );
@@ -412,7 +412,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(languageProvider.isArabic ? 'فشل تحديث الصورة الشخصية' : 'Failed to update profile photo'),
+          content: Text(lang.t('profile_edit_failed_to_update_profile_photo')),
           backgroundColor: AppColors.error,
         ),
       );
@@ -427,7 +427,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
   Future<void> _removePhoto() async {
     if (_isUpdatingPhoto) return;
-    final languageProvider = context.read<LanguageProvider>();
+    final lang = context.read<LanguageProvider>();
 
     setState(() {
       _isUpdatingPhoto = true;
@@ -441,7 +441,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(languageProvider.isArabic ? 'تمت إزالة الصورة الشخصية' : 'Profile photo removed'),
+          content: Text(lang.t('profile_edit_profile_photo_removed')),
           backgroundColor: AppColors.success,
         ),
       );
@@ -449,7 +449,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(languageProvider.isArabic ? 'فشل إزالة الصورة الشخصية' : 'Failed to remove profile photo'),
+          content: Text(lang.t('profile_edit_failed_to_remove_profile_photo')),
           backgroundColor: AppColors.error,
         ),
       );
@@ -468,7 +468,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   }
 
   Future<void> _saveProfile() async {
-    final languageProvider = context.read<LanguageProvider>();
+    final lang = context.read<LanguageProvider>();
     if (!_formKey.currentState!.validate()) {
       return;
     }
@@ -499,7 +499,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              languageProvider.t('edit_profile_saved'),
+              lang.t('edit_profile_saved'),
             ),
             backgroundColor: AppColors.success,
           ),
@@ -511,7 +511,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            languageProvider.t('edit_profile_save_error'),
+            lang.t('edit_profile_save_error'),
           ),
           backgroundColor: AppColors.error,
         ),

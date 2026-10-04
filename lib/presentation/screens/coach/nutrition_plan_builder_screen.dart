@@ -7,6 +7,7 @@ import '../../providers/coach_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
+import '../../widgets/sheet_header.dart';
 import 'plan_library_options.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -47,9 +48,12 @@ class _NutritionPlanBuilderScreenState
     });
   }
 
-  List<RecipeLibraryOption> get _recipeOptions =>
-      RecipeLibraryOption.fromRows(
-          context.read<CoachProvider>().recipeLibrary);
+  List<RecipeVariantOption> get _variantOptions =>
+      RecipeVariantOption.fromRows(
+          context.read<CoachProvider>().recipeVariantLibrary);
+
+  List<RecipeMealOption> get _mealOptions =>
+      RecipeMealOption.fromVariants(_variantOptions);
 
   void _initializeMeals() {
     _meals = [
@@ -502,114 +506,190 @@ class _NutritionPlanBuilderScreenState
     return lang.t(goal);
   }
 
+  /// Adds one item to a meal.
+  ///
+  /// Picking a library meal here used to record a name and an id and leave the
+  /// four macro boxes empty, so the coach retyped numbers the engine already
+  /// knows. Now choosing a meal selects a portion, and the portion fills the
+  /// macros — the same order the admin plan editor works in.
   void _addFood(String mealType, LanguageProvider lang) {
     showDialog(
       context: context,
-      builder: (context) {
+      builder: (dialogContext) {
+        final calories = TextEditingController(text: '0');
+        final protein = TextEditingController(text: '0');
+        final carbs = TextEditingController(text: '0');
+        final fat = TextEditingController(text: '0');
         String foodName = '';
-        String? recipeId;
-        int calories = 0;
-        int protein = 0;
-        int carbs = 0;
-        int fat = 0;
+        RecipeMealOption? selectedMeal;
+        RecipeVariantOption? selectedVariant;
+        var pickEpoch = 0;
 
-        return AlertDialog(
-          title: Text(lang.t('coach_nutrition_builder_add_food_title')),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                LibraryPickerField<RecipeLibraryOption>(
-                  initialValue: foodName,
-                  labelText:
-                      lang.t('coach_nutrition_builder_food_name_label'),
-                  options: _recipeOptions,
-                  optionLabel: (option) => option.name,
-                  optionDetail: (option) => option.detail,
-                  onTextChanged: (value) {
-                    foodName = value;
-                    recipeId = null;
-                  },
-                  onSelected: (option) {
-                    foodName = option.name;
-                    recipeId = option.id;
-                  },
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  decoration: InputDecoration(
-                    labelText: lang.t('calories'),
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => calories = int.tryParse(value) ?? 0,
-                ),
-                const SizedBox(height: 12),
-                Row(
+        return StatefulBuilder(
+          builder: (dialogContext, setDialogState) {
+            void applyVariant(RecipeVariantOption variant) {
+              selectedVariant = variant;
+              calories.text = variant.calories.round().toString();
+              protein.text = _macroText(variant.protein);
+              carbs.text = _macroText(variant.carbs);
+              fat.text = _macroText(variant.fat);
+            }
+
+            final fromLibrary = selectedMeal != null;
+
+            return AlertDialog(
+              title: Text(lang.t('coach_nutrition_builder_add_food_title')),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: lang.t('protein'),
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) =>
-                            protein = int.tryParse(value) ?? 0,
-                      ),
+                    LibraryPickerField<RecipeMealOption>(
+                      key: ValueKey('food:$pickEpoch'),
+                      initialValue: foodName,
+                      labelText:
+                          lang.t('coach_nutrition_builder_food_name_label'),
+                      options: _mealOptions,
+                      optionLabel: (option) => option.name,
+                      optionDetail: (option) => option.detail,
+                      onTextChanged: (value) {
+                        foodName = value;
+                        // Typed over: no recipe stands behind this name any
+                        // more, so the macros go back to being the coach's.
+                        if (selectedMeal != null) {
+                          setDialogState(() {
+                            selectedMeal = null;
+                            selectedVariant = null;
+                          });
+                        }
+                      },
+                      onSelected: (option) => setDialogState(() {
+                        pickEpoch++;
+                        foodName = option.name;
+                        selectedMeal = option;
+                        final variant = option.defaultVariant;
+                        if (variant != null) applyVariant(variant);
+                      }),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: lang.t('carbs'),
-                        ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) => carbs = int.tryParse(value) ?? 0,
+                    const SizedBox(height: 12),
+                    DropdownButtonFormField<String>(
+                      key: ValueKey(
+                          'foodPortion:${selectedMeal?.recipeId ?? ''}:${selectedVariant?.variantId ?? ''}'),
+                      initialValue: selectedVariant?.variantId,
+                      isExpanded: true,
+                      decoration: InputDecoration(
+                        labelText: lang.t('plan_editor_portion'),
+                        helperText: fromLibrary
+                            ? null
+                            : lang.t('plan_editor_select_meal_first'),
                       ),
+                      items: (selectedMeal?.variants ??
+                              const <RecipeVariantOption>[])
+                          .map((variant) => DropdownMenuItem<String>(
+                                value: variant.variantId,
+                                child: Text(
+                                  '${variant.portionCode} · '
+                                  '${variant.calories.round()} ${lang.t('coach_nutrition_kcal')}',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ))
+                          .toList(),
+                      onChanged: !fromLibrary
+                          ? null
+                          : (variantId) {
+                              final variant = selectedMeal!.variants.where(
+                                  (item) => item.variantId == variantId);
+                              if (variant.isEmpty) return;
+                              setDialogState(() => applyVariant(variant.first));
+                            },
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          labelText: lang.t('fat'),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: calories,
+                      readOnly: fromLibrary,
+                      decoration:
+                          InputDecoration(labelText: lang.t('calories')),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: protein,
+                            readOnly: fromLibrary,
+                            decoration:
+                                InputDecoration(labelText: lang.t('protein')),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                          ),
                         ),
-                        keyboardType: TextInputType.number,
-                        onChanged: (value) => fat = int.tryParse(value) ?? 0,
-                      ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: carbs,
+                            readOnly: fromLibrary,
+                            decoration:
+                                InputDecoration(labelText: lang.t('carbs')),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: TextField(
+                            controller: fat,
+                            readOnly: fromLibrary,
+                            decoration:
+                                InputDecoration(labelText: lang.t('fat')),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(lang.t('cancel')),
-            ),
-            TextButton(
-              onPressed: () {
-                if (foodName.isNotEmpty) {
-                  setState(() {
-                    final meal = _meals.firstWhere((m) => m['type'] == mealType);
-                    (meal['foods'] as List).add({
-                      'name': foodName,
-                      if (recipeId != null) 'recipeId': recipeId,
-                      'calories': calories,
-                      'protein': protein,
-                      'carbs': carbs,
-                      'fat': fat,
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(dialogContext),
+                  child: Text(lang.t('cancel')),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (foodName.isEmpty) return;
+                    setState(() {
+                      final meal =
+                          _meals.firstWhere((m) => m['type'] == mealType);
+                      (meal['foods'] as List).add({
+                        'name': foodName,
+                        if (selectedMeal != null)
+                          'recipeId': selectedMeal!.recipeId,
+                        if (selectedVariant != null) ...{
+                          'variantId': selectedVariant!.variantId,
+                          'portionCode': selectedVariant!.portionCode,
+                        },
+                        'calories': int.tryParse(calories.text.trim()) ?? 0,
+                        'protein': num.tryParse(protein.text.trim()) ?? 0,
+                        'carbs': num.tryParse(carbs.text.trim()) ?? 0,
+                        'fat': num.tryParse(fat.text.trim()) ?? 0,
+                      });
                     });
-                  });
-                  Navigator.pop(context);
-                }
-              },
-              child: Text(lang.t('add')),
-            ),
-          ],
+                    Navigator.pop(dialogContext);
+                  },
+                  child: Text(lang.t('add')),
+                ),
+              ],
+            );
+          },
         );
       },
     );
   }
+
+  static String _macroText(num value) => value == value.roundToDouble()
+      ? value.round().toString()
+      : value.toStringAsFixed(1);
 
   void _addFromTemplate(LanguageProvider lang) {
     showDialog(
@@ -642,6 +722,9 @@ class _NutritionPlanBuilderScreenState
             ),
           ],
         ),
+        // Every row here replaces the plan being built, so there has to be a
+        // row that does not.
+        actions: [dialogCancelAction(context)],
       ),
     );
   }

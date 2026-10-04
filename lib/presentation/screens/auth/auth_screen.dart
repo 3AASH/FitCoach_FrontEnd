@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/phone_number_utils.dart';
@@ -7,6 +6,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/international_phone_input.dart';
+import '../../widgets/otp_input.dart';
 import 'forgot_password_screen.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -66,13 +66,12 @@ class _AuthScreenState extends State<AuthScreen> {
       TextEditingController();
   final TextEditingController _completePasswordController =
       TextEditingController();
-  final List<TextEditingController> _otpControllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _otpFocusNodes = List.generate(6, (_) => FocusNode());
-  final List<TextEditingController> _signupOtpControllers =
-      List.generate(6, (_) => TextEditingController());
-  final List<FocusNode> _signupOtpFocusNodes =
-      List.generate(6, (_) => FocusNode());
+  // One controller each, holding the whole code: see [OtpInput] for why six
+  // separate fields could never be autofilled.
+  final TextEditingController _otpController = TextEditingController();
+  final FocusNode _otpFocusNode = FocusNode();
+  final TextEditingController _signupOtpController = TextEditingController();
+  final FocusNode _signupOtpFocusNode = FocusNode();
 
   @override
   void dispose() {
@@ -88,26 +87,16 @@ class _AuthScreenState extends State<AuthScreen> {
     _completeNameController.dispose();
     _completeEmailController.dispose();
     _completePasswordController.dispose();
-    for (final controller in _otpControllers) {
-      controller.dispose();
-    }
-    for (final node in _otpFocusNodes) {
-      node.dispose();
-    }
-    for (final controller in _signupOtpControllers) {
-      controller.dispose();
-    }
-    for (final node in _signupOtpFocusNodes) {
-      node.dispose();
-    }
+    _otpController.dispose();
+    _otpFocusNode.dispose();
+    _signupOtpController.dispose();
+    _signupOtpFocusNode.dispose();
     super.dispose();
   }
 
-  bool get _isOtpComplete =>
-      _otpControllers.every((controller) => controller.text.length == 1);
+  bool get _isOtpComplete => _otpController.text.length == 6;
 
-  bool get _isSignupOtpComplete =>
-      _signupOtpControllers.every((controller) => controller.text.length == 1);
+  bool get _isSignupOtpComplete => _signupOtpController.text.length == 6;
 
   void _clearAuthErrors() {
     context.read<AuthProvider>().clearErrors();
@@ -219,15 +208,11 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   void _resetOtpFields() {
-    for (final controller in _otpControllers) {
-      controller.clear();
-    }
+    _otpController.clear();
   }
 
   void _resetSignupOtpFields() {
-    for (final controller in _signupOtpControllers) {
-      controller.clear();
-    }
+    _signupOtpController.clear();
   }
 
   void _resetSignupVerificationState({bool keepPhoneError = false}) {
@@ -328,7 +313,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _resetSignupOtpFields();
       });
       _startSignupResendCountdown();
-      _signupOtpFocusNodes.first.requestFocus();
+      _signupOtpFocusNode.requestFocus();
       return;
     }
 
@@ -404,7 +389,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _otpAttempts = 3;
       });
       _startResendCountdown();
-      _otpFocusNodes[0].requestFocus();
+      _otpFocusNode.requestFocus();
     } else {
       _applyProviderPhoneError(
         assignError: (message) => _otpPhoneErrorText = message,
@@ -420,7 +405,7 @@ class _AuthScreenState extends State<AuthScreen> {
       country: _otpPhoneCountry,
       assignError: (message) => _otpPhoneErrorText = message,
     );
-    final otp = _otpControllers.map((controller) => controller.text).join();
+    final otp = _otpController.text;
 
     if (normalizedPhone == null) {
       setState(() {});
@@ -451,7 +436,7 @@ class _AuthScreenState extends State<AuthScreen> {
       assignError: (message) => _otpPhoneErrorText = message,
     );
     _resetOtpFields();
-    _otpFocusNodes[0].requestFocus();
+    _otpFocusNode.requestFocus();
     setState(() {
       _otpAttempts = _otpAttempts > 0 ? _otpAttempts - 1 : 0;
     });
@@ -564,8 +549,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final languageProvider = context.read<LanguageProvider>();
     final normalizedPhone =
         _signupNormalizedPhone ?? _validateSignupFormAndNormalizePhone();
-    final otpCode =
-        _signupOtpControllers.map((controller) => controller.text).join();
+    final otpCode = _signupOtpController.text;
 
     if (normalizedPhone == null) {
       return;
@@ -1112,9 +1096,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 12),
-                                  _buildOtpInputs(
-                                    controllers: _signupOtpControllers,
-                                    focusNodes: _signupOtpFocusNodes,
+                                  OtpInput(
+                                    controller: _signupOtpController,
+                                    focusNode: _signupOtpFocusNode,
                                     enabled: !isBusy,
                                     onCompleted: _handleEmailSignup,
                                   ),
@@ -1275,9 +1259,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                   errorText: _otpPhoneErrorText,
                                 ),
                                 const SizedBox(height: 16),
-                                _buildOtpInputs(
-                                  controllers: _otpControllers,
-                                  focusNodes: _otpFocusNodes,
+                                OtpInput(
+                                  controller: _otpController,
+                                  focusNode: _otpFocusNode,
                                   enabled: !isBusy,
                                   onCompleted: _verifyOTP,
                                 ),
@@ -1486,55 +1470,6 @@ class _AuthScreenState extends State<AuthScreen> {
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildOtpInputs({
-    required List<TextEditingController> controllers,
-    required List<FocusNode> focusNodes,
-    required bool enabled,
-    required Future<void> Function() onCompleted,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: List.generate(6, (index) {
-        return SizedBox(
-          width: 42,
-          child: TextField(
-            controller: controllers[index],
-            focusNode: focusNodes[index],
-            keyboardType: TextInputType.number,
-            textAlign: TextAlign.center,
-            maxLength: 1,
-            enabled: enabled,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
-            decoration: InputDecoration(
-              counterText: '',
-              contentPadding: const EdgeInsets.symmetric(vertical: 10),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-            onChanged: (value) {
-              if (value.isNotEmpty && index < 5) {
-                focusNodes[index + 1].requestFocus();
-              } else if (value.isEmpty && index > 0) {
-                focusNodes[index - 1].requestFocus();
-              }
-              setState(() {});
-              final isComplete = controllers
-                  .every((controller) => controller.text.length == 1);
-              if (index == 5 && value.isNotEmpty && isComplete) {
-                onCompleted();
-              }
-            },
-          ),
-        );
-      }),
     );
   }
 

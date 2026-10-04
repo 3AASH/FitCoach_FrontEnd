@@ -354,7 +354,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       '${lang.t('home_hello')}, $firstName!',
                       style:
                           AppTextStyles.h3.copyWith(color: AppColors.textWhite),
-                      textAlign: isArabic ? TextAlign.right : TextAlign.left,
+                      textAlign: TextAlign.start,
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -1886,7 +1886,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           ),
                         ),
                         Icon(
-                          isArabic ? Icons.chevron_left : Icons.chevron_right,
+                          Icons.chevron_right,
                           color: context.palette.textDisabled,
                         ),
                       ],
@@ -1978,7 +1978,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           ),
                         ),
                         Icon(
-                          isArabic ? Icons.chevron_left : Icons.chevron_right,
+                          Icons.chevron_right,
                           color: context.palette.textDisabled,
                         ),
                       ],

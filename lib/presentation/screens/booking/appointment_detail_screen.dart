@@ -8,6 +8,7 @@ import '../../providers/video_call_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../video_call/video_call_screen.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/theme/app_palette.dart';
 
 /// Appointment Detail Screen
 /// Shows appointment details and allows joining video call
@@ -273,7 +274,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   Text(
                     title,
                     style: TextStyle(
-                      color: Colors.grey[600],
+                      color: context.palette.textSecondary,
                       fontSize: 12,
                     ),
                   ),
@@ -361,7 +362,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                           Text(
                             languageProvider.t('coach'),
                             style: TextStyle(
-                              color: Colors.grey[600],
+                              color: context.palette.textSecondary,
                               fontSize: 12,
                             ),
                           ),

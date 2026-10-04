@@ -62,7 +62,7 @@ class MessagingRepository {
   Future<void> connect() async {
     final token = await _getToken();
     if (token == null || token.isEmpty) {
-      throw Exception('Missing auth token');
+      throw const MessagingException('Missing auth token');
     }
 
     if (_socket != null && _socket!.connected) {
@@ -363,7 +363,7 @@ class MessagingRepository {
           data;
       return Conversation.fromJson(conversation);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to load conversation'));
+      throw _errorFor(e, 'Failed to load conversation');
     }
   }
 
@@ -384,7 +384,7 @@ class MessagingRepository {
           .map((conv) => Conversation.fromJson(Map<String, dynamic>.from(conv)))
           .toList();
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to load conversations'));
+      throw _errorFor(e, 'Failed to load conversations');
     }
   }
 
@@ -405,7 +405,7 @@ class MessagingRepository {
           .map((msg) => Message.fromJson(Map<String, dynamic>.from(msg)))
           .toList();
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to load messages'));
+      throw _errorFor(e, 'Failed to load messages');
     }
   }
 
@@ -417,7 +417,7 @@ class MessagingRepository {
   }) async {
     try {
       if (conversationId == null && recipientId == null) {
-        throw Exception('Conversation ID or recipient ID is required');
+        throw const MessagingException('Conversation ID or recipient ID is required');
       }
 
       final response = await _dio.post(
@@ -439,7 +439,7 @@ class MessagingRepository {
           data;
       return Message.fromJson(message);
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to send message'));
+      throw _errorFor(e, 'Failed to send message');
     }
   }
 
@@ -452,7 +452,7 @@ class MessagingRepository {
   }) async {
     try {
       if (conversationId == null && recipientId == null) {
-        throw Exception('Conversation ID or recipient ID is required');
+        throw const MessagingException('Conversation ID or recipient ID is required');
       }
 
       final uploadData = FormData.fromMap({
@@ -480,7 +480,7 @@ class MessagingRepository {
           ?.toString();
 
       if (attachmentUrl == null || attachmentUrl.isEmpty) {
-        throw Exception('Attachment upload failed');
+        throw const MessagingException('Attachment upload failed');
       }
 
       final response = await _dio.post(
@@ -506,9 +506,7 @@ class MessagingRepository {
           data;
       return Message.fromJson(message);
     } on DioException catch (e) {
-      throw Exception(
-        _extractErrorMessage(e, 'Failed to send message with attachment'),
-      );
+      throw _errorFor(e, 'Failed to send message with attachment');
     }
   }
 
@@ -519,7 +517,7 @@ class MessagingRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to mark as read'));
+      throw _errorFor(e, 'Failed to mark as read');
     }
   }
 
@@ -530,7 +528,7 @@ class MessagingRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to clear messages'));
+      throw _errorFor(e, 'Failed to clear messages');
     }
   }
 
@@ -541,7 +539,7 @@ class MessagingRepository {
         options: await _getAuthOptions(),
       );
     } on DioException catch (e) {
-      throw Exception(_extractErrorMessage(e, 'Failed to delete message'));
+      throw _errorFor(e, 'Failed to delete message');
     }
   }
 
@@ -557,6 +555,37 @@ class MessagingRepository {
     }
     return fallback;
   }
+
+  MessagingException _errorFor(DioException error, String fallback) {
+    final data = error.response?.data;
+    return MessagingException(
+      _extractErrorMessage(error, fallback),
+      upgradeRequired: data is Map && data['upgradeRequired'] == true,
+      statusCode: error.response?.statusCode,
+    );
+  }
+}
+
+/// A messaging failure carrying a message that is fit to show the user.
+///
+/// `Exception('...')` stringifies as "Exception: ...", and the provider puts
+/// that straight into a SnackBar. A freemium client tapping send was told
+/// "Exception: Coach messaging requires a Premium subscription" in red — the
+/// server had answered correctly with a 403, and the app dressed a policy up
+/// as a crash. [upgradeRequired] lets the UI offer the upgrade instead.
+class MessagingException implements Exception {
+  final String message;
+  final bool upgradeRequired;
+  final int? statusCode;
+
+  const MessagingException(
+    this.message, {
+    this.upgradeRequired = false,
+    this.statusCode,
+  });
+
+  @override
+  String toString() => message;
 }
 
 String _stringValue(dynamic value, {String fallback = ''}) {

@@ -1,3 +1,4 @@
+// Postgres DECIMAL columns arrive through node-pg as a string ("99.00"), so price fields may be a string or a number.
 double? _asDouble(dynamic value) {
   if (value == null) return null;
   if (value is num) return value.toDouble();

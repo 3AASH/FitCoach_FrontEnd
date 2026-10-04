@@ -29,7 +29,7 @@ class CoachProvider extends ChangeNotifier {
   List<CoachClientCheckIn> _clientCheckIns = [];
   CoachClientCheckIn? _latestClientCheckIn;
   List<Map<String, dynamic>> _exerciseLibrary = const [];
-  List<Map<String, dynamic>> _recipeLibrary = const [];
+  List<Map<String, dynamic>> _recipeVariantLibrary = const [];
   bool _librariesLoaded = false;
 
   // Getters
@@ -42,7 +42,10 @@ class CoachProvider extends ChangeNotifier {
   CoachAnalytics? get analytics => _analytics;
   CoachEarnings? get earnings => _earnings;
   List<Map<String, dynamic>> get exerciseLibrary => _exerciseLibrary;
-  List<Map<String, dynamic>> get recipeLibrary => _recipeLibrary;
+  /// Every portion of every library meal. Supersedes a plain recipe listing:
+  /// a recipe says a dish exists, a variant says how big a serving is and what
+  /// is in it, which is what the plan editors have to plan against.
+  List<Map<String, dynamic>> get recipeVariantLibrary => _recipeVariantLibrary;
   CoachClient? get selectedClient => _selectedClient;
   List<CoachClientCheckIn> get clientCheckIns => _clientCheckIns;
   CoachClientCheckIn? get latestClientCheckIn => _latestClientCheckIn;
@@ -584,7 +587,7 @@ class CoachProvider extends ChangeNotifier {
 
     if (DemoConfig.isDemo) {
       _exerciseLibrary = const [];
-      _recipeLibrary = const [];
+      _recipeVariantLibrary = const [];
       notifyListeners();
       return;
     }
@@ -592,10 +595,10 @@ class CoachProvider extends ChangeNotifier {
     try {
       final results = await Future.wait([
         _repository.getExerciseLibrary(),
-        _repository.getRecipeLibrary(),
+        _repository.getRecipeVariantLibrary(),
       ]);
       _exerciseLibrary = results[0];
-      _recipeLibrary = results[1];
+      _recipeVariantLibrary = results[1];
     } catch (e) {
       _librariesLoaded = false;
       _error = e.toString();

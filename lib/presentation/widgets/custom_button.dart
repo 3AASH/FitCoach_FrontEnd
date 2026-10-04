@@ -278,9 +278,13 @@ class _CustomButtonState extends State<CustomButton> {
   Color _getLoadingColor() {
     switch (widget.variant) {
       case ButtonVariant.primary:
-      case ButtonVariant.secondary:
       case ButtonVariant.danger:
         return Colors.white;
+      // The secondary fill is a pale lavender in BOTH themes, so a white
+      // spinner on it is ~1.3:1 and effectively invisible. Match the variant's
+      // own foreground, which is what its label already uses.
+      case ButtonVariant.secondary:
+        return AppColors.secondaryForeground;
       case ButtonVariant.outline:
       case ButtonVariant.text:
       case ButtonVariant.ghost:

@@ -51,9 +51,53 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
     });
   }
 
-  List<RecipeLibraryOption> get _recipeOptions =>
-      RecipeLibraryOption.fromRows(
-          context.watch<CoachProvider>().recipeLibrary);
+  /// Every portion of every library meal.
+  ///
+  /// Watched, so the screen redraws once the libraries finish loading. Only
+  /// safe to call while building - an event handler has to use
+  /// [_variantOptionsNow], which reads without subscribing.
+  List<RecipeVariantOption> get _variantOptions =>
+      RecipeVariantOption.fromRows(
+          context.watch<CoachProvider>().recipeVariantLibrary);
+
+  List<RecipeVariantOption> get _variantOptionsNow =>
+      RecipeVariantOption.fromRows(
+          context.read<CoachProvider>().recipeVariantLibrary);
+
+  /// One entry per meal, for the name picker. Portions are chosen separately,
+  /// so the list never repeats a dish once per size.
+  List<RecipeMealOption> get _mealOptions =>
+      RecipeMealOption.fromVariants(_variantOptions);
+
+  RecipeMealOption? _mealForRecipe(String? recipeId) {
+    if (recipeId == null || recipeId.isEmpty) return null;
+    for (final meal in _mealOptions) {
+      if (meal.recipeId == recipeId) return meal;
+    }
+    return null;
+  }
+
+  /// Resolves the portion a meal row is currently on: by variant id when the
+  /// plan carries one, else by the portion code recorded alongside it, else the
+  /// recipe's default size.
+  RecipeVariantOption? _variantForMeal(Map<String, dynamic> meal) {
+    final recipe = _mealForRecipe(_asString(meal['recipeId']));
+    if (recipe == null) return null;
+
+    final variantId = _asString(meal['variantId']);
+    if (variantId != null && variantId.isNotEmpty) {
+      for (final variant in recipe.variants) {
+        if (variant.variantId == variantId) return variant;
+      }
+    }
+    final portionCode = _asString(meal['portionCode'])?.toUpperCase();
+    if (portionCode != null && portionCode.isNotEmpty) {
+      for (final variant in recipe.variants) {
+        if (variant.portionCode == portionCode) return variant;
+      }
+    }
+    return recipe.defaultVariant;
+  }
 
   @override
   void dispose() {
@@ -165,6 +209,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
         'meals': mealsSource.asMap().entries.map((mealEntry) {
           final mealIndex = mealEntry.key;
           final meal = _asMap(mealEntry.value) ?? const <String, dynamic>{};
+          final macros = _asMap(meal['macros']) ?? const <String, dynamic>{};
           return <String, dynamic>{
             'name': _asString(
                   meal['name'] ??
@@ -175,11 +220,36 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                 'Meal ${mealIndex + 1}',
             // Carried through the round trip so re-saving a plan does not
             // quietly downgrade an existing library reference to free text.
-            if (_asString(meal['recipeId'] ?? meal['recipe_id']) != null)
-              'recipeId': _asString(meal['recipeId'] ?? meal['recipe_id']),
+            // The server spells these `plannedRecipeId`/`plannedVariantId`;
+            // reading only the short spelling is why the reference used to be
+            // lost the moment a saved plan was reopened.
+            if (_asString(meal['plannedRecipeId'] ??
+                    meal['planned_recipe_id'] ??
+                    meal['recipeId'] ??
+                    meal['recipe_id']) !=
+                null)
+              'recipeId': _asString(meal['plannedRecipeId'] ??
+                  meal['planned_recipe_id'] ??
+                  meal['recipeId'] ??
+                  meal['recipe_id']),
+            if (_asString(meal['plannedVariantId'] ??
+                    meal['planned_variant_id'] ??
+                    meal['variantId'] ??
+                    meal['variant_id']) !=
+                null)
+              'variantId': _asString(meal['plannedVariantId'] ??
+                  meal['planned_variant_id'] ??
+                  meal['variantId'] ??
+                  meal['variant_id']),
+            if (_asString(meal['portionCode'] ?? meal['portion_code']) != null)
+              'portionCode':
+                  _asString(meal['portionCode'] ?? meal['portion_code']),
             'type': _asString(meal['type']) ?? 'meal',
             'time': _asString(meal['time']) ?? '',
             'calories': _asInt(meal['calories']) ?? 0,
+            'protein': _asNum(meal['protein'] ?? macros['protein']) ?? 0,
+            'carbs': _asNum(meal['carbs'] ?? macros['carbs']) ?? 0,
+            'fat': _asNum(meal['fat'] ?? meal['fats'] ?? macros['fats']) ?? 0,
           };
         }).toList(),
       };
@@ -212,15 +282,32 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       final meals = (_asList(day['meals']) ?? const <dynamic>[]).map((rawMeal) {
         final meal = _asMap(rawMeal) ?? const <String, dynamic>{};
         final recipeId = _asString(meal['recipeId']);
+        final variantId = _asString(meal['variantId']);
+        final portionCode = _asString(meal['portionCode']);
         return <String, dynamic>{
           'name': _asString(meal['name']) ?? 'Meal',
           // Only present when the coach picked the meal out of the library.
           // Without it the save would keep the name and drop the reference,
           // which is exactly the free-text plan the picker exists to avoid.
-          if (recipeId != null && recipeId.isNotEmpty) 'recipeId': recipeId,
+          // Sent under both spellings because the server reads the long one.
+          if (recipeId != null && recipeId.isNotEmpty) ...{
+            'recipeId': recipeId,
+            'plannedRecipeId': recipeId,
+          },
+          if (variantId != null && variantId.isNotEmpty) ...{
+            'variantId': variantId,
+            'plannedVariantId': variantId,
+          },
+          if (portionCode != null && portionCode.isNotEmpty)
+            'portionCode': portionCode,
           'type': _asString(meal['type']) ?? 'meal',
           'time': _asString(meal['time']) ?? '',
           'calories': _asInt(meal['calories']) ?? 0,
+          // The macros of the chosen portion. Saving calories alone left the
+          // client's per-meal protein/carbs/fat at zero after any coach edit.
+          'protein': _asNum(meal['protein']) ?? 0,
+          'carbs': _asNum(meal['carbs']) ?? 0,
+          'fat': _asNum(meal['fat']) ?? 0,
         };
       }).toList();
       return <String, dynamic>{
@@ -421,104 +508,14 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                             ),
                             const SizedBox(height: 8),
                             ...meals.asMap().entries.map((mealEntry) {
-                              final mealIndex = mealEntry.key;
-                              final meal = mealEntry.value;
-                              return Card(
-                                color: context.palette.surfaceVariant,
-                                margin: const EdgeInsets.only(bottom: 8),
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: LibraryPickerField<
-                                                RecipeLibraryOption>(
-                                              initialValue:
-                                                  _asString(meal['name']) ?? '',
-                                              enabled: _isEditable,
-                                              labelText: lang
-                                                  .t('plan_editor_meal_name'),
-                                              options: _recipeOptions,
-                                              optionLabel: (option) =>
-                                                  option.name,
-                                              optionDetail: (option) =>
-                                                  option.detail,
-                                              onTextChanged: (value) =>
-                                                  _updateMeal(dayIndex,
-                                                      mealIndex, 'name', value),
-                                              onSelected: (option) {
-                                                // Keep the recipe id so the
-                                                // plan points at a real
-                                                // library entry rather than a
-                                                // name that merely looks right.
-                                                _updateMeal(dayIndex, mealIndex,
-                                                    'name', option.name);
-                                                _updateMeal(dayIndex, mealIndex,
-                                                    'recipeId', option.id);
-                                              },
-                                            ),
-                                          ),
-                                          IconButton(
-                                            onPressed: _isEditable
-                                                ? () => _removeMeal(
-                                                    dayIndex, mealIndex)
-                                                : null,
-                                            icon: const Icon(
-                                                Icons.remove_circle_outline,
-                                                color: AppColors.error),
-                                          ),
-                                        ],
-                                      ),
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TextFormField(
-                                              initialValue:
-                                                  _asString(meal['time']) ?? '',
-                                              enabled: _isEditable,
-                                              decoration: InputDecoration(
-                                                labelText:
-                                                    lang.t('plan_editor_time'),
-                                              ),
-                                              onChanged: (value) => _updateMeal(
-                                                  dayIndex,
-                                                  mealIndex,
-                                                  'time',
-                                                  value),
-                                            ),
-                                          ),
-                                          const SizedBox(width: 10),
-                                          Expanded(
-                                            child: TextFormField(
-                                              initialValue:
-                                                  (_asInt(meal['calories']) ??
-                                                          0)
-                                                      .toString(),
-                                              enabled: _isEditable,
-                                              keyboardType:
-                                                  TextInputType.number,
-                                              decoration: InputDecoration(
-                                                labelText: lang.t(
-                                                  'plan_editor_calories',
-                                                ),
-                                              ),
-                                              onChanged: (value) => _updateMeal(
-                                                dayIndex,
-                                                mealIndex,
-                                                'calories',
-                                                int.tryParse(value) ?? 0,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                              return _buildMealCard(
+                                lang,
+                                dayIndex,
+                                mealEntry.key,
+                                mealEntry.value,
                               );
                             }),
+                            _buildDayTotals(lang, meals),
                             Align(
                               alignment: Alignment.centerLeft,
                               child: TextButton.icon(
@@ -559,6 +556,314 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
     );
   }
 
+  /// One meal row: which meal, which portion of it, and the macros that come
+  /// with that portion.
+  ///
+  /// The macro fields are read-only whenever the meal came out of the library,
+  /// because they are the library's numbers and typing over them would make the
+  /// plan disagree with the recipe the client is told to cook. A hand-typed
+  /// meal has no recipe behind it, so there they stay editable.
+  Widget _buildMealCard(
+    LanguageProvider lang,
+    int dayIndex,
+    int mealIndex,
+    Map<String, dynamic> meal,
+  ) {
+    final recipeId = _asString(meal['recipeId']);
+    final selectedMeal = _mealForRecipe(recipeId);
+    final selectedVariant = _variantForMeal(meal);
+    final fromLibrary = selectedMeal != null;
+
+    return Card(
+      color: context.palette.surfaceVariant,
+      margin: const EdgeInsets.only(bottom: 8),
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: LibraryPickerField<RecipeMealOption>(
+                    // Rebuilt only when a meal is picked, so the field takes
+                    // the new name. Keying it on the recipe id instead would
+                    // also rebuild it mid-word the first time a coach types
+                    // over a picked meal, which loses the caret.
+                    key: ValueKey(
+                        'meal:$dayIndex:$mealIndex:${_pickEpoch(dayIndex, mealIndex)}'),
+                    initialValue: _asString(meal['name']) ?? '',
+                    enabled: _isEditable,
+                    labelText: lang.t('plan_editor_meal_name'),
+                    options: _mealOptions,
+                    optionLabel: (option) => option.name,
+                    optionDetail: (option) => option.detail,
+                    matches: _mealMatches,
+                    onTextChanged: (value) {
+                      // Typing over a picked meal makes it free text again:
+                      // the name no longer describes the recipe that is still
+                      // referenced, so the reference has to go with it.
+                      _updateMeal(dayIndex, mealIndex, 'name', value);
+                      _clearMealSelection(dayIndex, mealIndex);
+                    },
+                    onSelected: (option) =>
+                        _selectMeal(dayIndex, mealIndex, option),
+                  ),
+                ),
+                IconButton(
+                  onPressed:
+                      _isEditable ? () => _removeMeal(dayIndex, mealIndex) : null,
+                  icon: const Icon(Icons.remove_circle_outline,
+                      color: AppColors.error),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Portion picker, mirroring the admin plan editor: the sizes the
+            // recipe actually defines, nothing else.
+            DropdownButtonFormField<String>(
+              // A FormField reads `initialValue` once, so the key has to carry
+              // the current portion for the dropdown to follow a change made
+              // by picking a different meal.
+              key: ValueKey('portion:$dayIndex:$mealIndex:'
+                  '${recipeId ?? ''}:${selectedVariant?.variantId ?? ''}'),
+              initialValue: selectedVariant?.variantId,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: lang.t('plan_editor_portion'),
+                helperText: fromLibrary
+                    ? lang.t('coach_nutrition_editor_portion_hint')
+                    : lang.t('plan_editor_select_meal_first'),
+                helperMaxLines: 2,
+              ),
+              items: (selectedMeal?.variants ?? const <RecipeVariantOption>[])
+                  .map((variant) => DropdownMenuItem<String>(
+                        value: variant.variantId,
+                        child: Text(
+                          '${_portionLabel(lang, variant.portionCode)} · '
+                          '${variant.calories.round()} ${lang.t('coach_nutrition_kcal')}',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ))
+                  .toList(),
+              onChanged: !_isEditable || !fromLibrary
+                  ? null
+                  : (variantId) {
+                      if (variantId == null) return;
+                      _selectPortion(dayIndex, mealIndex, variantId);
+                    },
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    initialValue: _asString(meal['time']) ?? '',
+                    enabled: _isEditable,
+                    decoration: InputDecoration(
+                      labelText: lang.t('plan_editor_time'),
+                    ),
+                    onChanged: (value) =>
+                        _updateMeal(dayIndex, mealIndex, 'time', value),
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: _macroField(
+                    key: 'cal:$dayIndex:$mealIndex',
+                    label: lang.t('plan_editor_calories'),
+                    value: _asInt(meal['calories']) ?? 0,
+                    derived: fromLibrary,
+                    onChanged: (value) => _updateMeal(
+                        dayIndex, mealIndex, 'calories', value.round()),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: _macroField(
+                    key: 'p:$dayIndex:$mealIndex',
+                    label: lang.t('plan_editor_protein'),
+                    value: _asNum(meal['protein']) ?? 0,
+                    derived: fromLibrary,
+                    onChanged: (value) =>
+                        _updateMeal(dayIndex, mealIndex, 'protein', value),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _macroField(
+                    key: 'c:$dayIndex:$mealIndex',
+                    label: lang.t('plan_editor_carbs'),
+                    value: _asNum(meal['carbs']) ?? 0,
+                    derived: fromLibrary,
+                    onChanged: (value) =>
+                        _updateMeal(dayIndex, mealIndex, 'carbs', value),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _macroField(
+                    key: 'f:$dayIndex:$mealIndex',
+                    label: lang.t('plan_editor_fat'),
+                    value: _asNum(meal['fat']) ?? 0,
+                    derived: fromLibrary,
+                    onChanged: (value) =>
+                        _updateMeal(dayIndex, mealIndex, 'fat', value),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// A macro input. [derived] ones are filled from the chosen portion and shown
+  /// read-only; the key carries the value so the field redraws when a different
+  /// portion is picked rather than keeping the number it was built with.
+  Widget _macroField({
+    required String key,
+    required String label,
+    required num value,
+    required bool derived,
+    required ValueChanged<num> onChanged,
+  }) {
+    final text = value == value.roundToDouble()
+        ? value.round().toString()
+        : value.toStringAsFixed(1);
+    return TextFormField(
+      key: ValueKey('$key:$text:$derived'),
+      initialValue: text,
+      enabled: _isEditable,
+      readOnly: derived,
+      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+      decoration: InputDecoration(labelText: label),
+      onChanged: derived ? null : (input) => onChanged(num.tryParse(input) ?? 0),
+    );
+  }
+
+  /// Totals for the day, so a coach can see the meals adding up to the target
+  /// at the top of the screen instead of adding them up by hand.
+  Widget _buildDayTotals(
+      LanguageProvider lang, List<Map<String, dynamic>> meals) {
+    if (meals.isEmpty) return const SizedBox.shrink();
+    num calories = 0, protein = 0, carbs = 0, fat = 0;
+    for (final meal in meals) {
+      calories += _asNum(meal['calories']) ?? 0;
+      protein += _asNum(meal['protein']) ?? 0;
+      carbs += _asNum(meal['carbs']) ?? 0;
+      fat += _asNum(meal['fat']) ?? 0;
+    }
+    String g(num value) => value == value.roundToDouble()
+        ? '${value.round()}g'
+        : '${value.toStringAsFixed(1)}g';
+
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Padding(
+        padding: const EdgeInsets.only(top: 4, bottom: 4),
+        child: Text(
+          '${lang.t('coach_nutrition_editor_day_total')}: '
+          '${calories.round()} ${lang.t('coach_nutrition_kcal')} · '
+          'P ${g(protein)} · C ${g(carbs)} · F ${g(fat)}',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: context.palette.textSecondary,
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _portionLabel(LanguageProvider lang, String portionCode) {
+    const names = {
+      'S': 'plan_editor_portion_small',
+      'M': 'plan_editor_portion_medium',
+      'L': 'plan_editor_portion_large',
+      'XL': 'plan_editor_portion_xlarge',
+    };
+    final key = names[portionCode];
+    return key == null ? portionCode : '$portionCode · ${lang.t(key)}';
+  }
+
+  /// Matches a meal on its name in either language, its id, its slot or its
+  /// cuisine, word by word, so "egyptian breakfast" narrows the list the way
+  /// typing two words is expected to.
+  bool _mealMatches(RecipeMealOption option, String query) {
+    final terms =
+        query.toLowerCase().split(' ').where((term) => term.isNotEmpty);
+    if (terms.isEmpty) return true;
+    final haystack = [
+      option.name,
+      option.nameAr ?? '',
+      option.recipeId,
+      option.cuisine ?? '',
+      option.mealTypes.join(' '),
+      option.marketTags.join(' '),
+    ].join(' ').toLowerCase();
+    return terms.every(haystack.contains);
+  }
+
+  /// Picking a meal selects its default portion and takes that portion's macros
+  /// with it. This is the step that was missing: the editor used to record the
+  /// name and leave the calories at whatever was already in the field.
+  void _selectMeal(int dayIndex, int mealIndex, RecipeMealOption option) {
+    final variant = option.defaultVariant;
+    setState(() {
+      _pickEpochs['$dayIndex:$mealIndex'] =
+          (_pickEpochs['$dayIndex:$mealIndex'] ?? 0) + 1;
+      _updateMeal(dayIndex, mealIndex, 'name', option.name);
+      _updateMeal(dayIndex, mealIndex, 'recipeId', option.recipeId);
+      if (variant != null) _applyVariant(dayIndex, mealIndex, variant);
+    });
+  }
+
+  /// Bumped each time a meal is picked from the library, and used only to force
+  /// that one picker to rebuild with the new name.
+  final Map<String, int> _pickEpochs = <String, int>{};
+
+  int _pickEpoch(int dayIndex, int mealIndex) =>
+      _pickEpochs['$dayIndex:$mealIndex'] ?? 0;
+
+  void _selectPortion(int dayIndex, int mealIndex, String variantId) {
+    for (final variant in _variantOptionsNow) {
+      if (variant.variantId == variantId) {
+        setState(() => _applyVariant(dayIndex, mealIndex, variant));
+        return;
+      }
+    }
+  }
+
+  void _applyVariant(
+      int dayIndex, int mealIndex, RecipeVariantOption variant) {
+    _updateMeal(dayIndex, mealIndex, 'variantId', variant.variantId);
+    _updateMeal(dayIndex, mealIndex, 'portionCode', variant.portionCode);
+    _updateMeal(dayIndex, mealIndex, 'calories', variant.calories.round());
+    _updateMeal(dayIndex, mealIndex, 'protein', variant.protein);
+    _updateMeal(dayIndex, mealIndex, 'carbs', variant.carbs);
+    _updateMeal(dayIndex, mealIndex, 'fat', variant.fat);
+  }
+
+  void _clearMealSelection(int dayIndex, int mealIndex) {
+    final meals = (_asList(_days[dayIndex]['meals']) ?? <dynamic>[])
+        .map((m) => _asMap(m) ?? <String, dynamic>{})
+        .toList();
+    if (mealIndex < 0 || mealIndex >= meals.length) return;
+    if (meals[mealIndex]['recipeId'] == null) return;
+    meals[mealIndex].remove('recipeId');
+    meals[mealIndex].remove('variantId');
+    meals[mealIndex].remove('portionCode');
+    _days[dayIndex]['meals'] = meals;
+    // Rebuilt so the macro fields become editable again now that the meal is
+    // no longer backed by a recipe.
+    setState(() {});
+  }
+
   void _addDay() {
     setState(() {
       _days.add({
@@ -583,7 +888,15 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       final meals = (_asList(_days[dayIndex]['meals']) ?? <dynamic>[])
           .map((m) => _asMap(m) ?? <String, dynamic>{})
           .toList();
-      meals.add({'name': '', 'type': 'meal', 'time': '', 'calories': 0});
+      meals.add({
+        'name': '',
+        'type': 'meal',
+        'time': '',
+        'calories': 0,
+        'protein': 0,
+        'carbs': 0,
+        'fat': 0,
+      });
       _days[dayIndex]['meals'] = meals;
     });
   }
@@ -632,6 +945,12 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
     if (value is int) return value;
     if (value is num) return value.toInt();
     if (value is String) return int.tryParse(value);
+    return null;
+  }
+
+  num? _asNum(dynamic value) {
+    if (value is num) return value;
+    if (value is String) return num.tryParse(value.trim());
     return null;
   }
 

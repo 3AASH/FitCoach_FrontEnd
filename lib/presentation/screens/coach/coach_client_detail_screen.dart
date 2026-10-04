@@ -95,7 +95,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
     final coachProvider = context.watch<CoachProvider>();
     final client = coachProvider.selectedClient;
@@ -105,7 +105,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          client?.fullName ?? languageProvider.t('coach_client_detail_title'),
+          client?.fullName ?? lang.t('coach_client_detail_title'),
         ),
         actions: [
           IconButton(
@@ -129,7 +129,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                       const SizedBox(height: 16),
                       Text(
                         coachProvider.error ??
-                            languageProvider
+                            lang
                                 .t('coach_client_detail_load_failed'),
                         textAlign: TextAlign.center,
                         style: const TextStyle(color: AppColors.error),
@@ -137,7 +137,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadClientDetails,
-                        child: Text(languageProvider.t('retry')),
+                        child: Text(lang.t('retry')),
                       ),
                     ],
                   ),
@@ -151,9 +151,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Client header
-                        _buildClientHeader(client, languageProvider),
+                        _buildClientHeader(client, lang),
                         const SizedBox(height: 16),
-                        _buildClientActions(client, languageProvider),
+                        _buildClientActions(client, lang),
 
                         const SizedBox(height: 24),
 
@@ -161,14 +161,14 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                         _buildFitnessScoreSection(
                           client,
                           authProvider,
-                          languageProvider,
+                          lang,
                         ),
 
                         const SizedBox(height: 16),
 
                         // Plans section
                         _buildPlansSection(
-                            client, languageProvider, authProvider),
+                            client, lang, authProvider),
 
                         const SizedBox(height: 16),
 
@@ -176,13 +176,13 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                         _buildCheckInTimelineSection(
                           client,
                           checkIns,
-                          languageProvider,
+                          lang,
                         ),
 
                         const SizedBox(height: 16),
 
                         // Activity section
-                        _buildActivitySection(client, languageProvider),
+                        _buildActivitySection(client, lang),
 
                         const SizedBox(height: 16),
 
@@ -190,13 +190,13 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                         _buildLatestCheckInSection(
                           client,
                           latestCheckIn,
-                          languageProvider,
+                          lang,
                         ),
 
                         const SizedBox(height: 16),
 
                         // Contact section
-                        _buildContactSection(client, languageProvider),
+                        _buildContactSection(client, lang),
                       ],
                     ),
                   ),
@@ -593,7 +593,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  lang.isArabic ? 'سجل تسجيلات المتابعة' : 'Check-in timeline',
+                  lang.t('coach_client_detail_check_in_timeline'),
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -621,9 +621,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              lang.isArabic
-                  ? 'كل تسجيلات العميل، بما في ذلك InBody والاستبيانات والتقدم.'
-                  : 'Every client check-in, including InBody, progress, and intake events.',
+              lang.t('coach_client_detail_every_client_check_in_including_inbody'),
               style: TextStyle(
                 fontSize: 13,
                 color: context.palette.textSecondary,
@@ -661,9 +659,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           ),
           const SizedBox(height: 12),
           Text(
-            lang.isArabic
-                ? 'لا توجد تسجيلات متابعة حتى الآن'
-                : 'No check-ins yet',
+            lang.t('coach_client_detail_no_check_ins_yet'),
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -671,9 +667,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            lang.isArabic
-                ? 'ستظهر هنا تسجيلات InBody والتقدم والاستبيانات عند توفرها.'
-                : 'InBody, progress, and intake events will appear here once available.',
+            lang.t('coach_client_detail_inbody_progress_and_intake_events_will'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
@@ -855,7 +849,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       rows.add(
         _buildInfoRow(
           icon: Icons.event_available,
-          label: lang.isArabic ? 'آخر تسجيل' : 'Latest Check-in',
+          label: lang.t('coach_client_detail_latest_check_in'),
           value: _formatDateTime(snapshot.occurredAt),
         ),
       );
@@ -863,7 +857,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       rows.add(
         _buildInfoRow(
           icon: _checkInTypeIcon(snapshot.type),
-          label: lang.isArabic ? 'نوع التسجيل' : 'Type',
+          label: lang.t('coach_client_detail_type'),
           value: snapshot.title,
         ),
       );
@@ -874,7 +868,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       rows.add(
         _buildInfoRow(
           icon: Icons.scale_outlined,
-          label: lang.isArabic ? 'الوزن' : 'Weight',
+          label: lang.t('weight'),
           value: '${metrics!.weight!.toStringAsFixed(1)} kg',
         ),
       );
@@ -884,7 +878,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       rows.add(
         _buildInfoRow(
           icon: Icons.percent,
-          label: lang.isArabic ? 'نسبة الدهون' : 'Body Fat',
+          label: lang.t('coach_client_detail_body_fat'),
           value: '${metrics!.bodyFatPercentage!.toStringAsFixed(1)}%',
         ),
       );
@@ -894,9 +888,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       rows.add(
         _buildInfoRow(
           icon: Icons.fitness_center,
-          label: lang.isArabic
-              ? 'الكتلة العضلية الهيكلية'
-              : 'Skeletal Muscle Mass',
+          label: lang.t('coach_client_detail_skeletal_muscle_mass'),
           value: '${metrics!.skeletalMuscleMass!.toStringAsFixed(1)} kg',
         ),
       );
@@ -916,7 +908,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       rows.add(
         _buildInfoRow(
           icon: Icons.event_available,
-          label: lang.isArabic ? 'آخر تسجيل' : 'Latest Check-in',
+          label: lang.t('coach_client_detail_latest_check_in'),
           value: _formatDateTime(client.lastActivity!),
         ),
       );
@@ -933,7 +925,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              lang.isArabic ? 'ملخص آخر تسجيل' : 'Latest Check-in Snapshot',
+              lang.t('coach_client_detail_latest_check_in_snapshot'),
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1128,30 +1120,30 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     }
 
     if (metrics.weight != null) {
-      add(lang.isArabic ? 'الوزن' : 'Weight',
+      add(lang.t('weight'),
           '${metrics.weight!.toStringAsFixed(1)} kg');
     }
     if (metrics.bodyFatPercentage != null) {
-      add(lang.isArabic ? 'الدهون' : 'Body Fat',
+      add(lang.t('progress_body_fat'),
           '${metrics.bodyFatPercentage!.toStringAsFixed(1)}%');
     }
     if (metrics.skeletalMuscleMass != null) {
-      add(lang.isArabic ? 'العضلات' : 'Muscle',
+      add(lang.t('coach_client_detail_muscle'),
           '${metrics.skeletalMuscleMass!.toStringAsFixed(1)} kg');
     }
     if (metrics.bmi != null) {
       add('BMI', metrics.bmi!.toStringAsFixed(1));
     }
     if (metrics.waist != null) {
-      add(lang.isArabic ? 'الخصر' : 'Waist',
+      add(lang.t('progress_waist'),
           '${metrics.waist!.toStringAsFixed(1)} cm');
     }
     if (metrics.chest != null) {
-      add(lang.isArabic ? 'الصدر' : 'Chest',
+      add(lang.t('progress_chest'),
           '${metrics.chest!.toStringAsFixed(1)} cm');
     }
     if (metrics.hips != null) {
-      add(lang.isArabic ? 'الورك' : 'Hips',
+      add(lang.t('progress_hips'),
           '${metrics.hips!.toStringAsFixed(1)} cm');
     }
     return items;
@@ -1189,27 +1181,27 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     }
 
     if (changes.weight != null) {
-      add(lang.isArabic ? 'الوزن' : 'Weight', changes.weight!, ' kg');
+      add(lang.t('weight'), changes.weight!, ' kg');
     }
     if (changes.bodyFatPercentage != null) {
-      add(lang.isArabic ? 'الدهون' : 'Body Fat', changes.bodyFatPercentage!,
+      add(lang.t('progress_body_fat'), changes.bodyFatPercentage!,
           '%');
     }
     if (changes.skeletalMuscleMass != null) {
-      add(lang.isArabic ? 'العضلات' : 'Muscle', changes.skeletalMuscleMass!,
+      add(lang.t('coach_client_detail_muscle'), changes.skeletalMuscleMass!,
           ' kg');
     }
     if (changes.bmi != null) {
       add('BMI', changes.bmi!, '');
     }
     if (changes.waist != null) {
-      add(lang.isArabic ? 'الخصر' : 'Waist', changes.waist!, ' cm');
+      add(lang.t('progress_waist'), changes.waist!, ' cm');
     }
     if (changes.chest != null) {
-      add(lang.isArabic ? 'الصدر' : 'Chest', changes.chest!, ' cm');
+      add(lang.t('progress_chest'), changes.chest!, ' cm');
     }
     if (changes.hips != null) {
-      add(lang.isArabic ? 'الورك' : 'Hips', changes.hips!, ' cm');
+      add(lang.t('progress_hips'), changes.hips!, ' cm');
     }
     return items;
   }
@@ -1237,13 +1229,13 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       );
     }
 
-    addRow(lang.isArabic ? 'الهدف الأساسي' : 'Primary goal',
+    addRow(lang.t('coach_client_detail_primary_goal'),
         context['primaryGoal'] ?? context['primary_goal']);
-    addRow(lang.isArabic ? 'مكان التمرين' : 'Workout location',
+    addRow(lang.t('coach_client_detail_workout_location'),
         context['workoutLocation'] ?? context['workout_location']);
-    addRow(lang.isArabic ? 'أيام التدريب أسبوعيًا' : 'Training days/week',
+    addRow(lang.t('coach_client_detail_training_days_week'),
         context['trainingDaysPerWeek'] ?? context['training_days_per_week']);
-    addRow(lang.isArabic ? 'مستوى الخبرة' : 'Experience level',
+    addRow(lang.t('coach_client_detail_experience_level'),
         context['experienceLevel'] ?? context['experience_level']);
     return rows;
   }
@@ -1277,14 +1269,14 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
   String _checkInTypeLabel(CoachClientCheckIn checkIn, LanguageProvider lang) {
     switch (checkIn.type.toLowerCase()) {
       case 'inbody':
-        return lang.isArabic ? 'InBody' : 'InBody';
+        return lang.t('coach_client_detail_inbody');
       case 'progress':
-        return lang.isArabic ? 'تقدم' : 'Progress';
+        return lang.t('coach_client_detail_progress');
       case 'intake':
         if (checkIn.stage == 'full') {
-          return lang.isArabic ? 'استبيان كامل' : 'Full intake';
+          return lang.t('coach_client_detail_full_intake');
         }
-        return lang.isArabic ? 'استبيان أولي' : 'Intake';
+        return lang.t('coach_client_detail_intake');
       default:
         return checkIn.type;
     }
@@ -1404,7 +1396,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
         return AppColors.primary;
       case 'freemium':
       default:
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
     }
   }
 
@@ -1419,7 +1412,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       case 'new':
         return AppColors.info;
       default:
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
     }
   }
 

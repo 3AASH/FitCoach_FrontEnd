@@ -59,33 +59,32 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
-    final isArabic = languageProvider.isArabic;
-    final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
+        final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
     final isPremium =
         subscriptionTier == 'Premium' || subscriptionTier == 'Smart Premium';
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(isArabic ? 'تحليل InBody' : 'InBody Analysis'),
+        title: Text(lang.t('inbody_input_inbody_analysis')),
       ),
       body: _inputMode == 'selection'
-          ? _buildModeSelection(isArabic, isPremium)
+          ? _buildModeSelection(lang, isPremium)
           : _inputMode == 'ai-scan'
-              ? _buildAIScan(languageProvider)
-              : _buildManualInput(isArabic),
+              ? _buildAIScan(lang)
+              : _buildManualInput(lang),
     );
   }
 
-  Widget _buildModeSelection(bool isArabic, bool isPremium) {
+  Widget _buildModeSelection(LanguageProvider lang, bool isPremium) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isArabic ? 'اختر طريقة الإدخال' : 'Choose Input Method',
+            lang.t('inbody_input_choose_input_method'),
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -93,9 +92,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            isArabic
-                ? 'كيف تريد إدخال بيانات InBody الخاصة بك؟'
-                : 'How would you like to enter your InBody data?',
+            lang.t('inbody_input_how_would_you_like_to_enter'),
             style: TextStyle(
               fontSize: 14,
               color: context.palette.textSecondary,
@@ -157,9 +154,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                             Row(
                               children: [
                                 Text(
-                                  isArabic
-                                      ? 'مسح بالذكاء الاصطناعي'
-                                      : 'AI Scan',
+                                  lang.t('inbody_input_ai_scan'),
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -176,9 +171,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              isArabic
-                                  ? 'التقط صورة لتقرير InBody الخاص بك'
-                                  : 'Take a photo of your InBody report',
+                              lang.t('inbody_input_take_a_photo_of_your_inbody'),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: context.palette.textSecondary,
@@ -196,9 +189,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      isArabic
-                                          ? 'استخراج فوري للبيانات'
-                                          : 'Instant data extraction',
+                                      lang.t('inbody_input_instant_data_extraction'),
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: AppColors.success,
@@ -211,9 +202,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                               Padding(
                                 padding: const EdgeInsets.only(top: 8),
                                 child: CustomButton(
-                                  text: isArabic
-                                      ? 'ترقية للذكاء الاصطناعي'
-                                      : 'Upgrade for AI',
+                                  text: lang.t('inbody_input_upgrade_for_ai'),
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -264,7 +253,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          isArabic ? 'ميزة بريميوم' : 'Premium Feature',
+                          lang.t('inbody_input_premium_feature'),
                           style: const TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
@@ -308,7 +297,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isArabic ? 'إدخال يدوي' : 'Manual Input',
+                        lang.t('inbody_input_manual_input'),
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -316,9 +305,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        isArabic
-                            ? 'أدخل القياسات يدوياً'
-                            : 'Enter measurements manually',
+                        lang.t('inbody_input_enter_measurements_manually'),
                         style: TextStyle(
                           fontSize: 13,
                           color: context.palette.textSecondary,
@@ -334,9 +321,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            isArabic
-                                ? 'متاح لجميع المستخدمين'
-                                : 'Available for all users',
+                            lang.t('inbody_input_available_for_all_users'),
                             style: TextStyle(
                               fontSize: 12,
                               color: context.palette.textSecondary,
@@ -348,7 +333,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                   ),
                 ),
                 Icon(
-                  isArabic ? Icons.chevron_left : Icons.chevron_right,
+                  Icons.chevron_right,
                   color: context.palette.textDisabled,
                 ),
               ],
@@ -370,9 +355,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    isArabic
-                        ? 'يساعدك تحليل InBody على تتبع تكوين جسمك بدقة وتحديد أهداف واقعية'
-                        : 'InBody analysis helps you track your body composition accurately and set realistic goals',
+                    lang.t('inbody_input_inbody_analysis_helps_you_track_your'),
                     style: TextStyle(
                       fontSize: 13,
                       color: context.palette.textSecondary,
@@ -388,8 +371,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   }
 
   Widget _buildAIScan(LanguageProvider lang) {
-    final isArabic = lang.isArabic;
-    return SingleChildScrollView(
+        return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -398,8 +380,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
             switchInCurve: Curves.easeOutCubic,
             switchOutCurve: Curves.easeInCubic,
             child: _selectedImageBytes == null
-                ? _buildAiIntro(lang, isArabic)
-                : _buildAiPreview(lang, isArabic),
+                ? _buildAiIntro(lang)
+                : _buildAiPreview(lang),
           ),
           const SizedBox(height: 24),
           TextButton(
@@ -414,7 +396,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     );
   }
 
-  Widget _buildAiIntro(LanguageProvider lang, bool isArabic) {
+  Widget _buildAiIntro(LanguageProvider lang) {
     return Column(
       key: const ValueKey('ai-intro'),
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -422,7 +404,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         Container(
           padding: const EdgeInsets.all(24),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: context.palette.border),
             boxShadow: [
@@ -451,18 +433,14 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                isArabic
-                    ? 'تحليل InBody بالذكاء الاصطناعي'
-                    : 'AI-powered InBody analysis',
+                lang.t('inbody_input_ai_powered_inbody_analysis'),
                 style:
                     const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
-                isArabic
-                    ? 'التقط صورة واضحة لتقرير InBody وسنملأ الأرقام تلقائياً.'
-                    : 'Capture a clear photo of your InBody report and we will fill every metric for you.',
+                lang.t('inbody_input_capture_a_clear_photo_of_your'),
                 style: TextStyle(color: context.palette.textSecondary),
                 textAlign: TextAlign.center,
               ),
@@ -471,23 +449,17 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 children: [
                   _buildAiHintRow(
                     Icons.photo_camera_outlined,
-                    isArabic
-                        ? 'احرص على إضاءة جيدة وخلفية نظيفة.'
-                        : 'Use good lighting and a clean background.',
+                    lang.t('inbody_input_use_good_lighting_and_a_clean'),
                   ),
                   const SizedBox(height: 12),
                   _buildAiHintRow(
                     Icons.crop_free,
-                    isArabic
-                        ? 'قم بمحاذاة التقرير بالكامل داخل الإطار.'
-                        : 'Align the entire report inside the frame.',
+                    lang.t('inbody_input_align_the_entire_report_inside_the'),
                   ),
                   const SizedBox(height: 12),
                   _buildAiHintRow(
                     Icons.timer,
-                    isArabic
-                        ? 'يستغرق التحليل ثوانٍ معدودة.'
-                        : 'Analysis takes only a few seconds.',
+                    lang.t('inbody_input_analysis_takes_only_a_few_seconds'),
                   ),
                 ],
               ),
@@ -496,7 +468,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         ),
         const SizedBox(height: 24),
         CustomButton(
-          text: isArabic ? 'فتح الكاميرا' : 'Open Camera',
+          text: lang.t('inbody_input_open_camera'),
           onPressed: _openCamera,
           variant: ButtonVariant.primary,
           size: ButtonSize.large,
@@ -505,7 +477,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         ),
         const SizedBox(height: 12),
         CustomButton(
-          text: isArabic ? 'اختيار من المعرض' : 'Choose from Gallery',
+          text: lang.t('inbody_input_choose_from_gallery'),
           onPressed: _openGallery,
           variant: ButtonVariant.secondary,
           size: ButtonSize.large,
@@ -514,7 +486,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         ),
         const SizedBox(height: 8),
         CustomButton(
-          text: isArabic ? 'الانتقال للإدخال اليدوي' : 'Switch to manual entry',
+          text: lang.t('inbody_input_switch_to_manual_entry'),
           onPressed: () => setState(() => _inputMode = 'manual'),
           variant: ButtonVariant.ghost,
           size: ButtonSize.medium,
@@ -524,7 +496,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     );
   }
 
-  Widget _buildAiPreview(LanguageProvider lang, bool isArabic) {
+  Widget _buildAiPreview(LanguageProvider lang) {
     final summary = _extractedData;
     return Column(
       key: const ValueKey('ai-preview'),
@@ -533,7 +505,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: context.palette.surface,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(color: context.palette.border),
             boxShadow: [
@@ -579,16 +551,12 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 const CircularProgressIndicator(),
                 const SizedBox(height: 12),
                 Text(
-                  isArabic
-                      ? 'يتم الآن تحليل الصورة...'
-                      : 'Analyzing your scan...',
+                  lang.t('inbody_input_analyzing_your_scan'),
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  isArabic
-                      ? 'نستخرج تلقائياً كل البيانات المهمة من تقريرك.'
-                      : 'We extract every important metric from your report.',
+                  lang.t('inbody_input_we_extract_every_important_metric_from'),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: context.palette.textSecondary),
                 ),
@@ -596,26 +564,24 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 const LinearProgressIndicator(value: 0.65, minHeight: 6),
               ] else if (_extractionComplete && summary != null) ...[
                 Text(
-                  isArabic ? 'تم استخراج البيانات' : 'Data extraction complete',
+                  lang.t('inbody_input_data_extraction_complete'),
                   style: const TextStyle(
                       fontSize: 18, fontWeight: FontWeight.w700),
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  isArabic
-                      ? 'راجع أبرز القياسات ثم تابع لتعديل أي قيمة قبل الحفظ.'
-                      : 'Review the highlighted metrics, then continue to fine-tune before saving.',
+                  lang.t('inbody_input_review_the_highlighted_metrics_then_continue'),
                   style: TextStyle(color: context.palette.textSecondary),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 16),
-                _buildAiSummaryGrid(summary, isArabic),
+                _buildAiSummaryGrid(summary, lang),
                 const SizedBox(height: 20),
                 Row(
                   children: [
                     Expanded(
                       child: CustomButton(
-                        text: isArabic ? 'إعادة الالتقاط' : 'Retake photo',
+                        text: lang.t('inbody_input_retake_photo'),
                         onPressed: _clearAiCapture,
                         variant: ButtonVariant.outline,
                         size: ButtonSize.medium,
@@ -626,13 +592,11 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: CustomButton(
-                        text: isArabic
-                            ? 'استخدام هذه البيانات'
-                            : 'Use extracted data',
+                        text: lang.t('inbody_input_use_extracted_data'),
                         onPressed: () => _applyExtractedDataAndContinue(lang),
                         variant: ButtonVariant.primary,
                         size: ButtonSize.medium,
-                        icon: isArabic ? Icons.arrow_back : Icons.arrow_forward,
+                        icon: Icons.arrow_forward,
                         fullWidth: true,
                       ),
                     ),
@@ -640,7 +604,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 ),
               ] else ...[
                 Text(
-                  isArabic ? 'جارٍ تجهيز المعاينة...' : 'Preparing preview...',
+                  lang.t('inbody_input_preparing_preview'),
                   style: TextStyle(color: context.palette.textSecondary),
                 ),
               ],
@@ -674,14 +638,14 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     );
   }
 
-  Widget _buildAiSummaryGrid(Map<String, dynamic> summary, bool isArabic) {
+  Widget _buildAiSummaryGrid(Map<String, dynamic> summary, LanguageProvider lang) {
     final weightValue = _formatNumber(summary['weight'] as num?);
     final bmiValue = _formatNumber(summary['bmi'] as num?);
     final fatValue = _formatNumber(summary['bodyFat'] as num?);
     final muscleValue = _formatNumber(summary['muscleMass'] as num?);
     final stats = [
       {
-        'label': isArabic ? 'الوزن' : 'Weight',
+        'label': lang.t('weight'),
         'value': weightValue == '--' ? weightValue : '$weightValue kg',
         'color': AppColors.primary,
       },
@@ -691,12 +655,12 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         'color': AppColors.secondaryForeground,
       },
       {
-        'label': isArabic ? 'دهون الجسم' : 'Body fat',
+        'label': lang.t('inbody_input_body_fat'),
         'value': fatValue == '--' ? fatValue : '$fatValue%',
         'color': const Color(0xFF22C55E),
       },
       {
-        'label': isArabic ? 'الكتلة العضلية' : 'Muscle mass',
+        'label': lang.t('inbody_input_muscle_mass'),
         'value': muscleValue == '--' ? muscleValue : '$muscleValue kg',
         'color': const Color(0xFF0EA5E9),
       },
@@ -714,7 +678,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
               stat['label'] as String,
               stat['value'] as String,
               stat['color'] as Color,
-              isArabic,
+              lang,
             ),
           )
           .toList(),
@@ -722,7 +686,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   }
 
   Widget _buildAiStatTile(
-      String label, String value, Color color, bool isArabic) {
+      String label, String value, Color color, LanguageProvider lang) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       decoration: BoxDecoration(
@@ -732,7 +696,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       ),
       child: Column(
         crossAxisAlignment:
-            isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            lang.isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
           Text(
             value,
@@ -891,16 +855,14 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   void _showImageError({String? message, bool retryable = false}) {
     if (!mounted) return;
     final lang = context.read<LanguageProvider>();
-    final fallback = lang.isArabic
-        ? 'حدث خطأ أثناء معالجة الصورة. حاول مرة أخرى.'
-        : 'Something went wrong while processing the image. Please try again.';
+    final fallback = lang.t('inbody_input_something_went_wrong_while_processing_the');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message ?? fallback),
         backgroundColor: retryable ? AppColors.warning : AppColors.error,
         action: retryable
             ? SnackBarAction(
-                label: lang.isArabic ? 'إعادة المحاولة' : 'Retry',
+                label: lang.t('retry'),
                 textColor: Colors.white,
                 onPressed: _retrySelectedImage,
               )
@@ -915,13 +877,11 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          lang.isArabic
-              ? 'استخراج البيانات بالذكاء الاصطناعي متاح للمشتركين فقط. قم بالترقية للمتابعة.'
-              : 'AI extraction is available for subscribers only. Upgrade to continue.',
+          lang.t('inbody_input_ai_extraction_is_available_for_subscribers'),
         ),
         backgroundColor: AppColors.warning,
         action: SnackBarAction(
-          label: lang.isArabic ? 'ترقية' : 'Upgrade',
+          label: lang.t('subscription_upgrade_cta'),
           textColor: Colors.white,
           onPressed: () {
             if (!mounted) return;
@@ -988,9 +948,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          lang.isArabic
-              ? 'تمت إضافة القياسات المستخرجة، تأكد منها قبل الحفظ.'
-              : 'Extracted metrics applied. Review them before saving.',
+          lang.t('inbody_input_extracted_metrics_applied_review_them_before'),
         ),
         backgroundColor: AppColors.success,
       ),
@@ -1008,14 +966,14 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     return value.toStringAsFixed(fractionDigits);
   }
 
-  Widget _buildManualInput(bool isArabic) {
+  Widget _buildManualInput(LanguageProvider lang) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            isArabic ? 'أدخل قياساتك' : 'Enter Your Measurements',
+            lang.t('inbody_input_enter_your_measurements'),
             style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
@@ -1026,7 +984,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Weight
           _buildInputField(
             controller: _weightController,
-            label: isArabic ? 'الوزن (كجم)' : 'Weight (kg)',
+            label: lang.t('progress_weight_kg'),
             hint: '70.5',
             icon: Icons.monitor_weight,
           ),
@@ -1036,7 +994,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Body Fat %
           _buildInputField(
             controller: _bodyFatController,
-            label: isArabic ? 'نسبة الدهون (%)' : 'Body Fat (%)',
+            label: lang.t('inbody_input_body_fat_2'),
             hint: '18.5',
             icon: Icons.pie_chart,
           ),
@@ -1046,7 +1004,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Muscle Mass
           _buildInputField(
             controller: _muscleMassController,
-            label: isArabic ? 'الكتلة العضلية (كجم)' : 'Muscle Mass (kg)',
+            label: lang.t('inbody_input_muscle_mass_kg'),
             hint: '35.2',
             icon: Icons.fitness_center,
           ),
@@ -1056,7 +1014,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // BMI
           _buildInputField(
             controller: _bmiController,
-            label: isArabic ? 'مؤشر كتلة الجسم' : 'BMI',
+            label: lang.t('inbody_input_bmi'),
             hint: '23.4',
             icon: Icons.straighten,
           ),
@@ -1064,9 +1022,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           const SizedBox(height: 24),
 
           Text(
-            isArabic
-                ? 'قياسات إضافية (اختياري)'
-                : 'Additional Measurements (Optional)',
+            lang.t('inbody_input_additional_measurements_optional'),
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -1077,7 +1033,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Visceral Fat
           _buildInputField(
             controller: _visceralFatController,
-            label: isArabic ? 'الدهون الحشوية' : 'Visceral Fat',
+            label: lang.t('inbody_input_visceral_fat'),
             hint: '8',
             icon: Icons.health_and_safety,
           ),
@@ -1087,7 +1043,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Body Water
           _buildInputField(
             controller: _bodyWaterController,
-            label: isArabic ? 'ماء الجسم (%)' : 'Body Water (%)',
+            label: lang.t('inbody_input_body_water'),
             hint: '60.2',
             icon: Icons.water_drop,
           ),
@@ -1097,7 +1053,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Protein
           _buildInputField(
             controller: _proteinController,
-            label: isArabic ? 'البروتين (كجم)' : 'Protein (kg)',
+            label: lang.t('inbody_input_protein_kg'),
             hint: '12.5',
             icon: Icons.restaurant,
           ),
@@ -1107,7 +1063,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // Mineral
           _buildInputField(
             controller: _mineralController,
-            label: isArabic ? 'المعادن (كجم)' : 'Mineral (kg)',
+            label: lang.t('inbody_input_mineral_kg'),
             hint: '3.2',
             icon: Icons.science,
           ),
@@ -1117,7 +1073,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           // BMR
           _buildInputField(
             controller: _bmrController,
-            label: isArabic ? 'معدل الأيض الأساسي' : 'BMR (kcal)',
+            label: lang.t('inbody_input_bmr_kcal'),
             hint: '1650',
             icon: Icons.local_fire_department,
           ),
@@ -1127,8 +1083,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           SizedBox(
             width: double.infinity,
             child: CustomButton(
-              text: isArabic ? 'حفظ النتائج' : 'Save Results',
-              onPressed: _isSaving ? null : () => _saveResults(isArabic),
+              text: lang.t('inbody_input_save_results'),
+              onPressed: _isSaving ? null : () => _saveResults(lang),
               isLoading: _isSaving,
               variant: ButtonVariant.primary,
               size: ButtonSize.large,
@@ -1141,7 +1097,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           SizedBox(
             width: double.infinity,
             child: CustomButton(
-              text: isArabic ? 'إلغاء' : 'Cancel',
+              text: lang.t('cancel'),
               onPressed: _isSaving
                   ? null
                   : () {
@@ -1179,7 +1135,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     );
   }
 
-  void _saveResults(bool isArabic) async {
+  void _saveResults(LanguageProvider lang) async {
     if (_isSaving) {
       return;
     }
@@ -1188,9 +1144,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isArabic
-                ? 'الرجاء إدخال الوزن على الأقل'
-                : 'Please enter at least weight',
+            lang.t('inbody_input_please_enter_at_least_weight'),
           ),
           backgroundColor: AppColors.error,
         ),
@@ -1273,9 +1227,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       messenger.showSnackBar(
         SnackBar(
           content: Text(
-            isArabic
-                ? 'تم حفظ نتائج InBody بنجاح'
-                : 'InBody results saved successfully',
+            lang.t('inbody_input_inbody_results_saved_successfully'),
           ),
           backgroundColor: AppColors.success,
         ),
@@ -1287,14 +1239,10 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
 
       final raw = e.toString().replaceFirst('Exception: ', '').trim();
       final message = raw.contains("type 'Null' is not a subtype")
-          ? (isArabic
-              ? 'تم حفظ الفحص، لكن تعذر تحميل أحدث نتيجة الآن.'
-              : 'The scan was saved, but the latest result could not be loaded yet.')
+          ? (lang.t('inbody_input_the_scan_was_saved_but_the'))
           : (raw.isNotEmpty
               ? raw
-              : (isArabic
-                  ? 'فشل في حفظ النتائج. حاول مرة أخرى.'
-                  : 'Failed to save results. Please try again.'));
+              : (lang.t('inbody_input_failed_to_save_results_please_try')));
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

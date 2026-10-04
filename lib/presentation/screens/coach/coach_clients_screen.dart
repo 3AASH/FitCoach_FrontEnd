@@ -51,12 +51,11 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final languageProvider = context.watch<LanguageProvider>();
+    final lang = context.watch<LanguageProvider>();
     final coachProvider = context.watch<CoachProvider>();
-    final isArabic = languageProvider.isArabic;
-    return Scaffold(
+        return Scaffold(
       appBar: AppBar(
-        title: Text(languageProvider.t('coach_clients_title')),
+        title: Text(lang.t('coach_clients_title')),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -75,7 +74,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                 TextField(
                   controller: _searchController,
                   decoration: InputDecoration(
-                    hintText: languageProvider.t('coach_clients_search_hint'),
+                    hintText: lang.t('coach_clients_search_hint'),
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
@@ -110,7 +109,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         initialValue: _statusFilter,
                         decoration: InputDecoration(
                           labelText:
-                              languageProvider.t('coach_clients_status_label'),
+                              lang.t('coach_clients_status_label'),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
@@ -119,16 +118,16 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                           DropdownMenuItem(
                             value: null,
                             child: Text(
-                                languageProvider.t('coach_clients_status_all')),
+                                lang.t('coach_clients_status_all')),
                           ),
                           DropdownMenuItem(
                             value: 'active',
-                            child: Text(languageProvider
+                            child: Text(lang
                                 .t('coach_clients_status_active')),
                           ),
                           DropdownMenuItem(
                             value: 'inactive',
-                            child: Text(languageProvider
+                            child: Text(lang
                                 .t('coach_clients_status_inactive')),
                           ),
                         ],
@@ -169,7 +168,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: _loadClients,
-                              child: Text(languageProvider.t('retry')),
+                              child: Text(lang.t('retry')),
                             ),
                           ],
                         ),
@@ -186,7 +185,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Text(
-                                  languageProvider.t('coach_clients_empty'),
+                                  lang.t('coach_clients_empty'),
                                   style: TextStyle(
                                     fontSize: 18,
                                     color: context.palette.textSecondary,
@@ -203,11 +202,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                               itemCount: coachProvider.clients.length,
                               itemBuilder: (context, index) {
                                 final client = coachProvider.clients[index];
-                                return _buildClientCard(
-                                  client,
-                                  languageProvider,
-                                  isArabic,
-                                );
+                                return _buildClientCard(client, lang);
                               },
                             ),
                           ),
@@ -219,10 +214,9 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
 
   Widget _buildClientCard(
     client,
-    LanguageProvider languageProvider,
-    bool isArabic,
+    LanguageProvider lang,
   ) {
-    final checkInBadge = _buildCheckInBadge(client, languageProvider);
+    final checkInBadge = _buildCheckInBadge(client, lang);
 
     return CustomCard(
       child: InkWell(
@@ -354,7 +348,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          languageProvider.t('coach_clients_score_label'),
+                          lang.t('coach_clients_score_label'),
                           style: TextStyle(
                             fontSize: 10,
                             color: context.palette.textSecondary,
@@ -365,7 +359,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                   ],
                   const SizedBox(width: 8),
                   Icon(
-                    isArabic ? Icons.chevron_left : Icons.chevron_right,
+                    Icons.chevron_right,
                     color: context.palette.textDisabled,
                   ),
                 ],
@@ -376,7 +370,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.chat_bubble_outline),
-                      label: Text(languageProvider.t('coach_message')),
+                      label: Text(lang.t('coach_message')),
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -393,7 +387,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                   Expanded(
                     child: OutlinedButton.icon(
                       icon: const Icon(Icons.video_call),
-                      label: Text(languageProvider.t('coach_schedule_call')),
+                      label: Text(lang.t('coach_schedule_call')),
                       onPressed: () {
                         showCoachScheduleSessionSheet(
                           context,
@@ -412,8 +406,8 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
     );
   }
 
-  Widget? _buildCheckInBadge(client, LanguageProvider languageProvider) {
-    final label = _checkInBadgeText(client, languageProvider);
+  Widget? _buildCheckInBadge(client, LanguageProvider lang) {
+    final label = _checkInBadgeText(client, lang);
     if (label == null) {
       return null;
     }
@@ -436,7 +430,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
     );
   }
 
-  String? _checkInBadgeText(client, LanguageProvider languageProvider) {
+  String? _checkInBadgeText(client, LanguageProvider lang) {
     final referenceDate = client.latestInbodyScanDate ?? client.lastActivity;
     if (referenceDate == null) {
       return null;
@@ -445,21 +439,17 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
     final daysAgo = DateTime.now().difference(referenceDate).inDays;
     if (client.latestInbodyScanDate != null) {
       if (daysAgo <= 0) {
-        return languageProvider.isArabic
-            ? 'تم تسجيل InBody اليوم'
-            : 'Checked in today';
+        return lang.t('coach_clients_checked_in_today');
       }
-      return languageProvider.isArabic
-          ? 'آخر InBody منذ $daysAgo يوم'
-          : 'Last InBody $daysAgo' 'd ago';
+      return lang.t('coach_clients_last_inbody_daysago',
+          args: {'days': '$daysAgo'});
     }
 
     if (daysAgo <= 0) {
-      return languageProvider.isArabic ? 'نشاط اليوم' : 'Active today';
+      return lang.t('coach_clients_active_today');
     }
-    return languageProvider.isArabic
-        ? 'آخر نشاط منذ $daysAgo يوم'
-        : 'Last activity $daysAgo' 'd ago';
+    return lang.t('coach_clients_last_activity_daysago',
+        args: {'days': '$daysAgo'});
   }
 
   Color _getTierColor(String tier) {
@@ -470,7 +460,8 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
         return AppColors.primary;
       case 'freemium':
       default:
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
     }
   }
 
@@ -485,7 +476,8 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
       case 'new':
         return AppColors.info;
       default:
-        return context.palette.textSecondary;
+        return AppColors.textSecondary; // fill under a pinned-white label: the
+        // theme token lightens in dark mode and left white on light grey
     }
   }
 

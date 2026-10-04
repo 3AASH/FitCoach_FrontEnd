@@ -8,6 +8,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class PaymentManagementScreen extends StatefulWidget {
   const PaymentManagementScreen({super.key});
@@ -77,7 +78,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           const SizedBox(height: 16),
           DemoConfig.isDemo
               ? _buildMethodsCard(lang)
-              : _buildProductionMethodsCard(),
+              : _buildProductionMethodsCard(lang),
           const SizedBox(height: 16),
           _buildHistoryCard(lang),
           const SizedBox(height: 16),
@@ -140,18 +141,18 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
     );
   }
 
-  Widget _buildProductionMethodsCard() {
+  Widget _buildProductionMethodsCard(LanguageProvider lang) {
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Payment Methods',
-            style: TextStyle(fontWeight: FontWeight.w700),
+          Text(
+            lang.t('payment_methods_title'),
+            style: const TextStyle(fontWeight: FontWeight.w700),
           ),
           const SizedBox(height: 8),
           Text(
-            'Payment methods are managed securely by your payment provider in production mode.',
+            lang.t('payment_methods_managed_externally'),
             style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
         ],
@@ -167,9 +168,9 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Recent Payments',
-                style: TextStyle(fontWeight: FontWeight.w700),
+              Text(
+                lang.t('payment_recent'),
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
               if (!DemoConfig.isDemo)
                 IconButton(
@@ -189,8 +190,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           else if (_paymentHistory.isEmpty)
             Text(
               DemoConfig.isDemo
-                  ? 'No demo transactions available.'
-                  : 'No payment history found yet.',
+                  ? lang.t('payment_history_empty_demo')
+                  : lang.t('payment_history_empty'),
               style: TextStyle(color: context.palette.textSecondary),
             )
           else
@@ -264,11 +265,11 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   }
 
   void _showAddMethodSheet() {
+    final lang = context.read<LanguageProvider>();
     if (!DemoConfig.isDemo) {
-      _showSnack('Adding methods in-app is only available in demo mode.');
+      _showSnack(lang.t('payment_add_demo_only'));
       return;
     }
-    final lang = context.read<LanguageProvider>();
     final cardNumberController = TextEditingController();
     final holderController = TextEditingController();
     final expiryController = TextEditingController();
@@ -287,10 +288,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              lang.t('payment_add_method'),
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
-            ),
+            SheetHeader(title: lang.t('payment_add_method')),
             const SizedBox(height: 16),
             TextField(
               controller: cardNumberController,

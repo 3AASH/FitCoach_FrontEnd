@@ -19,6 +19,7 @@ import '../settings/change_mobile_screen.dart';
 import '../settings/delete_account_screen.dart';
 import 'payment_management_screen.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/sheet_header.dart';
 
 class AccountScreen extends StatefulWidget {
   final VoidCallback? onBack;
@@ -146,8 +147,8 @@ class _AccountScreenState extends State<AccountScreen> {
                         children: [
                           IconButton(
                             onPressed: () => _handleBack(),
-                            icon: Icon(
-                              isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                            icon: const Icon(
+                              Icons.arrow_back,
                               color: Colors.white,
                             ),
                           ),
@@ -689,7 +690,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     ? languageProvider.t('arabic')
                     : languageProvider.t('english')),
                 trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                    const Icon(Icons.chevron_right),
                 onTap: () =>
                     _showLanguageDialog(context, languageProvider, isArabic),
               ),
@@ -714,7 +715,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 subtitle: Text(languageProvider
                     .t('account_notification_settings_subtitle')),
                 trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                    const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -728,7 +729,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_password_title')),
                 trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                    const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -742,7 +743,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_mobile_title')),
                 trailing:
-                    Icon(isArabic ? Icons.chevron_left : Icons.chevron_right),
+                    const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -1377,6 +1378,9 @@ class _AccountScreenState extends State<AccountScreen> {
             ),
           ],
         ),
+        // Both rows switch the language, so without this there is no way to
+        // back out of a dialog opened by mistake.
+        actions: [dialogCancelAction(context)],
       ),
     );
   }

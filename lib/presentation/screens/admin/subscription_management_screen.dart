@@ -6,6 +6,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/subscription_plan_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/sheet_header.dart';
 import '../../widgets/subscription_comparison_table.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -115,7 +116,6 @@ class _SubscriptionManagementScreenState
     LanguageProvider languageProvider,
     SubscriptionPlanProvider planProvider,
   ) {
-    final isArabic = languageProvider.isArabic;
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
       decoration: const BoxDecoration(
@@ -134,8 +134,8 @@ class _SubscriptionManagementScreenState
               children: [
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: Icon(
-                    isArabic ? Icons.arrow_forward : Icons.arrow_back,
+                  icon: const Icon(
+                    Icons.arrow_back,
                     color: AppColors.textWhite,
                   ),
                 ),
@@ -858,14 +858,10 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                   ),
                 ),
               ),
-              Text(
-                widget.initialPlan == null
+              SheetHeader(
+                title: widget.initialPlan == null
                     ? tr('subscription_admin_modal_create_title')
                     : tr('subscription_admin_modal_edit_title'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
               ),
               const SizedBox(height: 20),
               TextFormField(

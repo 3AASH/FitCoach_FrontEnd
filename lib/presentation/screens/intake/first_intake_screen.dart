@@ -67,7 +67,6 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final userProvider = context.watch<UserProvider>();
-    final isArabic = languageProvider.isArabic;
 
     return Scaffold(
       body: Stack(
@@ -89,7 +88,10 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                   child: Container(
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.95),
+                      // Follows the theme rather than staying white: the card's
+                      // labels and button text inherit the theme's text colour,
+                      // which is near-white in dark mode and vanished here.
+                      color: context.palette.surface.withValues(alpha: 0.95),
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
@@ -156,10 +158,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(
-                                      isArabic
-                                          ? Icons.arrow_forward
-                                          : Icons.arrow_back,
+                                    const Icon(
+                                      Icons.arrow_back,
                                       size: 18,
                                     ),
                                     const SizedBox(width: 6),
@@ -214,10 +214,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                                     .t('continue'),
                                           ),
                                           const SizedBox(width: 6),
-                                          Icon(
-                                            isArabic
-                                                ? Icons.arrow_back
-                                                : Icons.arrow_forward,
+                                          const Icon(
+                                            Icons.arrow_forward,
                                             size: 18,
                                           ),
                                         ],
@@ -352,7 +350,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? AppColors.primary.withValues(alpha: 0.08)
-              : Colors.white,
+              : context.palette.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected ? AppColors.primary : context.palette.border,
