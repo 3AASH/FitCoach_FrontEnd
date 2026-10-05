@@ -164,6 +164,7 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
                 ),
               ),
               IconButton(
+                tooltip: lang.t('close'),
                 onPressed: () => Navigator.of(context).pop(),
                 icon: const Icon(Icons.close),
               ),

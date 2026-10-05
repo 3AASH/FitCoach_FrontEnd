@@ -296,6 +296,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         title: Text(lang.t('coach_progress_label')),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             onPressed: DemoConfig.isDemo ? null : _loadProgress,
             icon: const Icon(Icons.refresh),
           ),
@@ -528,9 +529,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: hasWorkout
-                        ? const Icon(
+                        ? Icon(
                             Icons.check,
-                            color: Colors.white,
+                            color: context.palette.textOnBrand,
                             size: 16,
                           )
                         : null,

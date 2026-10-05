@@ -247,7 +247,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? Colors.white : context.palette.textPrimary,
+                color: isSelected ? context.palette.textOnBrand : context.palette.textPrimary,
               ),
             ),
             if (badge != null) ...[
@@ -255,7 +255,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isSelected ? Colors.white : AppColors.success,
+                  color: isSelected ? context.palette.textOnBrand : AppColors.success,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -263,7 +263,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? AppColors.primary : Colors.white,
+                    color: isSelected ? AppColors.primary : context.palette.textOnBrand,
                   ),
                 ),
               ),
@@ -359,9 +359,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                         ),
                         child: Text(
                           tr('subscription_status_current'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
-                            color: Colors.white,
+                            color: context.palette.textOnBrand,
                             fontWeight: FontWeight.bold,
                           ),
                         ),

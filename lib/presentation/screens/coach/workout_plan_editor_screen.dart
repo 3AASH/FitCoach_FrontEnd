@@ -296,6 +296,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
+            tooltip: lang.t('save'),
             onPressed: _isSaving ? null : _savePlan,
           ),
         ],
@@ -387,6 +388,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                   onPressed: _isEditable
                                       ? () => _removeDay(dayIndex)
                                       : null,
+                                  tooltip: lang.t('delete'),
                                   icon: const Icon(Icons.delete,
                                       color: AppColors.error),
                                 ),
@@ -441,6 +443,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                                 ? () => _removeExercise(
                                                     dayIndex, exIndex)
                                                 : null,
+                                            tooltip: lang.t('remove'),
                                             icon: const Icon(
                                                 Icons.remove_circle_outline,
                                                 color: AppColors.error),

@@ -395,10 +395,12 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
               Row(
                 children: [
                   IconButton(
+                    tooltip: 'Edit day',
                     icon: const Icon(Icons.edit, size: 20),
                     onPressed: () => _editDayName(index, lang),
                   ),
                   IconButton(
+                    tooltip: 'Add exercise',
                     icon: const Icon(Icons.add, size: 20),
                     onPressed: () => _addExercise(index, lang),
                   ),
@@ -446,6 +448,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                   style: const TextStyle(fontSize: 12),
                 ),
                 trailing: IconButton(
+                  tooltip: 'Delete exercise',
                   icon: const Icon(Icons.delete,
                       size: 20, color: AppColors.error),
                   onPressed: () {

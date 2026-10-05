@@ -199,7 +199,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                           strokeWidth: 2,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                  Colors.white),
+                                                  context.palette.textOnBrand),
                                         ),
                                       )
                                     : Row(

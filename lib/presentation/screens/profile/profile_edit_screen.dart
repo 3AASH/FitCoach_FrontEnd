@@ -130,6 +130,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
                           border: Border.all(color: AppColors.textWhite, width: 2),
                         ),
                         child: IconButton(
+                          tooltip: lang.t('edit_profile_photo'),
                           icon: const Icon(Icons.camera_alt, color: AppColors.textWhite, size: 20),
                           onPressed: _isUpdatingPhoto ? null : _showPhotoOptions,
                         ),

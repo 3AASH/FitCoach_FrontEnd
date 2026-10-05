@@ -274,7 +274,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                                           strokeWidth: 2,
                                           valueColor:
                                               AlwaysStoppedAnimation<Color>(
-                                                  Colors.white),
+                                                  AppColors.secondaryForeground),
                                         ),
                                       )
                                     : Row(
@@ -693,7 +693,7 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
                     color: AppColors.secondaryForeground,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.fitness_center, color: Colors.white),
+                  child: const Icon(Icons.fitness_center, color: AppColors.secondary),
                 ),
                 const SizedBox(height: 16),
                 Text(

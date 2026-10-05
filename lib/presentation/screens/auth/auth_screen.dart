@@ -675,10 +675,10 @@ class _AuthScreenState extends State<AuthScreen> {
                           duration: const Duration(milliseconds: 650),
                           child: Text(
                             languageProvider.t('auth_app_name'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 26,
                               fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                              color: context.palette.textOnBrand,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -692,7 +692,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             languageProvider.t('auth_tagline'),
                             style: TextStyle(
                               fontSize: 14,
-                              color: Colors.white.withValues(alpha: 0.85),
+                              color: context.palette.textOnBrand.withValues(alpha: 0.85),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -942,14 +942,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                         vertical: 14),
                                   ),
                                   child: authProvider.isLoading
-                                      ? const SizedBox(
+                                      ? SizedBox(
                                           height: 18,
                                           width: 18,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
+                                              context.palette.textOnBrand,
                                             ),
                                           ),
                                         )
@@ -1054,7 +1054,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                               strokeWidth: 2,
                                               valueColor:
                                                   AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
+                                                context.palette.textOnBrand,
                                               ),
                                             ),
                                           )
@@ -1136,7 +1136,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                               strokeWidth: 2,
                                               valueColor:
                                                   AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
+                                                context.palette.textOnBrand,
                                               ),
                                             ),
                                           )
@@ -1220,14 +1220,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                         vertical: 14),
                                   ),
                                   child: authProvider.isLoading
-                                      ? const SizedBox(
+                                      ? SizedBox(
                                           height: 18,
                                           width: 18,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
+                                              context.palette.textOnBrand,
                                             ),
                                           ),
                                         )
@@ -1276,14 +1276,14 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ? null
                                       : _verifyOTP,
                                   child: authProvider.isLoading
-                                      ? const SizedBox(
+                                      ? SizedBox(
                                           height: 18,
                                           width: 18,
                                           child: CircularProgressIndicator(
                                             strokeWidth: 2,
                                             valueColor:
                                                 AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
+                                              context.palette.textOnBrand,
                                             ),
                                           ),
                                         )

@@ -109,6 +109,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
         ),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             icon: const Icon(Icons.refresh),
             onPressed: _loadClientDetails,
           ),

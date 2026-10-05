@@ -559,7 +559,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                icon: Icon(Icons.arrow_back, color: context.palette.textOnBrand, size: 18),
                 tooltip: lang.t('back'),
                 onPressed: () {
                   if (widget.onBack != null) {
@@ -579,7 +579,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   child: Text(
                     lang.t('workouts_title'),
                     style: AppTextStyles.h1.copyWith(
-                      color: Colors.white,
+                      color: context.palette.textOnBrand,
                       height: 1.05,
                     ),
                   ),
@@ -593,19 +593,19 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.15),
+                    color: context.palette.textOnBrand.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.calendar_today,
-                          size: 14, color: Colors.white),
+                      Icon(Icons.calendar_today,
+                          size: 14, color: context.palette.textOnBrand),
                       const SizedBox(width: 6),
                       Text(
                         lang.t('today'),
                         style:
-                            AppTextStyles.small.copyWith(color: Colors.white),
+                            AppTextStyles.small.copyWith(color: context.palette.textOnBrand),
                       ),
                     ],
                   ),
@@ -628,7 +628,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       'number': '$dayNumber'
                     })}',
                 style: AppTextStyles.h1.copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: context.palette.textOnBrand.withValues(alpha: 0.9),
                   height: 1.05,
                 ),
               ),
@@ -639,7 +639,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             Text(
               durationLabel,
               style: AppTextStyles.h3.copyWith(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: context.palette.textOnBrand.withValues(alpha: 0.7),
               ),
             ),
           const SizedBox(height: 12),
@@ -648,15 +648,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 7,
-              backgroundColor: Colors.white.withValues(alpha: 0.24),
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+              backgroundColor: context.palette.textOnBrand.withValues(alpha: 0.24),
+              valueColor: AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             '$completedExercises of $totalExercises ${lang.t('exercises')} ${lang.t('workout_completed').toLowerCase()}',
             style: AppTextStyles.small.copyWith(
-              color: Colors.white.withValues(alpha: 0.82),
+              color: context.palette.textOnBrand.withValues(alpha: 0.82),
             ),
           ),
         ],
@@ -1309,7 +1309,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      color: isCompleted ? const Color(0xFFEAF7EE) : Colors.white,
+      color: isCompleted ? const Color(0xFFEAF7EE) : context.palette.surface,
       border: Border.all(
         color: isCompleted
             ? const Color(0xFFA9E3B8)
@@ -1326,7 +1326,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   ? const Color(0xFF030625)
                   : const Color(0xFFE8EAF0),
               foregroundColor:
-                  isCompleted ? Colors.white : const Color(0xFF272938),
+                  isCompleted ? context.palette.surface : const Color(0xFF272938),
               textStyle:
                   AppTextStyles.smallMedium,
               minimumSize: const Size(74, 38),

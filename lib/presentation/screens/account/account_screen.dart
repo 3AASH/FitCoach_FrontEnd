@@ -148,9 +148,9 @@ class _AccountScreenState extends State<AccountScreen> {
                           IconButton(
                             tooltip: languageProvider.t('back'),
                             onPressed: () => _handleBack(),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back,
-                              color: Colors.white,
+                              color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
                           Expanded(
@@ -159,15 +159,15 @@ class _AccountScreenState extends State<AccountScreen> {
                               children: [
                                 Text(
                                   languageProvider.t('account'),
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onPrimary,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
                                 Text(
                                   languageProvider.t('account_manage_profile'),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: Colors.white70, fontSize: 12),
                                 ),
                               ],
@@ -179,7 +179,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.12),
+                          color: context.palette.textOnBrand.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(
@@ -187,13 +187,13 @@ class _AccountScreenState extends State<AccountScreen> {
                             CircleAvatar(
                               radius: 24,
                               backgroundColor:
-                                  Colors.white.withValues(alpha: 0.2),
+                                  context.palette.textOnBrand.withValues(alpha: 0.2),
                               child: Text(
                                 user?.name.substring(0, 1).toUpperCase() ?? 'U',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Colors.white,
+                                  color: Theme.of(context).colorScheme.onPrimary,
                                 ),
                               ),
                             ),
@@ -204,8 +204,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                 children: [
                                   Text(
                                     user?.name ?? languageProvider.t('user'),
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onPrimary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -213,7 +213,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                   const SizedBox(height: 4),
                                   Text(
                                     user?.email ?? user?.phoneNumber ?? '',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                         color: Colors.white70, fontSize: 12),
                                   ),
                                 ],
@@ -223,7 +223,7 @@ class _AccountScreenState extends State<AccountScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.2),
+                                color: context.palette.textOnBrand.withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -232,8 +232,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                     : role == 'admin'
                                         ? languageProvider.t('admin')
                                         : user?.subscriptionTier ?? 'Freemium',
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 12),
+                                style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onPrimary, fontSize: 12),
                               ),
                             ),
                           ],
@@ -811,7 +811,7 @@ class _AccountScreenState extends State<AccountScreen> {
             icon: const Icon(Icons.logout, color: AppColors.error),
             label: Text(
               languageProvider.t('account_logout'),
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: AppColors.error),
             ),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.error),
@@ -834,7 +834,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: AppColors.error, size: 20),
             label: Text(
               languageProvider.t('delete_account_title'),
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: AppColors.error),
             ),
           ),
         ),
@@ -853,7 +853,7 @@ class _AccountScreenState extends State<AccountScreen> {
       return CustomCard(
         child: Text(
           _roleProfileError!,
-          style: const TextStyle(color: AppColors.error),
+          style: TextStyle(color: AppColors.error),
         ),
       );
     }
@@ -880,7 +880,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Text(
             coach['full_name']?.toString() ?? languageProvider.t('coach'),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
@@ -923,7 +923,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Text(
             admin['full_name']?.toString() ?? 'Admin',
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 8),
           Text(
@@ -955,7 +955,7 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               Text(
                 languageProvider.t('account_professional_bio'),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               IconButton(
                 tooltip: languageProvider.t('edit'),
@@ -984,7 +984,7 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               Text(
                 languageProvider.t('account_experience'),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Text(
@@ -1014,7 +1014,7 @@ class _AccountScreenState extends State<AccountScreen> {
               const SizedBox(width: 8),
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
             ],
           ),
@@ -1031,7 +1031,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       color: context.palette.surface.withValues(alpha: 0.6),
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(item, style: const TextStyle(fontSize: 12)),
+                    child: Text(item, style: TextStyle(fontSize: 12)),
                   ),
                 )
                 .toList(),
@@ -1051,7 +1051,7 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               Text(
                 languageProvider.t('account_admin_info'),
-                style: const TextStyle(fontWeight: FontWeight.w600),
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               IconButton(
                 tooltip: languageProvider.t('edit'),
@@ -1085,7 +1085,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Text(
             languageProvider.t('account_admin_permissions'),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 10),
           ..._adminPermissions.map(
@@ -1114,7 +1114,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Text(
             languageProvider.t('account_admin_stats'),
-            style: const TextStyle(fontWeight: FontWeight.w600),
+            style: TextStyle(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 12),
           Row(
@@ -1427,7 +1427,7 @@ class _AccountScreenState extends State<AccountScreen> {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               languageProvider.t('account_logout'),
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: AppColors.error),
             ),
           ),
         ],

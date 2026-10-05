@@ -340,6 +340,7 @@ class _WorkoutExerciseDetailScreenState
                     child: Row(
                       children: [
                         IconButton(
+                          tooltip: 'Back',
                           onPressed: () => Navigator.pop(context),
                           icon: const Icon(
                             Icons.arrow_back,
@@ -373,6 +374,7 @@ class _WorkoutExerciseDetailScreenState
                         if (exercise.difficulty != null)
                           _DifficultyBadge(label: exercise.difficulty!),
                         IconButton(
+                          tooltip: 'Show alternatives',
                           onPressed: _showAlternatives,
                           icon: const Icon(Icons.swap_horiz,
                               color: AppColors.textWhite),

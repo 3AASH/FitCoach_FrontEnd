@@ -410,6 +410,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                         backgroundColor:
                             context.palette.background.withValues(alpha: 0),
                         leading: IconButton(
+                          tooltip: lang.t('back'),
                           onPressed: () => Navigator.of(context).maybePop(),
                           icon: const Icon(
                             Icons.arrow_back,

@@ -629,6 +629,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                 IconButton(
                   onPressed:
                       _isEditable ? () => _removeMeal(dayIndex, mealIndex) : null,
+                  tooltip: lang.t('remove'),
                   icon: const Icon(Icons.remove_circle_outline,
                       color: AppColors.error),
                 ),

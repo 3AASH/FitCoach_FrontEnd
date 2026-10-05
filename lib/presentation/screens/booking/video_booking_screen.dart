@@ -172,10 +172,11 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       child: Row(
         children: [
           IconButton(
+            tooltip: lang.t('back'),
             onPressed: () => Navigator.of(context).pop(),
             icon: const Icon(
               Icons.arrow_back,
-              color: Colors.white,
+              color: context.palette.textOnBrand,
             ),
           ),
           const SizedBox(width: 8),
@@ -187,12 +188,12 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.videocam, color: Colors.white, size: 24),
+                    Icon(Icons.videocam, color: context.palette.textOnBrand, size: 24),
                     const SizedBox(width: 8),
                     Text(
                       lang.t('video_booking_book_video_session'),
                       style: const TextStyle(
-                        color: Colors.white,
+                        color: context.palette.textOnBrand,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
                       ),
@@ -300,7 +301,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                     .take(2)
                     .join(''),
                 style: const TextStyle(
-                  color: Colors.white,
+                  color: context.palette.textOnBrand,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
@@ -533,7 +534,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                         isSelected ? const Color(0xFF9333EA) : context.palette.border,
                   ),
                   labelStyle: TextStyle(
-                    color: isSelected ? Colors.white : context.palette.textPrimary,
+                    color: isSelected ? context.palette.textOnBrand : context.palette.textPrimary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 );
@@ -579,7 +580,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                       isSelected ? const Color(0xFF9333EA) : context.palette.border,
                 ),
                 labelStyle: TextStyle(
-                  color: isSelected ? Colors.white : context.palette.textPrimary,
+                  color: isSelected ? context.palette.textOnBrand : context.palette.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               );

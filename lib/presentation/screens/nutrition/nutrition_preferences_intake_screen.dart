@@ -186,6 +186,7 @@ class _NutritionPreferencesIntakeScreenState
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
+          tooltip: lang.t('back'),
           icon: const Icon(Icons.arrow_back),
           onPressed: widget.onBack,
         ),
@@ -261,7 +262,7 @@ class _NutritionPreferencesIntakeScreenState
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
                               valueColor:
-                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                                  AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
                             ),
                           )
                         : Text(lang.t('nutrition_intake_complete')),

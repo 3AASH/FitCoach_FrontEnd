@@ -152,6 +152,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         title: Text(lang.t('exercise_library_exercise_library')),
         actions: [
           IconButton(
+            tooltip: lang.t('filter'),
             icon: const Icon(Icons.filter_list),
             onPressed: () => _showFilters(context, lang),
           ),
@@ -475,7 +476,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         ),
                         child: const Icon(
                           Icons.play_arrow,
-                          color: Colors.white,
+                          color: context.palette.textOnBrand,
                           size: 40,
                         ),
                       ),
@@ -549,7 +550,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                             child: Text(
                               '${index + 1}',
                               style: const TextStyle(
-                                color: Colors.white,
+                                color: context.palette.textOnBrand,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,
                               ),

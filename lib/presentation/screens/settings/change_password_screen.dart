@@ -160,6 +160,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   decoration: InputDecoration(
                     labelText: t('change_password_current'),
                     suffixIcon: IconButton(
+                      tooltip: _obscureCurrent ? t('show') : t('hide'),
                       icon: Icon(_obscureCurrent
                           ? Icons.visibility_off
                           : Icons.visibility),
@@ -178,6 +179,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   decoration: InputDecoration(
                     labelText: t('change_password_new'),
                     suffixIcon: IconButton(
+                      tooltip: _obscureNew ? t('show') : t('hide'),
                       icon: Icon(
                           _obscureNew ? Icons.visibility_off : Icons.visibility),
                       onPressed: () =>

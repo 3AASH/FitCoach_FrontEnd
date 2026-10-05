@@ -404,7 +404,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 onPressed: () => Navigator.of(context).maybePop(),
                 icon: const Icon(
                   Icons.arrow_back,
-                  color: Colors.white,
+                  color: context.palette.textOnBrand,
                 ),
                 tooltip: lang.t('back'),
               ),
@@ -416,8 +416,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       isCoachInboxView
                           ? (lang.t('notification_client_messages'))
                           : _threadTitle(lang),
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.palette.textOnBrand,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
                       ),
@@ -426,9 +426,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       isCoachInboxView
                           ? (lang.t('coach_messaging_choose_a_client_to_open_the'))
                           : (statusText ?? _threadSubtitle(lang)),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Colors.white70,
+                        color: context.palette.textOnBrand70,
                       ),
                     ),
                   ],
@@ -437,7 +437,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
               IconButton(
                 tooltip: lang.t('refresh'),
                 onPressed: messagingProvider.isLoading ? null : _refreshThread,
-                icon: const Icon(Icons.refresh, color: Colors.white),
+                icon: Icon(Icons.refresh, color: context.palette.textOnBrand),
               ),
             ],
           ),
@@ -534,7 +534,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
               backgroundColor: AppColors.primary.withValues(alpha: 0.12),
               child: Text(
                 client.initials,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -547,7 +547,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 children: [
                   Text(
                     client.fullName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
@@ -590,8 +590,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     ),
                     child: Text(
                       '${conversation!.unreadCount}',
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onError,
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
@@ -653,7 +653,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
               backgroundColor: AppColors.primary.withValues(alpha: 0.12),
               child: Text(
                 _initialsForName(clientName),
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.primary,
                   fontWeight: FontWeight.w700,
                 ),
@@ -666,7 +666,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 children: [
                   Text(
                     clientName,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -701,8 +701,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 backgroundColor: const Color(0xFF7E22CE),
                 child: Text(
                   _initialsForName(lang.t('coach')),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.palette.surface,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -714,7 +714,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   children: [
                     Text(
                       lang.t('coach'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -779,7 +779,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     label: Text(lang.t('book_video_call')),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.primary,
-                      foregroundColor: Colors.white,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -903,7 +903,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         height: 1.4,
-                        color: isMe ? Colors.white : context.palette.textPrimary,
+                        color: isMe ? Theme.of(context).colorScheme.onPrimary : context.palette.textPrimary,
                       ),
                     ),
                   if (message.type == MessageType.image &&
@@ -921,11 +921,11 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                         color: Colors.black12,
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: const Center(
+                      child: Center(
                         child: Icon(
                           Icons.play_circle_outline,
                           size: 48,
-                          color: Colors.white,
+                          color: context.palette.surface,
                         ),
                       ),
                     ),
@@ -935,7 +935,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: isMe
-                            ? Colors.white.withValues(alpha: 0.18)
+                            ? context.palette.textOnBrand.withValues(alpha: 0.18)
                             : context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -944,7 +944,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                         children: [
                           Icon(
                             Icons.insert_drive_file,
-                            color: isMe ? Colors.white : AppColors.primary,
+                            color: isMe ? Theme.of(context).colorScheme.onPrimary : AppColors.primary,
                           ),
                           const SizedBox(width: 8),
                           Flexible(
@@ -952,7 +952,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                               message.content,
                               style: TextStyle(
                                 color:
-                                    isMe ? Colors.white : context.palette.textPrimary,
+                                    isMe ? Theme.of(context).colorScheme.onPrimary : context.palette.textPrimary,
                               ),
                             ),
                           ),

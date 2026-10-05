@@ -49,6 +49,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
         title: Text(lang.t('coach_earnings_title')),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             icon: const Icon(Icons.refresh),
             onPressed: _loadEarnings,
           ),

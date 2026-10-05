@@ -414,9 +414,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                           children: [
                             IconButton(
                               onPressed: () => _handleBack(),
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.arrow_back,
-                                color: Colors.white,
+                                color: context.palette.textOnBrand,
                               ),
                               tooltip: lang.t('back'),
                             ),
@@ -427,22 +427,22 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   Text(
                                     lang.t('nutrition_title'),
                                     style: AppTextStyles.h2.copyWith(
-                                      color: Colors.white,
+                                      color: context.palette.textOnBrand,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
                                     lang.t('nutrition_tracking'),
                                     style: AppTextStyles.caption.copyWith(
-                                      color: Colors.white70,
+                                      color: context.palette.textOnBrand.withValues(alpha: 0.7),
                                     ),
                                   ),
                                 ],
                               ),
                             ),
                             IconButton(
-                              icon: const Icon(Icons.settings,
-                                  color: Colors.white),
+                              icon: Icon(Icons.settings,
+                                  color: context.palette.textOnBrand),
                               onPressed: () async {
                                 await nutritionProvider.loadIntakeRequirements(
                                   planType: subscriptionTier.toLowerCase() == 'freemium' ? 'starter' : 'professional');
@@ -462,10 +462,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.12),
+                            color: context.palette.textOnBrand.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.2)),
+                                color: context.palette.textOnBrand.withValues(alpha: 0.2)),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -477,8 +477,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   Text(
                                     lang
                                         .t('nutrition_todays_progress'),
-                                    style: const TextStyle(
-                                      color: Colors.white,
+                                    style: TextStyle(
+                                      color: context.palette.textOnBrand,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -487,13 +487,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
                                       color:
-                                          Colors.white.withValues(alpha: 0.2),
+                                          context.palette.textOnBrand.withValues(alpha: 0.2),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       '${(calorieProgress * 100).clamp(0, 100).round()}%',
-                                      style: const TextStyle(
-                                          color: Colors.white),
+                                      style: TextStyle(
+                                          color: context.palette.textOnBrand),
                                     ),
                                   ),
                                 ],
@@ -502,7 +502,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               Text(
                                 '${currentMacros['calories']?.toInt() ?? 0} / ${macroTargets['calories']}',
                                 style: AppTextStyles.caption.copyWith(
-                                    color: Colors.white70),
+                                    color: context.palette.textOnBrand.withValues(alpha: 0.7)),
                               ),
                               const SizedBox(height: 8),
                               ClipRRect(
@@ -511,10 +511,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   value: calorieProgress.clamp(0, 1).toDouble(),
                                   minHeight: 6,
                                   backgroundColor:
-                                      Colors.white.withValues(alpha: 0.2),
+                                      context.palette.textOnBrand.withValues(alpha: 0.2),
                                   valueColor:
-                                      const AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                      AlwaysStoppedAnimation<Color>(
+                                          context.palette.textOnBrand),
                                 ),
                               ),
                             ],
@@ -790,7 +790,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             children: [
               Icon(
                 isExpiringSoon ? Icons.warning_amber : Icons.info_outline,
-                color: Colors.white,
+                color: context.palette.textOnBrand,
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -799,7 +799,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   lang.t('trial_period'),
                   style: AppTextStyles.h3.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: context.palette.textOnBrand,
                   ),
                 ),
               ),
@@ -812,7 +812,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
               args: {'days': daysRemaining.toString()},
             ),
             style: AppTextStyles.small.copyWith(
-              color: Colors.white.withValues(alpha: 0.9),
+              color: context.palette.textOnBrand.withValues(alpha: 0.9),
             ),
           ),
           const SizedBox(height: 12),
@@ -825,7 +825,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 ),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
+                backgroundColor: context.palette.surface,
                 foregroundColor:
                     isExpiringSoon ? AppColors.warning : AppColors.primary,
               ),
@@ -977,10 +977,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
               child: Row(
                 children: [
                   IconButton(
+                    tooltip: 'Back',
                     onPressed: () => Navigator.of(context).maybePop(),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back,
-                      color: Colors.white,
+                      color: context.palette.textOnBrand,
                     ),
                   ),
                   Expanded(
@@ -990,14 +991,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         Text(
                           lang.t('nutrition_title'),
                           style: AppTextStyles.h3.copyWith(
-                            color: Colors.white,
+                            color: context.palette.textOnBrand,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
                           lang.t('nutrition_tracking'),
                           style: AppTextStyles.caption.copyWith(
-                              color: Colors.white70),
+                              color: context.palette.textOnBrand.withValues(alpha: 0.7)),
                         ),
                       ],
                     ),

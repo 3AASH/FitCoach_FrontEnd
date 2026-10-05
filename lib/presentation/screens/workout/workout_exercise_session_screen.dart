@@ -249,10 +249,11 @@ class _WorkoutExerciseSessionScreenState
                       Row(
                         children: [
                           IconButton(
+                            tooltip: 'Back',
                             onPressed: () => Navigator.of(context).pop(),
                             icon: const Icon(
                               Icons.arrow_back,
-                              color: Colors.white,
+                              color: context.palette.textOnBrand,
                             ),
                           ),
                           Expanded(
@@ -264,7 +265,7 @@ class _WorkoutExerciseSessionScreenState
                                       ? currentExercise.nameAr
                                       : currentExercise.nameEn,
                                   style: const TextStyle(
-                                    color: Colors.white,
+                                    color: context.palette.textOnBrand,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -276,7 +277,7 @@ class _WorkoutExerciseSessionScreenState
                                     'total': '${currentExercise.sets}',
                                   }),
                                   style: const TextStyle(
-                                      color: Colors.white70, fontSize: 12),
+                                      color: context.palette.textOnBrand70, fontSize: 12),
                                 ),
                               ],
                             ),
@@ -289,9 +290,9 @@ class _WorkoutExerciseSessionScreenState
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor: Colors.white.withValues(alpha: 0.2),
+                          backgroundColor: context.palette.textOnBrand.withValues(alpha: 0.2),
                           valueColor:
-                              const AlwaysStoppedAnimation<Color>(Colors.white),
+                              const AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
                         ),
                       ),
                     ],
@@ -627,6 +628,7 @@ class _NumberFieldState extends State<_NumberField> {
           child: Row(
             children: [
               IconButton(
+                tooltip: 'Decrease',
                 onPressed: () => _applyDelta(-1),
                 icon: const Icon(Icons.remove),
                 visualDensity: VisualDensity.compact,
@@ -644,6 +646,7 @@ class _NumberFieldState extends State<_NumberField> {
                 ),
               ),
               IconButton(
+                tooltip: 'Increase',
                 onPressed: () => _applyDelta(1),
                 icon: const Icon(Icons.add),
                 visualDensity: VisualDensity.compact,

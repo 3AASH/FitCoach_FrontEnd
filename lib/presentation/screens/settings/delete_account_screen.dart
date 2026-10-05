@@ -199,6 +199,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     decoration: InputDecoration(
                       labelText: t('delete_account_password'),
                       suffixIcon: IconButton(
+                        tooltip: _obscurePassword ? t('show') : t('hide'),
                         icon: Icon(_obscurePassword
                             ? Icons.visibility_off
                             : Icons.visibility),
@@ -271,7 +272,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               label: Text(t('delete_account_submit')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
+                foregroundColor: context.palette.textOnBrand,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),

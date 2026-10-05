@@ -163,7 +163,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                         child: Icon(
                           Icons.auto_awesome,
                           color:
-                              isPremium ? Colors.white : context.palette.textDisabled,
+                              isPremium ? context.palette.textOnBrand : context.palette.textDisabled,
                           size: 30,
                         ),
                       ),
@@ -267,18 +267,18 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.workspace_premium,
                           size: 12,
-                          color: Colors.white,
+                          color: context.palette.textOnBrand,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           lang.t('inbody_input_premium_feature'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: context.palette.textOnBrand,
                           ),
                         ),
                       ],
@@ -449,8 +449,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Icon(Icons.auto_awesome,
-                    color: Colors.white, size: 36),
+                child: Icon(Icons.auto_awesome,
+                    color: context.palette.textOnBrand, size: 36),
               ),
               const SizedBox(height: 16),
               Text(
@@ -559,7 +559,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       color: Colors.black.withValues(alpha: 0.45),
                       shape: const CircleBorder(),
                       child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
+                        tooltip: lang.t('close'),
+                        icon: Icon(Icons.close, color: context.palette.textOnBrand),
                         onPressed: _isAnalyzing ? null : _clearAiCapture,
                       ),
                     ),
@@ -884,7 +885,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         action: retryable
             ? SnackBarAction(
                 label: lang.t('retry'),
-                textColor: Colors.white,
+                textColor: context.palette.textOnBrand,
                 onPressed: _retrySelectedImage,
               )
             : null,
@@ -903,7 +904,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         backgroundColor: AppColors.warning,
         action: SnackBarAction(
           label: lang.t('subscription_upgrade_cta'),
-          textColor: Colors.white,
+          textColor: context.palette.textOnBrand,
           onPressed: () {
             if (!mounted) return;
             Navigator.of(context).push(

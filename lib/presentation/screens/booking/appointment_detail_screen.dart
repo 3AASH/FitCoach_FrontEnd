@@ -97,7 +97,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             onPressed: () => Navigator.pop(ctx, true),
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.error),
             child: Text(lang.t('cancel_appointment'),
-                style: const TextStyle(color: Colors.white)),
+                style: TextStyle(color: context.palette.textOnBrand)),
           ),
         ],
       ),

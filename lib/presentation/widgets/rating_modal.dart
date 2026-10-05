@@ -204,7 +204,7 @@ class _RatingModalState extends State<RatingModal> {
                 onPressed: _rating > 0 ? _submit : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.primary,
-                  foregroundColor: Colors.white,
+                  foregroundColor: context.palette.textOnBrand,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),

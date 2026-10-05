@@ -58,6 +58,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
         title: Text(lang.t('coach_clients_title')),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             icon: const Icon(Icons.refresh),
             onPressed: _loadClients,
           ),
@@ -78,6 +79,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
+                            tooltip: lang.t('clear'),
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();

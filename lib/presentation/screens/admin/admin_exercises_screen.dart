@@ -433,7 +433,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         builder: (context, scrollController) => Material(
-          // Not Colors.white: the field labels come from the theme
+          // Not context.palette.textOnBrand: the field labels come from the theme
           // (textSecondary, #D1D5DB in dark mode) and were being drawn on a
           // sheet that stayed white, which is about 1.5:1 contrast â€” the
           // labels simply were not there.
@@ -456,6 +456,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                       ),
                     ),
                     IconButton(
+                      tooltip: lang.t('close'),
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),

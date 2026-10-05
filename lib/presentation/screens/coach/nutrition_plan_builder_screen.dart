@@ -429,6 +429,7 @@ class _NutritionPlanBuilderScreenState
                 ],
               ),
               IconButton(
+                tooltip: 'Add food',
                 icon: const Icon(Icons.add, size: 20),
                 onPressed: () => _addFood(mealType, lang),
               ),
@@ -458,6 +459,7 @@ class _NutritionPlanBuilderScreenState
                   style: const TextStyle(fontSize: 11),
                 ),
                 trailing: IconButton(
+                  tooltip: 'Delete food',
                   icon:
                       const Icon(Icons.delete, size: 20, color: AppColors.error),
                   onPressed: () {

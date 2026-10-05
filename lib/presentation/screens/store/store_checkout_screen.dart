@@ -456,10 +456,11 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'Back',
             onPressed: () => _onBack(lang),
             icon: const Icon(
               Icons.arrow_back,
-              color: Colors.white,
+              color: context.palette.textOnBrand,
             ),
           ),
           const SizedBox(width: 4),
@@ -470,7 +471,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                 Text(
                   lang.t('checkout'),
                   style: const TextStyle(
-                    color: Colors.white,
+                    color: context.palette.textOnBrand,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
@@ -478,14 +479,14 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                 Text(
                   lang.t('checkout_subtitle'),
                   style: const TextStyle(
-                    color: Colors.white70,
+                    color: context.palette.textOnBrand70,
                     fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.security, color: Colors.white),
+          Icon(Icons.security, color: context.palette.textOnBrand),
         ],
       ),
     );
@@ -503,11 +504,11 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       if (isComplete) {
         borderColor = AppColors.success;
         fillColor = AppColors.success;
-        textColor = Colors.white;
+        textColor = context.palette.textOnBrand;
       } else if (isActive) {
         borderColor = AppColors.primary;
         fillColor = AppColors.primary;
-        textColor = Colors.white;
+        textColor = context.palette.textOnBrand;
       } else {
         borderColor = context.palette.border;
         fillColor = context.palette.surface;
@@ -527,7 +528,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               ),
               child: Center(
                 child: isComplete
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
+                    ? const Icon(Icons.check, color: context.palette.textOnBrand, size: 18)
                     : Text(
                         '${index + 1}',
                         style: TextStyle(

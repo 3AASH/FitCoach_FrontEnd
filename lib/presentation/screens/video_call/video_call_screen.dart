@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../data/repositories/rating_repository.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/video_call_provider.dart';
 import '../../widgets/rating_modal.dart';
@@ -355,16 +356,16 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   Widget build(BuildContext context) {
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: context.palette.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CircularProgressIndicator(color: Colors.white),
+              CircularProgressIndicator(color: context.palette.textOnBrand),
               const SizedBox(height: 20),
               Text(
                 _tr('video_call_connecting'),
-                style: const TextStyle(color: Colors.white, fontSize: 16),
+                style: TextStyle(color: context.palette.textOnBrand, fontSize: 16),
               ),
             ],
           ),
@@ -374,7 +375,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
     if (_errorMessage != null) {
       return Scaffold(
-        backgroundColor: Colors.black,
+        backgroundColor: context.palette.background,
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -386,7 +387,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 child: Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                  style: TextStyle(color: context.palette.textOnBrand, fontSize: 16),
                 ),
               ),
               const SizedBox(height: 30),
@@ -401,7 +402,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     }
 
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: context.palette.background,
       body: Stack(
         children: [
           // Remote video (full screen)
@@ -417,19 +418,19 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 width: 120,
                 height: 160,
                 decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white, width: 2),
+                  border: Border.all(color: context.palette.textOnBrand, width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: (_localConnected && !_isCameraOff)
                     ? const TwilioVideoView(viewId: '0')
                     : Container(
-                        color: Colors.grey[900],
+                        color: context.palette.surfaceVariant,
                         child: Center(
                           child: _localConnected
-                              ? const Icon(Icons.videocam_off,
-                                  color: Colors.white54)
-                              : const CircularProgressIndicator(
-                                  color: Colors.white,
+                              ? Icon(Icons.videocam_off,
+                                  color: context.palette.textOnBrand.withValues(alpha: 0.54))
+                              : CircularProgressIndicator(
+                                  color: context.palette.textOnBrand,
                                 ),
                         ),
                       ),
@@ -460,8 +461,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   const SizedBox(width: 8),
                   Text(
                     _formatDuration(_callDuration),
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.palette.textOnBrand,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -477,12 +478,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const CircularProgressIndicator(color: Colors.white),
+                  CircularProgressIndicator(color: context.palette.textOnBrand),
                   const SizedBox(height: 20),
                   Text(
                     'Waiting for ${widget.coachName} to join...',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.palette.textOnBrand,
                       fontSize: 16,
                     ),
                   ),
@@ -511,17 +512,17 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       );
     }
     return Container(
-      color: Colors.grey[900],
+      color: context.palette.surfaceVariant,
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.person, size: 80, color: Colors.white54),
+            Icon(Icons.person, size: 80, color: context.palette.textOnBrand.withValues(alpha: 0.54)),
             const SizedBox(height: 16),
             Text(
               widget.coachName,
-              style: const TextStyle(
-                color: Colors.white,
+              style: TextStyle(
+                color: context.palette.textOnBrand,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -542,8 +543,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           _buildControlButton(
             icon: _isMuted ? Icons.mic_off : Icons.mic,
             label: _isMuted ? _tr('video_call_unmute') : _tr('video_call_mute'),
-            color: _isMuted ? Colors.red : Colors.white,
-            backgroundColor: _isMuted ? Colors.white : Colors.black54,
+            color: _isMuted ? Colors.red : context.palette.textOnBrand,
+            backgroundColor: _isMuted ? context.palette.textOnBrand : Colors.black54,
             onPressed: _toggleMute,
           ),
 
@@ -553,8 +554,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             label: _isCameraOff
                 ? _tr('video_call_camera_off')
                 : _tr('video_call_camera_on'),
-            color: _isCameraOff ? Colors.red : Colors.white,
-            backgroundColor: _isCameraOff ? Colors.white : Colors.black54,
+            color: _isCameraOff ? Colors.red : context.palette.textOnBrand,
+            backgroundColor: _isCameraOff ? context.palette.textOnBrand : Colors.black54,
             onPressed: _toggleCamera,
           ),
 
@@ -562,7 +563,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           _buildControlButton(
             icon: Icons.call_end,
             label: _tr('video_call_end'),
-            color: Colors.white,
+            color: context.palette.textOnBrand,
             backgroundColor: Colors.red,
             onPressed: () => _showEndCallDialog(),
             isLarge: true,
@@ -572,7 +573,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           _buildControlButton(
             icon: Icons.switch_camera,
             label: _tr('video_call_switch_camera'),
-            color: Colors.white,
+            color: context.palette.textOnBrand,
             backgroundColor: Colors.black54,
             onPressed: _switchCamera,
           ),
@@ -581,7 +582,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           _buildControlButton(
             icon: Icons.volume_up,
             label: _tr('video_call_speaker'),
-            color: Colors.white,
+            color: context.palette.textOnBrand,
             backgroundColor: Colors.black54,
             onPressed: () {
               // Speaker is enabled by default for video rooms.
@@ -623,8 +624,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         const SizedBox(height: 6),
         Text(
           label,
-          style: const TextStyle(
-            color: Colors.white,
+          style: TextStyle(
+            color: context.palette.textOnBrand,
             fontSize: 12,
           ),
         ),
