@@ -121,8 +121,8 @@ class _SubscriptionManagementScreenState
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.secondaryForeground],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
       ),
       child: SafeArea(
@@ -1083,7 +1083,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                           ),
                         ),
                         Align(
-                          alignment: Alignment.centerRight,
+                          alignment: AlignmentDirectional.centerEnd,
                           child: IconButton(
                             onPressed: _featureFields.length == 1
                                 ? null

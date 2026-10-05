@@ -76,7 +76,7 @@ class StoreIntroScreen extends StatelessWidget {
           if (onBack != null)
             SafeArea(
               child: Align(
-                alignment: isArabic ? Alignment.topRight : Alignment.topLeft,
+                alignment: isArabic ? AlignmentDirectional.topEnd : AlignmentDirectional.topStart,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Material(

@@ -151,8 +151,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                           gradient: isPremium
                               ? const LinearGradient(
                                   colors: [AppColors.primary, AppColors.accent],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                                  begin: AlignmentDirectional.topStart,
+                                  end: AlignmentDirectional.bottomEnd,
                                 )
                               : null,
                           color: isPremium

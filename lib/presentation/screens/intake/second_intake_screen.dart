@@ -663,8 +663,8 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+            begin: AlignmentDirectional.topStart,
+            end: AlignmentDirectional.bottomEnd,
             colors: [Color(0xFFF4E9FF), Color(0xFFE7F0FF)],
           ),
         ),

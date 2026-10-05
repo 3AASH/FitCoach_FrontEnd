@@ -273,8 +273,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
                   colors: [
                     Color(0xFF071915),
                     Color(0xFF12362D),
@@ -1440,7 +1440,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Align(alignment: Alignment.centerRight, child: actionButton),
+                Align(alignment: AlignmentDirectional.centerEnd, child: actionButton),
               ],
             );
           }

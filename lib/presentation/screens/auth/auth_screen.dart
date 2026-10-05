@@ -767,8 +767,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 14),
                                     alignment: isRTL
-                                        ? Alignment.centerRight
-                                        : Alignment.centerLeft,
+                                        ? AlignmentDirectional.centerEnd
+                                        : AlignmentDirectional.centerStart,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           AppRadius.medium),
@@ -796,8 +796,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 14),
                                     alignment: isRTL
-                                        ? Alignment.centerRight
-                                        : Alignment.centerLeft,
+                                        ? AlignmentDirectional.centerEnd
+                                        : AlignmentDirectional.centerStart,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(
                                           AppRadius.medium),
@@ -923,7 +923,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                                 const SizedBox(height: 8),
                                 Align(
-                                  alignment: Alignment.centerRight,
+                                  alignment: AlignmentDirectional.centerEnd,
                                   child: TextButton(
                                     onPressed: isBusy
                                         ? null

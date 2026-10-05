@@ -1608,6 +1608,7 @@ class _NutritionRecipeEditorSheetState
                   ),
                 ),
                 IconButton(
+                  tooltip: lang.t('delete'),
                   onPressed: () => _removeIngredient(index),
                   icon: const Icon(Icons.remove_circle_outline,
                       color: AppColors.error),
@@ -1966,6 +1967,7 @@ class _NutritionEnginePlanEditorSheetState
                         ),
                       ),
                       IconButton(
+                        tooltip: lang.t('delete'),
                         onPressed: () => _removeDay(dayIndex),
                         icon: const Icon(Icons.delete, color: AppColors.error),
                       ),
@@ -1994,6 +1996,7 @@ class _NutritionEnginePlanEditorSheetState
                                   ),
                                 ),
                                 IconButton(
+                                  tooltip: lang.t('delete'),
                                   onPressed: () =>
                                       _removeMeal(dayIndex, mealIndex),
                                   icon: const Icon(Icons.remove_circle_outline,
@@ -2143,7 +2146,7 @@ class _NutritionEnginePlanEditorSheetState
                     );
                   }),
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       onPressed: () => _addMeal(dayIndex),
                       icon: const Icon(Icons.add),

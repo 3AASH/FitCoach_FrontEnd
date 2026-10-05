@@ -410,6 +410,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                         style: AppTextStyles.h2),
                   ),
                   IconButton(
+                    tooltip: _tr('close'),
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.close),
                   ),
@@ -650,6 +651,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                         ),
                       ),
                       IconButton(
+                        tooltip: _tr('delete'),
                         onPressed: () => _removeSession(dayIndex),
                         icon: const Icon(Icons.delete, color: AppColors.error),
                       ),
@@ -709,6 +711,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                                   ),
                                 ),
                                 IconButton(
+                                  tooltip: _tr('delete'),
                                   onPressed: () =>
                                       _removeExercise(dayIndex, exerciseIndex),
                                   icon: const Icon(Icons.remove_circle_outline,
@@ -748,7 +751,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                     );
                   }),
                   Align(
-                    alignment: Alignment.centerLeft,
+                    alignment: AlignmentDirectional.centerStart,
                     child: TextButton.icon(
                       onPressed: () => _addExercise(dayIndex),
                       icon: const Icon(Icons.add),

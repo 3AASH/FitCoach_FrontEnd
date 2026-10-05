@@ -359,8 +359,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.headerGradientStart, AppColors.headerGradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
       ),
@@ -614,8 +614,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         // Keep strong gradient but soften a bit for readability
         gradient: const LinearGradient(
           colors: [AppColors.primaryDark, AppColors.primary],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(22),
       ),
@@ -847,8 +847,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     AppColors.secondaryForeground,
                     AppColors.primaryDark
                   ],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
+                  begin: AlignmentDirectional.centerStart,
+                  end: AlignmentDirectional.centerEnd,
                 ),
                 borderRadius: BorderRadius.all(Radius.circular(12)),
               ),
@@ -1188,7 +1188,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             color: iconColor == context.palette.textPrimary ? null : iconColor),
       ),
       style: OutlinedButton.styleFrom(
-        alignment: isArabic ? Alignment.centerRight : Alignment.centerLeft,
+        alignment: isArabic ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         backgroundColor: background,
         side: borderColor == null ? null : BorderSide(color: borderColor),
@@ -1288,8 +1288,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             AppColors.secondary,
             AppColors.primaryLight.withValues(alpha: 0.2)
           ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppColors.secondary),
@@ -1355,8 +1355,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.headerGradientStart, AppColors.headerGradientEnd],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(24),
       ),
@@ -1716,8 +1716,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [getColor(), getColor().withValues(alpha: 0.7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(16),
       ),

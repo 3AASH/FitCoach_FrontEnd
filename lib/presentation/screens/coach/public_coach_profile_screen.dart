@@ -440,8 +440,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                         flexibleSpace: Container(
                           decoration: const BoxDecoration(
                             gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                              begin: AlignmentDirectional.topStart,
+                              end: AlignmentDirectional.bottomEnd,
                               colors: [
                                 AppColors.primary,
                                 AppColors.primaryDark

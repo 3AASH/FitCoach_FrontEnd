@@ -536,7 +536,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                             }),
                             _buildDayTotals(lang, meals),
                             Align(
-                              alignment: Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: TextButton.icon(
                                 onPressed: _isEditable
                                     ? () => _addMeal(dayIndex)
@@ -783,7 +783,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
         : '${value.toStringAsFixed(1)}g';
 
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Padding(
         padding: const EdgeInsets.only(top: 4, bottom: 4),
         child: Text(

@@ -621,6 +621,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         ),
                       ),
                       IconButton(
+                        tooltip: lang.t('add_to_cart'),
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
                         onPressed: inStock
                             ? () async {
@@ -857,12 +858,14 @@ class _StoreScreenState extends State<StoreScreen> {
                 Row(
                   children: [
                     IconButton(
+                      tooltip: lang.t('decrease'),
                       icon: const Icon(Icons.remove_circle_outline),
                       onPressed: () => storeProvider.updateCartQuantity(
                           product.id, item.quantity - 1),
                     ),
                     Text('${item.quantity}'),
                     IconButton(
+                      tooltip: lang.t('increase'),
                       icon: const Icon(Icons.add_circle_outline),
                       onPressed: () => storeProvider.updateCartQuantity(
                           product.id, item.quantity + 1),
@@ -1017,8 +1020,8 @@ class _StoreScreenState extends State<StoreScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFFF59E0B), Color(0xFFB45309)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
       ),
       child: Column(
@@ -1027,6 +1030,7 @@ class _StoreScreenState extends State<StoreScreen> {
           Row(
             children: [
               IconButton(
+                tooltip: lang.t('back'),
                 icon: const Icon(Icons.arrow_back,
                     color: Colors.white),
                 onPressed: _handleBack,
@@ -1054,6 +1058,7 @@ class _StoreScreenState extends State<StoreScreen> {
               Stack(
                 children: [
                   IconButton(
+                    tooltip: lang.t('cart'),
                     icon: const Icon(Icons.shopping_cart, color: Colors.white),
                     onPressed: () {
                       final controller = _tabController ??
@@ -1176,12 +1181,14 @@ class _StoreScreenState extends State<StoreScreen> {
                 Row(
                   children: [
                     IconButton(
+                      tooltip: lang.t('decrease'),
                       icon: const Icon(Icons.remove_circle_outline),
                       onPressed: () =>
                           _updateQuantity(item['id'], item['quantity'] - 1),
                     ),
                     Text('${item['quantity']}'),
                     IconButton(
+                      tooltip: lang.t('increase'),
                       icon: const Icon(Icons.add_circle_outline),
                       onPressed: () =>
                           _updateQuantity(item['id'], item['quantity'] + 1),
@@ -1602,6 +1609,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         ),
                       ),
                       IconButton(
+                        tooltip: lang.t('add_to_cart'),
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
                         onPressed: inStock
                             ? () => _addToCart(product, lang, isArabic)

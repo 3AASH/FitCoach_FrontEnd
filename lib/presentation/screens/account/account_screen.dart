@@ -146,6 +146,7 @@ class _AccountScreenState extends State<AccountScreen> {
                       Row(
                         children: [
                           IconButton(
+                            tooltip: languageProvider.t('back'),
                             onPressed: () => _handleBack(),
                             icon: const Icon(
                               Icons.arrow_back,
@@ -957,6 +958,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               IconButton(
+                tooltip: languageProvider.t('edit'),
                 icon: const Icon(Icons.edit, size: 18),
                 onPressed: () => _editCoachBio(languageProvider),
               ),
@@ -992,6 +994,7 @@ class _AccountScreenState extends State<AccountScreen> {
             ],
           ),
           IconButton(
+            tooltip: languageProvider.t('edit'),
             icon: const Icon(Icons.edit, size: 18),
             onPressed: () => _editCoachExperience(languageProvider),
           ),
@@ -1051,6 +1054,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 style: const TextStyle(fontWeight: FontWeight.w600),
               ),
               IconButton(
+                tooltip: languageProvider.t('edit'),
                 icon: const Icon(Icons.edit, size: 18),
                 onPressed: () => _editAdminInfo(languageProvider),
               ),

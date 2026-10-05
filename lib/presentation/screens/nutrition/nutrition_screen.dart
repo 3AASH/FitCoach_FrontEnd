@@ -404,8 +404,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xFF059669), Color(0xFF0F766E)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                        begin: AlignmentDirectional.topStart,
+                        end: AlignmentDirectional.bottomEnd,
                       ),
                     ),
                     child: Column(
