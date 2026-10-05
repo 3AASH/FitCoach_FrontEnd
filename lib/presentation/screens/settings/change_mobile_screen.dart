@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -144,7 +144,6 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
                   decoration: InputDecoration(
                     labelText: t('change_mobile_new'),
                     hintText: '+966500000000',
-                    border: const OutlineInputBorder(),
                   ),
                 ),
                 if (_codeSent) ...[
@@ -161,7 +160,6 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
                     textDirection: TextDirection.ltr,
                     decoration: InputDecoration(
                       labelText: t('change_mobile_code'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ],
@@ -216,3 +214,4 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
       _otpController.text.isNotEmpty ||
       _codeSent == true;
 }
+

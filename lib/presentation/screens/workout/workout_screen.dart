@@ -560,6 +560,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 constraints: const BoxConstraints(),
                 visualDensity: VisualDensity.compact,
                 icon: const Icon(Icons.arrow_back, color: Colors.white, size: 18),
+                tooltip: lang.t('back'),
                 onPressed: () {
                   if (widget.onBack != null) {
                     widget.onBack!();

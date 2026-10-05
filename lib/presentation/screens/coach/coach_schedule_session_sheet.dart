@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -221,7 +221,6 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
             maxLines: 4,
             decoration: InputDecoration(
               labelText: lang.t('coach_schedule_notes_label'),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
@@ -246,3 +245,4 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
     );
   }
 }
+

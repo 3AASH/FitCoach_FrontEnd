@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -198,7 +198,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: t('delete_account_password'),
-                      border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
                         icon: Icon(_obscurePassword
                             ? Icons.visibility_off
@@ -231,7 +230,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     textDirection: TextDirection.ltr,
                     decoration: InputDecoration(
                       labelText: t('delete_account_code'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 const SizedBox(height: 16),
@@ -246,7 +244,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   controller: _confirmController,
                   decoration: InputDecoration(
                     labelText: t('delete_account_confirm_word'),
-                    border: const OutlineInputBorder(),
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
@@ -308,7 +305,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('• '),
+                  const Text('â€¢ '),
                   Expanded(
                     child: Text(
                       item,
@@ -324,3 +321,4 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 }
+

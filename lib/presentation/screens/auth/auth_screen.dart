@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/phone_number_utils.dart';
@@ -1344,7 +1344,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                   textInputAction: TextInputAction.next,
                                   decoration: InputDecoration(
                                     labelText: languageProvider.t('auth_full_name'),
-                                    border: const OutlineInputBorder(),
                                     errorText: _completeNameErrorText,
                                   ),
                                 ),
@@ -1357,7 +1356,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                   decoration: InputDecoration(
                                     labelText:
                                         languageProvider.t('auth_email_optional'),
-                                    border: const OutlineInputBorder(),
                                     errorText: _completeEmailErrorText,
                                   ),
                                 ),
@@ -1370,7 +1368,6 @@ class _AuthScreenState extends State<AuthScreen> {
                                     labelText: languageProvider.t('auth_password'),
                                     helperText: languageProvider
                                         .t('auth_password_min_length'),
-                                    border: const OutlineInputBorder(),
                                     errorText: _completePasswordErrorText,
                                   ),
                                 ),
@@ -1532,3 +1529,4 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 }
+

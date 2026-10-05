@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -85,6 +85,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: lang.t('refresh'),
             onPressed: _loadDirectory,
           ),
         ],
@@ -105,6 +106,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear),
+                            tooltip: lang.t('clear'),
                             onPressed: () {
                               _searchController.clear();
                               _loadDirectory();
@@ -728,7 +730,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_name_label'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -736,7 +737,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     controller: emailController,
                     decoration: InputDecoration(
                       labelText: lang.t('email'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -744,7 +744,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     initialValue: selectedTier,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_users_filter_tier'),
-                      border: const OutlineInputBorder(),
                     ),
                     items: const ['Freemium', 'Premium', 'Smart Premium']
                         .map(
@@ -765,7 +764,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     initialValue: selectedCoachId,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_coach_label'),
-                      border: const OutlineInputBorder(),
                     ),
                     items: <DropdownMenuItem<String?>>[
                       DropdownMenuItem<String?>(
@@ -904,7 +902,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: nameController,
                       decoration: InputDecoration(
                         labelText: lang.t('admin_full_name_label'),
-                        border: const OutlineInputBorder(),
                       ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
@@ -916,7 +913,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: emailController,
                       decoration: InputDecoration(
                         labelText: lang.t('email'),
-                        border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -935,7 +931,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: phoneController,
                       decoration: InputDecoration(
                         labelText: lang.t('admin_phone_optional'),
-                        border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.phone,
                     ),
@@ -945,7 +940,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       decoration: InputDecoration(
                         labelText: lang.t('admin_password_optional'),
                         helperText: lang.t('admin_password_optional_hint'),
-                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       validator: (value) {
@@ -1054,7 +1048,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               controller: reasonController,
               decoration: InputDecoration(
                 labelText: lang.t('admin_reason_label'),
-                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -1191,3 +1184,4 @@ class _CoachDropdownOption {
     required this.label,
   });
 }
+

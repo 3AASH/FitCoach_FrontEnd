@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
@@ -1286,7 +1286,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
-    return '${date.day}/${date.month}/${date.year} • $hour:$minute $period';
+    return '${date.day}/${date.month}/${date.year} â€¢ $hour:$minute $period';
   }
 
   void _showAssignScoreDialog(
@@ -1331,7 +1331,6 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                 controller: notesController,
                 decoration: InputDecoration(
                   labelText: lang.t('coach_notes_optional'),
-                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -1423,3 +1422,4 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     return AppColors.error;
   }
 }
+

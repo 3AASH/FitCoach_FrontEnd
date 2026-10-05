@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -246,7 +246,7 @@ class _TemplateCard extends StatelessWidget {
       if (template.location != null) template.location!,
       if (template.trainingDays != null) '${template.trainingDays}d',
       if (template.weeks != null) '${template.weeks}w',
-    ].join(' • ');
+    ].join(' â€¢ ');
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -270,7 +270,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${template.planId} • $subtitle',
+                    '${template.planId} â€¢ $subtitle',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -468,7 +468,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                   minLines: 16,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
                     hintText: _tr('admin_workout_template_json_hint'),
                   ),
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
@@ -501,7 +500,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     // A starter template holds one variant instead of a programs matrix, so it
     // gets a single-entry dropdown to keep this editor laid out like the
     // advanced one. Only an advanced template can switch variants, so selecting
-    // the starter entry stays a no-op — routing it through
+    // the starter entry stays a no-op â€” routing it through
     // _selectedAdvancedProgramPath would make _buildTemplate write the sessions
     // into `programs` and strip the `sessions` the backend reads.
     final List<String> programPaths =
@@ -515,7 +514,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
             initialValue: selectedPath,
             decoration: InputDecoration(
               labelText: _tr('plan_editor_workout_days'),
-              border: const OutlineInputBorder(),
             ),
             items: programPaths
               .map((path) => DropdownMenuItem(value: path, child: Text(_formatAdvancedProgramPath(path))))
@@ -534,7 +532,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
           controller: _planIdController,
           decoration: InputDecoration(
             labelText: _tr('plan_editor_plan_id'),
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 12),
@@ -542,7 +539,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
           controller: _nameController,
           decoration: InputDecoration(
             labelText: _tr('plan_editor_name'),
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 12),
@@ -553,7 +549,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                 controller: _typeController,
                 decoration: InputDecoration(
                   labelText: _tr('plan_editor_type'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -563,7 +558,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                 controller: _goalController,
                 decoration: InputDecoration(
                   labelText: _tr('plan_editor_goal'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -577,7 +571,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                 controller: _locationController,
                 decoration: InputDecoration(
                   labelText: _tr('plan_editor_location'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -588,7 +581,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: _tr('plan_editor_training_days'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -599,7 +591,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: _tr('plan_editor_weeks'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -705,7 +696,6 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                                       },
                                       decoration: InputDecoration(
                                         labelText: _tr('plan_editor_exercise_name'),
-                                        border: const OutlineInputBorder(),
                                       ),
                                     ),
                                   ),
@@ -983,7 +973,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
             ? word
             : '${word[0].toUpperCase()}${word.substring(1)}')
         .join(' ');
-    return '${humanize(parts[0])} • ${humanize(parts[1])} • ${humanize(parts[2])}';
+    return '${humanize(parts[0])} â€¢ ${humanize(parts[1])} â€¢ ${humanize(parts[2])}';
   }
 
   Future<void> _save() async {
@@ -1039,3 +1029,4 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     if (ok) Navigator.pop(context);
   }
 }
+

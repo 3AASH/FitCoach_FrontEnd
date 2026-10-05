@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/config/demo_config.dart';
@@ -33,7 +33,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
     const _PaymentMethod(
       id: 'apple_pay',
       brand: 'Apple Pay',
-      last4: '—',
+      last4: 'â€”',
       expiry: '',
       holder: 'Layla iPhone',
       type: 'wallet',
@@ -112,13 +112,14 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         ? AppColors.primary
                         : context.palette.textSecondary,
                   ),
-                  title: Text('${method.brand} •••• ${method.last4}'),
+                  title: Text('${method.brand} â€¢â€¢â€¢â€¢ ${method.last4}'),
                   subtitle: Text(method.type == 'card'
                       ? 'Exp ${method.expiry}'
                       : method.holder),
                   trailing: IconButton(
                     icon: Icon(Icons.delete_outline,
                         color: context.palette.textSecondary),
+                    tooltip: lang.t('delete'),
                     onPressed: () => _removeMethod(method.id),
                   ),
                   onTap: () => setState(() => _defaultMethodId = method.id),
@@ -166,6 +167,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               if (!DemoConfig.isDemo)
                 IconButton(
                   onPressed: _loadPaymentHistory,
+                  tooltip: lang.t('refresh'),
                   icon: const Icon(Icons.refresh),
                 ),
             ],
@@ -341,7 +343,6 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               keyboardType: TextInputType.number,
               decoration: InputDecoration(
                 labelText: lang.t('auth_card_number'),
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -349,7 +350,6 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               controller: holderController,
               decoration: InputDecoration(
                 labelText: lang.t('auth_full_name'),
-                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 12),
@@ -438,3 +438,4 @@ class _PaymentMethod {
     required this.type,
   });
 }
+

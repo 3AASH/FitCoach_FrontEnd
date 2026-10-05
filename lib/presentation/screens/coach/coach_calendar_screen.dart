@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../../../core/constants/colors.dart';
@@ -80,10 +80,12 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: lang.t('refresh'),
             onPressed: _loadAppointments,
           ),
           IconButton(
             icon: const Icon(Icons.add),
+            tooltip: lang.t('add'),
             onPressed: () => _showCreateAppointmentDialog(authProvider, lang),
           ),
         ],
@@ -448,7 +450,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   initialValue: selectedClientId,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_calendar_client_label'),
-                    border: const OutlineInputBorder(),
                   ),
                   items: coachProvider.clients.map((client) {
                     return DropdownMenuItem(
@@ -510,7 +511,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   initialValue: duration,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_schedule_duration_label'),
-                    border: const OutlineInputBorder(),
                   ),
                   items: [15, 30, 45, 60, 90].map((min) {
                     return DropdownMenuItem(
@@ -532,7 +532,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   initialValue: type,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_calendar_type_label'),
-                    border: const OutlineInputBorder(),
                   ),
                   items: [
                     DropdownMenuItem(
@@ -562,7 +561,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   controller: notesController,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_schedule_notes_label'),
-                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
@@ -696,7 +694,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   initialValue: duration,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_schedule_duration_label'),
-                    border: const OutlineInputBorder(),
                   ),
                   items: [15, 30, 45, 60, 90].map((min) {
                     return DropdownMenuItem(
@@ -718,7 +715,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   controller: notesController,
                   decoration: InputDecoration(
                     labelText: lang.t('coach_schedule_notes_label'),
-                    border: const OutlineInputBorder(),
                   ),
                   maxLines: 3,
                 ),
@@ -919,7 +915,6 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
               controller: reasonController,
               decoration: InputDecoration(
                 labelText: lang.t('coach_calendar_reject_hint'),
-                border: const OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
@@ -1065,3 +1060,4 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
     }
   }
 }
+

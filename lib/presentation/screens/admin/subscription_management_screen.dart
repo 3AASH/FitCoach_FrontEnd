@@ -134,6 +134,7 @@ class _SubscriptionManagementScreenState
               children: [
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
+                  tooltip: languageProvider.t('back'),
                   icon: const Icon(
                     Icons.arrow_back,
                     color: AppColors.textWhite,
@@ -1092,6 +1093,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                                       _featureFields.removeAt(index);
                                     });
                                   },
+                            tooltip: tr('delete'),
                             icon: const Icon(Icons.delete_outline),
                           ),
                         ),

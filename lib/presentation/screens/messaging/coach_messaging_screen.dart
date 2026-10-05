@@ -406,6 +406,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   Icons.arrow_back,
                   color: Colors.white,
                 ),
+                tooltip: lang.t('back'),
               ),
               Expanded(
                 child: Column(
@@ -1024,6 +1025,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           if (canAttach)
             IconButton(
               icon: const Icon(Icons.attach_file),
+              tooltip: lang.t('attach_file'),
               onPressed: canCompose ? () => _showAttachmentOptions(lang) : null,
               color: context.palette.textSecondary,
             ),
@@ -1058,6 +1060,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.send),
+            tooltip: lang.t('send'),
             onPressed: canCompose && !messagingProvider.isSending
                 ? () => _sendMessage(messagingProvider, isCoach)
                 : null,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -159,7 +159,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   obscureText: _obscureCurrent,
                   decoration: InputDecoration(
                     labelText: t('change_password_current'),
-                    border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(_obscureCurrent
                           ? Icons.visibility_off
@@ -178,7 +177,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   obscureText: _obscureNew,
                   decoration: InputDecoration(
                     labelText: t('change_password_new'),
-                    border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
                       icon: Icon(
                           _obscureNew ? Icons.visibility_off : Icons.visibility),
@@ -202,7 +200,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   obscureText: _obscureNew,
                   decoration: InputDecoration(
                     labelText: t('change_password_confirm'),
-                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) => value != _newController.text
                       ? t('change_password_mismatch')
@@ -237,3 +234,4 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
+

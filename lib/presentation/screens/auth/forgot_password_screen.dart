@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
@@ -159,7 +159,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     labelText: languageProvider.t('auth_enter_otp'),
-                    border: const OutlineInputBorder(),
                     counterText: '',
                   ),
                   enabled: !isBusy,
@@ -170,7 +169,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: languageProvider.t('auth_new_password'),
-                    border: const OutlineInputBorder(),
                   ),
                   enabled: !isBusy,
                 ),
@@ -180,7 +178,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   obscureText: true,
                   decoration: InputDecoration(
                     labelText: languageProvider.t('auth_confirm_password'),
-                    border: const OutlineInputBorder(),
                   ),
                   enabled: !isBusy,
                 ),
@@ -210,3 +207,4 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     );
   }
 }
+

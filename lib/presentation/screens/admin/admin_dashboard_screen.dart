@@ -572,6 +572,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.account_circle),
+                tooltip: lang.t('account'),
                 onPressed: () => _pushAdminScreen(const AccountScreen()),
               ),
             ],

@@ -1,4 +1,4 @@
-import 'dart:convert';
+﻿import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -1018,7 +1018,6 @@ class _JsonEditorSheetState extends State<_JsonEditorSheet> {
                 minLines: 16,
                 keyboardType: TextInputType.multiline,
                 decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
                   hintText: widget.hint,
                 ),
                 style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
@@ -1270,7 +1269,7 @@ class _NutritionRecipeEditorSheetState
   void _recalculateRecipeMacros() {
     num calories = 0, protein = 0, carbs = 0, fat = 0;
     for (final entry in _ingredients) {
-      // Ingredients are defined per 100 g, so scale by grams / 100 — the same
+      // Ingredients are defined per 100 g, so scale by grams / 100 â€” the same
       // formula the backend uses when it recomputes the recipe on save.
       final perGram = _ingredientPerGram(_findIngredient(entry.key));
       final grams = num.tryParse(entry.value.text) ?? 0;
@@ -1376,7 +1375,6 @@ class _NutritionRecipeEditorSheetState
                   minLines: 16,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
                     hintText: lang.t('plan_editor_engine_meal_json_hint'),
                   ),
                   style:
@@ -1406,7 +1404,6 @@ class _NutritionRecipeEditorSheetState
             readOnly: true,
             decoration: InputDecoration(
               labelText: lang.t('plan_editor_recipe_id'),
-              border: const OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 12),
@@ -1418,7 +1415,6 @@ class _NutritionRecipeEditorSheetState
                 controller: _nameEnController,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_exercise_english_name'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1428,7 +1424,6 @@ class _NutritionRecipeEditorSheetState
                 controller: _nameArController,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_exercise_arabic_name'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1442,7 +1437,6 @@ class _NutritionRecipeEditorSheetState
                 controller: _mealTypesController,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_slot'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1452,7 +1446,6 @@ class _NutritionRecipeEditorSheetState
                 controller: _cuisineController,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_cuisine'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1467,7 +1460,6 @@ class _NutritionRecipeEditorSheetState
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_prep_time_minutes'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1477,7 +1469,6 @@ class _NutritionRecipeEditorSheetState
                 controller: _difficultyController,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_exercise_difficulty'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1493,7 +1484,6 @@ class _NutritionRecipeEditorSheetState
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_calories'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1505,7 +1495,6 @@ class _NutritionRecipeEditorSheetState
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_protein'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1517,7 +1506,6 @@ class _NutritionRecipeEditorSheetState
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_carbs'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1529,7 +1517,6 @@ class _NutritionRecipeEditorSheetState
                 readOnly: true,
                 decoration: InputDecoration(
                   labelText: lang.t('plan_editor_fat'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
             ),
@@ -1590,7 +1577,6 @@ class _NutritionRecipeEditorSheetState
                       focusNode: focusNode,
                       decoration: InputDecoration(
                         labelText: lang.t('plan_editor_ingredient_name'),
-                        border: const OutlineInputBorder(),
                       ),
                     ),
                   ),
@@ -1603,7 +1589,6 @@ class _NutritionRecipeEditorSheetState
                     onChanged: (_) => setState(_recalculateRecipeMacros),
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_grams'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 ),
@@ -1838,7 +1823,6 @@ class _NutritionEnginePlanEditorSheetState
                   minLines: 16,
                   keyboardType: TextInputType.multiline,
                   decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
                     hintText: lang.t('plan_editor_engine_plan_json_hint'),
                   ),
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
@@ -1875,7 +1859,6 @@ class _NutritionEnginePlanEditorSheetState
           controller: _planIdController,
           decoration: InputDecoration(
             labelText: lang.t('plan_editor_plan_id'),
-            border: const OutlineInputBorder(),
           ),
         ),
         const SizedBox(height: 12),
@@ -2039,7 +2022,6 @@ class _NutritionEnginePlanEditorSheetState
                                 focusNode: focusNode,
                                 decoration: InputDecoration(
                                   labelText: lang.t('plan_editor_meal'),
-                                  border: const OutlineInputBorder(),
                                 ),
                               ),
                             ),
@@ -2080,7 +2062,6 @@ class _NutritionEnginePlanEditorSheetState
                                             : lang.t(
                                                 'plan_editor_alternative_scope'),
                                         helperMaxLines: 2,
-                                        border: const OutlineInputBorder(),
                                       ),
                                     ),
                                   ),
@@ -2163,7 +2144,7 @@ class _NutritionEnginePlanEditorSheetState
   }
 
   /// The portion of the selected meal. Constrained to that meal's own variants,
-  /// which is also what the backend requires — it rejects a plan meal whose
+  /// which is also what the backend requires â€” it rejects a plan meal whose
   /// variant belongs to a different recipe.
   Widget _buildPortionField(LanguageProvider lang, Map<String, dynamic> meal) {
     final recipeId = _stringValue(meal['planned_recipe_id']);
@@ -2176,7 +2157,6 @@ class _NutritionEnginePlanEditorSheetState
       isExpanded: true,
       decoration: InputDecoration(
         labelText: lang.t('plan_editor_portion'),
-        border: const OutlineInputBorder(),
         helperText:
             variants.isEmpty ? lang.t('plan_editor_select_meal_first') : null,
       ),
@@ -2434,7 +2414,6 @@ class _NutritionEnginePlanEditorSheetState
       keyboardType: number ? TextInputType.number : TextInputType.text,
       decoration: InputDecoration(
         labelText: label,
-        border: const OutlineInputBorder(),
       ),
     );
   }
@@ -2717,7 +2696,6 @@ Future<Map<String, dynamic>?> _showIngredientForm(
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
           decoration: InputDecoration(
             labelText: label,
-            border: const OutlineInputBorder(),
           ),
         ),
       );
@@ -2746,7 +2724,6 @@ Future<Map<String, dynamic>?> _showIngredientForm(
                 controller: nameEn,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_exercise_english_name'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 8),
@@ -2754,7 +2731,6 @@ Future<Map<String, dynamic>?> _showIngredientForm(
                 controller: nameAr,
                 decoration: InputDecoration(
                   labelText: lang.t('admin_exercise_arabic_name'),
-                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
@@ -2830,4 +2806,5 @@ List<dynamic>? _asList(dynamic value) {
   if (value is List) return value;
   return null;
 }
+
 

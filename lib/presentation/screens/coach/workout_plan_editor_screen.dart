@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -319,7 +319,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_plan_name'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -328,7 +327,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     maxLines: 2,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_description'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -336,7 +334,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     controller: _goalController,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_goal'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -518,7 +515,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     decoration: InputDecoration(
                       labelText: lang.t('coach_workout_editor_notes_label'),
                       hintText: lang.t('coach_workout_editor_notes_hint'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -622,3 +618,4 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
     return null;
   }
 }
+

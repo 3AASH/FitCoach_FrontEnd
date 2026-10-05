@@ -418,6 +418,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                 Icons.arrow_back,
                                 color: Colors.white,
                               ),
+                              tooltip: lang.t('back'),
                             ),
                             Expanded(
                               child: Column(
@@ -1392,6 +1393,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
+                tooltip: lang.t('view_details'),
                 onPressed: () {
                   _showMealDetail(meal, lang);
                 },
