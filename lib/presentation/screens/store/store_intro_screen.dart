@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 
@@ -84,7 +85,7 @@ class StoreIntroScreen extends StatelessWidget {
                     shape: const CircleBorder(),
                     child: IconButton(
                       tooltip: languageProvider.t('back'),
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.chevron_left,
                         color: context.palette.textOnBrand,
                       ),

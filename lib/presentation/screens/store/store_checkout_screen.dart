@@ -458,7 +458,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
           IconButton(
             tooltip: 'Back',
             onPressed: () => _onBack(lang),
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back,
               color: context.palette.textOnBrand,
             ),
@@ -470,7 +470,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               children: [
                 Text(
                   lang.t('checkout'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: context.palette.textOnBrand,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
@@ -478,7 +478,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                 ),
                 Text(
                   lang.t('checkout_subtitle'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: context.palette.textOnBrand70,
                     fontSize: 12,
                   ),
@@ -528,7 +528,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               ),
               child: Center(
                 child: isComplete
-                    ? const Icon(Icons.check, color: context.palette.textOnBrand, size: 18)
+                    ? Icon(Icons.check, color: context.palette.textOnBrand, size: 18)
                     : Text(
                         '${index + 1}',
                         style: TextStyle(

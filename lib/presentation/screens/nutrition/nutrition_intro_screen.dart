@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 
@@ -86,7 +87,7 @@ class NutritionIntroScreen extends StatelessWidget {
                         color: Color(0xFF16A34A),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(Icons.local_florist,
+                      child: Icon(Icons.local_florist,
                           color: context.palette.textOnBrand, size: 40),
                     ),
                   ),

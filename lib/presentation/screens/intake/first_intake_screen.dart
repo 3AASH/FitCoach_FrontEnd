@@ -192,7 +192,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                                         }
                                       },
                                 child: userProvider.isLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 20,
                                         width: 20,
                                         child: CircularProgressIndicator(

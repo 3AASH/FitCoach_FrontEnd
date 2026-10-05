@@ -251,7 +251,7 @@ class _WorkoutExerciseSessionScreenState
                           IconButton(
                             tooltip: 'Back',
                             onPressed: () => Navigator.of(context).pop(),
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_back,
                               color: context.palette.textOnBrand,
                             ),
@@ -264,7 +264,7 @@ class _WorkoutExerciseSessionScreenState
                                   isArabic
                                       ? currentExercise.nameAr
                                       : currentExercise.nameEn,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: context.palette.textOnBrand,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _WorkoutExerciseSessionScreenState
                                     'current': '${_currentSet + 1}',
                                     'total': '${currentExercise.sets}',
                                   }),
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                       color: context.palette.textOnBrand70, fontSize: 12),
                                 ),
                               ],
@@ -292,7 +292,7 @@ class _WorkoutExerciseSessionScreenState
                           minHeight: 6,
                           backgroundColor: context.palette.textOnBrand.withValues(alpha: 0.2),
                           valueColor:
-                              const AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
+                              AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
                         ),
                       ),
                     ],

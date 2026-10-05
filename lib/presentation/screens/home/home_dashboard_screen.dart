@@ -406,7 +406,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               ),
               const SizedBox(width: 8),
               IconButton(
-                tooltip: languageProvider.t('account'),
+                tooltip: lang.t('account'),
                 icon: const Icon(Icons.person,
                     color: AppColors.textWhite, size: 20),
                 onPressed: () => setState(() => _selectedIndex = 5),
@@ -1400,7 +1400,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               ),
               const SizedBox(width: 8),
               IconButton(
-                tooltip: languageProvider.t('account'),
+                tooltip: lang.t('account'),
                 icon: const Icon(Icons.person_outline,
                     color: AppColors.textWhite),
                 onPressed: () => setState(() => _selectedIndex = 5),

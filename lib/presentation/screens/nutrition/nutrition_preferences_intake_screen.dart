@@ -256,7 +256,7 @@ class _NutritionPreferencesIntakeScreenState
                   child: ElevatedButton(
                     onPressed: _saving ? null : _submit,
                     child: _saving
-                        ? const SizedBox(
+                        ? SizedBox(
                             height: 20,
                             width: 20,
                             child: CircularProgressIndicator(

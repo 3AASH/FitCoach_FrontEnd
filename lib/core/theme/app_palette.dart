@@ -35,6 +35,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
   /// is not white.
   final Color textOnBrand;
 
+  /// De-emphasised text painted on a filled brand colour.
+  Color get textOnBrand70 => textOnBrand.withValues(alpha: 0.7);
+
   /// The page background.
   final Color background;
 

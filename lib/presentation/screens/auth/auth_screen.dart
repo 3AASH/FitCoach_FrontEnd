@@ -1047,7 +1047,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ),
                                     ),
                                     child: _isSendingSignupCode
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             height: 18,
                                             width: 18,
                                             child: CircularProgressIndicator(
@@ -1129,7 +1129,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ),
                                     ),
                                     child: _isCreatingSignupAccount
-                                        ? const SizedBox(
+                                        ? SizedBox(
                                             height: 18,
                                             width: 18,
                                             child: CircularProgressIndicator(
@@ -1529,4 +1529,3 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 }
-

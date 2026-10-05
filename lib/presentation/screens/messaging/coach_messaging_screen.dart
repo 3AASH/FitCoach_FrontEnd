@@ -402,7 +402,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             children: [
               IconButton(
                 onPressed: () => Navigator.of(context).maybePop(),
-                icon: const Icon(
+                icon: Icon(
                   Icons.arrow_back,
                   color: context.palette.textOnBrand,
                 ),

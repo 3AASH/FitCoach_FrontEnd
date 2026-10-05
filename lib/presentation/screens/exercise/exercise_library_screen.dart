@@ -274,7 +274,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               children: [
                 Text(
                   lang.isArabic ? exercise['nameAr'] : exercise['nameEn'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
                   ),
@@ -474,7 +474,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                           color: Colors.black.withValues(alpha: 0.6),
                           shape: BoxShape.circle,
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.play_arrow,
                           color: context.palette.textOnBrand,
                           size: 40,
@@ -489,7 +489,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 // Title
                 Text(
                   lang.isArabic ? exercise['nameAr'] : exercise['nameEn'],
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
@@ -549,7 +549,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                           child: Center(
                             child: Text(
                               '${index + 1}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: context.palette.textOnBrand,
                                 fontSize: 12,
                                 fontWeight: FontWeight.bold,

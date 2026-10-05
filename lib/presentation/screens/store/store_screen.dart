@@ -1094,7 +1094,7 @@ class _StoreScreenState extends State<StoreScreen> {
             onChanged: (value) => setState(() => _searchQuery = value),
             decoration: InputDecoration(
               hintText: lang.t('store_search_placeholder'),
-              prefixIcon: const Icon(Icons.search, color: context.palette.textOnBrand),
+              prefixIcon: Icon(Icons.search, color: context.palette.textOnBrand),
               filled: true,
               fillColor: context.palette.textOnBrand.withValues(alpha: 0.15),
               hintStyle: TextStyle(color: context.palette.textOnBrand.withValues(alpha: 0.7)),
@@ -1103,7 +1103,7 @@ class _StoreScreenState extends State<StoreScreen> {
                 borderSide: BorderSide.none,
               ),
             ),
-            style: const TextStyle(color: context.palette.textOnBrand),
+            style: TextStyle(color: context.palette.textOnBrand),
           ),
         ],
       ),
@@ -1544,7 +1544,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     child: Center(
                       child: Text(
                         lang.t('out_of_stock'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: context.palette.textOnBrand,
                           fontWeight: FontWeight.bold,
                         ),
@@ -1885,4 +1885,3 @@ class _StoreScreenState extends State<StoreScreen> {
     );
   }
 }
-

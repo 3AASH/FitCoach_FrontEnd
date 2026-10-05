@@ -174,7 +174,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           IconButton(
             tooltip: lang.t('back'),
             onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back,
               color: context.palette.textOnBrand,
             ),
@@ -192,7 +192,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                     const SizedBox(width: 8),
                     Text(
                       lang.t('video_booking_book_video_session'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: context.palette.textOnBrand,
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -203,7 +203,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 const SizedBox(height: 4),
                 Text(
                   lang.t('video_booking_reserve_a_1_on_1_session'),
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
                   ),
@@ -300,7 +300,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                     .map((part) => part[0])
                     .take(2)
                     .join(''),
-                style: const TextStyle(
+                style: TextStyle(
                   color: context.palette.textOnBrand,
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
