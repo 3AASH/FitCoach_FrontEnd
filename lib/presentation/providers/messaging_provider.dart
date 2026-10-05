@@ -47,6 +47,17 @@ class MessagingProvider extends ChangeNotifier {
         (key, value) => MapEntry(key, List<Message>.unmodifiable(value)),
       ));
   List<Conversation> get conversations => List.unmodifiable(_conversations);
+
+  /// Unread across every conversation, for the nav badge.
+  ///
+  /// Each conversation already carried its own `unreadCount`; nothing summed
+  /// them, so the client's Coach tab had no unread indicator and the home grid
+  /// card faked one with a hardcoded demo '1'.
+  int get totalUnread => _conversations.fold<int>(
+        0,
+        (sum, conversation) => sum + conversation.unreadCount,
+      );
+
   Conversation? get activeConversation => _activeConversation;
   String? get activeConversationId => _activeConversation?.id;
   bool get isLoading => _isLoading;

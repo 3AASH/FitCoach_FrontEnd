@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/user_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../providers/nutrition_provider.dart';
+import '../../providers/messaging_provider.dart';
 import '../../providers/quota_provider.dart';
 import '../../providers/appointment_provider.dart';
 import '../../providers/video_call_provider.dart';
@@ -82,6 +83,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final isArabic = languageProvider.isArabic;
+    final unreadMessages = context.watch<MessagingProvider>().totalUnread;
+    final isFreemium =
+        (context.watch<AuthProvider>().user?.subscriptionTier ?? 'Freemium') ==
+            'Freemium';
 
     return Scaffold(
       body: IndexedStack(
@@ -131,27 +136,47 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         unselectedItemColor: context.palette.textDisabled,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.home),
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
             label: languageProvider.t('home'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.fitness_center),
+            icon: const Icon(Icons.fitness_center_outlined),
+            activeIcon: const Icon(Icons.fitness_center),
             label: languageProvider.t('workout'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.restaurant),
+            // Freemium cannot open Nutrition. Saying so on the icon beats
+            // letting the user tap through to a locked screen.
+            icon: isFreemium
+                ? const Icon(Icons.lock_outline)
+                : const Icon(Icons.restaurant_outlined),
+            activeIcon: isFreemium
+                ? const Icon(Icons.lock)
+                : const Icon(Icons.restaurant),
             label: languageProvider.t('nutrition'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.chat),
+            icon: Badge.count(
+              count: unreadMessages,
+              isLabelVisible: unreadMessages > 0,
+              child: const Icon(Icons.chat_bubble_outline),
+            ),
+            activeIcon: Badge.count(
+              count: unreadMessages,
+              isLabelVisible: unreadMessages > 0,
+              child: const Icon(Icons.chat_bubble),
+            ),
             label: languageProvider.t('coach'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.shopping_bag),
+            icon: const Icon(Icons.shopping_bag_outlined),
+            activeIcon: const Icon(Icons.shopping_bag),
             label: languageProvider.t('store'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.person),
+            icon: const Icon(Icons.person_outline),
+            activeIcon: const Icon(Icons.person),
             label: languageProvider.t('account'),
           ),
         ],
@@ -599,36 +624,28 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         children: [
           Text(
             lang.t('home_next_session'),
-            style: TextStyle(
+            style: AppTextStyles.caption.copyWith(
               color: AppColors.textWhite.withValues(alpha: 0.7),
-              fontSize: 13,
             ),
           ),
           const SizedBox(height: 6),
           Text(
             appointment.coachName ?? lang.t('coach'),
-            style: const TextStyle(
-              color: AppColors.textWhite,
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-            ),
+            style: AppTextStyles.h2.copyWith(color: AppColors.textWhite),
           ),
           const SizedBox(height: 8),
           Text(
             dateLabel,
-            style: const TextStyle(
+            style: AppTextStyles.smallMedium.copyWith(
               color: AppColors.textWhite,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
             ),
           ),
           if (countdown != null) ...[
             const SizedBox(height: 4),
             Text(
               countdown,
-              style: TextStyle(
+              style: AppTextStyles.caption.copyWith(
                 color: AppColors.textWhite.withValues(alpha: 0.7),
-                fontSize: 13,
               ),
             ),
           ],
@@ -661,9 +678,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               padding: const EdgeInsets.only(top: 8),
               child: Text(
                 joinHint,
-                style: TextStyle(
+                style: AppTextStyles.caption.copyWith(
                   color: AppColors.textWhite.withValues(alpha: 0.7),
-                  fontSize: 12,
                 ),
               ),
             ),
@@ -893,7 +909,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         icon: Icons.chat_bubble_outline,
         color: AppColors.accent,
         index: 3,
-        badge: DemoConfig.isDemo ? '1' : null,
+        // Was a hardcoded demo '1'. The real count now comes from the same
+        // source as the nav badge, so the two cannot disagree.
+        badge: context.watch<MessagingProvider>().totalUnread > 0
+            ? '${context.watch<MessagingProvider>().totalUnread}'
+            : null,
         background: AppColors.accent.withValues(alpha: 0.12),
       ),
       _HomeNavItem(
@@ -919,16 +939,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
 
   Widget _buildNavigationCardCompact(_HomeNavItem item) {
     return InkWell(
-      onTap: () {
-        if (item.locked) {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-                builder: (_) => const SubscriptionManagerScreen()),
-          );
-        } else {
-          setState(() => _selectedIndex = item.index);
-        }
-      },
+      // A locked feature used to answer in two different ways: this card
+      // jumped straight to the plan picker, while the same feature's nav tab
+      // opened its in-screen locked state. Both now land on the locked state,
+      // which sells the feature before asking for money and keeps one answer.
+      onTap: () => setState(() => _selectedIndex = item.index),
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.all(12),
@@ -988,8 +1003,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       ),
                       child: Text(
                         item.badge!,
-                        style: const TextStyle(
-                            color: AppColors.textWhite, fontSize: 10),
+                        style: AppTextStyles.overline.copyWith(
+                          color: AppColors.textWhite,
+                        ),
                       ),
                     ),
                   ),
@@ -998,9 +1014,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const SizedBox(height: 8),
             Text(
               item.label,
-              style: TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
+              style: AppTextStyles.smallMedium.copyWith(
                 color: context.palette.textPrimary,
               ),
               textAlign: TextAlign.center,
@@ -1008,8 +1022,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             const SizedBox(height: 2),
             Text(
               item.description,
-              style: TextStyle(
-                fontSize: 12,
+              style: AppTextStyles.caption.copyWith(
                 color: context.palette.textSecondary,
               ),
               textAlign: TextAlign.center,
@@ -1026,9 +1039,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ),
                 child: Text(
                   item.lockedLabel,
-                  style: AppTextStyles.small.copyWith(
+                  style: AppTextStyles.overline.copyWith(
                     color: context.palette.textPrimary,
-                    fontSize: 10,
                   ),
                 ),
               ),
@@ -1719,17 +1731,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               children: [
                 Text(
                   tierLabel,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.textWhite,
-                  ),
+                  style: AppTextStyles.h2.copyWith(color: AppColors.textWhite),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   lang.t('current_plan'),
-                  style: TextStyle(
-                    fontSize: 14,
+                  style: AppTextStyles.small.copyWith(
                     color: AppColors.textWhite.withValues(alpha: 0.9),
                   ),
                 ),
@@ -1738,9 +1745,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
           if (tier != 'Smart Premium')
             OutlinedButton(
-              onPressed: () {
-                // Navigate to upgrade
-              },
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const SubscriptionManagerScreen(),
+                ),
+              ),
               style: OutlinedButton.styleFrom(
                 foregroundColor: AppColors.textWhite,
                 side: const BorderSide(color: AppColors.textWhite),
@@ -1792,11 +1801,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('monthly_quota'),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: context.palette.textPrimary,
-          ),
+          style: AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
         const Row(
@@ -1833,11 +1838,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('todays_workout'),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: context.palette.textPrimary,
-          ),
+          style: AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
         CustomCard(
@@ -1869,16 +1870,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             children: [
                               Text(
                                 dayLabel,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: AppTextStyles.h4,
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 '${workoutProvider.currentDay?.exercises.length ?? 8} ${lang.t('exercises')}',
-                                style: TextStyle(
-                                  fontSize: 14,
+                                style: AppTextStyles.small.copyWith(
                                   color: context.palette.textSecondary,
                                 ),
                               ),
@@ -1925,11 +1922,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('todays_nutrition'),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: context.palette.textPrimary,
-          ),
+          style: AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
         CustomCard(
@@ -1961,16 +1954,12 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             children: [
                               Text(
                                 '${nutritionProvider.activePlan?.dailyCalories ?? 2000} ${lang.t('calories')}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
+                                style: AppTextStyles.h4,
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 '4 ${lang.t('meals')}',
-                                style: TextStyle(
-                                  fontSize: 14,
+                                style: AppTextStyles.small.copyWith(
                                   color: context.palette.textSecondary,
                                 ),
                               ),
@@ -2015,11 +2004,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('quick_actions'),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: context.palette.textPrimary,
-          ),
+          style: AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
         CustomInfoCard(
@@ -2037,9 +2022,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           subtitle: lang.t('view_achievements'),
           icon: Icons.trending_up,
           iconColor: AppColors.secondary,
-          onTap: () {
-            // Navigate to progress
-          },
+          onTap: () => Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const ProgressScreen()),
+          ),
         ),
         const SizedBox(height: 12),
         CustomInfoCard(
@@ -2065,11 +2050,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       children: [
         Text(
           lang.t('home_demo_mode'),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: context.palette.textPrimary,
-          ),
+          style: AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
         CustomCard(
@@ -2078,8 +2059,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             children: [
               Text(
                 lang.t('home_demo_mode_desc'),
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppTextStyles.small.copyWith(
                   color: context.palette.textSecondary,
                 ),
               ),

@@ -857,7 +857,12 @@ class _AuthScreenState extends State<AuthScreen> {
                                     const SizedBox(width: 16),
                                     _socialIconButton(
                                       icon: Icons.apple,
-                                      color: Colors.black,
+                                      // Apple's mark is monochrome, so it has
+                                      // to follow the surface. Hardcoded black
+                                      // made it invisible in dark mode -- the
+                                      // button sits on `palette.surface`, not
+                                      // on a fixed light fill.
+                                      color: context.palette.textPrimary,
                                       onPressed: isBusy
                                           ? null
                                           : () => _handleSocialLogin('apple'),

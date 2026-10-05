@@ -131,6 +131,7 @@ class LanguageProvider with ChangeNotifier {
     'items': 'Items',
     'quantity': 'Quantity',
     'refresh': 'Refresh',
+    'open': 'Open',
     'dismiss': 'Dismiss',
     'processing': 'Processing...',
     'retry': 'Retry',
@@ -145,6 +146,20 @@ class LanguageProvider with ChangeNotifier {
     'loading': 'Loading...',
     'error_generic': 'Something went wrong. Please try again.',
     'error': 'An error occurred',
+    'error_offline':
+        'You appear to be offline. Check your connection and try again.',
+    'error_timeout': 'The request took too long. Please try again.',
+    'error_session_expired': 'Your session expired. Please sign in again.',
+    'error_forbidden': 'You do not have permission to do that.',
+    'error_not_found': 'We could not find what you were looking for.',
+    'error_server': 'Our server had a problem. Please try again shortly.',
+    'offline_banner': 'No internet connection',
+    'offline_banner_action': 'Retry',
+    'unsaved_title': 'Discard changes?',
+    'unsaved_message':
+        'You have unsaved changes. If you leave now they will be lost.',
+    'unsaved_keep_editing': 'Keep editing',
+    'unsaved_discard': 'Discard',
     'unknown': 'Unknown',
     'splash_headline_en': 'Your Fitness Journey Starts Now',
     'splash_headline_ar': 'رحلتك الرياضية تبدأ الآن',
@@ -619,6 +634,20 @@ class LanguageProvider with ChangeNotifier {
     'payment_auto_pay': 'Auto-pay for subscriptions',
     'payment_auto_pay_desc':
         'Automatically charge your default method on renewal',
+    'subscription_renewal_title': 'Subscription Renewal',
+    'subscription_renewal_desc':
+        'Your plan renews automatically at the end of each billing period.',
+    'subscription_cancel_action': 'Cancel subscription',
+    'subscription_cancel_title': 'Cancel subscription?',
+    'subscription_cancel_prompt':
+        'Your plan stays active until the end of the current billing period. '
+            'After that it will not renew and you will lose Premium features.',
+    'subscription_cancel_keep': 'Keep subscription',
+    'subscription_cancel_confirm': 'Cancel it',
+    'subscription_cancel_success':
+        'Subscription cancelled. It stays active until the period ends.',
+    'subscription_cancel_failed':
+        'Could not cancel the subscription. Please try again.',
     'account_section_notifications': 'Notifications',
     'account_notification_workout_reminders': 'Workout Reminders',
     'account_notification_coach_messages': 'Coach Messages',
@@ -1109,6 +1138,7 @@ class LanguageProvider with ChangeNotifier {
         'Start the conversation with your client.',
     'coach_clients_load_first':
         'Please load your clients first from the Clients tab',
+    'coach_select_client': 'Select a client',
     'coach_quick_action_message_clients_title': 'Message clients',
     'coach_quick_action_message_clients_subtitle':
         'Reply to conversations and prioritize follow-ups',
@@ -3012,6 +3042,19 @@ class LanguageProvider with ChangeNotifier {
     'payment_auto_pay': 'الدفع التلقائي للاشتراكات',
     'payment_auto_pay_desc':
         'سيتم الخصم تلقائياً من الطريقة الافتراضية عند التجديد',
+    'subscription_renewal_title': 'تجديد الاشتراك',
+    'subscription_renewal_desc':
+        'يتم تجديد خطتك تلقائياً في نهاية كل فترة فوترة.',
+    'subscription_cancel_action': 'إلغاء الاشتراك',
+    'subscription_cancel_title': 'إلغاء الاشتراك؟',
+    'subscription_cancel_prompt':
+        'تبقى خطتك فعّالة حتى نهاية فترة الفوترة الحالية. '
+            'بعد ذلك لن يتم تجديدها وستفقد مزايا بريميوم.',
+    'subscription_cancel_keep': 'الاحتفاظ بالاشتراك',
+    'subscription_cancel_confirm': 'تأكيد الإلغاء',
+    'subscription_cancel_success':
+        'تم إلغاء الاشتراك. يبقى فعّالاً حتى نهاية الفترة.',
+    'subscription_cancel_failed': 'تعذّر إلغاء الاشتراك. حاول مرة أخرى.',
     'account_section_notifications': 'الإشعارات',
     'account_notification_workout_reminders': 'تذكيرات التمرين',
     'account_notification_coach_messages': 'رسائل المدرب',
@@ -3201,6 +3244,7 @@ class LanguageProvider with ChangeNotifier {
     'items': 'العناصر',
     'quantity': 'الكمية',
     'refresh': 'تحديث',
+    'open': 'فتح',
     'retry': 'إعادة المحاولة',
     'session': 'جلسة',
     'time_date_short': '{day}/{month}',
@@ -3210,6 +3254,18 @@ class LanguageProvider with ChangeNotifier {
     'dismiss': 'إخفاء',
     'processing': 'جاري المعالجة...',
     'error_generic': 'حدث خطأ. حاول مرة أخرى.',
+    'error_offline': 'يبدو أنك غير متصل بالإنترنت. تحقق من الاتصال وحاول مجدداً.',
+    'error_timeout': 'استغرق الطلب وقتاً طويلاً. حاول مرة أخرى.',
+    'error_session_expired': 'انتهت صلاحية جلستك. يرجى تسجيل الدخول مجدداً.',
+    'error_forbidden': 'ليس لديك صلاحية للقيام بذلك.',
+    'error_not_found': 'لم نتمكن من العثور على ما تبحث عنه.',
+    'error_server': 'حدثت مشكلة في الخادم. حاول مرة أخرى بعد قليل.',
+    'offline_banner': 'لا يوجد اتصال بالإنترنت',
+    'offline_banner_action': 'إعادة المحاولة',
+    'unsaved_title': 'تجاهل التغييرات؟',
+    'unsaved_message': 'لديك تغييرات غير محفوظة. إذا خرجت الآن ستفقدها.',
+    'unsaved_keep_editing': 'متابعة التحرير',
+    'unsaved_discard': 'تجاهل',
     'payment_method_credit_card': 'بطاقة ائتمان',
     'payment_method_tap': 'تاب بايمنتس',
     'save': 'حفظ',
@@ -3236,6 +3292,7 @@ class LanguageProvider with ChangeNotifier {
     'coach_no_entries_captured': 'لا توجد إدخالات مسجلة بعد',
     'coach_start_conversation_prompt': 'ابدأ المحادثة مع العميل.',
     'coach_clients_load_first': 'يرجى تحميل العملاء أولاً من تبويب العملاء',
+    'coach_select_client': 'اختر عميلاً',
     'coach_quick_action_message_clients_title': 'مراسلة العملاء',
     'coach_quick_action_message_clients_subtitle':
         'رد على المحادثات وتحديد الأولويات',

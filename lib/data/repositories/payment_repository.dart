@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class PaymentRepository {
   final Dio _dio;
@@ -19,7 +20,7 @@ class PaymentRepository {
               baseUrl: ApiConfig.baseUrl,
               connectTimeout: ApiConfig.connectTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
-            )),
+            ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = secureStorage ?? const FlutterSecureStorage(),
         _tokenReader = tokenReader;
   

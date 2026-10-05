@@ -10,6 +10,7 @@ import '../../widgets/library_picker_field.dart';
 import '../../widgets/sheet_header.dart';
 import 'plan_library_options.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 class NutritionPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -164,21 +165,12 @@ class _NutritionPlanBuilderScreenState
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+      // One save, not two -- see the workout builder for the same change.
       appBar: AppBar(
         title: Text(lang.t('coach_nutrition_builder_title')),
-        actions: [
-          TextButton(
-            onPressed: () => _savePlan(lang),
-            child: Text(
-              lang.t('save'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -355,23 +347,35 @@ class _NutritionPlanBuilderScreenState
 
             ..._meals.map((meal) => _buildMealCard(meal, lang)),
 
-            const SizedBox(height: 32),
-
-            // Save button
-            SizedBox(
-              width: double.infinity,
-              child: CustomButton(
-                text: lang.t('coach_nutrition_builder_save_plan'),
-                onPressed: () => _savePlan(lang),
-                variant: ButtonVariant.primary,
-                size: ButtonSize.large,
-                fullWidth: true,
-              ),
-            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: CustomButton(
+            text: lang.t('coach_nutrition_builder_save_plan'),
+            onPressed: () => _savePlan(lang),
+            variant: ButtonVariant.primary,
+            size: ButtonSize.large,
+            fullWidth: true,
+          ),
+        ),
+      ),
+      ),
     );
+  }
+
+  /// The plan exists only in widget state until save, so back would discard it.
+  /// A named plan, any typed macro target, or any added meal counts as work.
+  bool get _hasUnsavedWork {
+    if (_isSaving) return false;
+    if (_planNameController.text.trim().isNotEmpty) return true;
+    if (_meals.isNotEmpty) return true;
+    return [_caloriesController, _proteinController, _carbsController,
+            _fatController]
+        .any((c) => c.text.trim().isNotEmpty);
   }
 
   Widget _buildMacroInput({

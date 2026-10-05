@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 import 'plan_library_options.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -40,6 +42,14 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   final TextEditingController _notesController = TextEditingController();
 
   List<Map<String, dynamic>> _days = <Map<String, dynamic>>[];
+
+  // Snapshots for change detection (captured after load)
+  late String _initialCalories;
+  late String _initialProtein;
+  late String _initialCarbs;
+  late String _initialFats;
+  late String _initialNotes;
+  late String _initialDaysJson;
 
   @override
   void initState() {
@@ -155,6 +165,13 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       _days = parsedDays;
       _isEditable = editable;
       _isLoading = false;
+      // Capture initial state for dirty check
+      _initialCalories = _caloriesController.text;
+      _initialProtein = _proteinController.text;
+      _initialCarbs = _carbsController.text;
+      _initialFats = _fatsController.text;
+      _initialNotes = _notesController.text;
+      _initialDaysJson = jsonEncode(_days);
     });
   }
 
@@ -375,23 +392,25 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang.t('coach_nutrition_editor_title')),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _isSaving ? null : _savePlan,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(lang.t('coach_nutrition_editor_title')),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save),
+              onPressed: _isSaving ? null : _savePlan,
+            ),
+          ],
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   if (!_isEditable)
                     Card(
                       color: AppColors.warning.withValues(alpha: 0.12),
@@ -553,6 +572,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                 ],
               ),
             ),
+      ),
     );
   }
 
@@ -964,4 +984,13 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
     }
     return null;
   }
+
+  /// Check if unsaved changes to nutrition plan exist.
+  bool get _hasUnsavedWork =>
+      _caloriesController.text != _initialCalories ||
+      _proteinController.text != _initialProtein ||
+      _carbsController.text != _initialCarbs ||
+      _fatsController.text != _initialFats ||
+      _notesController.text != _initialNotes ||
+      jsonEncode(_days) != _initialDaysJson;
 }

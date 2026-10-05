@@ -12,6 +12,7 @@ import '../models/coach_earnings.dart';
 import '../models/workout_plan.dart';
 import '../models/nutrition_plan.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class CoachRepository {
   /// Get comprehensive coach profile
@@ -43,7 +44,7 @@ class CoachRepository {
           baseUrl: ApiConfig.baseUrl,
           connectTimeout: const Duration(seconds: 30),
           receiveTimeout: const Duration(seconds: 30),
-        )),
+        ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = const FlutterSecureStorage();
 
   static const String _tokenKey = 'fitcoach_auth_token';

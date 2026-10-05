@@ -7,6 +7,7 @@ import '../../providers/user_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 class SecondIntakeScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -129,8 +130,10 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final userProvider = context.watch<UserProvider>();
 
-    return Scaffold(
-      body: Stack(
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        body: Stack(
         children: [
           Positioned.fill(
             child: Image.network(
@@ -305,7 +308,19 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
           ),
         ],
       ),
+      ),
     );
+  }
+
+  /// Unsaved work if any field has been entered.
+  bool get _hasUnsavedWork {
+    return _currentStep > 0 ||
+        _ageController.text.isNotEmpty ||
+        _weightController.text.isNotEmpty ||
+        _heightController.text.isNotEmpty ||
+        _selectedExperience != null ||
+        _selectedFrequency != null ||
+        _selectedInjuries.isNotEmpty;
   }
 
   Widget _buildCurrentStep(LanguageProvider lang) {

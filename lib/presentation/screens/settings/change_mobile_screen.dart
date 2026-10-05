@@ -5,6 +5,7 @@ import '../../../data/repositories/user_repository.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 import '../../../core/theme/app_palette.dart';
 
 /// Change the mobile number on the account.
@@ -112,9 +113,11 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
     final t = languageProvider.t;
     final currentNumber = authProvider.user?.phoneNumber ?? '';
 
-    return Scaffold(
-      appBar: AppBar(title: Text(t('change_mobile_title'))),
-      body: ListView(
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        appBar: AppBar(title: Text(t('change_mobile_title'))),
+        body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           CustomCard(
@@ -203,6 +206,13 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
           ],
         ],
       ),
+      ),
     );
   }
+
+  /// Check if unsaved work (form entered or OTP in flight).
+  bool get _hasUnsavedWork =>
+      _phoneController.text.isNotEmpty ||
+      _otpController.text.isNotEmpty ||
+      _codeSent == true;
 }

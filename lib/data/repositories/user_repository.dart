@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_profile.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class UserRepository {
   // Get user quota status
@@ -38,7 +39,7 @@ class UserRepository {
               baseUrl: ApiConfig.baseUrl,
               connectTimeout: ApiConfig.connectTimeout,
               receiveTimeout: ApiConfig.receiveTimeout,
-            )),
+            ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = secureStorage ?? const FlutterSecureStorage(),
         _tokenReader = tokenReader;
 

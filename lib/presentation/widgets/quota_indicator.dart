@@ -4,6 +4,7 @@ import '../../core/constants/colors.dart';
 import '../providers/quota_provider.dart';
 import '../providers/language_provider.dart';
 import '../../core/theme/app_palette.dart';
+import '../screens/subscription/subscription_manager_screen.dart';
 
 class QuotaIndicator extends StatelessWidget {
   final String type; // 'message' or 'videoCall'
@@ -297,9 +298,14 @@ class QuotaBanner extends StatelessWidget {
             ),
           ),
           TextButton(
-            onPressed: () {
-              // Navigate to subscription upgrade
-            },
+            // This is the prompt shown when a user has run out of messages or
+            // calls -- the one moment they are most likely to pay. It did
+            // nothing.
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const SubscriptionManagerScreen(),
+              ),
+            ),
             child: Text(translator('upgrade')),
           ),
         ],

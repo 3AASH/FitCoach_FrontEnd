@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/payment_repository.dart';
+import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
@@ -40,7 +41,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   ];
 
   String _defaultMethodId = 'visa';
-  bool _autoPayEnabled = true;
+  bool _cancelling = false;
   bool _historyLoading = false;
   String? _historyError;
   List<Map<String, dynamic>> _paymentHistory = [];
@@ -82,17 +83,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           const SizedBox(height: 16),
           _buildHistoryCard(lang),
           const SizedBox(height: 16),
-          _buildBillingCard(lang),
-          const SizedBox(height: 16),
-          CustomCard(
-            child: SwitchListTile.adaptive(
-              contentPadding: EdgeInsets.zero,
-              title: Text(lang.t('payment_auto_pay')),
-              subtitle: Text(lang.t('payment_auto_pay_desc')),
-              value: _autoPayEnabled,
-              onChanged: (value) => setState(() => _autoPayEnabled = value),
-            ),
-          ),
+          _buildRenewalCard(lang),
         ],
       ),
     );
@@ -218,41 +209,96 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
     );
   }
 
-  Widget _buildBillingCard(LanguageProvider lang) {
+  /// Renewal + cancellation.
+  ///
+  /// This replaces a switch that only ever called `setState` -- it never
+  /// reached the backend, so a user who turned auto-pay off was still charged.
+  /// There is no auto-renew endpoint to wire it to; `POST /payments/cancel`
+  /// (already in [PaymentRepository]) is the real control, and until now
+  /// nothing in the app called it, so a subscriber could not cancel in-app at
+  /// all.
+  Widget _buildRenewalCard(LanguageProvider lang) {
+    final tier = context.watch<AuthProvider>().user?.subscriptionTier ??
+        'Freemium';
+    final hasPaidPlan = tier != 'Freemium';
+
     return CustomCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            lang.t('payment_billing_info'),
+            lang.t('subscription_renewal_title'),
             style: const TextStyle(fontWeight: FontWeight.w700),
           ),
-          const SizedBox(height: 12),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.home_outlined, color: AppColors.primary),
-            title: Text(lang.t('payment_primary_address')),
-            subtitle: const Text('Prince Turki St, Riyadh 12345'),
-            trailing: TextButton(
-              onPressed: () => _showSnack(lang.t('save')),
-              child: Text(lang.t('edit')),
-            ),
+          const SizedBox(height: 8),
+          Text(
+            lang.t('subscription_renewal_desc'),
+            style: TextStyle(color: context.palette.textSecondary),
           ),
-          const Divider(height: 12),
-          ListTile(
-            contentPadding: EdgeInsets.zero,
-            leading: const Icon(Icons.work_outline,
-                color: AppColors.secondaryForeground),
-            title: Text(lang.t('payment_secondary_address')),
-            subtitle: const Text('Remote Office Hub, Dammam 12211'),
-            trailing: TextButton(
-              onPressed: () => _showSnack(lang.t('save')),
-              child: Text(lang.t('edit')),
+          if (hasPaidPlan) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: _cancelling ? null : _confirmCancelSubscription,
+                icon: _cancelling
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Icon(Icons.cancel_outlined,
+                        color: context.palette.error),
+                label: Text(
+                  lang.t('subscription_cancel_action'),
+                  style: TextStyle(color: context.palette.error),
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmCancelSubscription() async {
+    final lang = context.read<LanguageProvider>();
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(lang.t('subscription_cancel_title')),
+        content: Text(lang.t('subscription_cancel_prompt')),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(lang.t('subscription_cancel_keep')),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              lang.t('subscription_cancel_confirm'),
+              style: TextStyle(color: context.palette.error),
             ),
           ),
         ],
       ),
     );
+
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _cancelling = true);
+    try {
+      await _paymentRepository.cancelSubscription();
+      if (!mounted) return;
+      await context.read<AuthProvider>().refreshUser();
+      if (!mounted) return;
+      _showSnack(lang.t('subscription_cancel_success'));
+    } catch (_) {
+      if (!mounted) return;
+      _showSnack(lang.t('subscription_cancel_failed'));
+    } finally {
+      if (mounted) setState(() => _cancelling = false);
+    }
   }
 
   void _removeMethod(String id) {

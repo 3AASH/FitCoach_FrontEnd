@@ -301,8 +301,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                     const SizedBox(height: 16),
                                     Text(
                                       lang.t('admin_users_empty'),
-                                      style: TextStyle(
-                                        fontSize: 18,
+                                      style: AppTextStyles.h3.copyWith(
                                         color: context.palette.textSecondary,
                                       ),
                                     ),
@@ -342,8 +341,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             const SizedBox(height: 16),
             Text(
               lang.t('admin_coaches_empty'),
-              style: TextStyle(
-                fontSize: 18,
+              style: AppTextStyles.h3.copyWith(
                 color: context.palette.textSecondary,
               ),
             ),
@@ -446,10 +444,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: AppTextStyles.overline.copyWith(
           color: AppColors.textWhite,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -474,10 +470,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 child: user.profilePhotoUrl == null
                     ? Text(
                         user.initials,
-                        style: const TextStyle(
+                        style: AppTextStyles.h3.copyWith(
                           color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
                         ),
                       )
                     : null,
@@ -492,17 +486,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   children: [
                     Text(
                       user.fullName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.h4,
                     ),
                     const SizedBox(height: 4),
                     if (user.email != null)
                       Text(
                         user.email!,
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.caption.copyWith(
                           color: context.palette.textSecondary,
                         ),
                       ),
@@ -521,10 +511,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                           child: Text(
                             user.subscriptionTier,
-                            style: const TextStyle(
-                              fontSize: 10,
+                            style: AppTextStyles.overline.copyWith(
                               color: AppColors.textWhite,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -547,10 +535,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             user.isActive
                                 ? (lang.t('admin_status_active'))
                                 : (lang.t('admin_status_inactive')),
-                            style: const TextStyle(
-                              fontSize: 10,
+                            style: AppTextStyles.overline.copyWith(
                               color: AppColors.textWhite,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -560,8 +546,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           Expanded(
                             child: Text(
                               '${lang.t('admin_coach_prefix')} ${user.coachName}',
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.overline.copyWith(
                                 color: context.palette.textSecondary,
                               ),
                               overflow: TextOverflow.ellipsis,

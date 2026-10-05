@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_profile.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 import '../auth/social_auth_client.dart';
 
 class AuthRepositoryException implements Exception {
@@ -140,7 +141,7 @@ class AuthRepository implements AuthRepositoryBase {
           connectTimeout: ApiConfig.connectTimeout,
           receiveTimeout: ApiConfig.receiveTimeout,
           contentType: ApiConfig.contentType,
-        )),
+        ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = const FlutterSecureStorage(),
         _socialAuthClient = socialAuthClient ?? DefaultSocialAuthClient() {
     _dio.interceptors.add(

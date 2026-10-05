@@ -10,6 +10,7 @@ import '../../widgets/library_picker_field.dart';
 import 'plan_library_options.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../widgets/sheet_header.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 class WorkoutPlanBuilderScreen extends StatefulWidget {
   final String clientId;
@@ -135,21 +136,15 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+      // One save, not two. This screen had a TextButton save in the AppBar and
+      // a full-width save at the foot of the form -- the same action twice.
+      // The foot button moved to a persistent bottom bar, so it stays both
+      // prominent and always reachable without scrolling.
       appBar: AppBar(
         title: Text(languageProvider.t('coach_workout_builder_title')),
-        actions: [
-          TextButton(
-            onPressed: () => _savePlan(languageProvider),
-            child: Text(
-              languageProvider.t('save'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -344,22 +339,34 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
               return _buildWorkoutDayCard(day, index, languageProvider);
             }),
 
-            const SizedBox(height: 32),
-
-            // Save button
-            SizedBox(
-              width: double.infinity,
-              child: CustomButton(
-                text: languageProvider.t('coach_workout_builder_save_plan'),
-                onPressed: () => _savePlan(languageProvider),
-                variant: ButtonVariant.primary,
-                size: ButtonSize.large,
-                fullWidth: true,
-              ),
-            ),
+            const SizedBox(height: 16),
           ],
         ),
       ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+          child: CustomButton(
+            text: languageProvider.t('coach_workout_builder_save_plan'),
+            onPressed: () => _savePlan(languageProvider),
+            variant: ButtonVariant.primary,
+            size: ButtonSize.large,
+            fullWidth: true,
+          ),
+        ),
+      ),
+      ),
+    );
+  }
+
+  /// Back is destructive here -- the plan lives only in widget state until
+  /// save -- so treat a named plan or any added exercise as work worth keeping.
+  bool get _hasUnsavedWork {
+    if (_isSaving) return false;
+    if (_planNameController.text.trim().isNotEmpty) return true;
+    if (_planDescriptionController.text.trim().isNotEmpty) return true;
+    return _workoutDays.any(
+      (day) => (day['exercises'] as List).isNotEmpty,
     );
   }
 

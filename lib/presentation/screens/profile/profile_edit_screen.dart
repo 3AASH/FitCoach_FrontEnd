@@ -8,6 +8,7 @@ import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/custom_button.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 class ProfileEditScreen extends StatefulWidget {
   final UserRepository? userRepository;
@@ -49,6 +50,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     _weightController = TextEditingController(text: user?.weight?.toString() ?? '');
     _heightController = TextEditingController(text: user?.height?.toString() ?? '');
     _selectedGender = user?.gender ?? 'male';
+    // The form is prefilled, so "non-empty" says nothing. Compare against what
+    // was loaded instead, or the back guard would fire on an untouched screen.
+    _initialValues = _currentValues;
+  }
+
+  late List<String> _initialValues;
+
+  List<String> get _currentValues => [
+        _nameController.text,
+        _emailController.text,
+        _ageController.text,
+        _weightController.text,
+        _heightController.text,
+        _selectedGender,
+      ];
+
+  bool get _hasUnsavedWork {
+    if (_isSaving) return false;
+    final current = _currentValues;
+    for (var i = 0; i < current.length; i++) {
+      if (current[i] != _initialValues[i]) return true;
+    }
+    return false;
   }
 
   @override
@@ -65,7 +89,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
       appBar: AppBar(
         title: Text(lang.t('edit_profile_title')),
       ),
@@ -292,6 +318,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

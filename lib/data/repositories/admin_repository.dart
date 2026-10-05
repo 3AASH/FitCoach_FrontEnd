@@ -11,6 +11,7 @@ import '../models/admin_workout_template.dart';
 import '../models/revenue_analytics.dart';
 import '../models/audit_log.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class CoachCredentials {
   final String email;
@@ -123,7 +124,7 @@ class AdminRepository {
               baseUrl: ApiConfig.baseUrl,
               connectTimeout: const Duration(seconds: 30),
               receiveTimeout: const Duration(seconds: 30),
-            )),
+            ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = secureStorage ?? const FlutterSecureStorage(),
         _tokenReader = tokenReader;
 

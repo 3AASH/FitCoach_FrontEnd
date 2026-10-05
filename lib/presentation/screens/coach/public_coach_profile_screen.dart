@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/config/demo_config.dart';
@@ -38,6 +39,28 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
     super.initState();
     _tabController = TabController(length: 4, vsync: this);
     _loadProfile();
+  }
+
+  /// Opens a coach's certificate. The button existed with an empty handler, so
+  /// the credential a client is being asked to trust could not be inspected.
+  ///
+  /// The URL comes from the backend, so it is treated as untrusted: only
+  /// http/https are launched, and a failure tells the user rather than failing
+  /// silently.
+  Future<void> _openCertificate(String rawUrl) async {
+    final lang = context.read<LanguageProvider>();
+    final uri = Uri.tryParse(rawUrl);
+    final isWebLink =
+        uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
+
+    final launched = isWebLink &&
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(lang.t('error_generic'))),
+      );
+    }
   }
 
   void _loadProfile() async {
@@ -859,9 +882,9 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                   trailing: cert.certificateUrl != null
                       ? IconButton(
                           icon: const Icon(Icons.open_in_new),
-                          onPressed: () {
-                            // Open certificate URL
-                          },
+                          tooltip: lang.t('open'),
+                          onPressed: () =>
+                              _openCertificate(cert.certificateUrl!),
                         )
                       : null,
                 ),

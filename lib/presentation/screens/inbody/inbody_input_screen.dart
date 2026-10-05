@@ -14,6 +14,7 @@ import '../../widgets/custom_button.dart';
 import '../subscription/subscription_manager_screen.dart';
 import '../subscription/subscription_upgrade_screen.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 class InBodyInputScreen extends StatefulWidget {
   const InBodyInputScreen({super.key});
@@ -65,16 +66,36 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     final isPremium =
         subscriptionTier == 'Premium' || subscriptionTier == 'Smart Premium';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang.t('inbody_input_inbody_analysis')),
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(lang.t('inbody_input_inbody_analysis')),
+        ),
+        body: _inputMode == 'selection'
+            ? _buildModeSelection(lang, isPremium)
+            : _inputMode == 'ai-scan'
+                ? _buildAIScan(lang)
+                : _buildManualInput(lang),
       ),
-      body: _inputMode == 'selection'
-          ? _buildModeSelection(lang, isPremium)
-          : _inputMode == 'ai-scan'
-              ? _buildAIScan(lang)
-              : _buildManualInput(lang),
     );
+  }
+
+  /// A scan's measurements live only in these controllers until save, and
+  /// re-measuring is not something a user can redo from memory.
+  bool get _hasUnsavedWork {
+    if (_isSaving || _isAnalyzing) return false;
+    return [
+      _weightController,
+      _bodyFatController,
+      _muscleMassController,
+      _bmiController,
+      _visceralFatController,
+      _bodyWaterController,
+      _proteinController,
+      _mineralController,
+      _bmrController,
+    ].any((c) => c.text.trim().isNotEmpty);
   }
 
   Widget _buildModeSelection(LanguageProvider lang, bool isPremium) {

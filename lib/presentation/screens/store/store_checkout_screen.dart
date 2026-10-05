@@ -9,6 +9,7 @@ import '../../providers/store_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 enum StorePaymentMethod { card, cod }
 
@@ -397,32 +398,49 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(lang, isArabic),
-            _buildProgress(lang),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                child: _buildStepContent(lang, isArabic),
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(lang, isArabic),
+              _buildProgress(lang),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  child: _buildStepContent(lang, isArabic),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: CustomButton(
-                text: _primaryCtaText(lang),
-                onPressed: _isSubmitting ? null : () => _onPrimaryAction(lang),
-                isLoading: _isSubmitting,
-                fullWidth: true,
-                size: ButtonSize.large,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: CustomButton(
+                  text: _primaryCtaText(lang),
+                  onPressed: _isSubmitting ? null : () => _onPrimaryAction(lang),
+                  isLoading: _isSubmitting,
+                  fullWidth: true,
+                  size: ButtonSize.large,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Unsaved work if any checkout field has been entered.
+  bool get _hasUnsavedWork {
+    return _stepIndex > 0 ||
+        _fullNameController.text.isNotEmpty ||
+        _emailController.text.isNotEmpty ||
+        _phoneController.text.isNotEmpty ||
+        _addressController.text.isNotEmpty ||
+        _cityController.text.isNotEmpty ||
+        _stateController.text.isNotEmpty ||
+        _zipController.text.isNotEmpty ||
+        _notesController.text.isNotEmpty ||
+        _selectedCountryCode != 'SA';
   }
 
   Widget _buildHeader(LanguageProvider lang, bool isArabic) {

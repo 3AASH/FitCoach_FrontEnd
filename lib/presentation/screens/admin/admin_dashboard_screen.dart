@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/utils/error_message.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/admin_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/error_banner.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../account/account_screen.dart';
 import 'admin_users_screen.dart';
@@ -84,6 +86,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final adminProvider = context.watch<AdminProvider>();
     final analytics = adminProvider.analytics;
     final isLoading = adminProvider.isLoading;
+    // AdminProvider has always tracked `_error`, but this screen only read
+    // `analytics` and `isLoading`. A failed load therefore stopped the spinner,
+    // left analytics null, and silently rendered nothing -- an admin saw an
+    // empty dashboard and no reason why.
+    final loadFailed = !isLoading && analytics == null;
 
     return SafeArea(
       child: RefreshIndicator(
@@ -123,6 +130,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.account_circle),
+                        tooltip: lang.t('account'),
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
@@ -132,6 +140,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.refresh),
+                        tooltip: lang.t('refresh'),
                         onPressed: _loadDashboardData,
                       ),
                     ],
@@ -144,6 +153,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               // Key metrics
               if (isLoading)
                 const Center(child: CircularProgressIndicator())
+              else if (loadFailed)
+                ErrorStateView(
+                  message: friendlyError(lang, adminProvider.error),
+                  onRetry: _loadDashboardData,
+                )
               else if (analytics != null) ...[
                 Row(
                   children: [
