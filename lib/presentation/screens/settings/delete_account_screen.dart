@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -198,8 +198,8 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     obscureText: _obscurePassword,
                     decoration: InputDecoration(
                       labelText: t('delete_account_password'),
-                      border: const OutlineInputBorder(),
                       suffixIcon: IconButton(
+                        tooltip: _obscurePassword ? t('show') : t('hide'),
                         icon: Icon(_obscurePassword
                             ? Icons.visibility_off
                             : Icons.visibility),
@@ -231,7 +231,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     textDirection: TextDirection.ltr,
                     decoration: InputDecoration(
                       labelText: t('delete_account_code'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                 const SizedBox(height: 16),
@@ -246,7 +245,6 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   controller: _confirmController,
                   decoration: InputDecoration(
                     labelText: t('delete_account_confirm_word'),
-                    border: const OutlineInputBorder(),
                   ),
                   onChanged: (_) => setState(() {}),
                 ),
@@ -274,7 +272,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               label: Text(t('delete_account_submit')),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.error,
-                foregroundColor: Colors.white,
+                foregroundColor: context.palette.textOnBrand,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
             ),
@@ -308,7 +306,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('• '),
+                  const Text('â€¢ '),
                   Expanded(
                     child: Text(
                       item,
@@ -324,3 +322,4 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 }
+

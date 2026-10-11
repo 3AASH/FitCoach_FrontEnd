@@ -121,8 +121,8 @@ class _SubscriptionManagementScreenState
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [AppColors.primary, AppColors.secondaryForeground],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
       ),
       child: SafeArea(
@@ -134,6 +134,7 @@ class _SubscriptionManagementScreenState
               children: [
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
+                  tooltip: languageProvider.t('back'),
                   icon: const Icon(
                     Icons.arrow_back,
                     color: AppColors.textWhite,
@@ -1083,7 +1084,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                           ),
                         ),
                         Align(
-                          alignment: Alignment.centerRight,
+                          alignment: AlignmentDirectional.centerEnd,
                           child: IconButton(
                             onPressed: _featureFields.length == 1
                                 ? null
@@ -1092,6 +1093,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                                       _featureFields.removeAt(index);
                                     });
                                   },
+                            tooltip: tr('delete'),
                             icon: const Icon(Icons.delete_outline),
                           ),
                         ),

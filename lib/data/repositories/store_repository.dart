@@ -3,6 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/product.dart';
 import '../models/order.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class StoreRepository {
   final Dio _dio;
@@ -20,7 +21,7 @@ class StoreRepository {
               baseUrl: ApiConfig.baseUrl,
               connectTimeout: const Duration(seconds: 30),
               receiveTimeout: const Duration(seconds: 30),
-            )),
+            ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = secureStorage ?? const FlutterSecureStorage(),
         _tokenReader = tokenReader;
 

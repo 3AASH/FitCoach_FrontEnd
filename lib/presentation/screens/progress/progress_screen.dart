@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/config/demo_config.dart';
@@ -296,6 +296,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
         title: Text(lang.t('coach_progress_label')),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             onPressed: DemoConfig.isDemo ? null : _loadProgress,
             icon: const Icon(Icons.refresh),
           ),
@@ -528,9 +529,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                       shape: BoxShape.circle,
                     ),
                     child: hasWorkout
-                        ? const Icon(
+                        ? Icon(
                             Icons.check,
-                            color: Colors.white,
+                            color: context.palette.textOnBrand,
                             size: 16,
                           )
                         : null,
@@ -884,7 +885,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 controller: _weightController,
                 decoration: InputDecoration(
                   labelText: lang.t('progress_weight_kg'),
-                  border: const OutlineInputBorder(),
                 ),
                 keyboardType: TextInputType.number,
               ),
@@ -893,7 +893,6 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 controller: _notesController,
                 decoration: InputDecoration(
                   labelText: lang.t('coach_workout_editor_notes_label'),
-                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 3,
               ),
@@ -1014,3 +1013,4 @@ class _LineChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(_LineChartPainter oldDelegate) => false;
 }
+

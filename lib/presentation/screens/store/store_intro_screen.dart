@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 
@@ -76,16 +77,17 @@ class StoreIntroScreen extends StatelessWidget {
           if (onBack != null)
             SafeArea(
               child: Align(
-                alignment: isArabic ? Alignment.topRight : Alignment.topLeft,
+                alignment: isArabic ? AlignmentDirectional.topEnd : AlignmentDirectional.topStart,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Material(
-                    color: Colors.white.withValues(alpha: 0.18),
+                    color: context.palette.textOnBrand.withValues(alpha: 0.18),
                     shape: const CircleBorder(),
                     child: IconButton(
-                      icon: const Icon(
+                      tooltip: languageProvider.t('back'),
+                      icon: Icon(
                         Icons.chevron_left,
-                        color: Colors.white,
+                        color: context.palette.textOnBrand,
                       ),
                       onPressed: onBack,
                     ),
@@ -109,8 +111,8 @@ class StoreIntroScreen extends StatelessWidget {
                           initialScale: 0.9,
                           child: Text(
                             languageProvider.t('store_intro_title'),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: context.palette.textOnBrand,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
@@ -125,7 +127,7 @@ class StoreIntroScreen extends StatelessWidget {
                           child: Text(
                             languageProvider.t('store_intro_subtitle'),
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: context.palette.textOnBrand.withValues(alpha: 0.9),
                               fontSize: 18,
                             ),
                             textAlign: TextAlign.start,
@@ -166,8 +168,8 @@ class StoreIntroScreen extends StatelessWidget {
                               onPressed: onGetStarted,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFFEA580C),
-                                foregroundColor: Colors.white,
-                                textStyle: const TextStyle(
+                                foregroundColor: context.palette.textOnBrand,
+                                textStyle: TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                               child: Text(languageProvider
@@ -212,9 +214,9 @@ class _IntroFeatureCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: context.palette.textOnBrand.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            border: Border.all(color: context.palette.textOnBrand.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
@@ -226,14 +228,14 @@ class _IntroFeatureCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: context.palette.textOnBrand, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: context.palette.textOnBrand.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
                     ),

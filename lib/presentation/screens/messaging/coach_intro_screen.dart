@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
 
@@ -60,8 +61,8 @@ class CoachIntroScreen extends StatelessWidget {
                           offset: Offset(isArabic ? -0.2 : 0.2, 0),
                           child: Text(
                             languageProvider.t('coach_intro_title'),
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style: TextStyle(
+                              color: context.palette.textOnBrand,
                               fontSize: 32,
                               fontWeight: FontWeight.bold,
                             ),
@@ -75,7 +76,7 @@ class CoachIntroScreen extends StatelessWidget {
                           child: Text(
                             languageProvider.t('coach_intro_subtitle'),
                             style: TextStyle(
-                              color: Colors.white.withValues(alpha: 0.9),
+                              color: context.palette.textOnBrand.withValues(alpha: 0.9),
                               fontSize: 18,
                             ),
                             textAlign: TextAlign.start,
@@ -147,7 +148,7 @@ class CoachIntroScreen extends StatelessWidget {
                               onPressed: onGetStarted,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF7C3AED),
-                                foregroundColor: Colors.white,
+                                foregroundColor: context.palette.textOnBrand,
                                 textStyle: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
@@ -193,9 +194,9 @@ class _IntroFeatureCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.1),
+            color: context.palette.textOnBrand.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+            border: Border.all(color: context.palette.textOnBrand.withValues(alpha: 0.2)),
           ),
           child: Row(
             children: [
@@ -207,14 +208,14 @@ class _IntroFeatureCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                          color: context.palette.textOnBrand, fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
+                        color: context.palette.textOnBrand.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
                     ),

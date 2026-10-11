@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -140,6 +140,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
         title: Text(lang.t('admin_coaches_title')),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             icon: const Icon(Icons.refresh),
             onPressed: _loadCoaches,
           ),
@@ -194,6 +195,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                     prefixIcon: const Icon(Icons.search),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
+                            tooltip: 'Clear search',
                             icon: const Icon(Icons.clear),
                             onPressed: () {
                               _searchController.clear();
@@ -769,7 +771,6 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               controller: reasonController,
               decoration: InputDecoration(
                 labelText: lang.t('admin_reason_label'),
-                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -1568,3 +1569,4 @@ class _CoachCreatePayload {
     this.specializations = const [],
   });
 }
+

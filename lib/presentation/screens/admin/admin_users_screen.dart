@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -85,6 +85,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           ),
           IconButton(
             icon: const Icon(Icons.refresh),
+            tooltip: lang.t('refresh'),
             onPressed: _loadDirectory,
           ),
         ],
@@ -105,6 +106,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.clear),
+                            tooltip: lang.t('clear'),
                             onPressed: () {
                               _searchController.clear();
                               _loadDirectory();
@@ -301,8 +303,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                                     const SizedBox(height: 16),
                                     Text(
                                       lang.t('admin_users_empty'),
-                                      style: TextStyle(
-                                        fontSize: 18,
+                                      style: AppTextStyles.h3.copyWith(
                                         color: context.palette.textSecondary,
                                       ),
                                     ),
@@ -342,8 +343,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             const SizedBox(height: 16),
             Text(
               lang.t('admin_coaches_empty'),
-              style: TextStyle(
-                fontSize: 18,
+              style: AppTextStyles.h3.copyWith(
                 color: context.palette.textSecondary,
               ),
             ),
@@ -446,10 +446,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       ),
       child: Text(
         label,
-        style: const TextStyle(
+        style: AppTextStyles.overline.copyWith(
           color: AppColors.textWhite,
-          fontSize: 10,
-          fontWeight: FontWeight.bold,
         ),
       ),
     );
@@ -474,10 +472,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 child: user.profilePhotoUrl == null
                     ? Text(
                         user.initials,
-                        style: const TextStyle(
+                        style: AppTextStyles.h3.copyWith(
                           color: AppColors.primary,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
                         ),
                       )
                     : null,
@@ -492,17 +488,13 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                   children: [
                     Text(
                       user.fullName,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.h4,
                     ),
                     const SizedBox(height: 4),
                     if (user.email != null)
                       Text(
                         user.email!,
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.caption.copyWith(
                           color: context.palette.textSecondary,
                         ),
                       ),
@@ -521,10 +513,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                           child: Text(
                             user.subscriptionTier,
-                            style: const TextStyle(
-                              fontSize: 10,
+                            style: AppTextStyles.overline.copyWith(
                               color: AppColors.textWhite,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -547,10 +537,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             user.isActive
                                 ? (lang.t('admin_status_active'))
                                 : (lang.t('admin_status_inactive')),
-                            style: const TextStyle(
-                              fontSize: 10,
+                            style: AppTextStyles.overline.copyWith(
                               color: AppColors.textWhite,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
                         ),
@@ -560,8 +548,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           Expanded(
                             child: Text(
                               '${lang.t('admin_coach_prefix')} ${user.coachName}',
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppTextStyles.overline.copyWith(
                                 color: context.palette.textSecondary,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -743,7 +730,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     controller: nameController,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_name_label'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -751,7 +737,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     controller: emailController,
                     decoration: InputDecoration(
                       labelText: lang.t('email'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -759,7 +744,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     initialValue: selectedTier,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_users_filter_tier'),
-                      border: const OutlineInputBorder(),
                     ),
                     items: const ['Freemium', 'Premium', 'Smart Premium']
                         .map(
@@ -780,7 +764,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     initialValue: selectedCoachId,
                     decoration: InputDecoration(
                       labelText: lang.t('admin_coach_label'),
-                      border: const OutlineInputBorder(),
                     ),
                     items: <DropdownMenuItem<String?>>[
                       DropdownMenuItem<String?>(
@@ -919,7 +902,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: nameController,
                       decoration: InputDecoration(
                         labelText: lang.t('admin_full_name_label'),
-                        border: const OutlineInputBorder(),
                       ),
                       validator: (value) =>
                           value == null || value.trim().isEmpty
@@ -931,7 +913,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: emailController,
                       decoration: InputDecoration(
                         labelText: lang.t('email'),
-                        border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.emailAddress,
                       validator: (value) {
@@ -950,7 +931,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       controller: phoneController,
                       decoration: InputDecoration(
                         labelText: lang.t('admin_phone_optional'),
-                        border: const OutlineInputBorder(),
                       ),
                       keyboardType: TextInputType.phone,
                     ),
@@ -960,7 +940,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       decoration: InputDecoration(
                         labelText: lang.t('admin_password_optional'),
                         helperText: lang.t('admin_password_optional_hint'),
-                        border: const OutlineInputBorder(),
                       ),
                       obscureText: true,
                       validator: (value) {
@@ -1069,7 +1048,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               controller: reasonController,
               decoration: InputDecoration(
                 labelText: lang.t('admin_reason_label'),
-                border: const OutlineInputBorder(),
               ),
               maxLines: 3,
             ),
@@ -1206,3 +1184,4 @@ class _CoachDropdownOption {
     required this.label,
   });
 }
+

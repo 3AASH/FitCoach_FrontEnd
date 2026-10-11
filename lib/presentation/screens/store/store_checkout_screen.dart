@@ -9,6 +9,7 @@ import '../../providers/store_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/custom_card.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 enum StorePaymentMethod { card, cod }
 
@@ -397,32 +398,49 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     final lang = context.watch<LanguageProvider>();
     final isArabic = lang.isArabic;
 
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(lang, isArabic),
-            _buildProgress(lang),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
-                child: _buildStepContent(lang, isArabic),
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            children: [
+              _buildHeader(lang, isArabic),
+              _buildProgress(lang),
+              Expanded(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  child: _buildStepContent(lang, isArabic),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: CustomButton(
-                text: _primaryCtaText(lang),
-                onPressed: _isSubmitting ? null : () => _onPrimaryAction(lang),
-                isLoading: _isSubmitting,
-                fullWidth: true,
-                size: ButtonSize.large,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                child: CustomButton(
+                  text: _primaryCtaText(lang),
+                  onPressed: _isSubmitting ? null : () => _onPrimaryAction(lang),
+                  isLoading: _isSubmitting,
+                  fullWidth: true,
+                  size: ButtonSize.large,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
+  }
+
+  /// Unsaved work if any checkout field has been entered.
+  bool get _hasUnsavedWork {
+    return _stepIndex > 0 ||
+        _fullNameController.text.isNotEmpty ||
+        _emailController.text.isNotEmpty ||
+        _phoneController.text.isNotEmpty ||
+        _addressController.text.isNotEmpty ||
+        _cityController.text.isNotEmpty ||
+        _stateController.text.isNotEmpty ||
+        _zipController.text.isNotEmpty ||
+        _notesController.text.isNotEmpty ||
+        _selectedCountryCode != 'SA';
   }
 
   Widget _buildHeader(LanguageProvider lang, bool isArabic) {
@@ -431,17 +449,18 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
       ),
       child: Row(
         children: [
           IconButton(
+            tooltip: 'Back',
             onPressed: () => _onBack(lang),
-            icon: const Icon(
+            icon: Icon(
               Icons.arrow_back,
-              color: Colors.white,
+              color: context.palette.textOnBrand,
             ),
           ),
           const SizedBox(width: 4),
@@ -451,23 +470,23 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               children: [
                 Text(
                   lang.t('checkout'),
-                  style: const TextStyle(
-                    color: Colors.white,
+                  style: TextStyle(
+                    color: context.palette.textOnBrand,
                     fontSize: 20,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
                   lang.t('checkout_subtitle'),
-                  style: const TextStyle(
-                    color: Colors.white70,
+                  style: TextStyle(
+                    color: context.palette.textOnBrand70,
                     fontSize: 12,
                   ),
                 ),
               ],
             ),
           ),
-          const Icon(Icons.security, color: Colors.white),
+          Icon(Icons.security, color: context.palette.textOnBrand),
         ],
       ),
     );
@@ -485,11 +504,11 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       if (isComplete) {
         borderColor = AppColors.success;
         fillColor = AppColors.success;
-        textColor = Colors.white;
+        textColor = context.palette.textOnBrand;
       } else if (isActive) {
         borderColor = AppColors.primary;
         fillColor = AppColors.primary;
-        textColor = Colors.white;
+        textColor = context.palette.textOnBrand;
       } else {
         borderColor = context.palette.border;
         fillColor = context.palette.surface;
@@ -509,7 +528,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               ),
               child: Center(
                 child: isComplete
-                    ? const Icon(Icons.check, color: Colors.white, size: 18)
+                    ? Icon(Icons.check, color: context.palette.textOnBrand, size: 18)
                     : Text(
                         '${index + 1}',
                         style: TextStyle(

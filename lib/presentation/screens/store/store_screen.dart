@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/config/demo_config.dart';
@@ -44,10 +44,10 @@ class _StoreScreenState extends State<StoreScreen> {
     {
       'id': '1',
       'nameEn': 'Whey Protein Isolate',
-      'nameAr': 'عزل بروتين مصل اللبن',
+      'nameAr': 'Ø¹Ø²Ù„ Ø¨Ø±ÙˆØªÙŠÙ† Ù…ØµÙ„ Ø§Ù„Ù„Ø¨Ù†',
       'brand': 'FitNutrition',
       'descriptionEn': 'Premium whey protein isolate for muscle building.',
-      'descriptionAr': 'عزل بروتين مصل اللبن عالي الجودة لبناء العضلات.',
+      'descriptionAr': 'Ø¹Ø²Ù„ Ø¨Ø±ÙˆØªÙŠÙ† Ù…ØµÙ„ Ø§Ù„Ù„Ø¨Ù† Ø¹Ø§Ù„ÙŠ Ø§Ù„Ø¬ÙˆØ¯Ø© Ù„Ø¨Ù†Ø§Ø¡ Ø§Ù„Ø¹Ø¶Ù„Ø§Øª.',
       'price': 59.99,
       'originalPrice': 69.99,
       'discount': 15,
@@ -62,10 +62,10 @@ class _StoreScreenState extends State<StoreScreen> {
     {
       'id': '2',
       'nameEn': 'Creatine Monohydrate',
-      'nameAr': 'كرياتين مونوهيدرات',
+      'nameAr': 'ÙƒØ±ÙŠØ§ØªÙŠÙ† Ù…ÙˆÙ†ÙˆÙ‡ÙŠØ¯Ø±Ø§Øª',
       'brand': 'PowerSupps',
       'descriptionEn': 'Pure creatine for increased strength.',
-      'descriptionAr': 'كرياتين نقي لزيادة القوة.',
+      'descriptionAr': 'ÙƒØ±ÙŠØ§ØªÙŠÙ† Ù†Ù‚ÙŠ Ù„Ø²ÙŠØ§Ø¯Ø© Ø§Ù„Ù‚ÙˆØ©.',
       'price': 29.99,
       'category': 'Pre-Workout',
       'image':
@@ -77,10 +77,10 @@ class _StoreScreenState extends State<StoreScreen> {
     {
       'id': '3',
       'nameEn': 'BCAA Recovery',
-      'nameAr': 'بي سي إيه إيه للتعافي',
+      'nameAr': 'Ø¨ÙŠ Ø³ÙŠ Ø¥ÙŠÙ‡ Ø¥ÙŠÙ‡ Ù„Ù„ØªØ¹Ø§ÙÙŠ',
       'brand': 'RecoverMax',
       'descriptionEn': 'BCAA blend for recovery.',
-      'descriptionAr': 'مزيج بي سي إيه إيه لدعم التعافي.',
+      'descriptionAr': 'Ù…Ø²ÙŠØ¬ Ø¨ÙŠ Ø³ÙŠ Ø¥ÙŠÙ‡ Ø¥ÙŠÙ‡ Ù„Ø¯Ø¹Ù… Ø§Ù„ØªØ¹Ø§ÙÙŠ.',
       'price': 39.99,
       'category': 'Recovery',
       'image':
@@ -92,10 +92,10 @@ class _StoreScreenState extends State<StoreScreen> {
     {
       'id': '4',
       'nameEn': 'Pre-Workout Boost',
-      'nameAr': 'دفعة ما قبل التمرين',
+      'nameAr': 'Ø¯ÙØ¹Ø© Ù…Ø§ Ù‚Ø¨Ù„ Ø§Ù„ØªÙ…Ø±ÙŠÙ†',
       'brand': 'EnergyCore',
       'descriptionEn': 'High-energy pre-workout formula.',
-      'descriptionAr': 'تركيبة عالية الطاقة لما قبل التمرين.',
+      'descriptionAr': 'ØªØ±ÙƒÙŠØ¨Ø© Ø¹Ø§Ù„ÙŠØ© Ø§Ù„Ø·Ø§Ù‚Ø© Ù„Ù…Ø§ Ù‚Ø¨Ù„ Ø§Ù„ØªÙ…Ø±ÙŠÙ†.',
       'price': 44.99,
       'originalPrice': 49.99,
       'discount': 10,
@@ -109,10 +109,10 @@ class _StoreScreenState extends State<StoreScreen> {
     {
       'id': '5',
       'nameEn': 'Multivitamin Complex',
-      'nameAr': 'مركب متعدد الفيتامينات',
+      'nameAr': 'Ù…Ø±ÙƒØ¨ Ù…ØªØ¹Ø¯Ø¯ Ø§Ù„ÙÙŠØªØ§Ù…ÙŠÙ†Ø§Øª',
       'brand': 'VitalHealth',
       'descriptionEn': 'Daily vitamin and mineral support.',
-      'descriptionAr': 'دعم يومي للفيتامينات والمعادن.',
+      'descriptionAr': 'Ø¯Ø¹Ù… ÙŠÙˆÙ…ÙŠ Ù„Ù„ÙÙŠØªØ§Ù…ÙŠÙ†Ø§Øª ÙˆØ§Ù„Ù…Ø¹Ø§Ø¯Ù†.',
       'price': 24.99,
       'category': 'Vitamins',
       'image':
@@ -124,10 +124,10 @@ class _StoreScreenState extends State<StoreScreen> {
     {
       'id': '6',
       'nameEn': 'Fat Burner Pro',
-      'nameAr': 'حارق الدهون برو',
+      'nameAr': 'Ø­Ø§Ø±Ù‚ Ø§Ù„Ø¯Ù‡ÙˆÙ† Ø¨Ø±Ùˆ',
       'brand': 'LeanLife',
       'descriptionEn': 'Thermogenic formula for weight management.',
-      'descriptionAr': 'تركيبة حرارية لإدارة الوزن.',
+      'descriptionAr': 'ØªØ±ÙƒÙŠØ¨Ø© Ø­Ø±Ø§Ø±ÙŠØ© Ù„Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„ÙˆØ²Ù†.',
       'price': 49.99,
       'category': 'Fat Burners',
       'image':
@@ -526,7 +526,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     child: Text(
                       '-${product.discountPercentage!.round()}%',
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                      style: AppTextStyles.overline.copyWith(color: Theme.of(context).colorScheme.onError),
                     ),
                   ),
                 ),
@@ -543,7 +543,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     child: Text(
                       lang.t('store_popular'),
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                      style: AppTextStyles.overline.copyWith(color: Theme.of(context).colorScheme.onSecondary),
                     ),
                   ),
                 ),
@@ -558,8 +558,8 @@ class _StoreScreenState extends State<StoreScreen> {
                     child: Center(
                       child: Text(
                         lang.t('out_of_stock'),
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: context.palette.surface, fontWeight: FontWeight.bold),
                       ),
                     ),
                   ),
@@ -574,16 +574,16 @@ class _StoreScreenState extends State<StoreScreen> {
                 children: [
                   Text(
                     product.category,
-                    style: TextStyle(
-                        fontSize: 11, color: context.palette.textSecondary),
+                    style: AppTextStyles.overline.copyWith(
+                      color: context.palette.textSecondary,
+                    ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isArabic ? product.nameAr : product.nameEn,
-                    style: const TextStyle(
-                        fontSize: 14, fontWeight: FontWeight.w600),
+                    style: AppTextStyles.smallMedium,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -595,16 +595,18 @@ class _StoreScreenState extends State<StoreScreen> {
                       const SizedBox(width: 4),
                       Text(
                         (product.rating ?? 0).toStringAsFixed(1),
-                        style: TextStyle(
-                            fontSize: 12, color: context.palette.textSecondary),
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.palette.textSecondary,
+                        ),
                       ),
                       const SizedBox(width: 6),
                       Text(
                         lang.t('reviews_count', args: {
                               'count': '${product.reviewCount}'
                             }),
-                        style: TextStyle(
-                            fontSize: 12, color: context.palette.textDisabled),
+                        style: AppTextStyles.caption.copyWith(
+                          color: context.palette.textDisabled,
+                        ),
                       ),
                     ],
                   ),
@@ -614,13 +616,12 @@ class _StoreScreenState extends State<StoreScreen> {
                     children: [
                       Text(
                         '${product.finalPrice.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        style: AppTextStyles.h4.copyWith(
                           color: AppColors.primary,
                         ),
                       ),
                       IconButton(
+                        tooltip: lang.t('add_to_cart'),
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
                         onPressed: inStock
                             ? () async {
@@ -721,8 +722,7 @@ class _StoreScreenState extends State<StoreScreen> {
                 const SizedBox(height: 24),
                 Text(
                   isArabic ? product.nameAr : product.nameEn,
-                  style: const TextStyle(
-                      fontSize: 24, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.h1,
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -731,42 +731,40 @@ class _StoreScreenState extends State<StoreScreen> {
                     const SizedBox(width: 4),
                     Text(
                       (product.rating ?? 0).toStringAsFixed(1),
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600),
+                      style: AppTextStyles.h4,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       lang.t('reviews_count', args: {
                             'count': '${product.reviewCount}'
                           }),
-                      style: TextStyle(
-                          fontSize: 14, color: context.palette.textSecondary),
+                      style: AppTextStyles.small.copyWith(
+                        color: context.palette.textSecondary,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
                 Text(
                   '${product.finalPrice.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                  style: const TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary),
+                  style: AppTextStyles.h1.copyWith(
+                    color: AppColors.primary,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   lang.t('description'),
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                  style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   isArabic
                       ? (product.descriptionAr ?? product.description ?? '')
                       : (product.descriptionEn ?? product.description ?? ''),
-                  style: TextStyle(
-                      fontSize: 15,
-                      color: context.palette.textSecondary,
-                      height: 1.5),
+                  style: AppTextStyles.small.copyWith(
+                    color: context.palette.textSecondary,
+                    height: 1.5,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 SizedBox(
@@ -860,12 +858,14 @@ class _StoreScreenState extends State<StoreScreen> {
                 Row(
                   children: [
                     IconButton(
+                      tooltip: lang.t('decrease'),
                       icon: const Icon(Icons.remove_circle_outline),
                       onPressed: () => storeProvider.updateCartQuantity(
                           product.id, item.quantity - 1),
                     ),
                     Text('${item.quantity}'),
                     IconButton(
+                      tooltip: lang.t('increase'),
                       icon: const Icon(Icons.add_circle_outline),
                       onPressed: () => storeProvider.updateCartQuantity(
                           product.id, item.quantity + 1),
@@ -1020,8 +1020,8 @@ class _StoreScreenState extends State<StoreScreen> {
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           colors: [Color(0xFFF59E0B), Color(0xFFB45309)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
       ),
       child: Column(
@@ -1030,8 +1030,9 @@ class _StoreScreenState extends State<StoreScreen> {
           Row(
             children: [
               IconButton(
-                icon: const Icon(Icons.arrow_back,
-                    color: Colors.white),
+                tooltip: lang.t('back'),
+                icon: Icon(Icons.arrow_back,
+                    color: Theme.of(context).colorScheme.onSurface),
                 onPressed: _handleBack,
               ),
               const SizedBox(width: 8),
@@ -1041,17 +1042,14 @@ class _StoreScreenState extends State<StoreScreen> {
                   children: [
                     Text(
                       lang.t('store_title'),
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                      style: AppTextStyles.h2.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     Text(
                       lang.t('store_subtitle'),
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.8),
-                        fontSize: 12,
+                      style: AppTextStyles.caption.copyWith(
+                        color: context.palette.textOnBrand.withValues(alpha: 0.8),
                       ),
                     ),
                   ],
@@ -1060,7 +1058,8 @@ class _StoreScreenState extends State<StoreScreen> {
               Stack(
                 children: [
                   IconButton(
-                    icon: const Icon(Icons.shopping_cart, color: Colors.white),
+                    tooltip: lang.t('cart'),
+                    icon: Icon(Icons.shopping_cart, color: Theme.of(context).colorScheme.onSurface),
                     onPressed: () {
                       final controller = _tabController ??
                           DefaultTabController.maybeOf(tabContext);
@@ -1081,8 +1080,7 @@ class _StoreScreenState extends State<StoreScreen> {
                             const BoxConstraints(minWidth: 18, minHeight: 18),
                         child: Text(
                           '$cartItemCount',
-                          style: const TextStyle(
-                              color: Colors.white, fontSize: 10),
+                          style: AppTextStyles.overline.copyWith(color: Theme.of(context).colorScheme.onError),
                           textAlign: TextAlign.center,
                         ),
                       ),
@@ -1096,16 +1094,16 @@ class _StoreScreenState extends State<StoreScreen> {
             onChanged: (value) => setState(() => _searchQuery = value),
             decoration: InputDecoration(
               hintText: lang.t('store_search_placeholder'),
-              prefixIcon: const Icon(Icons.search, color: Colors.white),
+              prefixIcon: Icon(Icons.search, color: context.palette.textOnBrand),
               filled: true,
-              fillColor: Colors.white.withValues(alpha: 0.15),
-              hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
+              fillColor: context.palette.textOnBrand.withValues(alpha: 0.15),
+              hintStyle: TextStyle(color: context.palette.textOnBrand.withValues(alpha: 0.7)),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide.none,
               ),
             ),
-            style: const TextStyle(color: Colors.white),
+            style: TextStyle(color: context.palette.textOnBrand),
           ),
         ],
       ),
@@ -1181,12 +1179,14 @@ class _StoreScreenState extends State<StoreScreen> {
                 Row(
                   children: [
                     IconButton(
+                      tooltip: lang.t('decrease'),
                       icon: const Icon(Icons.remove_circle_outline),
                       onPressed: () =>
                           _updateQuantity(item['id'], item['quantity'] - 1),
                     ),
                     Text('${item['quantity']}'),
                     IconButton(
+                      tooltip: lang.t('increase'),
                       icon: const Icon(Icons.add_circle_outline),
                       onPressed: () =>
                           _updateQuantity(item['id'], item['quantity'] + 1),
@@ -1340,10 +1340,10 @@ class _StoreScreenState extends State<StoreScreen> {
                                     overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '$qty × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
-                                  style: TextStyle(
-                                      color: context.palette.textSecondary,
-                                      fontSize: 12),
+                                  '$qty Ã— ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
+                                  style: AppTextStyles.caption.copyWith(
+                                    color: context.palette.textSecondary,
+                                  ),
                                 ),
                               ],
                             ),
@@ -1511,7 +1511,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     child: Text(
                       '-${product['discount']}%',
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                      style: AppTextStyles.overline.copyWith(color: context.palette.textOnBrand),
                     ),
                   ),
                 ),
@@ -1528,7 +1528,7 @@ class _StoreScreenState extends State<StoreScreen> {
                     ),
                     child: Text(
                       lang.t('store_popular'),
-                      style: const TextStyle(color: Colors.white, fontSize: 10),
+                      style: AppTextStyles.overline.copyWith(color: context.palette.textOnBrand),
                     ),
                   ),
                 ),
@@ -1544,8 +1544,8 @@ class _StoreScreenState extends State<StoreScreen> {
                     child: Center(
                       child: Text(
                         lang.t('out_of_stock'),
-                        style: const TextStyle(
-                          color: Colors.white,
+                        style: TextStyle(
+                          color: context.palette.textOnBrand,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -1562,18 +1562,14 @@ class _StoreScreenState extends State<StoreScreen> {
                 children: [
                   Text(
                     product['brand'],
-                    style: TextStyle(
-                      fontSize: 11,
+                    style: AppTextStyles.overline.copyWith(
                       color: context.palette.textSecondary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     isArabic ? product['nameAr'] : product['nameEn'],
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: AppTextStyles.smallMedium,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -1585,8 +1581,7 @@ class _StoreScreenState extends State<StoreScreen> {
                       const SizedBox(width: 4),
                       Text(
                         '${product['rating']}',
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.caption.copyWith(
                           color: context.palette.textSecondary,
                         ),
                       ),
@@ -1595,8 +1590,7 @@ class _StoreScreenState extends State<StoreScreen> {
                         lang.t('reviews_count', args: {
                               'count': '${product['reviews']}'
                             }),
-                        style: TextStyle(
-                          fontSize: 12,
+                        style: AppTextStyles.caption.copyWith(
                           color: context.palette.textDisabled,
                         ),
                       ),
@@ -1608,13 +1602,12 @@ class _StoreScreenState extends State<StoreScreen> {
                     children: [
                       Text(
                         '${product['price']} ${lang.t('currency_sar')}',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        style: AppTextStyles.h4.copyWith(
                           color: AppColors.primary,
                         ),
                       ),
                       IconButton(
+                        tooltip: lang.t('add_to_cart'),
                         icon: const Icon(Icons.add_shopping_cart, size: 20),
                         onPressed: inStock
                             ? () => _addToCart(product, lang, isArabic)
@@ -1669,8 +1662,7 @@ class _StoreScreenState extends State<StoreScreen> {
             messageKey != null
                 ? lang.t(messageKey)
                 : lang.t('store_no_products'),
-            style: TextStyle(
-              fontSize: 18,
+            style: AppTextStyles.h3.copyWith(
               color: context.palette.textSecondary,
             ),
           ),
@@ -1765,10 +1757,7 @@ class _StoreScreenState extends State<StoreScreen> {
                 const SizedBox(height: 24),
                 Text(
                   isArabic ? product['nameAr'] : product['nameEn'],
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h1,
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -1777,18 +1766,14 @@ class _StoreScreenState extends State<StoreScreen> {
                     const SizedBox(width: 4),
                     Text(
                       '${product['rating']}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                      ),
+                      style: AppTextStyles.h4,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       lang.t('reviews_count', args: {
                             'count': '${product['reviews']}'
                           }),
-                      style: TextStyle(
-                        fontSize: 14,
+                      style: AppTextStyles.small.copyWith(
                         color: context.palette.textSecondary,
                       ),
                     ),
@@ -1797,27 +1782,21 @@ class _StoreScreenState extends State<StoreScreen> {
                 const SizedBox(height: 16),
                 Text(
                   '${product['price']} ${lang.t('currency_sar')}',
-                  style: const TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.h1.copyWith(
                     color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: 24),
                 Text(
                   lang.t('description'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
                 const SizedBox(height: 12),
                 Text(
                   isArabic
                       ? product['descriptionAr']
                       : product['descriptionEn'],
-                  style: TextStyle(
-                    fontSize: 15,
+                  style: AppTextStyles.small.copyWith(
                     color: context.palette.textSecondary,
                     height: 1.5,
                   ),

@@ -7,6 +7,7 @@ import '../models/workout_plan.dart';
 import '../models/workout_calendar.dart';
 import '../models/inbody_model.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class WorkoutRepository {
   Map<String, dynamic>? _asMap(dynamic value) {
@@ -31,7 +32,7 @@ class WorkoutRepository {
           baseUrl: ApiConfig.baseUrl,
           connectTimeout: ApiConfig.connectTimeout,
           receiveTimeout: ApiConfig.receiveTimeout,
-        )),
+        ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = const FlutterSecureStorage();
 
   Future<String?> _getToken() async {

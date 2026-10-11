@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 import '../providers/language_provider.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -54,8 +55,8 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
           const DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+                begin: AlignmentDirectional.topStart,
+                end: AlignmentDirectional.bottomEnd,
                 colors: [
                   AppColors.primary,
                   AppColors.secondaryForeground,
@@ -138,17 +139,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       height: 192,
                       fit: BoxFit.contain,
                       errorBuilder: (context, error, stackTrace) {
-                        return const Icon(Icons.fitness_center, color: Colors.white, size: 120);
+                        return Icon(Icons.fitness_center, color: context.palette.textOnBrand, size: 120);
                       },
                     ),
                     const SizedBox(height: 24),
                     Text(
                       languageProvider.t('splash_headline_en'),
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                        color: context.palette.textOnBrand,
                       ),
                     ),
                     const SizedBox(height: 8),
@@ -159,7 +160,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withValues(alpha: 0.9),
+                        color: context.palette.textOnBrand.withValues(alpha: 0.9),
                       ),
                     ),
                     const SizedBox(height: 32),
@@ -167,7 +168,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                       onPressed: widget.onStart,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.accent,
-                        foregroundColor: Colors.white,
+                        foregroundColor: context.palette.textOnBrand,
                         padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 18),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),

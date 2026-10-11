@@ -72,10 +72,10 @@ class AppColors {
 
 /// Border radius constants matching React design system
 class AppRadius {
-  static const double small = 6.0; // rounded-md in React
-  static const double medium = 10.0; // var(--radius) in React
-  static const double large = 12.0; // rounded-lg in React
-  static const double xl = 14.0; // rounded-xl in React
+  static const double small = 8.0; // Matches actual usage across 56 sites
+  static const double medium = 12.0; // Most common, used 135+ times
+  static const double large = 16.0; // Used 38+ times
+  static const double pill = 999.0; // Full circle (height/2)
 }
 
 /// Text styles matching React typography
@@ -141,5 +141,26 @@ class AppTextStyles {
     fontSize: 14,
     fontWeight: FontWeight.w500,
     height: 1.25,
+  );
+
+  // Caption (smallest text, most common in app but was missing)
+  static const TextStyle caption = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w400,
+    height: 1.25,
+  );
+
+  static const TextStyle captionMedium = TextStyle(
+    fontSize: 12,
+    fontWeight: FontWeight.w500,
+    height: 1.25,
+  );
+
+  // Overline (all-caps labels, smallest)
+  static const TextStyle overline = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    height: 1.2,
+    letterSpacing: 0.5,
   );
 }

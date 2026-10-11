@@ -13,10 +13,12 @@ import '../../providers/video_call_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/custom_stat_info_card.dart';
+import '../../widgets/sheet_header.dart';
 import '../../../data/models/appointment.dart';
 import '../account/account_screen.dart';
 import 'coach_clients_screen.dart';
 import 'coach_calendar_screen.dart';
+import 'coach_earnings_screen.dart';
 import 'workout_plan_builder_screen.dart';
 import 'nutrition_plan_builder_screen.dart';
 import '../video_call/video_call_screen.dart';
@@ -67,39 +69,105 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
   String? _joiningAppointmentId;
   _UpcomingFilter _upcomingFilter = _UpcomingFilter.video;
 
-  ({String id, String name})? _resolveDefaultClient(LanguageProvider lang) {
-    if (DemoConfig.isDemo) {
-      final demoClient = DemoData.coachClients().isNotEmpty
-          ? DemoData.coachClients().first
-          : null;
-      if (demoClient != null) {
-        return (id: demoClient.id, name: demoClient.fullName);
-      }
-      return (id: 'demo-client', name: lang.t('auth_demo_user'));
-    }
+  /// Ask which client this action is for.
+  ///
+  /// This used to be `_resolveDefaultClient`, which silently returned
+  /// `clients.first`. A coach tapping "Create workout plan" landed in a builder
+  /// already bound to an arbitrary client, with nothing on screen naming them
+  /// -- so a whole plan (including nutrition plans carrying allergy
+  /// constraints) could be authored and assigned to the wrong person.
+  ///
+  /// Returns null when the coach dismisses the sheet, so callers must treat
+  /// null as "abort", not as "no clients".
+  Future<({String id, String name})?> _pickClient(LanguageProvider lang) async {
+    final clients = DemoConfig.isDemo
+        ? DemoData.coachClients()
+        : context.read<CoachProvider>().clients;
 
-    final coachProvider = context.read<CoachProvider>();
-    if (coachProvider.clients.isNotEmpty) {
-      final client = coachProvider.clients.first;
-      return (id: client.id, name: client.fullName);
-    }
-    return null;
-  }
-
-  void _openWorkoutPlanBuilder(LanguageProvider lang) {
-    final client = _resolveDefaultClient(lang);
-    if (client == null) {
+    if (clients.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            lang.t('coach_clients_load_first'),
-          ),
+          content: Text(lang.t('coach_clients_load_first')),
           backgroundColor: AppColors.warning,
         ),
       );
       setState(() => _selectedIndex = 1);
-      return;
+      return null;
     }
+
+    // One client is unambiguous -- a picker there would be pure friction.
+    if (clients.length == 1) {
+      return (id: clients.first.id, name: clients.first.fullName);
+    }
+
+    return showModalBottomSheet<({String id, String name})>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.palette.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (sheetContext) => SafeArea(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.of(sheetContext).size.height * 0.7,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: SheetHeader(title: lang.t('coach_select_client')),
+              ),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: clients.length,
+                  separatorBuilder: (_, __) => Divider(
+                    height: 1,
+                    color: context.palette.divider,
+                  ),
+                  itemBuilder: (_, index) {
+                    final client = clients[index];
+                    return ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor:
+                            AppColors.primary.withValues(alpha: 0.12),
+                        child: Text(
+                          client.fullName.isNotEmpty
+                              ? client.fullName[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                      title: Text(client.fullName),
+                      subtitle: client.goal == null || client.goal!.isEmpty
+                          ? null
+                          : Text(
+                              client.goal!,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                      onTap: () => Navigator.of(sheetContext).pop(
+                        (id: client.id, name: client.fullName),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openWorkoutPlanBuilder(LanguageProvider lang) async {
+    final client = await _pickClient(lang);
+    if (client == null || !mounted) return;
     Navigator.of(context).push(
       _createSmoothRoute(
         WorkoutPlanBuilderScreen(
@@ -110,20 +178,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     );
   }
 
-  void _openNutritionPlanBuilder(LanguageProvider lang) {
-    final client = _resolveDefaultClient(lang);
-    if (client == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            lang.t('coach_clients_load_first'),
-          ),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-      setState(() => _selectedIndex = 1);
-      return;
-    }
+  Future<void> _openNutritionPlanBuilder(LanguageProvider lang) async {
+    final client = await _pickClient(lang);
+    if (client == null || !mounted) return;
     Navigator.of(context).push(
       _createSmoothRoute(
         NutritionPlanBuilderScreen(
@@ -134,20 +191,9 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     );
   }
 
-  void _openQuickSchedule(LanguageProvider lang) {
-    final client = _resolveDefaultClient(lang);
-    if (client == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            lang.t('coach_clients_load_first'),
-          ),
-          backgroundColor: AppColors.warning,
-        ),
-      );
-      setState(() => _selectedIndex = 1);
-      return;
-    }
+  Future<void> _openQuickSchedule(LanguageProvider lang) async {
+    final client = await _pickClient(lang);
+    if (client == null || !mounted) return;
     showCoachScheduleSessionSheet(
       context,
       clientId: client.id,
@@ -223,6 +269,10 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
     final isArabic = languageProvider.isArabic;
+    // Already loaded for the dashboard stat card; it just never reached the
+    // nav, so a coach opening on Clients or Calendar had no sign a client was
+    // waiting on them.
+    final unread = context.watch<CoachProvider>().analytics?.unreadMessages ?? 0;
 
     return Scaffold(
       body: IndexedStack(
@@ -246,19 +296,31 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         unselectedItemColor: context.palette.textDisabled,
         items: [
           BottomNavigationBarItem(
-            icon: const Icon(Icons.dashboard),
+            icon: const Icon(Icons.dashboard_outlined),
+            activeIcon: const Icon(Icons.dashboard),
             label: languageProvider.t('coach_tab_dashboard'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.people),
+            icon: const Icon(Icons.people_outline),
+            activeIcon: const Icon(Icons.people),
             label: languageProvider.t('coach_tab_clients'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.calendar_month),
+            icon: const Icon(Icons.calendar_month_outlined),
+            activeIcon: const Icon(Icons.calendar_month),
             label: languageProvider.t('coach_tab_calendar'),
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.chat),
+            icon: Badge.count(
+              count: unread,
+              isLabelVisible: unread > 0,
+              child: const Icon(Icons.chat_bubble_outline),
+            ),
+            activeIcon: Badge.count(
+              count: unread,
+              isLabelVisible: unread > 0,
+              child: const Icon(Icons.chat_bubble),
+            ),
             label: languageProvider.t('coach_tab_messages'),
           ),
         ],
@@ -338,8 +400,21 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     ),
                     Row(
                       children: [
+                        // CoachEarningsScreen was fully built but had no entry
+                        // point anywhere in the app, so coaches could not see
+                        // what they had earned.
+                        IconButton(
+                          icon: const Icon(Icons.payments_outlined),
+                          tooltip: lang.t('coach_earnings_title'),
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              _createSmoothRoute(const CoachEarningsScreen()),
+                            );
+                          },
+                        ),
                         IconButton(
                           icon: const Icon(Icons.account_circle),
+                          tooltip: lang.t('account'),
                           onPressed: () {
                             Navigator.of(context).push(
                               _createSmoothRoute(const AccountScreen()),
@@ -348,6 +423,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.refresh),
+                          tooltip: lang.t('refresh'),
                           onPressed: () {
                             _loadAnalytics();
                           },

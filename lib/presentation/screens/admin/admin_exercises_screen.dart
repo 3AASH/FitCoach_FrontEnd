@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -228,7 +228,7 @@ class _ExerciseAdminCard extends StatelessWidget {
         exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
       if (exercise.equipment.isNotEmpty)
         exercise.equipment.map(_humanizeSnakeCase).join(', '),
-    ].join(' • ');
+    ].join(' â€¢ ');
     final alternativesCount =
         exercise.alternativesCount ?? exercise.alternatives.length;
     final alternativeLabels = _alternativeLabels();
@@ -433,9 +433,9 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         builder: (context, scrollController) => Material(
-          // Not Colors.white: the field labels come from the theme
+          // Not context.palette.textOnBrand: the field labels come from the theme
           // (textSecondary, #D1D5DB in dark mode) and were being drawn on a
-          // sheet that stayed white, which is about 1.5:1 contrast — the
+          // sheet that stayed white, which is about 1.5:1 contrast â€” the
           // labels simply were not there.
           color: context.palette.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -456,6 +456,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                       ),
                     ),
                     IconButton(
+                      tooltip: lang.t('close'),
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.close),
                     ),
@@ -508,7 +509,6 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
             : null,
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
         ),
       ),
     );
@@ -602,7 +602,6 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: lang.t('admin_exercise_location'),
-          border: const OutlineInputBorder(),
         ),
         child: Row(
           children: [
@@ -632,7 +631,6 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
       child: InputDecorator(
         decoration: InputDecoration(
           labelText: _tr('admin_exercise_swap_alternatives'),
-          border: const OutlineInputBorder(),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -703,7 +701,6 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                       decoration: InputDecoration(
                         prefixIcon: const Icon(Icons.search),
                         labelText: _tr('admin_exercise_search_exercises'),
-                        border: const OutlineInputBorder(),
                       ),
                       onChanged: (value) {
                         setDialogState(() => query = value);
@@ -736,7 +733,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                                         exercise.equipment
                                             .map(_humanizeSnakeCase)
                                             .join(', '),
-                                    ].join(' • '),
+                                    ].join(' â€¢ '),
                                     style: TextStyle(
                                         color: context.palette.textSecondary),
                                   ),
@@ -851,3 +848,4 @@ class _Badge extends StatelessWidget {
     );
   }
 }
+

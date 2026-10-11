@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -7,6 +7,7 @@ import '../../providers/language_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../auth/forgot_password_screen.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 /// Change the account password.
 ///
@@ -87,13 +88,22 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final t = languageProvider.t;
     final hasPassword = authProvider.user?.hasPassword ?? false;
 
-    return Scaffold(
-      appBar: AppBar(title: Text(t('change_password_title'))),
-      body: hasPassword
-          ? _buildForm(t)
-          : _buildNoPasswordNotice(t),
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: hasPassword && _hasUnsavedWork,
+      child: Scaffold(
+        appBar: AppBar(title: Text(t('change_password_title'))),
+        body: hasPassword
+            ? _buildForm(t)
+            : _buildNoPasswordNotice(t),
+      ),
     );
   }
+
+  /// Check if any password field has been entered.
+  bool get _hasUnsavedWork =>
+      _currentController.text.isNotEmpty ||
+      _newController.text.isNotEmpty ||
+      _confirmController.text.isNotEmpty;
 
   Widget _buildNoPasswordNotice(String Function(String, {Map<String, String>? args}) t) {
     return ListView(
@@ -149,8 +159,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   obscureText: _obscureCurrent,
                   decoration: InputDecoration(
                     labelText: t('change_password_current'),
-                    border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
+                      tooltip: _obscureCurrent ? t('show') : t('hide'),
                       icon: Icon(_obscureCurrent
                           ? Icons.visibility_off
                           : Icons.visibility),
@@ -168,8 +178,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   obscureText: _obscureNew,
                   decoration: InputDecoration(
                     labelText: t('change_password_new'),
-                    border: const OutlineInputBorder(),
                     suffixIcon: IconButton(
+                      tooltip: _obscureNew ? t('show') : t('hide'),
                       icon: Icon(
                           _obscureNew ? Icons.visibility_off : Icons.visibility),
                       onPressed: () =>
@@ -192,7 +202,6 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                   obscureText: _obscureNew,
                   decoration: InputDecoration(
                     labelText: t('change_password_confirm'),
-                    border: const OutlineInputBorder(),
                   ),
                   validator: (value) => value != _newController.text
                       ? t('change_password_mismatch')
@@ -227,3 +236,4 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
+

@@ -42,6 +42,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
         title: Text(lang.t('admin_revenue_title')),
         actions: [
           IconButton(
+            tooltip: lang.t('refresh'),
             icon: const Icon(Icons.refresh),
             onPressed: _loadRevenue,
           ),

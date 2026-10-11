@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../core/config/api_config.dart';
+import '../../core/utils/network_status.dart';
 
 class ProgressRepository {
   final Dio _dio;
@@ -13,7 +14,7 @@ class ProgressRepository {
           baseUrl: ApiConfig.baseUrl,
           connectTimeout: ApiConfig.connectTimeout,
           receiveTimeout: ApiConfig.receiveTimeout,
-        )),
+        ))..interceptors.add(const NetworkStatusInterceptor()),
         _secureStorage = const FlutterSecureStorage();
 
   Future<String?> _getToken() async {

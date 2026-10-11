@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+﻿import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -296,6 +296,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.save),
+            tooltip: lang.t('save'),
             onPressed: _isSaving ? null : _savePlan,
           ),
         ],
@@ -319,7 +320,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     controller: _nameController,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_plan_name'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -328,7 +328,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     maxLines: 2,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_description'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -336,7 +335,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     controller: _goalController,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_goal'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -390,6 +388,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                   onPressed: _isEditable
                                       ? () => _removeDay(dayIndex)
                                       : null,
+                                  tooltip: lang.t('delete'),
                                   icon: const Icon(Icons.delete,
                                       color: AppColors.error),
                                 ),
@@ -444,6 +443,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                                 ? () => _removeExercise(
                                                     dayIndex, exIndex)
                                                 : null,
+                                            tooltip: lang.t('remove'),
                                             icon: const Icon(
                                                 Icons.remove_circle_outline,
                                                 color: AppColors.error),
@@ -496,7 +496,7 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                               );
                             }),
                             Align(
-                              alignment: Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: TextButton.icon(
                                 onPressed: _isEditable
                                     ? () => _addExercise(dayIndex)
@@ -518,7 +518,6 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                     decoration: InputDecoration(
                       labelText: lang.t('coach_workout_editor_notes_label'),
                       hintText: lang.t('coach_workout_editor_notes_hint'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -622,3 +621,4 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
     return null;
   }
 }
+

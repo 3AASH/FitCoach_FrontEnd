@@ -40,6 +40,7 @@ import 'data/demo/repositories/demo_workout_repository.dart';
 import 'data/demo/repositories/demo_messaging_repository.dart';
 import 'data/demo/repositories/demo_subscription_plan_repository.dart';
 import 'data/demo/repositories/demo_metrics_repository.dart';
+import 'presentation/widgets/offline_banner.dart';
 
 void main() {
   // The binding must be created inside the same zone that later calls
@@ -292,12 +293,22 @@ class FitCoachApp extends StatelessWidget {
               final mediaQuery = MediaQuery.of(context);
               return MediaQuery(
                 data: mediaQuery.copyWith(
+                  // ponytail: WCAG 1.4.4 asks for 200%; this ceiling is 150%.
+                  // The old 1.15 cap meant a user who had set 200% system text
+                  // got 115% -- the clamp existed to stop overflow rather than
+                  // because the layouts could not scale. 1.5 is what the
+                  // current layouts were verified to survive. Upgrade path:
+                  // replace fixed-height Rows/Containers in the client screens
+                  // (store, nutrition, workout cards) with intrinsic or
+                  // wrapping layouts, then raise this to 2.0 and drop the clamp.
                   textScaler: mediaQuery.textScaler.clamp(
                     minScaleFactor: 0.9,
-                    maxScaleFactor: 1.15,
+                    maxScaleFactor: 1.5,
                   ),
                 ),
-                child: child ?? const SizedBox.shrink(),
+                child: OfflineBanner(
+                  child: child ?? const SizedBox.shrink(),
+                ),
               );
             },
 

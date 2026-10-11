@@ -1,3 +1,4 @@
+﻿import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../widgets/custom_button.dart';
 import '../../widgets/library_picker_field.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 import 'plan_library_options.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -40,6 +42,14 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   final TextEditingController _notesController = TextEditingController();
 
   List<Map<String, dynamic>> _days = <Map<String, dynamic>>[];
+
+  // Snapshots for change detection (captured after load)
+  late String _initialCalories;
+  late String _initialProtein;
+  late String _initialCarbs;
+  late String _initialFats;
+  late String _initialNotes;
+  late String _initialDaysJson;
 
   @override
   void initState() {
@@ -155,6 +165,13 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       _days = parsedDays;
       _isEditable = editable;
       _isLoading = false;
+      // Capture initial state for dirty check
+      _initialCalories = _caloriesController.text;
+      _initialProtein = _proteinController.text;
+      _initialCarbs = _carbsController.text;
+      _initialFats = _fatsController.text;
+      _initialNotes = _notesController.text;
+      _initialDaysJson = jsonEncode(_days);
     });
   }
 
@@ -375,23 +392,26 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang.t('coach_nutrition_editor_title')),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.save),
-            onPressed: _isSaving ? null : _savePlan,
-          ),
-        ],
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(lang.t('coach_nutrition_editor_title')),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.save),
+              tooltip: lang.t('save'),
+              onPressed: _isSaving ? null : _savePlan,
+            ),
+          ],
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                   if (!_isEditable)
                     Card(
                       color: AppColors.warning.withValues(alpha: 0.12),
@@ -411,7 +431,6 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: lang.t('plan_editor_calories'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -423,7 +442,6 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: lang.t('plan_editor_protein'),
-                            border: const OutlineInputBorder(),
                           ),
                         ),
                       ),
@@ -434,7 +452,6 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: lang.t('plan_editor_carbs'),
-                            border: const OutlineInputBorder(),
                           ),
                         ),
                       ),
@@ -445,7 +462,6 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                           keyboardType: TextInputType.number,
                           decoration: InputDecoration(
                             labelText: lang.t('plan_editor_fat'),
-                            border: const OutlineInputBorder(),
                           ),
                         ),
                       ),
@@ -501,6 +517,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                                   onPressed: _isEditable
                                       ? () => _removeDay(dayIndex)
                                       : null,
+                                  tooltip: lang.t('delete'),
                                   icon: const Icon(Icons.delete,
                                       color: AppColors.error),
                                 ),
@@ -517,7 +534,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                             }),
                             _buildDayTotals(lang, meals),
                             Align(
-                              alignment: Alignment.centerLeft,
+                              alignment: AlignmentDirectional.centerStart,
                               child: TextButton.icon(
                                 onPressed: _isEditable
                                     ? () => _addMeal(dayIndex)
@@ -539,7 +556,6 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                     decoration: InputDecoration(
                       labelText: lang.t('coach_nutrition_editor_notes'),
                       hintText: lang.t('coach_nutrition_editor_notes_hint'),
-                      border: const OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -553,6 +569,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                 ],
               ),
             ),
+      ),
     );
   }
 
@@ -612,6 +629,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                 IconButton(
                   onPressed:
                       _isEditable ? () => _removeMeal(dayIndex, mealIndex) : null,
+                  tooltip: lang.t('remove'),
                   icon: const Icon(Icons.remove_circle_outline,
                       color: AppColors.error),
                 ),
@@ -639,7 +657,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                   .map((variant) => DropdownMenuItem<String>(
                         value: variant.variantId,
                         child: Text(
-                          '${_portionLabel(lang, variant.portionCode)} · '
+                          '${_portionLabel(lang, variant.portionCode)} Â· '
                           '${variant.calories.round()} ${lang.t('coach_nutrition_kcal')}',
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -763,13 +781,13 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
         : '${value.toStringAsFixed(1)}g';
 
     return Align(
-      alignment: Alignment.centerLeft,
+      alignment: AlignmentDirectional.centerStart,
       child: Padding(
         padding: const EdgeInsets.only(top: 4, bottom: 4),
         child: Text(
           '${lang.t('coach_nutrition_editor_day_total')}: '
-          '${calories.round()} ${lang.t('coach_nutrition_kcal')} · '
-          'P ${g(protein)} · C ${g(carbs)} · F ${g(fat)}',
+          '${calories.round()} ${lang.t('coach_nutrition_kcal')} Â· '
+          'P ${g(protein)} Â· C ${g(carbs)} Â· F ${g(fat)}',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -788,7 +806,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       'XL': 'plan_editor_portion_xlarge',
     };
     final key = names[portionCode];
-    return key == null ? portionCode : '$portionCode · ${lang.t(key)}';
+    return key == null ? portionCode : '$portionCode Â· ${lang.t(key)}';
   }
 
   /// Matches a meal on its name in either language, its id, its slot or its
@@ -964,4 +982,14 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
     }
     return null;
   }
+
+  /// Check if unsaved changes to nutrition plan exist.
+  bool get _hasUnsavedWork =>
+      _caloriesController.text != _initialCalories ||
+      _proteinController.text != _initialProtein ||
+      _carbsController.text != _initialCarbs ||
+      _fatsController.text != _initialFats ||
+      _notesController.text != _initialNotes ||
+      jsonEncode(_days) != _initialDaysJson;
 }
+

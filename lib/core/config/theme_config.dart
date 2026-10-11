@@ -59,8 +59,8 @@ class AppThemeConfig {
       bodyMedium: AppTextStyles.body.copyWith(color: p.textPrimary),
       bodySmall: AppTextStyles.small.copyWith(color: p.textSecondary),
       labelLarge: AppTextStyles.label.copyWith(color: p.textPrimary),
-      labelMedium: AppTextStyles.labelSmall.copyWith(color: p.textSecondary),
-      labelSmall: AppTextStyles.small.copyWith(color: p.textSecondary),
+      labelMedium: AppTextStyles.captionMedium.copyWith(color: p.textSecondary),
+      labelSmall: AppTextStyles.caption.copyWith(color: p.textSecondary),
     );
 
     OutlineInputBorder inputBorder(Color color, double width) =>

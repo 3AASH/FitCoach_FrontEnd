@@ -46,10 +46,12 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
         title: Text(lang.t('admin_audit_logs_title')),
         actions: [
           IconButton(
+            tooltip: lang.t('filter'),
             icon: const Icon(Icons.filter_list),
             onPressed: () => _showFiltersBottomSheet(lang),
           ),
           IconButton(
+            tooltip: lang.t('refresh'),
             icon: const Icon(Icons.refresh),
             onPressed: _loadLogs,
           ),

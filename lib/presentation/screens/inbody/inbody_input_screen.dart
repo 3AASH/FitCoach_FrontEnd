@@ -14,6 +14,7 @@ import '../../widgets/custom_button.dart';
 import '../subscription/subscription_manager_screen.dart';
 import '../subscription/subscription_upgrade_screen.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../widgets/unsaved_changes_guard.dart';
 
 class InBodyInputScreen extends StatefulWidget {
   const InBodyInputScreen({super.key});
@@ -65,16 +66,36 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     final isPremium =
         subscriptionTier == 'Premium' || subscriptionTier == 'Smart Premium';
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(lang.t('inbody_input_inbody_analysis')),
+    return UnsavedChangesGuard(
+      hasUnsavedChanges: _hasUnsavedWork,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(lang.t('inbody_input_inbody_analysis')),
+        ),
+        body: _inputMode == 'selection'
+            ? _buildModeSelection(lang, isPremium)
+            : _inputMode == 'ai-scan'
+                ? _buildAIScan(lang)
+                : _buildManualInput(lang),
       ),
-      body: _inputMode == 'selection'
-          ? _buildModeSelection(lang, isPremium)
-          : _inputMode == 'ai-scan'
-              ? _buildAIScan(lang)
-              : _buildManualInput(lang),
     );
+  }
+
+  /// A scan's measurements live only in these controllers until save, and
+  /// re-measuring is not something a user can redo from memory.
+  bool get _hasUnsavedWork {
+    if (_isSaving || _isAnalyzing) return false;
+    return [
+      _weightController,
+      _bodyFatController,
+      _muscleMassController,
+      _bmiController,
+      _visceralFatController,
+      _bodyWaterController,
+      _proteinController,
+      _mineralController,
+      _bmrController,
+    ].any((c) => c.text.trim().isNotEmpty);
   }
 
   Widget _buildModeSelection(LanguageProvider lang, bool isPremium) {
@@ -130,8 +151,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                           gradient: isPremium
                               ? const LinearGradient(
                                   colors: [AppColors.primary, AppColors.accent],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                                  begin: AlignmentDirectional.topStart,
+                                  end: AlignmentDirectional.bottomEnd,
                                 )
                               : null,
                           color: isPremium
@@ -142,7 +163,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                         child: Icon(
                           Icons.auto_awesome,
                           color:
-                              isPremium ? Colors.white : context.palette.textDisabled,
+                              isPremium ? context.palette.textOnBrand : context.palette.textDisabled,
                           size: 30,
                         ),
                       ),
@@ -246,18 +267,18 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.workspace_premium,
                           size: 12,
-                          color: Colors.white,
+                          color: context.palette.textOnBrand,
                         ),
                         const SizedBox(width: 4),
                         Text(
                           lang.t('inbody_input_premium_feature'),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 10,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                            color: context.palette.textOnBrand,
                           ),
                         ),
                       ],
@@ -428,8 +449,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     end: Alignment.bottomRight,
                   ),
                 ),
-                child: const Icon(Icons.auto_awesome,
-                    color: Colors.white, size: 36),
+                child: Icon(Icons.auto_awesome,
+                    color: context.palette.textOnBrand, size: 36),
               ),
               const SizedBox(height: 16),
               Text(
@@ -538,7 +559,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       color: Colors.black.withValues(alpha: 0.45),
                       shape: const CircleBorder(),
                       child: IconButton(
-                        icon: const Icon(Icons.close, color: Colors.white),
+                        tooltip: lang.t('close'),
+                        icon: Icon(Icons.close, color: context.palette.textOnBrand),
                         onPressed: _isAnalyzing ? null : _clearAiCapture,
                       ),
                     ),
@@ -863,7 +885,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         action: retryable
             ? SnackBarAction(
                 label: lang.t('retry'),
-                textColor: Colors.white,
+                textColor: context.palette.textOnBrand,
                 onPressed: _retrySelectedImage,
               )
             : null,
@@ -882,7 +904,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         backgroundColor: AppColors.warning,
         action: SnackBarAction(
           label: lang.t('subscription_upgrade_cta'),
-          textColor: Colors.white,
+          textColor: context.palette.textOnBrand,
           onPressed: () {
             if (!mounted) return;
             Navigator.of(context).push(

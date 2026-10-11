@@ -144,19 +144,19 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                           const SizedBox(height: 16),
                           Text(
                             languageProvider.t('language_title'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: context.palette.textOnBrand,
                             ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             languageProvider.t('language_subtitle'),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 16,
-                              color: Colors.white70,
+                              color: context.palette.textOnBrand70,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -201,9 +201,9 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
                     opacity: _footerFade,
                     child: Text(
                       languageProvider.t('language_footer'),
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
-                        color: Colors.white70,
+                        color: context.palette.textOnBrand70,
                       ),
                     ),
                   ),
@@ -263,7 +263,7 @@ class _LanguageCard extends StatelessWidget {
             color: context.palette.surface.withValues(alpha: 0.95),
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: Colors.white.withValues(alpha: 0.3),
+              color: context.palette.textOnBrand.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
@@ -278,7 +278,7 @@ class _LanguageCard extends StatelessWidget {
             children: [
               Text(
                 flag,
-                style: const TextStyle(fontSize: 32),
+                style: TextStyle(fontSize: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
