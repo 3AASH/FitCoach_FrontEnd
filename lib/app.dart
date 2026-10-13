@@ -17,7 +17,6 @@ import 'presentation/screens/store/store_screen.dart';
 import 'presentation/screens/account/account_screen.dart';
 import 'presentation/screens/coach/coach_dashboard_screen.dart';
 import 'presentation/screens/admin/admin_dashboard_screen.dart';
-import 'presentation/widgets/animated_reveal.dart';
 
 class App extends StatefulWidget {
   const App({super.key});
@@ -31,7 +30,6 @@ class _AppState extends State<App> {
 
   bool _showSplash = true;
   String _currentScreen = 'splash';
-  int _transitionSeed = 0;
 
   @override
   void initState() {
@@ -60,7 +58,6 @@ class _AppState extends State<App> {
       } else {
         _currentScreen = _resolvePostAuthScreen(authProvider);
       }
-      _transitionSeed++;
     });
   }
 
@@ -94,7 +91,6 @@ class _AppState extends State<App> {
   void _navigateToScreen(String screen) {
     setState(() {
       _currentScreen = screen;
-      _transitionSeed++;
     });
   }
 
@@ -115,7 +111,8 @@ class _AppState extends State<App> {
         }
 
         return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 700),
+          duration: const Duration(milliseconds: 320),
+          reverseDuration: const Duration(milliseconds: 260),
           switchInCurve: Curves.easeOutCubic,
           switchOutCurve: Curves.easeInCubic,
           layoutBuilder: (currentChild, previousChildren) {
@@ -128,18 +125,23 @@ class _AppState extends State<App> {
             );
           },
           transitionBuilder: (child, animation) {
-            final fade = Tween<double>(begin: 0, end: 1).animate(animation);
-            return FadeTransition(opacity: fade, child: child);
+            final curved = CurvedAnimation(
+              parent: animation,
+              curve: Curves.easeOutCubic,
+              reverseCurve: Curves.easeInCubic,
+            );
+            final offset = Tween<Offset>(
+              begin: const Offset(0, 0.025),
+              end: Offset.zero,
+            ).animate(curved);
+            return FadeTransition(
+              opacity: curved,
+              child: SlideTransition(position: offset, child: child),
+            );
           },
           child: KeyedSubtree(
             key: ValueKey<String>(_currentScreen),
-            child: AnimatedReveal(
-              key: ValueKey('reveal_${_currentScreen}_$_transitionSeed'),
-              duration: const Duration(milliseconds: 700),
-              offset: _offsetForScreen(_currentScreen),
-              curve: Curves.easeOutCubic,
-              child: _buildCurrentScreen(),
-            ),
+            child: _buildCurrentScreen(),
           ),
         );
       },
@@ -211,33 +213,6 @@ class _AppState extends State<App> {
 
       default:
         return const HomeDashboardScreen();
-    }
-  }
-
-  Offset _offsetForScreen(String screen) {
-    switch (screen) {
-      case 'language':
-      case 'account':
-        return const Offset(0, 0.12);
-      case 'onboarding':
-      case 'store':
-        return const Offset(0.15, 0);
-      case 'auth':
-      case 'coachDashboard':
-        return const Offset(-0.15, 0);
-      case 'firstIntake':
-      case 'secondIntake':
-        return const Offset(0, -0.15);
-      case 'home':
-      case 'workout':
-        return const Offset(0.12, 0);
-      case 'nutrition':
-      case 'coach':
-        return const Offset(-0.12, 0);
-      case 'adminDashboard':
-        return const Offset(0, -0.18);
-      default:
-        return const Offset(0, 0.1);
     }
   }
 }

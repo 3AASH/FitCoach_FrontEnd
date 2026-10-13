@@ -127,13 +127,7 @@ class _AccountScreenState extends State<AccountScreen> {
       body: Stack(
         children: [
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.8,
-              child: Image.asset(
-                'assets/placeholders/splash_onboarding/workout_onboarding.png',
-                fit: BoxFit.cover,
-              ),
-            ),
+            child: ColoredBox(color: context.palette.background),
           ),
           SafeArea(
             child: Column(
@@ -149,7 +143,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             tooltip: languageProvider.t('back'),
                             onPressed: () => _handleBack(),
                             icon: Icon(
-                              Icons.arrow_back,
+                              isArabic ? Icons.arrow_forward : Icons.arrow_back,
                               color: Theme.of(context).colorScheme.onPrimary,
                             ),
                           ),
@@ -160,7 +154,8 @@ class _AccountScreenState extends State<AccountScreen> {
                                 Text(
                                   languageProvider.t('account'),
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -179,21 +174,23 @@ class _AccountScreenState extends State<AccountScreen> {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: context.palette.textOnBrand.withValues(alpha: 0.12),
+                          color: context.palette.textOnBrand
+                              .withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(16),
                         ),
                         child: Row(
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor:
-                                  context.palette.textOnBrand.withValues(alpha: 0.2),
+                              backgroundColor: context.palette.textOnBrand
+                                  .withValues(alpha: 0.2),
                               child: Text(
                                 user?.name.substring(0, 1).toUpperCase() ?? 'U',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color:
+                                      Theme.of(context).colorScheme.onPrimary,
                                 ),
                               ),
                             ),
@@ -205,7 +202,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                   Text(
                                     user?.name ?? languageProvider.t('user'),
                                     style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onPrimary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -223,7 +222,8 @@ class _AccountScreenState extends State<AccountScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: context.palette.textOnBrand.withValues(alpha: 0.2),
+                                color: context.palette.textOnBrand
+                                    .withValues(alpha: 0.2),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
@@ -233,7 +233,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                         ? languageProvider.t('admin')
                                         : user?.subscriptionTier ?? 'Freemium',
                                 style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onPrimary, fontSize: 12),
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    fontSize: 12),
                               ),
                             ),
                           ],
@@ -276,39 +278,38 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildTabSelector(List<_AccountTabOption> options) {
-    return CustomCard(
-      padding: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _activeTab,
-            isExpanded: true,
-            icon: const Icon(Icons.expand_more),
-            items: options
-                .map(
-                  (option) => DropdownMenuItem<String>(
-                    value: option.id,
-                    child: Row(
-                      children: [
-                        Icon(option.icon,
-                            size: 18, color: context.palette.textSecondary),
-                        const SizedBox(width: 8),
-                        Text(option.label),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              if (value == null) {
-                return;
-              }
-              setState(() => _activeTab = value);
-            },
+    final colorScheme = Theme.of(context).colorScheme;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: options.map((option) {
+        final isSelected = _activeTab == option.id;
+        return ChoiceChip(
+          selected: isSelected,
+          showCheckmark: false,
+          avatar: Icon(
+            option.icon,
+            size: 18,
+            color: isSelected
+                ? colorScheme.onPrimary
+                : context.palette.textSecondary,
           ),
-        ),
-      ),
+          label: Text(option.label),
+          labelStyle: TextStyle(
+            color: isSelected
+                ? colorScheme.onPrimary
+                : colorScheme.onSurface,
+          ),
+          selectedColor: colorScheme.primary,
+          backgroundColor: context.palette.surfaceVariant,
+          side: BorderSide(
+            color: isSelected
+                ? colorScheme.primary
+                : context.palette.border,
+          ),
+          onSelected: (_) => setState(() => _activeTab = option.id),
+        );
+      }).toList(),
     );
   }
 
@@ -690,8 +691,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 subtitle: Text(isArabic
                     ? languageProvider.t('arabic')
                     : languageProvider.t('english')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () =>
                     _showLanguageDialog(context, languageProvider, isArabic),
               ),
@@ -715,8 +715,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     Text(languageProvider.t('account_notification_settings')),
                 subtitle: Text(languageProvider
                     .t('account_notification_settings_subtitle')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -729,8 +728,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 leading: Icon(Icons.lock_outline,
                     color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_password_title')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -743,8 +741,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 leading: Icon(Icons.phone_iphone,
                     color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_mobile_title')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -778,7 +775,7 @@ class _AccountScreenState extends State<AccountScreen> {
         const SizedBox(height: 12),
         CustomInfoCard(
           title: languageProvider.t('account_about'),
-          subtitle: 'FitCoach+ v2.0.0',
+          subtitle: 'Aash v2.0.0',
           icon: Icons.info_outline,
           iconColor: AppColors.accent,
           onTap: () {
@@ -1393,7 +1390,7 @@ class _AccountScreenState extends State<AccountScreen> {
     final languageProvider = context.read<LanguageProvider>();
     showAboutDialog(
       context: context,
-      applicationName: 'FitCoach+',
+      applicationName: 'Aash',
       applicationVersion: '2.0.0',
       applicationLegalese: languageProvider.t('account_about_legalese'),
       children: [

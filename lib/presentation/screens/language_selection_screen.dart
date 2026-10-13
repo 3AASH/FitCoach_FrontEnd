@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import '../../core/constants/colors.dart';
 import '../providers/language_provider.dart';
 import '../../core/theme/app_palette.dart';
+import '../widgets/aash_brand_mark.dart';
 
 class LanguageSelectionScreen extends StatefulWidget {
   final VoidCallback onLanguageSelected;
@@ -12,7 +15,8 @@ class LanguageSelectionScreen extends StatefulWidget {
   });
 
   @override
-  State<LanguageSelectionScreen> createState() => _LanguageSelectionScreenState();
+  State<LanguageSelectionScreen> createState() =>
+      _LanguageSelectionScreenState();
 }
 
 class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
@@ -30,7 +34,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 700),
     );
 
     _headerFade = CurvedAnimation(
@@ -48,7 +52,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
       parent: _controller,
       curve: const Interval(0.1, 0.55, curve: Curves.easeOutBack),
     );
-    _logoRotation = Tween<double>(begin: -0.5, end: 0).animate(
+    _logoRotation = Tween<double>(begin: -0.06, end: 0).animate(
       CurvedAnimation(
         parent: _controller,
         curve: const Interval(0.1, 0.55, curve: Curves.easeOutCubic),
@@ -92,136 +96,139 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
     final isArabic = languageProvider.isArabic;
 
     return Scaffold(
-      body: Stack(
-        children: [
-          Positioned.fill(
-            child: Opacity(
-              opacity: 0.8,
-              child: Image.asset(
-                'assets/placeholders/splash_onboarding/workout_onboarding.png',
-                fit: BoxFit.cover,
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: SystemUiOverlayStyle.light,
+        child: Stack(
+          children: [
+            const Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: AlignmentDirectional.topStart,
+                    end: AlignmentDirectional.bottomEnd,
+                    colors: [
+                      AppColors.headerGradientStart,
+                      AppColors.primaryDark,
+                      AppColors.headerGradientEnd,
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0xB3000000),
-                    Color(0x99000000),
-                    Color(0xCC000000),
+            const Positioned(
+              top: -88,
+              right: -72,
+              child: _AmbientOrb(size: 240, color: AppColors.accent),
+            ),
+            const Positioned(
+              bottom: 36,
+              left: -110,
+              child: _AmbientOrb(size: 270, color: AppColors.primaryLight),
+            ),
+            SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    FadeTransition(
+                      opacity: _headerFade,
+                      child: SlideTransition(
+                        position: _headerSlide,
+                        child: Column(
+                          children: [
+                            RotationTransition(
+                              turns: _logoRotation,
+                              child: ScaleTransition(
+                                scale: _logoScale,
+                                child: const AashBrandMark(
+                                  size: 100,
+                                  showWordmark: false,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              languageProvider.t('language_title'),
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: context.palette.textOnBrand,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              languageProvider.t('language_subtitle'),
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: context.palette.textOnBrand70,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 28),
+                    FadeTransition(
+                      opacity: _optionsFade,
+                      child: SlideTransition(
+                        position: _optionSlide(0, isArabic),
+                        child: _LanguageCard(
+                          flag: '\u{1F1FA}\u{1F1F8}',
+                          language: languageProvider.t('english'),
+                          isRtl: isArabic,
+                          onTap: () async {
+                            await setLanguage('en');
+                            widget.onLanguageSelected();
+                          },
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    FadeTransition(
+                      opacity: _optionsFade,
+                      child: SlideTransition(
+                        position: _optionSlide(1, isArabic),
+                        child: _LanguageCard(
+                          flag: '\u{1F1F8}\u{1F1E6}',
+                          language: languageProvider.t('arabic'),
+                          isRtl: isArabic,
+                          onTap: () async {
+                            await setLanguage('ar');
+                            widget.onLanguageSelected();
+                          },
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    FadeTransition(
+                      opacity: _footerFade,
+                      child: Text(
+                        languageProvider.t('language_footer'),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: context.palette.textOnBrand70,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                   ],
                 ),
               ),
             ),
-          ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  FadeTransition(
-                    opacity: _headerFade,
-                    child: SlideTransition(
-                      position: _headerSlide,
-                      child: Column(
-                        children: [
-                          RotationTransition(
-                            turns: _logoRotation,
-                            child: ScaleTransition(
-                              scale: _logoScale,
-                              child: Image.asset(
-                                'assets/placeholders/branding_logo/a18300719941655fc0e724274fe3c0687ac10328.png',
-                                width: 120,
-                                height: 120,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Text(
-                            languageProvider.t('language_title'),
-                            style: TextStyle(
-                              fontSize: 28,
-                              fontWeight: FontWeight.w700,
-                              color: context.palette.textOnBrand,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            languageProvider.t('language_subtitle'),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: context.palette.textOnBrand70,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 28),
-                  FadeTransition(
-                    opacity: _optionsFade,
-                    child: SlideTransition(
-                      position: _optionSlide(0),
-                      child: _LanguageCard(
-                        flag: '\u{1F1FA}\u{1F1F8}',
-                        language: languageProvider.t('english'),
-                        isRtl: isArabic,
-                        onTap: () async {
-                          await setLanguage('en');
-                          widget.onLanguageSelected();
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  FadeTransition(
-                    opacity: _optionsFade,
-                    child: SlideTransition(
-                      position: _optionSlide(1),
-                      child: _LanguageCard(
-                        flag: '\u{1F1F8}\u{1F1E6}',
-                        language: languageProvider.t('arabic'),
-                        isRtl: isArabic,
-                        onTap: () async {
-                          await setLanguage('ar');
-                          widget.onLanguageSelected();
-                        },
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  FadeTransition(
-                    opacity: _footerFade,
-                    child: Text(
-                      languageProvider.t('language_footer'),
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: context.palette.textOnBrand70,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 
-  Animation<Offset> _optionSlide(int index) {
+  Animation<Offset> _optionSlide(int index, bool isArabic) {
     final start = 0.45 + (index * 0.1);
     final end = (start + 0.3).clamp(0.0, 1.0);
     return Tween<Offset>(
-      begin: const Offset(-0.12, 0),
+      begin: Offset(isArabic ? 0.12 : -0.12, 0),
       end: Offset.zero,
     ).animate(
       CurvedAnimation(
@@ -278,7 +285,7 @@ class _LanguageCard extends StatelessWidget {
             children: [
               Text(
                 flag,
-                style: TextStyle(fontSize: 32),
+                style: const TextStyle(fontSize: 32),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -292,12 +299,40 @@ class _LanguageCard extends StatelessWidget {
                 ),
               ),
               Icon(
-                Icons.arrow_forward_ios,
+                isRtl ? Icons.arrow_back_ios : Icons.arrow_forward_ios,
                 color: context.palette.textSecondary,
                 size: 20,
               ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AmbientOrb extends StatelessWidget {
+  const _AmbientOrb({required this.size, required this.color});
+
+  final double size;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.12),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.14),
+              blurRadius: size * 0.35,
+              spreadRadius: size * 0.05,
+            ),
+          ],
         ),
       ),
     );

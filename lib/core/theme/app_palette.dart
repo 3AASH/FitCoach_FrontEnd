@@ -102,9 +102,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     textPrimary: AppColors.textPrimaryDark,
     textSecondary: AppColors.textSecondaryDark,
     textDisabled: AppColors.textDisabled,
-    // Dark mode lightens the brand blue so it reads against a dark page, and
-    // white on that lighter fill only reaches 2.5:1. Dark text on it clears
-    // 5.5:1, and it matches the ColorScheme's onPrimary for the same reason.
+    // Dark mode uses a lighter teal so primary controls stand apart from the
+    // dark canvas. Dark text on this fill preserves strong contrast.
     textOnBrand: AppColors.backgroundDark,
     background: AppColors.surfaceDarkRaised,
     surface: AppColors.backgroundDark,

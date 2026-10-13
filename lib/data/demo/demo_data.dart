@@ -1284,7 +1284,7 @@ class DemoData {
         yearlyPrice: 1990,
         currency: 'SAR',
         badge: 'Most Popular',
-        accentColor: '#7C3AED',
+        accentColor: '#0B6254',
         isRecommended: true,
         metadata: {
           'messagesLimit': 200,

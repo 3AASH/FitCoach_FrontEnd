@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>عاش - FitCoach+</string>
+	<string>Aash</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>FitCoach</string>
+	<string>Aash</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -32,17 +32,17 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera access is required for video calls with your coach</string>
+	<string>Aash uses the camera for video calls with your coach.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Location access is used to find nearby gyms and coaches</string>
+	<string>Aash uses your location to find nearby gyms and coaches.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Location access is used to find nearby gyms and coaches</string>
+	<string>Aash uses your location to find nearby gyms and coaches.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone access is required for video calls with your coach</string>
+	<string>Aash uses the microphone for video calls with your coach.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
-	<string>Photo library access is required to save photos</string>
+	<string>Aash needs access to save your progress photos.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Photo library access is required to share progress photos</string>
+	<string>Aash needs access to select progress photos to share with your coach.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

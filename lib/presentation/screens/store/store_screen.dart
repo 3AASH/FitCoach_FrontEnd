@@ -1019,7 +1019,7 @@ class _StoreScreenState extends State<StoreScreen> {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFFF59E0B), Color(0xFFB45309)],
+          colors: [AppColors.primary, AppColors.primaryDark],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),

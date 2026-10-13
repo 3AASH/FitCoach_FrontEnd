@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/colors.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
@@ -21,25 +22,25 @@ class NutritionIntroScreen extends StatelessWidget {
     final featureCards = [
       {
         'icon': Icons.track_changes,
-        'color': const Color(0xFF22C55E),
+        'color': AppColors.chart4,
         'title': languageProvider.t('nutrition_intro_feature1_title'),
         'description': languageProvider.t('nutrition_intro_feature1_desc'),
       },
       {
         'icon': Icons.restaurant_menu,
-        'color': const Color(0xFF2563EB),
+        'color': AppColors.primary,
         'title': languageProvider.t('nutrition_intro_feature2_title'),
         'description': languageProvider.t('nutrition_intro_feature2_desc'),
       },
       {
         'icon': Icons.trending_up,
-        'color': const Color(0xFF7C3AED),
+        'color': AppColors.chart2,
         'title': languageProvider.t('nutrition_intro_feature3_title'),
         'description': languageProvider.t('nutrition_intro_feature3_desc'),
       },
       {
         'icon': Icons.local_florist,
-        'color': const Color(0xFFF97316),
+        'color': AppColors.accent,
         'title': languageProvider.t('nutrition_intro_feature4_title'),
         'description': languageProvider.t('nutrition_intro_feature4_desc'),
       },
@@ -59,14 +60,14 @@ class NutritionIntroScreen extends StatelessWidget {
           ),
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0xB3000000),
-                    Color(0x99000000),
-                    Color(0xCC000000),
+                    AppColors.backgroundDark.withValues(alpha: 0.84),
+                    AppColors.primaryDark.withValues(alpha: 0.72),
+                    AppColors.backgroundDark.withValues(alpha: 0.92),
                   ],
                 ),
               ),
@@ -84,7 +85,7 @@ class NutritionIntroScreen extends StatelessWidget {
                       width: 80,
                       height: 80,
                       decoration: const BoxDecoration(
-                        color: Color(0xFF16A34A),
+                        color: AppColors.primary,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.local_florist,
@@ -114,7 +115,8 @@ class NutritionIntroScreen extends StatelessWidget {
                     child: Text(
                       languageProvider.t('nutrition_intro_subtitle'),
                       style: TextStyle(
-                        color: context.palette.textOnBrand.withValues(alpha: 0.9),
+                        color:
+                            context.palette.textOnBrand.withValues(alpha: 0.9),
                         fontSize: 18,
                       ),
                       textAlign: TextAlign.center,
@@ -154,7 +156,7 @@ class NutritionIntroScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: onGetStarted,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF16A34A),
+                          backgroundColor: AppColors.primary,
                           foregroundColor: context.palette.textOnBrand,
                           textStyle: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w600),
@@ -179,7 +181,8 @@ class NutritionIntroScreen extends StatelessWidget {
                     child: Text(
                       languageProvider.t('nutrition_intro_note'),
                       style: TextStyle(
-                        color: context.palette.textOnBrand.withValues(alpha: 0.6),
+                        color:
+                            context.palette.textOnBrand.withValues(alpha: 0.6),
                         fontSize: 12,
                       ),
                       textAlign: TextAlign.center,
@@ -221,7 +224,8 @@ class _IntroFeatureCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: context.palette.textOnBrand.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.palette.textOnBrand.withValues(alpha: 0.2)),
+            border: Border.all(
+                color: context.palette.textOnBrand.withValues(alpha: 0.2)),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,13 +239,15 @@ class _IntroFeatureCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          color: context.palette.textOnBrand, fontWeight: FontWeight.w600),
+                          color: context.palette.textOnBrand,
+                          fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color: context.palette.textOnBrand.withValues(alpha: 0.8),
+                        color:
+                            context.palette.textOnBrand.withValues(alpha: 0.8),
                         fontSize: 12,
                       ),
                     ),

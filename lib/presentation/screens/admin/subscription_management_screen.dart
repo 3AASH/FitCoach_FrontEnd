@@ -794,7 +794,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
     _currencyController = TextEditingController(text: plan?.currency ?? 'SAR');
     _badgeController = TextEditingController(text: plan?.badge ?? '');
     _accentColorController =
-        TextEditingController(text: plan?.accentColor ?? '#7C3AED');
+        TextEditingController(text: plan?.accentColor ?? '#0B6254');
     _messagesLimitController = TextEditingController(
       text: plan?.metadata['messagesLimit']?.toString() ?? '',
     );
@@ -971,7 +971,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 controller: _accentColorController,
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_accent_color'),
-                  hintText: '#7C3AED',
+                  hintText: '#0B6254',
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12)),
                 ),

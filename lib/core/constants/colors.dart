@@ -1,67 +1,67 @@
 import 'package:flutter/material.dart';
 
-/// App color constants matching the React app design system
+/// Aash brand color primitives, shared by the app theme and feature screens.
 class AppColors {
-  // Primary Colors (from logo)
-  static const Color primary = Color(0xFF3B82F6); // Blue
-  static const Color primaryDark = Color(0xFF2563EB);
-  static const Color primaryLight = Color(0xFF60A5FA);
+  // Deep teal signals grounded, everyday wellness.
+  static const Color primary = Color(0xFF0B6254);
+  static const Color primaryDark = Color(0xFF08483F);
+  static const Color primaryLight = Color(0xFF54B99F);
 
-  // Secondary Colors (from logo) - UPDATED to match React
-  static const Color secondary = Color(0xFFE9D5FF); // Light purple background
-  static const Color secondaryForeground = Color(0xFF7C5FDC); // Purple text
-  static const Color secondaryLight = Color(0xFFE9D5FF);
+  // Soft botanical surfaces.
+  static const Color secondary = Color(0xFFE5F1E9);
+  static const Color secondaryForeground = Color(0xFF0B6254);
+  static const Color secondaryLight = Color(0xFFF1F5E8);
 
-  // Accent Colors (from logo)
-  static const Color accent = Color(0xFFF59E0B); // Orange
-  static const Color accentLight = Color(0xFFFBBF24);
+  // Sunlit lime is an accent, not a text-bearing button fill.
+  static const Color accent = Color(0xFFC8E66A);
+  static const Color accentLight = Color(0xFFE0F3A8);
 
-  // Neutral Colors
-  static const Color background = Color(0xFFFFFFFF);
-  static const Color backgroundDark = Color(0xFF1F2937);
-  static const Color surface = Color(0xFFF3F4F6);
-  static const Color surfaceDark = Color(0xFF374151);
-  static const Color surfaceDarkRaised = Color(0xFF111827);
-  static const Color workoutBackground = Color(0xFFF6F7FB);
+  // Warm, low-glare neutrals.
+  static const Color background = Color(0xFFF7F8F2);
+  static const Color backgroundDark = Color(0xFF18332D);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceDark = Color(0xFF28443D);
+  static const Color surfaceDarkRaised = Color(0xFF122923);
+  static const Color workoutBackground = Color(0xFFF3F6EF);
 
   // Text Colors
-  static const Color textPrimary = Color(0xFF111827);
-  static const Color textSecondary = Color(0xFF6B7280);
-  static const Color textDisabled = Color(0xFF9CA3AF);
+  static const Color textPrimary = Color(0xFF1D302A);
+  static const Color textSecondary = Color(0xFF64756D);
+  static const Color textDisabled = Color(0xFF9AA9A1);
   static const Color textWhite = Color(0xFFFFFFFF);
-  static const Color textPrimaryDark = Color(0xFFF9FAFB);
-  static const Color textSecondaryDark = Color(0xFFD1D5DB);
+  static const Color textPrimaryDark = Color(0xFFF3F6F1);
+  static const Color textSecondaryDark = Color(0xFFC0CEC6);
 
   // Status Colors
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color error = Color(0xFFd4183d); // UPDATED to match React
-  static const Color info = Color(0xFF3B82F6);
+  static const Color success = Color(0xFF27835F);
+  static const Color warning = Color(0xFF9A7418);
+  static const Color error = Color(0xFFB93845);
+  static const Color info = Color(0xFF287C70);
 
   // Border & Divider
-  static const Color border = Color(0xFFE5E7EB);
-  static const Color divider = Color(0xFFD1D5DB);
-  static const Color borderDark = Color(0xFF4B5563);
+  static const Color border = Color(0xFFDDE6DD);
+  static const Color divider = Color(0xFFD1DDD3);
+  static const Color borderDark = Color(0xFF405A51);
 
   // Focus ring color (for accessibility)
-  static const Color ring = Color(0xFF7C5FDC); // Purple
+  static const Color ring = Color(0xFF318A78);
 
   // Chart Colors
-  static const Color chart1 = Color(0xFF3B82F6); // Blue
-  static const Color chart2 = Color(0xFF7C5FDC); // Purple
-  static const Color chart3 = Color(0xFFF59E0B); // Orange
-  static const Color chart4 = Color(0xFF10B981); // Green
-  static const Color chart5 = Color(0xFFEC4899); // Pink
+  static const Color chart1 = Color(0xFF0B6254);
+  static const Color chart2 = Color(0xFF54B99F);
+  static const Color chart3 = Color(0xFFC8A943);
+  static const Color chart4 = Color(0xFF77A96B);
+  static const Color chart5 = Color(0xFFB67B86);
 
-  // Gradient colors
+  // Brand gradients
   static const LinearGradient primaryGradient = LinearGradient(
     colors: [primary, primaryDark],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  static const Color headerGradientStart = Color(0xFF334155);
-  static const Color headerGradientEnd = Color(0xFF0F172A);
+  static const Color headerGradientStart = Color(0xFF0B6254);
+  static const Color headerGradientEnd = Color(0xFF153F36);
 
   static const LinearGradient accentGradient = LinearGradient(
     colors: [accent, accentLight],

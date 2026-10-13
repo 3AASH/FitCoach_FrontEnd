@@ -270,7 +270,7 @@ class FitCoachApp extends StatelessWidget {
       child: Consumer2<LanguageProvider, ThemeProvider>(
         builder: (context, languageProvider, themeProvider, _) {
           return MaterialApp(
-            title: 'FitCoach+',
+            title: 'Aash - عاش',
             debugShowCheckedModeBanner: false,
 
             // Localization
@@ -286,8 +286,14 @@ class FitCoachApp extends StatelessWidget {
             ],
 
             // Theme
-            theme: AppThemeConfig.getLightTheme(),
-            darkTheme: AppThemeConfig.getDarkTheme(),
+            theme: _withLocaleFont(
+              AppThemeConfig.getLightTheme(),
+              languageProvider.isArabic,
+            ),
+            darkTheme: _withLocaleFont(
+              AppThemeConfig.getDarkTheme(),
+              languageProvider.isArabic,
+            ),
             themeMode: themeProvider.themeMode,
             builder: (context, child) {
               final mediaQuery = MediaQuery.of(context);
@@ -317,6 +323,13 @@ class FitCoachApp extends StatelessWidget {
           );
         },
       ),
+    );
+  }
+
+  ThemeData _withLocaleFont(ThemeData theme, bool isArabic) {
+    final fontFamily = isArabic ? 'Cairo' : 'Inter';
+    return theme.copyWith(
+      textTheme: theme.textTheme.apply(fontFamily: fontFamily),
     );
   }
 }

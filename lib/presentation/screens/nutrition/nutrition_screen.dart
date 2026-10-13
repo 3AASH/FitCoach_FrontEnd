@@ -740,14 +740,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
         ),
         buildCard(
           Icons.grass,
-          const Color(0xFFF59E0B),
+          AppColors.accent,
           lang.t('carbs'),
           (current['carbs'] as num).toInt(),
           (targets['carbs'] as num).toInt(),
         ),
         buildCard(
           Icons.opacity,
-          const Color(0xFF3B82F6),
+          AppColors.primary,
           lang.t('fats'),
           (current['fat'] as num).toInt(),
           (targets['fat'] as num).toInt(),

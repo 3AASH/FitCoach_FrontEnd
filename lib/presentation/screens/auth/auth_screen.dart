@@ -1,5 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/aash_brand_mark.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/phone_number_utils.dart';
 import '../../providers/auth_provider.dart';
@@ -654,20 +655,9 @@ class _AuthScreenState extends State<AuthScreen> {
                   children: [
                     Column(
                       children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(18),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Image.asset(
-                              'assets/images/logo_primary.png',
-                              fit: BoxFit.contain,
-                            ),
-                          ),
+                        const AashBrandMark(
+                          size: 72,
+                          showWordmark: false,
                         ),
                         const SizedBox(height: 12),
                         AnimatedReveal(
@@ -692,7 +682,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             languageProvider.t('auth_tagline'),
                             style: TextStyle(
                               fontSize: 14,
-                              color: context.palette.textOnBrand.withValues(alpha: 0.85),
+                              color: context.palette.textOnBrand
+                                  .withValues(alpha: 0.85),
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -925,9 +916,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                 Align(
                                   alignment: AlignmentDirectional.centerEnd,
                                   child: TextButton(
-                                    onPressed: isBusy
-                                        ? null
-                                        : _openForgotPassword,
+                                    onPressed:
+                                        isBusy ? null : _openForgotPassword,
                                     child: Text(
                                       languageProvider
                                           .t('auth_forgot_password'),
@@ -1093,7 +1083,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                             ),
                                             style: TextStyle(
                                               fontSize: 12,
-                                              color: context.palette.textPrimary,
+                                              color:
+                                                  context.palette.textPrimary,
                                             ),
                                           ),
                                         ),
@@ -1331,7 +1322,8 @@ class _AuthScreenState extends State<AuthScreen> {
                               // new number is verified by OTP.
                               if (_step == AuthStep.completeRegistration) ...[
                                 Text(
-                                  languageProvider.t('auth_complete_profile_desc'),
+                                  languageProvider
+                                      .t('auth_complete_profile_desc'),
                                   style: TextStyle(
                                     fontSize: 13,
                                     color: context.palette.textSecondary,
@@ -1343,7 +1335,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   enabled: !isBusy,
                                   textInputAction: TextInputAction.next,
                                   decoration: InputDecoration(
-                                    labelText: languageProvider.t('auth_full_name'),
+                                    labelText:
+                                        languageProvider.t('auth_full_name'),
                                     errorText: _completeNameErrorText,
                                   ),
                                 ),
@@ -1354,8 +1347,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   keyboardType: TextInputType.emailAddress,
                                   textInputAction: TextInputAction.next,
                                   decoration: InputDecoration(
-                                    labelText:
-                                        languageProvider.t('auth_email_optional'),
+                                    labelText: languageProvider
+                                        .t('auth_email_optional'),
                                     errorText: _completeEmailErrorText,
                                   ),
                                 ),
@@ -1365,7 +1358,8 @@ class _AuthScreenState extends State<AuthScreen> {
                                   enabled: !isBusy,
                                   obscureText: true,
                                   decoration: InputDecoration(
-                                    labelText: languageProvider.t('auth_password'),
+                                    labelText:
+                                        languageProvider.t('auth_password'),
                                     helperText: languageProvider
                                         .t('auth_password_min_length'),
                                     errorText: _completePasswordErrorText,
@@ -1373,8 +1367,9 @@ class _AuthScreenState extends State<AuthScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 ElevatedButton(
-                                  onPressed:
-                                      isBusy ? null : _submitCompleteRegistration,
+                                  onPressed: isBusy
+                                      ? null
+                                      : _submitCompleteRegistration,
                                   style: ElevatedButton.styleFrom(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 14),
@@ -1468,7 +1463,8 @@ class _AuthScreenState extends State<AuthScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? AppColors.primary : context.palette.textSecondary,
+            color:
+                isSelected ? AppColors.primary : context.palette.textSecondary,
           ),
         ),
       ),

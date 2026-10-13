@@ -215,25 +215,10 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             'totalWorkouts': 0,
           };
 
-    final todayWorkout = DemoConfig.isDemo
-        ? {
-            'name': lang.t('home_demo_workout_name'),
-            'durationMinutes': 45,
-            'exercises': 6,
-          }
-        : null;
-
     return Stack(
       children: [
         Positioned.fill(
-          child: Opacity(
-            opacity: 0.8,
-            child: Image.network(
-              'https://images.unsplash.com/photo-1671970922029-0430d2ae122c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-              fit: BoxFit.cover,
-              errorBuilder: (_, __, ___) => const SizedBox.shrink(),
-            ),
-          ),
+          child: ColoredBox(color: context.palette.background),
         ),
         SafeArea(
           child: RefreshIndicator(
@@ -293,45 +278,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           ),
                           const SizedBox(height: 16),
                         ],
-                        if (todayWorkout != null) ...[
-                          AnimatedReveal(
-                            delay: const Duration(milliseconds: 300),
-                            offset: const Offset(0, 0.12),
-                            initialScale: 0.96,
-                            child: _buildTodayWorkoutCard(
-                                lang, isArabic, todayWorkout),
-                          ),
-                          const SizedBox(height: 16),
-                        ],
-                        AnimatedReveal(
-                          delay: const Duration(milliseconds: 360),
-                          offset: const Offset(0, 0.12),
-                          initialScale: 0.95,
-                          child:
-                              _buildNavigationGridCompact(lang, isArabic, tier),
-                        ),
-                        const SizedBox(height: 16),
-                        AnimatedReveal(
-                          delay: const Duration(milliseconds: 420),
-                          offset: const Offset(0, 0.16),
-                          initialScale: 0.95,
-                          child: _buildQuickAccessCard(lang, isArabic, tier),
-                        ),
                         if (DemoConfig.isDemo) const SizedBox(height: 16),
                         if (DemoConfig.isDemo)
                           AnimatedReveal(
-                            delay: const Duration(milliseconds: 480),
+                            delay: const Duration(milliseconds: 300),
                             offset: const Offset(0, 0.18),
                             initialScale: 0.95,
                             child: _buildRecentActivityCard(lang, isArabic),
-                          ),
-                        if (tier == 'Freemium') const SizedBox(height: 16),
-                        if (tier == 'Freemium')
-                          AnimatedReveal(
-                            delay: const Duration(milliseconds: 540),
-                            offset: const Offset(0, 0.2),
-                            initialScale: 0.94,
-                            child: _buildUpgradeCard(lang, isArabic),
                           ),
                       ],
                     ),
@@ -564,6 +517,28 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     ),
                   ],
                 ),
+                Align(
+                  alignment: isArabic
+                      ? AlignmentDirectional.centerStart
+                      : AlignmentDirectional.centerEnd,
+                  child: TextButton.icon(
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const ProgressScreen(),
+                      ),
+                    ),
+                    icon: Icon(
+                      isArabic ? Icons.arrow_back : Icons.arrow_forward,
+                      size: 16,
+                    ),
+                    label: Text(lang.t('home_view_progress')),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.textWhite,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -766,6 +741,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildTodayWorkoutCard(
     LanguageProvider lang,
     bool isArabic,
@@ -882,6 +858,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildNavigationGridCompact(
       LanguageProvider lang, bool isArabic, String tier) {
     final isFreemium = tier == 'Freemium';
@@ -1052,6 +1029,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildQuickAccessCard(
       LanguageProvider lang, bool isArabic, String tier) {
     final canAccessInbody = tier != 'Freemium';
@@ -1280,6 +1258,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
+  // ignore: unused_element
   Widget _buildUpgradeCard(LanguageProvider lang, bool isArabic) {
     return Container(
       padding: const EdgeInsets.all(16),

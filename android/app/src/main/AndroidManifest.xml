@@ -21,7 +21,7 @@
     <uses-feature android:name="android.hardware.microphone" android:required="true"/>
 
     <application
-        android:label="عاش - FitCoach+"
+        android:label="Aash - عاش"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">

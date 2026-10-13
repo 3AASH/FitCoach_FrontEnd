@@ -28,7 +28,7 @@ class SubscriptionPlan {
     this.currency = 'SAR',
     this.isRecommended = false,
     this.badge,
-    this.accentColor = '#7C3AED',
+    this.accentColor = '#0B6254',
     this.features = const [],
     this.metadata = const {},
   });
@@ -108,7 +108,7 @@ class SubscriptionPlan {
       currency: json['currency'] as String? ?? 'SAR',
       isRecommended: json['isRecommended'] as bool? ?? false,
       badge: json['badge'] as String?,
-      accentColor: json['accentColor'] as String? ?? '#7C3AED',
+      accentColor: json['accentColor'] as String? ?? '#0B6254',
       features: parsedFeatures,
       metadata: metadata,
     );

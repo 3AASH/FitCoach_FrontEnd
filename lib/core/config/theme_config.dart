@@ -14,7 +14,8 @@ import '../theme/app_palette.dart';
 /// means a new sub-theme is correct in both themes the moment it is added
 /// here, instead of being correct in light and forgotten in dark.
 class AppThemeConfig {
-  static ThemeData getLightTheme() => _build(AppPalette.light, Brightness.light);
+  static ThemeData getLightTheme() =>
+      _build(AppPalette.light, Brightness.light);
 
   static ThemeData getDarkTheme() => _build(AppPalette.dark, Brightness.dark);
 
@@ -24,9 +25,9 @@ class AppThemeConfig {
     final colorScheme = ColorScheme(
       brightness: brightness,
       primary: p.primary,
-      onPrimary: isDark ? AppColors.backgroundDark : Colors.white,
+      onPrimary: p.textOnBrand,
       secondary: AppColors.secondary,
-      onSecondary: AppColors.secondaryForeground,
+      onSecondary: p.textPrimary,
       error: p.error,
       onError: Colors.white,
       // `surface` is the colour Material paints cards, sheets, menus and
@@ -297,7 +298,8 @@ class AppThemeConfig {
 
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
-          color: isDark ? AppColors.surfaceDarkRaised : AppColors.backgroundDark,
+          color:
+              isDark ? AppColors.surfaceDarkRaised : AppColors.backgroundDark,
           borderRadius: BorderRadius.circular(AppRadius.small),
         ),
         textStyle:

@@ -448,7 +448,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
       padding: const EdgeInsetsDirectional.fromSTEB(8, 10, 16, 10),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
+          colors: [AppColors.primary, AppColors.primaryLight],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),

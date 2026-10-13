@@ -164,7 +164,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
       ),
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF9333EA), Color(0xFF2563EB)],
+          colors: [AppColors.primary, AppColors.primaryDark],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
