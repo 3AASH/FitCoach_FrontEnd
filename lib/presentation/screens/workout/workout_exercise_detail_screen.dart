@@ -163,10 +163,10 @@ class _WorkoutExerciseDetailScreenState
                         itemBuilder: (context, index) {
                           final alt = alternatives[index];
                           final altIsArabic = lang.isArabic;
-                          final altName = altIsArabic &&
-                                  alt.nameAr.trim().isNotEmpty
-                              ? alt.nameAr
-                              : alt.nameEn;
+                          final altName =
+                              altIsArabic && alt.nameAr.trim().isNotEmpty
+                                  ? alt.nameAr
+                                  : alt.nameEn;
                           final altGifUrl = _resolveHeroThumbnail(
                             alt.thumbnailUrl,
                             alt.videoUrl,
@@ -214,7 +214,7 @@ class _WorkoutExerciseDetailScreenState
                                 scaffoldMessenger.showSnackBar(
                                   SnackBar(
                                     content: Text(successMessage),
-                                    backgroundColor: AppColors.success,
+                                    backgroundColor: AppColors.cyan,
                                   ),
                                 );
                               }
@@ -252,7 +252,8 @@ class _WorkoutExerciseDetailScreenState
   }
 
   Widget _buildAlternativeThumbnail(String? imageUrl) {
-    const placeholder = 'assets/placeholders/splash_onboarding/workout_onboarding.png';
+    const placeholder =
+        'assets/placeholders/splash_onboarding/workout_onboarding.png';
     if (imageUrl == null || imageUrl.isEmpty) {
       return Image.asset(placeholder, fit: BoxFit.cover);
     }
@@ -330,9 +331,12 @@ class _WorkoutExerciseDetailScreenState
                 children: [
                   Container(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: LinearGradient(
-                        colors: [AppColors.primary, AppColors.primaryDark],
+                        colors: [
+                          context.palette.surface,
+                          context.palette.surfaceVariant
+                        ],
                         begin: AlignmentDirectional.topStart,
                         end: AlignmentDirectional.bottomEnd,
                       ),
@@ -342,9 +346,9 @@ class _WorkoutExerciseDetailScreenState
                         IconButton(
                           tooltip: 'Back',
                           onPressed: () => Navigator.pop(context),
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.arrow_back,
-                            color: AppColors.textWhite,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                         Expanded(
@@ -353,17 +357,15 @@ class _WorkoutExerciseDetailScreenState
                             children: [
                               Text(
                                 isArabic ? exercise.nameAr : exercise.nameEn,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.textWhite,
+                                style: AppTextStyles.h3.copyWith(
+                                  color: context.palette.textPrimary,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
                                 '${muscleLabel.isEmpty ? '' : muscleLabel} \u2022 ${exercise.category ?? ''}',
                                 style: TextStyle(
-                                  color: AppColors.textWhite
+                                  color: context.palette.textOnBrand
                                       .withValues(alpha: 0.7),
                                   fontSize: 12,
                                 ),
@@ -376,8 +378,8 @@ class _WorkoutExerciseDetailScreenState
                         IconButton(
                           tooltip: 'Show alternatives',
                           onPressed: _showAlternatives,
-                          icon: const Icon(Icons.swap_horiz,
-                              color: AppColors.textWhite),
+                          icon: Icon(Icons.swap_horiz,
+                              color: context.palette.textPrimary),
                         ),
                       ],
                     ),
@@ -423,14 +425,16 @@ class _WorkoutExerciseDetailScreenState
                           const SizedBox(height: 16),
                           Container(
                             decoration: BoxDecoration(
-                              color: context.palette.surfaceVariant.withValues(alpha: 0.9),
+                              color: context.palette.surfaceVariant
+                                  .withValues(alpha: 0.9),
                               borderRadius: BorderRadius.circular(16),
                               border: Border.all(color: context.palette.border),
                             ),
                             child: TabBar(
-                              labelColor: AppColors.primary,
-                              unselectedLabelColor: context.palette.textSecondary,
-                              indicatorColor: AppColors.primary,
+                              labelColor: context.palette.primary,
+                              unselectedLabelColor:
+                                  context.palette.textSecondary,
+                              indicatorColor: context.palette.primary,
                               indicatorWeight: 3,
                               labelStyle:
                                   const TextStyle(fontWeight: FontWeight.w600),
@@ -531,8 +535,8 @@ class _WorkoutExerciseDetailScreenState
                                                         height: 24,
                                                         decoration:
                                                             BoxDecoration(
-                                                          color:
-                                                              AppColors.primary,
+                                                          color: context
+                                                              .palette.primary,
                                                           borderRadius:
                                                               BorderRadius
                                                                   .circular(12),
@@ -726,8 +730,8 @@ class _DifficultyBadge extends StatelessWidget {
     Color foreground;
     switch (normalized) {
       case 'beginner':
-        background = AppColors.success.withValues(alpha: 0.2);
-        foreground = AppColors.success;
+        background = AppColors.cyan.withValues(alpha: 0.12);
+        foreground = AppColors.cyan;
         break;
       case 'intermediate':
         background = AppColors.warning.withValues(alpha: 0.2);
@@ -738,8 +742,8 @@ class _DifficultyBadge extends StatelessWidget {
         foreground = AppColors.error;
         break;
       default:
-        background = AppColors.textWhite.withValues(alpha: 0.2);
-        foreground = AppColors.textWhite;
+        background = context.palette.textOnBrand.withValues(alpha: 0.2);
+        foreground = context.palette.textOnBrand;
     }
 
     return Container(
@@ -809,8 +813,8 @@ class _TutorialOverlay extends StatelessWidget {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.info_outline,
-                            color: AppColors.primary),
+                        Icon(Icons.info_outline,
+                            color: context.palette.primary),
                         const SizedBox(width: 8),
                         Text(
                           lang.t('exercise_tutorial_title'),
@@ -886,10 +890,10 @@ class _TutorialStep extends StatelessWidget {
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.15),
+            color: context.palette.primary.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(16),
           ),
-          child: Icon(icon, color: AppColors.primary, size: 18),
+          child: Icon(icon, color: context.palette.primary, size: 18),
         ),
         const SizedBox(width: 12),
         Expanded(

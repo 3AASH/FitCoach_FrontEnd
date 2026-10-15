@@ -30,15 +30,15 @@ class CustomStatCard extends StatelessWidget {
           color: theme.cardColor.withValues(alpha: 0.96),
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: theme.dividerColor, width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.16 : 0.05,
-              ),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: theme.brightness == Brightness.dark
+              ? const []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,16 +61,16 @@ class CustomStatCard extends StatelessWidget {
                 child: Text(
                   value,
                   maxLines: 1,
-                  style:
-                      AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
+                  style: AppTextStyles.h3
+                      .copyWith(color: context.palette.textPrimary),
                 ),
               ),
             ),
             const SizedBox(height: 4),
             Text(
               title,
-              style:
-                  AppTextStyles.small.copyWith(color: context.palette.textSecondary),
+              style: AppTextStyles.small
+                  .copyWith(color: context.palette.textSecondary),
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -109,15 +109,15 @@ class CustomInfoCard extends StatelessWidget {
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(color: theme.dividerColor),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.14 : 0.04,
-              ),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+          boxShadow: theme.brightness == Brightness.dark
+              ? const []
+              : [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
         ),
         child: Row(
           children: [
@@ -125,11 +125,12 @@ class CustomInfoCard extends StatelessWidget {
               width: 40,
               height: 40,
               decoration: BoxDecoration(
-                color: (iconColor ?? AppColors.primary).withValues(alpha: 0.12),
+                color: (iconColor ?? context.palette.primary)
+                    .withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child:
-                  Icon(icon, color: iconColor ?? AppColors.primary, size: 20),
+              child: Icon(icon,
+                  color: iconColor ?? context.palette.primary, size: 20),
             ),
             const SizedBox(width: 12),
             Expanded(

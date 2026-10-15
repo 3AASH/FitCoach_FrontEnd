@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/config/demo_config.dart';
@@ -240,8 +240,11 @@ class _ProgressScreenState extends State<ProgressScreen> {
     }
 
     final today = DateTime.now();
-    final byDate = {for (final day in _nutritionHistory)
-      day['date'].toString().substring(0, 10): double.tryParse(day['calories'].toString()) ?? 0.0};
+    final byDate = {
+      for (final day in _nutritionHistory)
+        day['date'].toString().substring(0, 10):
+            double.tryParse(day['calories'].toString()) ?? 0.0
+    };
     return List.generate(7, (index) {
       final date = DateTime(today.year, today.month, today.day - 6 + index);
       return byDate[date.toIso8601String().substring(0, 10)] ?? 0.0;
@@ -377,8 +380,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 _selectedPeriod = period;
               });
             },
-            selectedColor: AppColors.primary.withValues(alpha: 0.2),
-            checkmarkColor: AppColors.primary,
+            selectedColor: context.palette.primary.withValues(alpha: 0.2),
+            checkmarkColor: context.palette.primary,
           ),
         );
       }).toList(),
@@ -418,7 +421,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             title: lang.t('progress_workouts'),
             value: _workoutCount.toString(),
             icon: Icons.fitness_center,
-            color: AppColors.primary,
+            color: context.palette.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -453,7 +456,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
             child: CustomPaint(
               painter: _LineChartPainter(
                 data: weights,
-                color: AppColors.primary,
+                color: context.palette.primary,
               ),
               child: Container(),
             ),
@@ -525,7 +528,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     width: 32,
                     height: 32,
                     decoration: BoxDecoration(
-                      color: hasWorkout ? AppColors.success : context.palette.surfaceVariant,
+                      color: hasWorkout
+                          ? AppColors.success
+                          : context.palette.surfaceVariant,
                       shape: BoxShape.circle,
                     ),
                     child: hasWorkout
@@ -572,8 +577,8 @@ class _ProgressScreenState extends State<ProgressScreen> {
                 return Container(
                   width: 30,
                   height: height,
-                  decoration: const BoxDecoration(
-                    color: AppColors.secondary,
+                  decoration: BoxDecoration(
+                    color: AppColors.cyan.withValues(alpha: 0.82),
                     borderRadius: BorderRadius.vertical(
                       top: Radius.circular(4),
                     ),
@@ -639,15 +644,15 @@ class _ProgressScreenState extends State<ProgressScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
-            color: AppColors.primary.withValues(alpha: 0.08),
+            color: context.palette.primary.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(999),
           ),
           child: Text(
             '$label: $value',
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w600,
-              color: AppColors.primary,
+              color: context.palette.primary,
             ),
           ),
         ),
@@ -655,24 +660,22 @@ class _ProgressScreenState extends State<ProgressScreen> {
     }
 
     if (entry.weight != null) {
-      addChip(lang.t('weight'),
-          '${entry.weight!.toStringAsFixed(1)} kg');
+      addChip(lang.t('weight'), '${entry.weight!.toStringAsFixed(1)} kg');
     }
     if (entry.bodyFatPercentage != null) {
       addChip(lang.t('progress_body_fat'),
           '${entry.bodyFatPercentage!.toStringAsFixed(1)}%');
     }
     if (entry.waist != null) {
-      addChip(lang.t('progress_waist'),
-          '${entry.waist!.toStringAsFixed(1)} cm');
+      addChip(
+          lang.t('progress_waist'), '${entry.waist!.toStringAsFixed(1)} cm');
     }
     if (entry.chest != null) {
-      addChip(lang.t('progress_chest'),
-          '${entry.chest!.toStringAsFixed(1)} cm');
+      addChip(
+          lang.t('progress_chest'), '${entry.chest!.toStringAsFixed(1)} cm');
     }
     if (entry.hips != null) {
-      addChip(
-          lang.t('progress_hips'), '${entry.hips!.toStringAsFixed(1)} cm');
+      addChip(lang.t('progress_hips'), '${entry.hips!.toStringAsFixed(1)} cm');
     }
     if (entry.bicepsLeft != null || entry.bicepsRight != null) {
       final left = entry.bicepsLeft != null
@@ -775,8 +778,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
       {
         'icon': Icons.emoji_events,
         'title': lang.t('progress_first_week'),
-        'description':
-            lang.t('progress_completed_your_first_week'),
+        'description': lang.t('progress_completed_your_first_week'),
         'unlocked': DemoConfig.isDemo ? true : hasFirstWeek,
       },
       {
@@ -821,7 +823,9 @@ class _ProgressScreenState extends State<ProgressScreen> {
                   ),
                   child: Icon(
                     achievement['icon'] as IconData,
-                    color: unlocked ? AppColors.accent : context.palette.textDisabled,
+                    color: unlocked
+                        ? AppColors.accent
+                        : context.palette.textDisabled,
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -1013,4 +1017,3 @@ class _LineChartPainter extends CustomPainter {
   @override
   bool shouldRepaint(_LineChartPainter oldDelegate) => false;
 }
-

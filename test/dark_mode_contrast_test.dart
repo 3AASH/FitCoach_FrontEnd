@@ -19,13 +19,17 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:fitapp/core/config/theme_config.dart';
+import 'package:fitapp/core/constants/colors.dart';
 import 'package:fitapp/core/theme/app_palette.dart';
 
 /// WCAG relative luminance.
 double _luminance(Color color) {
   double channel(double component) {
     final c = component;
-    return c <= 0.03928 ? c / 12.92 : math.pow((c + 0.055) / 1.055, 2.4) as double;
+    return c <= 0.03928
+        ? c / 12.92
+        : math.pow((c + 0.055) / 1.055, 2.4) as double;
   }
 
   return 0.2126 * channel(color.r) +
@@ -76,8 +80,8 @@ String? _enclosingCall(String source, int offset) {
       if (depth == 0) {
         var end = i;
         var start = i;
-        while (start > 0 &&
-            RegExp(r'[A-Za-z0-9_.]').hasMatch(source[start - 1])) {
+        while (
+            start > 0 && RegExp(r'[A-Za-z0-9_.]').hasMatch(source[start - 1])) {
           start--;
         }
         final name = source.substring(start, end);
@@ -158,15 +162,60 @@ void main() {
           greaterThanOrEqualTo(4.5),
           reason: 'primary text on the ${entry.key} surface',
         );
+        expect(
+          contrast(palette.textDisabled, palette.surface),
+          greaterThanOrEqualTo(4.5),
+          reason: 'disabled and hint text on the ${entry.key} surface',
+        );
+        expect(
+          contrast(palette.textDisabled, palette.surfaceVariant),
+          greaterThanOrEqualTo(4.5),
+          reason: 'disabled text on the ${entry.key} raised surface',
+        );
       }
     });
 
-    test('dark secondary text on a white surface is the bug, and is unusable',
-        () {
+    test('dark secondary text is still not usable on a white surface', () {
       // Pins the reason the rule below exists: this is what the editor sheets
       // were doing, and it is nowhere near readable.
       final ratio = contrast(AppPalette.dark.textSecondary, Colors.white);
-      expect(ratio, lessThan(2.0));
+      expect(ratio, lessThan(3.0));
+    });
+
+    test('theme control foregrounds contrast with their fills', () {
+      for (final theme in [
+        AppThemeConfig.getLightTheme(),
+        AppThemeConfig.getDarkTheme(),
+      ]) {
+        expect(
+          contrast(theme.colorScheme.onPrimary, theme.colorScheme.primary),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          contrast(theme.colorScheme.onError, theme.colorScheme.error),
+          greaterThanOrEqualTo(4.5),
+        );
+        expect(
+          theme.bottomNavigationBarTheme.unselectedItemColor,
+          theme.extension<AppPalette>()!.textSecondary,
+        );
+      }
+    });
+
+    test('dynamic brand and status fills get a readable foreground', () {
+      for (final fill in [
+        AppColors.primary,
+        AppColors.gold,
+        AppColors.cyan,
+        AppColors.error,
+        AppPalette.dark.error,
+      ]) {
+        expect(
+          contrast(foregroundFor(fill), fill),
+          greaterThanOrEqualTo(4.5),
+          reason: 'foreground on $fill',
+        );
+      }
     });
   });
 

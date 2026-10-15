@@ -104,7 +104,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
-        final hasAssignedCoach =
+    final hasAssignedCoach =
         DemoConfig.isDemo || ((authProvider.user?.coachId ?? '').isNotEmpty);
     final coachData = _resolveCoachData(lang, authProvider);
 
@@ -162,9 +162,12 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         16,
         20,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.primaryDark],
+          colors: [
+            context.palette.primary,
+            context.palette.primary.withValues(alpha: 0.86)
+          ],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
@@ -182,13 +185,15 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
           const SizedBox(width: 8),
           Expanded(
             child: Column(
-              crossAxisAlignment:
-                  lang.isArabic ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: lang.isArabic
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.videocam, color: context.palette.textOnBrand, size: 24),
+                    Icon(Icons.videocam,
+                        color: context.palette.textOnBrand, size: 24),
                     const SizedBox(width: 8),
                     Text(
                       lang.t('video_booking_book_video_session'),
@@ -204,7 +209,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 Text(
                   lang.t('video_booking_reserve_a_1_on_1_session'),
                   style: TextStyle(
-                    color: Colors.white70,
+                    color: context.palette.textOnBrand70,
                     fontSize: 13,
                   ),
                 ),
@@ -288,7 +293,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
             width: 64,
             height: 64,
             decoration: BoxDecoration(
-              color: const Color(0xFF9333EA),
+              color: context.palette.primary,
               borderRadius: BorderRadius.circular(32),
             ),
             child: Center(
@@ -415,8 +420,8 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
               children: [
-                const Icon(Icons.calendar_today,
-                    size: 20, color: Color(0xFF9333EA)),
+                Icon(Icons.calendar_today,
+                    size: 20, color: context.palette.primary),
                 const SizedBox(width: 8),
                 Text(
                   lang.t('video_booking_select_date'),
@@ -441,12 +446,12 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                   TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
             ),
             calendarStyle: CalendarStyle(
-              selectedDecoration: const BoxDecoration(
-                color: Color(0xFF9333EA),
+              selectedDecoration: BoxDecoration(
+                color: context.palette.primary,
                 shape: BoxShape.circle,
               ),
               todayDecoration: BoxDecoration(
-                color: const Color(0xFF9333EA).withValues(alpha: 0.3),
+                color: context.palette.primary.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               outsideDaysVisible: false,
@@ -485,7 +490,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.access_time, size: 20, color: Color(0xFF9333EA)),
+              Icon(Icons.access_time, size: 20, color: context.palette.primary),
               const SizedBox(width: 8),
               Text(
                 lang.t('video_booking_available_slots'),
@@ -527,14 +532,17 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                   label: Text(slot),
                   selected: isSelected,
                   onSelected: (_) => setState(() => _selectedTime = slot),
-                  selectedColor: const Color(0xFF9333EA),
+                  selectedColor: context.palette.primary,
                   backgroundColor: context.palette.surface,
                   side: BorderSide(
-                    color:
-                        isSelected ? const Color(0xFF9333EA) : context.palette.border,
+                    color: isSelected
+                        ? context.palette.primary
+                        : context.palette.border,
                   ),
                   labelStyle: TextStyle(
-                    color: isSelected ? context.palette.textOnBrand : context.palette.textPrimary,
+                    color: isSelected
+                        ? context.palette.textOnBrand
+                        : context.palette.textPrimary,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                   ),
                 );
@@ -573,14 +581,17 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 label: Text('$duration ${lang.t('minute_short')}'),
                 selected: isSelected,
                 onSelected: (_) => setState(() => _selectedDuration = duration),
-                selectedColor: const Color(0xFF9333EA),
+                selectedColor: context.palette.primary,
                 backgroundColor: context.palette.surface,
                 side: BorderSide(
-                  color:
-                      isSelected ? const Color(0xFF9333EA) : context.palette.border,
+                  color: isSelected
+                      ? context.palette.primary
+                      : context.palette.border,
                 ),
                 labelStyle: TextStyle(
-                  color: isSelected ? context.palette.textOnBrand : context.palette.textPrimary,
+                  color: isSelected
+                      ? context.palette.textOnBrand
+                      : context.palette.textPrimary,
                   fontWeight: FontWeight.w600,
                 ),
               );

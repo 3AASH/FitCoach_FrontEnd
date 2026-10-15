@@ -1,4 +1,4 @@
-﻿import 'package:flutter/foundation.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -430,10 +430,15 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
                                                 // let a plan reference an
                                                 // exercise the library has
                                                 // never heard of.
-                                                _updateExercise(dayIndex,
-                                                    exIndex, 'name', option.name);
-                                                _updateExercise(dayIndex,
-                                                    exIndex, 'exerciseId',
+                                                _updateExercise(
+                                                    dayIndex,
+                                                    exIndex,
+                                                    'name',
+                                                    option.name);
+                                                _updateExercise(
+                                                    dayIndex,
+                                                    exIndex,
+                                                    'exerciseId',
                                                     option.id);
                                               },
                                             ),
@@ -621,4 +626,3 @@ class _WorkoutPlanEditorScreenState extends State<WorkoutPlanEditorScreen> {
     return null;
   }
 }
-

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -116,7 +116,8 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            lang.t('coach_schedule_success', args: {'client': widget.clientName}),
+            lang.t('coach_schedule_success',
+                args: {'client': widget.clientName}),
           ),
           backgroundColor: AppColors.success,
         ),
@@ -157,10 +158,7 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
               Expanded(
                 child: Text(
                   lang.t('coach_schedule_title'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
               ),
               IconButton(
@@ -171,7 +169,8 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
             ],
           ),
           Text(
-            lang.t('coach_schedule_subtitle', args: {'client': widget.clientName}),
+            lang.t('coach_schedule_subtitle',
+                args: {'client': widget.clientName}),
             style: TextStyle(color: context.palette.textSecondary),
           ),
           const SizedBox(height: 16),
@@ -246,4 +245,3 @@ class _ScheduleSessionSheetState extends State<_ScheduleSessionSheet> {
     );
   }
 }
-

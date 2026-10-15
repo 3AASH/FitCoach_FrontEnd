@@ -1,8 +1,9 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/constants/colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../core/utils/phone_number_utils.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -100,7 +101,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(languageProvider.t('auth_reset_success')),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.palette.success,
         ),
       );
       Navigator.pop(context, true);
@@ -115,96 +116,109 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final providerError = authProvider.error;
 
     return Scaffold(
+      backgroundColor: context.palette.background,
       appBar: AppBar(
+        backgroundColor: context.palette.background,
+        foregroundColor: context.palette.textPrimary,
+        surfaceTintColor: Colors.transparent,
         title: Text(languageProvider.t('auth_forgot_password_title')),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                _codeSent
-                    ? languageProvider.t('auth_enter_otp')
-                    : languageProvider.t('auth_reset_password_phone_desc'),
-                style: const TextStyle(fontSize: 15),
-              ),
-              const SizedBox(height: 20),
-              if (!_codeSent) ...[
-                InternationalPhoneInput(
-                  controller: _phoneController,
-                  selectedCountry: _country,
-                  onCountryChanged: (c) => setState(() => _country = c),
-                  label: languageProvider.t('auth_phone'),
-                  errorText: _phoneError,
-                  enabled: !isBusy,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: isBusy ? null : _sendCode,
-                  child: isBusy
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(languageProvider.t('auth_send_code')),
-                ),
-              ] else ...[
-                TextField(
-                  controller: _otpController,
-                  keyboardType: TextInputType.number,
-                  maxLength: 6,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  decoration: InputDecoration(
-                    labelText: languageProvider.t('auth_enter_otp'),
-                    counterText: '',
-                  ),
-                  enabled: !isBusy,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: languageProvider.t('auth_new_password'),
-                  ),
-                  enabled: !isBusy,
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _confirmController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: languageProvider.t('auth_confirm_password'),
-                  ),
-                  enabled: !isBusy,
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: isBusy ? null : _resetPassword,
-                  child: isBusy
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(languageProvider.t('auth_reset_password_action')),
-                ),
-              ],
-              if (_formError != null || providerError != null) ...[
-                const SizedBox(height: 16),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: context.palette.surface,
+              borderRadius: BorderRadius.circular(AppRadius.xlarge),
+              border: Border.all(color: context.palette.border),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
                 Text(
-                  _formError ?? providerError!,
-                  style: const TextStyle(color: AppColors.error),
+                  _codeSent
+                      ? languageProvider.t('auth_enter_otp')
+                      : languageProvider.t('auth_reset_password_phone_desc'),
+                  style: AppTextStyles.body.copyWith(
+                      fontSize: 15, color: context.palette.textSecondary),
                 ),
+                const SizedBox(height: 20),
+                if (!_codeSent) ...[
+                  InternationalPhoneInput(
+                    controller: _phoneController,
+                    selectedCountry: _country,
+                    onCountryChanged: (c) => setState(() => _country = c),
+                    label: languageProvider.t('auth_phone'),
+                    errorText: _phoneError,
+                    enabled: !isBusy,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: isBusy ? null : _sendCode,
+                    child: isBusy
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(languageProvider.t('auth_send_code')),
+                  ),
+                ] else ...[
+                  TextField(
+                    controller: _otpController,
+                    keyboardType: TextInputType.number,
+                    maxLength: 6,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    decoration: InputDecoration(
+                      labelText: languageProvider.t('auth_enter_otp'),
+                      counterText: '',
+                    ),
+                    enabled: !isBusy,
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _passwordController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: languageProvider.t('auth_new_password'),
+                    ),
+                    enabled: !isBusy,
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: _confirmController,
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      labelText: languageProvider.t('auth_confirm_password'),
+                    ),
+                    enabled: !isBusy,
+                  ),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: isBusy ? null : _resetPassword,
+                    child: isBusy
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Text(
+                            languageProvider.t('auth_reset_password_action')),
+                  ),
+                ],
+                if (_formError != null || providerError != null) ...[
+                  const SizedBox(height: 16),
+                  Text(
+                    _formError ?? providerError!,
+                    style: TextStyle(color: context.palette.error),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),
     );
   }
 }
-

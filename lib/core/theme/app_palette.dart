@@ -2,6 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../constants/colors.dart';
 
+/// Returns the black or white foreground with the stronger contrast against
+/// a solid fill. Useful when a status or brand colour changes with the theme.
+Color foregroundFor(Color background) =>
+    background.computeLuminance() > 0.179 ? Colors.black : Colors.white;
+
 /// The app's semantic colours, resolved for the active brightness.
 ///
 /// Why this exists: `AppColors` is a flat set of `static const` values, so a
@@ -16,9 +21,9 @@ import '../constants/colors.dart';
 /// those so they resolve per theme and animate with it, instead of being
 /// looked up from a global.
 ///
-/// Read it as `context.palette.textSecondary`. Brand hues (primary, success,
-/// warning, error, accent, chart series) intentionally hold the same value in
-/// both themes -- they are identity, not contrast. Only the neutrals flip.
+/// Read it as `context.palette.textSecondary`. Neutrals flip between themes;
+/// `primary` is deep navy in light mode and metallic gold in dark mode, and the
+/// status hues are brightened in dark mode for contrast on obsidian surfaces.
 @immutable
 class AppPalette extends ThemeExtension<AppPalette> {
   /// Primary body text on [surface].
@@ -83,8 +88,8 @@ class AppPalette extends ThemeExtension<AppPalette> {
     textDisabled: AppColors.textDisabled,
     textOnBrand: AppColors.textWhite,
     background: AppColors.background,
-    surface: AppColors.background,
-    surfaceVariant: AppColors.surface,
+    surface: AppColors.surfaceLight,
+    surfaceVariant: AppColors.secondary,
     border: AppColors.border,
     divider: AppColors.divider,
     primary: AppColors.primary,
@@ -101,21 +106,21 @@ class AppPalette extends ThemeExtension<AppPalette> {
   static const AppPalette dark = AppPalette(
     textPrimary: AppColors.textPrimaryDark,
     textSecondary: AppColors.textSecondaryDark,
-    textDisabled: AppColors.textDisabled,
-    // Dark mode uses a lighter teal so primary controls stand apart from the
-    // dark canvas. Dark text on this fill preserves strong contrast.
+    textDisabled: AppColors.textDisabledDark,
+    // Dark mode primary actions are metallic gold; obsidian navy text on that
+    // fill preserves strong contrast.
     textOnBrand: AppColors.backgroundDark,
-    background: AppColors.surfaceDarkRaised,
-    surface: AppColors.backgroundDark,
-    surfaceVariant: AppColors.surfaceDark,
+    background: AppColors.backgroundDark,
+    surface: AppColors.surfaceDark,
+    surfaceVariant: AppColors.surfaceDarkRaised,
     border: AppColors.borderDark,
     divider: AppColors.borderDark,
-    primary: AppColors.primaryLight,
-    success: AppColors.success,
-    warning: AppColors.warning,
-    error: AppColors.error,
-    info: AppColors.info,
-    accent: AppColors.accent,
+    primary: AppColors.gold,
+    success: Color(0xFF4ADE80),
+    warning: AppColors.goldLight,
+    error: Color(0xFFFF8A80),
+    info: AppColors.cyan,
+    accent: AppColors.gold,
   );
 
   @override

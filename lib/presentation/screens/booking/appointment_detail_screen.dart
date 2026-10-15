@@ -241,17 +241,17 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
   Color _getStatusColor(String status) {
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return AppColors.warning;
       case 'confirmed':
-        return Colors.green;
+        return AppColors.success;
       case 'in_progress':
-        return Colors.blue;
+        return AppColors.cyan;
       case 'completed':
-        return Colors.grey;
+        return AppColors.textDisabled;
       case 'cancelled':
-        return Colors.red;
+        return AppColors.error;
       default:
-        return Colors.grey;
+        return AppColors.textDisabled;
     }
   }
 
@@ -265,7 +265,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primary),
+            Icon(icon, color: context.palette.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -347,11 +347,12 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                      child: const Icon(
+                      backgroundColor:
+                          context.palette.primary.withValues(alpha: 0.12),
+                      child: Icon(
                         Icons.person,
                         size: 30,
-                        color: AppColors.primary,
+                        color: context.palette.primary,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -438,20 +439,21 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
+                            color: AppColors.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.green, width: 2),
+                            border:
+                                Border.all(color: AppColors.success, width: 2),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.check_circle,
-                                  color: Colors.green),
+                                  color: AppColors.success),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   languageProvider.t('can_join_now'),
                                   style: const TextStyle(
-                                    color: Colors.green,
+                                    color: AppColors.success,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -472,13 +474,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.1),
+                        color: AppColors.warning.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.orange),
+                        border: Border.all(color: AppColors.warning),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.schedule, color: Colors.orange),
+                          const Icon(Icons.schedule, color: AppColors.warning),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(

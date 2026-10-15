@@ -302,7 +302,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final lang = context.watch<LanguageProvider>();
     final nutritionProvider = context.watch<NutritionProvider>();
     final authProvider = context.watch<AuthProvider>();
-        final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
+    final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
 
     if (!_introLoaded || !_preferencesLoaded) {
       return const Scaffold(
@@ -388,25 +388,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
         body: Stack(
           children: [
             Positioned.fill(
-              child: Opacity(
-                opacity: 0.8,
-                child: Image.asset(
-                  'assets/placeholders/splash_onboarding/nuitration_onboarding.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
+              child: Container(color: context.palette.background),
             ),
             SafeArea(
               child: Column(
                 children: [
                   Container(
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Color(0xFF059669), Color(0xFF0F766E)],
-                        begin: AlignmentDirectional.topStart,
-                        end: AlignmentDirectional.bottomEnd,
-                      ),
+                    decoration: BoxDecoration(
+                      color: context.palette.surface,
+                      border: Border(
+                          bottom: BorderSide(color: context.palette.border)),
                     ),
                     child: Column(
                       children: [
@@ -416,7 +408,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               onPressed: () => _handleBack(),
                               icon: Icon(
                                 Icons.arrow_back,
-                                color: context.palette.textOnBrand,
+                                color: context.palette.textPrimary,
                               ),
                               tooltip: lang.t('back'),
                             ),
@@ -427,14 +419,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   Text(
                                     lang.t('nutrition_title'),
                                     style: AppTextStyles.h2.copyWith(
-                                      color: context.palette.textOnBrand,
+                                      color: context.palette.textPrimary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
                                     lang.t('nutrition_tracking'),
                                     style: AppTextStyles.caption.copyWith(
-                                      color: context.palette.textOnBrand.withValues(alpha: 0.7),
+                                      color: context.palette.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -445,7 +437,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   color: context.palette.textOnBrand),
                               onPressed: () async {
                                 await nutritionProvider.loadIntakeRequirements(
-                                  planType: subscriptionTier.toLowerCase() == 'freemium' ? 'starter' : 'professional');
+                                    planType: subscriptionTier.toLowerCase() ==
+                                            'freemium'
+                                        ? 'starter'
+                                        : 'professional');
                                 if (mounted) {
                                   setState(() {
                                     _editingPreferences = true;
@@ -453,8 +448,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                   });
                                 }
                               },
-                              tooltip: lang
-                                  .t('nutrition_edit_preferences'),
+                              tooltip: lang.t('nutrition_edit_preferences'),
                             ),
                           ],
                         ),
@@ -462,10 +456,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: context.palette.textOnBrand.withValues(alpha: 0.12),
+                            color: context.palette.surfaceVariant,
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                                color: context.palette.textOnBrand.withValues(alpha: 0.2)),
+                            border: Border.all(color: context.palette.border),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -475,10 +468,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                     MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
-                                    lang
-                                        .t('nutrition_todays_progress'),
+                                    lang.t('nutrition_todays_progress'),
                                     style: TextStyle(
-                                      color: context.palette.textOnBrand,
+                                      color: context.palette.textPrimary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
@@ -486,8 +478,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 8, vertical: 4),
                                     decoration: BoxDecoration(
-                                      color:
-                                          context.palette.textOnBrand.withValues(alpha: 0.2),
+                                      color: context.palette.border,
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
@@ -502,7 +493,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               Text(
                                 '${currentMacros['calories']?.toInt() ?? 0} / ${macroTargets['calories']}',
                                 style: AppTextStyles.caption.copyWith(
-                                    color: context.palette.textOnBrand.withValues(alpha: 0.7)),
+                                    color: context.palette.textSecondary),
                               ),
                               const SizedBox(height: 8),
                               ClipRRect(
@@ -510,11 +501,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                                 child: LinearProgressIndicator(
                                   value: calorieProgress.clamp(0, 1).toDouble(),
                                   minHeight: 6,
-                                  backgroundColor:
-                                      context.palette.textOnBrand.withValues(alpha: 0.2),
-                                  valueColor:
-                                      AlwaysStoppedAnimation<Color>(
-                                          context.palette.textOnBrand),
+                                  backgroundColor: context.palette.border,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                      context.palette.textOnBrand),
                                 ),
                               ),
                             ],
@@ -536,8 +525,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                       child: TabBar(
                         labelColor: context.palette.textPrimary,
                         unselectedLabelColor: context.palette.textSecondary,
-                        labelStyle: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w600),
-                        unselectedLabelStyle: AppTextStyles.caption.copyWith(fontWeight: FontWeight.w500),
+                        labelStyle: AppTextStyles.caption
+                            .copyWith(fontWeight: FontWeight.w600),
+                        unselectedLabelStyle: AppTextStyles.caption
+                            .copyWith(fontWeight: FontWeight.w500),
                         indicator: BoxDecoration(
                           color: context.palette.surface,
                           borderRadius: BorderRadius.circular(10),
@@ -546,9 +537,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         tabs: [
                           Tab(text: lang.t('nutrition_tab_today')),
                           Tab(text: lang.t('nutrition_tab_meals')),
-                          Tab(
-                              text:
-                                  lang.t('nutrition_tab_tracking')),
+                          Tab(text: lang.t('nutrition_tab_tracking')),
                         ],
                       ),
                     ),
@@ -588,18 +577,32 @@ class _NutritionScreenState extends State<NutritionScreen> {
           _buildMacroBreakdownGrid(lang, provider),
           const SizedBox(height: 20),
           Row(children: [
-            Expanded(child: Text(MaterialLocalizations.of(context).formatFullDate(provider.selectedDate))),
-            IconButton(icon: const Icon(Icons.calendar_month),
-              tooltip: lang.t('nutrition_select_date'),
-              onPressed: () async {
-                final date = await showDatePicker(context: context,
-                  initialDate: provider.selectedDate,
-                  firstDate: DateTime(2020), lastDate: DateTime.now());
-                if (date != null) await provider.selectDate(date);
-              }),
+            Expanded(
+                child: Text(MaterialLocalizations.of(context)
+                    .formatFullDate(provider.selectedDate))),
+            IconButton(
+                icon: const Icon(Icons.calendar_month),
+                tooltip: lang.t('nutrition_select_date'),
+                onPressed: () async {
+                  final date = await showDatePicker(
+                      context: context,
+                      initialDate: provider.selectedDate,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now());
+                  if (date != null) await provider.selectDate(date);
+                }),
           ]),
           const SizedBox(height: 12),
-          ...(meals.map((meal) => _buildMealCard(meal, lang))),
+          if (meals.isNotEmpty)
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              clipBehavior: Clip.none,
+              child:
+                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                for (final meal in meals)
+                  SizedBox(width: 300, child: _buildMealCard(meal, lang)),
+              ]),
+            ),
         ],
       ),
     );
@@ -681,11 +684,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
           Text(lang.t('nutrition_daily_history'),
               style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600)),
           ..._nutritionHistory.map((day) => ListTile(
-            title: Text(day['date'].toString().substring(0, 10)),
-            subtitle: Text('${day['protein']} ${lang.t('protein')} | ${day['carbs']} ${lang.t('carbs')} | ${day['fat']} ${lang.t('fats')}'),
-            trailing: Text('${day['calories']} ${lang.t('cal_unit')}'),
-            onTap: () => provider.selectDate(DateTime.parse(day['date'].toString())),
-          )),
+                title: Text(day['date'].toString().substring(0, 10)),
+                subtitle: Text(
+                    '${day['protein']} ${lang.t('protein')} | ${day['carbs']} ${lang.t('carbs')} | ${day['fat']} ${lang.t('fats')}'),
+                trailing: Text('${day['calories']} ${lang.t('cal_unit')}'),
+                onTap: () =>
+                    provider.selectDate(DateTime.parse(day['date'].toString())),
+              )),
         ],
       ),
     );
@@ -695,71 +700,108 @@ class _NutritionScreenState extends State<NutritionScreen> {
       LanguageProvider lang, NutritionProvider provider) {
     final targets = provider.macroTargets;
     final current = provider.getCurrentMacros();
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final proteinColor = isDark ? AppColors.proteinDark : AppColors.primary;
 
-    Widget buildCard(
-        IconData icon, Color color, String label, int value, int target) {
+    Widget buildCard(String label, int value, int target, Color color) {
       final progress =
           target == 0 ? 0.0 : (value / target).clamp(0, 1).toDouble();
       return CustomCard(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Icon(icon, color: color, size: 24),
+            Row(children: [
+              Container(
+                  width: 8,
+                  height: 8,
+                  decoration:
+                      BoxDecoration(color: color, shape: BoxShape.circle)),
+              const SizedBox(width: 6),
+              Expanded(
+                  child: Text(label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.overline
+                          .copyWith(color: context.palette.textSecondary))),
+            ]),
             const SizedBox(height: 8),
-            Text('$value',
-                style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600)),
-            Text(label,
-                style: AppTextStyles.caption.copyWith(
-                    color: context.palette.textSecondary)),
+            FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: AlignmentDirectional.centerStart,
+                child: Text('$value / $target g',
+                    style: AppTextStyles.h4
+                        .copyWith(color: context.palette.textPrimary))),
             const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value: progress,
-              minHeight: 4,
-              backgroundColor: context.palette.surfaceVariant,
-              valueColor: AlwaysStoppedAnimation<Color>(color),
-            ),
+            ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 5,
+                    backgroundColor: context.palette.surfaceVariant,
+                    valueColor: AlwaysStoppedAnimation<Color>(color))),
           ],
         ),
       );
     }
 
-    return GridView.count(
-      crossAxisCount: 2,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1.1,
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
+    return Column(
       children: [
-        buildCard(
-          Icons.egg_alt,
-          const Color(0xFFEF4444),
-          lang.t('protein'),
-          (current['protein'] as num).toInt(),
-          (targets['protein'] as num).toInt(),
-        ),
-        buildCard(
-          Icons.grass,
-          AppColors.accent,
-          lang.t('carbs'),
-          (current['carbs'] as num).toInt(),
-          (targets['carbs'] as num).toInt(),
-        ),
-        buildCard(
-          Icons.opacity,
-          AppColors.primary,
-          lang.t('fats'),
-          (current['fat'] as num).toInt(),
-          (targets['fat'] as num).toInt(),
-        ),
-        buildCard(
-          Icons.water_drop,
-          const Color(0xFF06B6D4),
-          lang.t('nutrition_water'),
-          (current['water'] as num?)?.toInt() ?? 0,
-          (targets['water'] as num?)?.toInt() ?? 3000,
-        ),
+        Row(children: [
+          Expanded(
+              child: buildCard(
+                  lang.t('protein'),
+                  (current['protein'] as num).toInt(),
+                  (targets['protein'] as num).toInt(),
+                  proteinColor)),
+          const SizedBox(width: 8),
+          Expanded(
+              child: buildCard(
+                  lang.t('carbs'),
+                  (current['carbs'] as num).toInt(),
+                  (targets['carbs'] as num).toInt(),
+                  AppColors.cyan)),
+          const SizedBox(width: 8),
+          Expanded(
+              child: buildCard(lang.t('fats'), (current['fat'] as num).toInt(),
+                  (targets['fat'] as num).toInt(), AppColors.gold)),
+        ]),
+        const SizedBox(height: 8),
+        _buildWaterProgress(lang, current, targets),
       ],
+    );
+  }
+
+  Widget _buildWaterProgress(LanguageProvider lang,
+      Map<String, dynamic> current, Map<String, dynamic> targets) {
+    final value = (current['water'] as num?)?.toInt() ?? 0;
+    final target = (targets['water'] as num?)?.toInt() ?? 3000;
+    final progress =
+        target == 0 ? 0.0 : (value / target).clamp(0, 1).toDouble();
+    return CustomCard(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      child: Row(children: [
+        Icon(Icons.water_drop, color: AppColors.cyan),
+        const SizedBox(width: 10),
+        Expanded(
+            child: Text(lang.t('nutrition_water'),
+                style: AppTextStyles.smallMedium
+                    .copyWith(color: context.palette.textPrimary))),
+        Text('$value / $target ml',
+            style: AppTextStyles.caption
+                .copyWith(color: context.palette.textSecondary)),
+        const SizedBox(width: 12),
+        SizedBox(
+            width: 68,
+            child: ClipRRect(
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 5,
+                    backgroundColor: context.palette.surfaceVariant,
+                    valueColor:
+                        const AlwaysStoppedAnimation<Color>(AppColors.cyan)))),
+      ]),
     );
   }
 
@@ -777,7 +819,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
         gradient: LinearGradient(
           colors: isExpiringSoon
               ? [AppColors.warning, AppColors.warning.withValues(alpha: 0.7)]
-              : [AppColors.primary, AppColors.primary.withValues(alpha: 0.7)],
+              : [
+                  context.palette.primary,
+                  context.palette.primary.withValues(alpha: 0.7)
+                ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -790,7 +835,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             children: [
               Icon(
                 isExpiringSoon ? Icons.warning_amber : Icons.info_outline,
-                color: context.palette.textOnBrand,
+                color: context.palette.textPrimary,
                 size: 24,
               ),
               const SizedBox(width: 12),
@@ -799,7 +844,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   lang.t('trial_period'),
                   style: AppTextStyles.h3.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: context.palette.textOnBrand,
+                    color: context.palette.textPrimary,
                   ),
                 ),
               ),
@@ -827,7 +872,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: context.palette.surface,
                 foregroundColor:
-                    isExpiringSoon ? AppColors.warning : AppColors.primary,
+                    isExpiringSoon ? AppColors.gold : context.palette.primary,
               ),
               child: Text(lang.t('upgrade_to_premium')),
             ),
@@ -971,7 +1016,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         children: [
           Container(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-            color: AppColors.primary,
+            color: context.palette.primary,
             child: SafeArea(
               bottom: false,
               child: Row(
@@ -981,7 +1026,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                     onPressed: () => Navigator.of(context).maybePop(),
                     icon: Icon(
                       Icons.arrow_back,
-                      color: context.palette.textOnBrand,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   Expanded(
@@ -991,14 +1036,14 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         Text(
                           lang.t('nutrition_title'),
                           style: AppTextStyles.h3.copyWith(
-                            color: context.palette.textOnBrand,
+                            color: context.palette.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
                         Text(
                           lang.t('nutrition_tracking'),
-                          style: AppTextStyles.caption.copyWith(
-                              color: context.palette.textOnBrand.withValues(alpha: 0.7)),
+                          style: AppTextStyles.caption
+                              .copyWith(color: context.palette.textSecondary),
                         ),
                       ],
                     ),
@@ -1020,16 +1065,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         width: 80,
                         height: 80,
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFDE68A),
+                          color: AppColors.gold.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(40),
                         ),
                         child: const Icon(Icons.lock,
-                            size: 36, color: Color(0xFFB45309)),
+                            size: 36, color: AppColors.gold),
                       ),
                       const SizedBox(height: 16),
                       Text(
                         lockedTitle,
-                        style: AppTextStyles.h3.copyWith(fontWeight: FontWeight.w600),
+                        style: AppTextStyles.h3
+                            .copyWith(fontWeight: FontWeight.w600),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 8),
@@ -1088,16 +1134,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
     );
   }
 
-  Widget _buildLockedFeatureRow(IconData icon, String label, LanguageProvider lang) {
+  Widget _buildLockedFeatureRow(
+      IconData icon, String label, LanguageProvider lang) {
     return Row(
       children: [
-        Icon(icon, size: 18, color: const Color(0xFF16A34A)),
+        Icon(icon, size: 18, color: context.palette.success),
         const SizedBox(width: 8),
         Expanded(
           child: Text(
             label,
-            style:
-                AppTextStyles.caption.copyWith(color: context.palette.textSecondary),
+            style: AppTextStyles.caption
+                .copyWith(color: context.palette.textSecondary),
             textAlign: TextAlign.start,
           ),
         ),
@@ -1109,6 +1156,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
     NutritionPlan plan,
     LanguageProvider lang,
   ) {
+    final proteinColor = Theme.of(context).brightness == Brightness.dark
+        ? AppColors.proteinDark
+        : AppColors.primary;
     return Row(
       children: [
         Expanded(
@@ -1117,7 +1167,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             unit: lang.t('gram_unit'),
             value: 120,
             target: plan.macros?['protein'] ?? 0,
-            color: AppColors.primary,
+            color: proteinColor,
           ),
         ),
         Expanded(
@@ -1126,7 +1176,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             unit: lang.t('gram_unit'),
             value: 200,
             target: plan.macros?['carbs'] ?? 0,
-            color: AppColors.secondary,
+            color: AppColors.cyan,
           ),
         ),
         Expanded(
@@ -1135,7 +1185,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             unit: lang.t('gram_unit'),
             value: 50,
             target: plan.macros?['fats'] ?? 0,
-            color: AppColors.accent,
+            color: AppColors.gold,
           ),
         ),
       ],
@@ -1232,10 +1282,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 children: [
                   Text(
                     '$consumed',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                    style: AppTextStyles.h1.copyWith(
+                      color: AppColors.cyan,
                     ),
                   ),
                   Text(
@@ -1251,10 +1299,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 children: [
                   Text(
                     '$remaining',
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.secondary,
+                    style: AppTextStyles.h1.copyWith(
+                      color: context.palette.textSecondary,
                     ),
                   ),
                   Text(
@@ -1273,8 +1319,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             child: LinearProgressIndicator(
               value: percentage,
               backgroundColor: context.palette.surfaceVariant,
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.cyan),
               minHeight: 12,
             ),
           ),
@@ -1294,9 +1339,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
         : <Meal>[];
 
     return Column(
-      children: todayMeals
-          .map<Widget>((meal) => _buildMealCard(meal, lang))
-          .toList(),
+      children:
+          todayMeals.map<Widget>((meal) => _buildMealCard(meal, lang)).toList(),
     );
   }
 
@@ -1408,14 +1452,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         final provider = context.read<NutritionProvider>();
                         // logMeal already updates local state + notifies;
                         // no full reload needed (avoids full-screen spinner).
-                        final success = await provider.logMeal(meal.id, {'completed': true});
+                        final success = await provider
+                            .logMeal(meal.id, {'completed': true});
                         if (!mounted) return;
                         if (!success) {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                            content: Text(provider.error ?? (lang.t('nutrition_could_not_log_meal')))));
+                              content: Text(provider.error ??
+                                  (lang.t('nutrition_could_not_log_meal')))));
                         } else {
-                          final history = await NutritionRepository().getNutritionHistory();
-                          if (mounted) setState(() => _nutritionHistory = history);
+                          final history =
+                              await NutritionRepository().getNutritionHistory();
+                          if (mounted)
+                            setState(() => _nutritionHistory = history);
                         }
                       },
               ),
@@ -1473,13 +1521,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Color _getMealColor(String type) {
     switch (type.toLowerCase()) {
       case 'breakfast':
-        return AppColors.warning;
+        return AppColors.gold;
       case 'lunch':
-        return AppColors.secondary;
+        return AppColors.cyan;
       case 'dinner':
-        return AppColors.primary;
+        return context.palette.primary;
       case 'snack':
-        return AppColors.accent;
+        return AppColors.gold;
       default:
         return context.palette.textDisabled;
     }

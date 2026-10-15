@@ -31,17 +31,14 @@ class CustomCard extends StatelessWidget {
     final showShadow = elevation == null || elevation! > 0;
     final cardDecoration = BoxDecoration(
       color: color ?? theme.cardColor,
-      borderRadius: borderRadius ??
-          BorderRadius.circular(AppRadius.medium), // 10px to match React
+      borderRadius: borderRadius ?? BorderRadius.circular(AppRadius.large),
       border: border ??
           (showBorder ? Border.all(color: theme.dividerColor, width: 1) : null),
-      boxShadow: showShadow
+      boxShadow: showShadow && theme.brightness != Brightness.dark
           ? [
               BoxShadow(
-                color: Colors.black.withValues(
-                  alpha: theme.brightness == Brightness.dark ? 0.16 : 0.05,
-                ), // Subtle shadow like React
-                blurRadius: 10,
+                color: AppColors.primaryDark.withValues(alpha: 0.06),
+                blurRadius: 12,
                 offset: const Offset(0, 2),
               ),
             ]
@@ -55,7 +52,7 @@ class CustomCard extends StatelessWidget {
             child: InkWell(
               onTap: onTap,
               borderRadius:
-                  borderRadius ?? BorderRadius.circular(AppRadius.medium),
+                  borderRadius ?? BorderRadius.circular(AppRadius.large),
               child: Padding(
                 padding: padding ?? const EdgeInsets.all(16),
                 child: child,

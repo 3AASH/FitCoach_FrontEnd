@@ -206,8 +206,9 @@ class _CoachNutritionPlanViewerScreenState
             return ListTile(
               leading: Icon(
                 meal.completed ? Icons.check_circle : Icons.schedule,
-                color:
-                    meal.completed ? AppColors.success : context.palette.textDisabled,
+                color: meal.completed
+                    ? AppColors.success
+                    : context.palette.textDisabled,
               ),
               title: Text(meal.name),
               subtitle: Text('${meal.calories} kcal - ${meal.time}'),

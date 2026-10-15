@@ -149,7 +149,7 @@ class CoachIntroScreen extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: onGetStarted,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
+                                backgroundColor: context.palette.primary,
                                 foregroundColor: context.palette.textOnBrand,
                                 textStyle: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
@@ -190,16 +190,23 @@ class _IntroFeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(22),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: context.palette.textOnBrand.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
+            color: context.palette.surface.withValues(alpha: 0.76),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(
-                color: context.palette.textOnBrand.withValues(alpha: 0.2)),
+                color: context.palette.textOnBrand.withValues(alpha: 0.24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.14),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -212,15 +219,14 @@ class _IntroFeatureCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          color: context.palette.textOnBrand,
-                          fontWeight: FontWeight.w600),
+                          color: context.palette.textPrimary,
+                          fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color:
-                            context.palette.textOnBrand.withValues(alpha: 0.8),
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -250,8 +256,8 @@ class _IntroIcon extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(24),
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Icon(icon, color: color, size: 26),
     );

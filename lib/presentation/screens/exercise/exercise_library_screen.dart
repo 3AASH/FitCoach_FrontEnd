@@ -203,8 +203,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         _selectedCategory = category;
                       });
                     },
-                    selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                    checkmarkColor: AppColors.primary,
+                    selectedColor:
+                        context.palette.primary.withValues(alpha: 0.15),
+                    checkmarkColor: context.palette.primary,
                   ),
                 );
               },
@@ -250,7 +251,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  Widget _buildExerciseCard(Map<String, dynamic> exercise, LanguageProvider lang) {
+  Widget _buildExerciseCard(
+      Map<String, dynamic> exercise, LanguageProvider lang) {
     final equipmentLabel =
         _formatEquip(exercise['equipmentList'] as List<dynamic>, lang);
     final musclesLabel =
@@ -288,13 +290,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     _buildBadge(
                       _getDifficultyLabel(exercise['difficulty'], lang),
                       _getDifficultyColor(exercise['difficulty']),
                     ),
-                    const SizedBox(width: 8),
                     _buildBadge(
                       equipmentLabel,
                       context.palette.textSecondary,
@@ -358,11 +361,11 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   Color _getDifficultyColor(String difficulty) {
     switch (difficulty) {
       case 'beginner':
-        return AppColors.success;
+        return context.palette.success;
       case 'intermediate':
-        return AppColors.warning;
+        return AppColors.gold;
       case 'advanced':
-        return AppColors.error;
+        return context.palette.error;
       default:
         return context.palette.textSecondary;
     }
@@ -399,8 +402,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                     });
                     Navigator.pop(context);
                   },
-                  selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                  checkmarkColor: AppColors.primary,
+                  selectedColor:
+                      context.palette.primary.withValues(alpha: 0.15),
+                  checkmarkColor: context.palette.primary,
                 );
               }).toList(),
             ),
@@ -410,7 +414,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     );
   }
 
-  void _showExerciseDetail(Map<String, dynamic> exercise, LanguageProvider lang) {
+  void _showExerciseDetail(
+      Map<String, dynamic> exercise, LanguageProvider lang) {
     final equipmentLabel =
         _formatEquip(exercise['equipmentList'] as List<dynamic>, lang);
     final musclesLabel =
@@ -471,7 +476,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         width: 60,
                         height: 60,
                         decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
+                          color: context.palette.background
+                              .withValues(alpha: 0.72),
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
@@ -498,13 +504,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                 const SizedBox(height: 16),
 
                 // Badges
-                Row(
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
                   children: [
                     _buildBadge(
                       _getDifficultyLabel(exercise['difficulty'], lang),
                       _getDifficultyColor(exercise['difficulty']),
                     ),
-                    const SizedBox(width: 8),
                     _buildBadge(
                       equipmentLabel,
                       context.palette.textSecondary,
@@ -542,8 +549,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         Container(
                           width: 24,
                           height: 24,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
+                          decoration: BoxDecoration(
+                            color: context.palette.primary,
                             shape: BoxShape.circle,
                           ),
                           child: Center(
@@ -583,7 +590,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                           content: Text(
                             lang.t('exercise_library_added_to_workout'),
                           ),
-                          backgroundColor: AppColors.success,
+                          backgroundColor: AppColors.cyan,
                         ),
                       );
                     },
@@ -720,9 +727,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   Future<void> _openVideo(String? videoUrl, LanguageProvider lang) async {
     if (videoUrl == null || videoUrl.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(lang.t('exercise_library_video_unavailable'))),
+        SnackBar(content: Text(lang.t('exercise_library_video_unavailable'))),
       );
       return;
     }
@@ -732,9 +737,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
         !await launchUrl(uri, mode: LaunchMode.externalApplication)) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content:
-                Text(lang.t('exercise_library_video_unavailable'))),
+        SnackBar(content: Text(lang.t('exercise_library_video_unavailable'))),
       );
     }
   }
@@ -775,7 +778,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   String _formatEquip(List<dynamic> equip, LanguageProvider lang) {
     final labels = equip
         .map((e) =>
-            _catalogService.getEquipLabel(e.toString(), isArabic: lang.isArabic) ??
+            _catalogService.getEquipLabel(e.toString(),
+                isArabic: lang.isArabic) ??
             e.toString())
         .toList();
     return labels.join(', ');
@@ -784,7 +788,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   String _formatMuscles(List<dynamic> muscles, LanguageProvider lang) {
     final labels = muscles
         .map((m) =>
-            _catalogService.getMuscleLabel(m.toString(), isArabic: lang.isArabic) ??
+            _catalogService.getMuscleLabel(m.toString(),
+                isArabic: lang.isArabic) ??
             m.toString())
         .toList();
     return labels.join(', ');

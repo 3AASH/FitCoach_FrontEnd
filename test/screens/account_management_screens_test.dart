@@ -245,6 +245,7 @@ void main() {
     Future<void> scrollTo(WidgetTester tester, Finder target) async {
       await tester.scrollUntilVisible(target, 200,
           scrollable: find.byType(Scrollable).first);
+      await tester.pumpAndSettle();
     }
 
     testWidgets('states what is erased and what is kept', (tester) async {

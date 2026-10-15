@@ -1,4 +1,4 @@
-﻿import 'dart:convert';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -498,7 +498,8 @@ class _AdminNutritionTemplatesScreenState
       isScrollControlled: true,
       builder: (_) => _NutritionRecipeEditorSheet(
         initialRecipe: fullRecipe,
-        availableIngredients: context.read<AdminProvider>().nutritionIngredients,
+        availableIngredients:
+            context.read<AdminProvider>().nutritionIngredients,
         onSave: context.read<AdminProvider>().saveNutritionEngineRecipe,
       ),
     );
@@ -516,19 +517,34 @@ class _AdminNutritionTemplatesScreenState
       builder: (_) => _NutritionRecipeEditorSheet(
         initialRecipe: const {
           'schema_version': '1.0.0',
-          'name_en': '', 'name_ar': '', 'market_tags': ['SA'],
-          'cuisine': 'International', 'meal_types': ['snack'], 'diet_tags': [],
-          'allergens': [], 'cost_level': 'medium', 'prep_time_min': 10,
-          'difficulty': 'easy', 'ingredients_base_g': {}, 'base_nutrition': {},
+          'name_en': '',
+          'name_ar': '',
+          'market_tags': ['SA'],
+          'cuisine': 'International',
+          'meal_types': ['snack'],
+          'diet_tags': [],
+          'allergens': [],
+          'cost_level': 'medium',
+          'prep_time_min': 10,
+          'difficulty': 'easy',
+          'ingredients_base_g': {},
+          'base_nutrition': {},
           'macro_profile_hint': 'balanced',
           'portion_variants': [
-            {'portion_code': 'M', 'scale_factor': 1, 'ingredients_g': {}, 'nutrition': {}, 'equivalence_group': 'admin_created'}
+            {
+              'portion_code': 'M',
+              'scale_factor': 1,
+              'ingredients_g': {},
+              'nutrition': {},
+              'equivalence_group': 'admin_created'
+            }
           ],
           'preparation': {'steps_en': [], 'steps_ar': []},
           'validation': {'status': 'admin_edited'},
           'metadata': {'version': 1, 'active': true},
         },
-        availableIngredients: context.read<AdminProvider>().nutritionIngredients,
+        availableIngredients:
+            context.read<AdminProvider>().nutritionIngredients,
         onSave: context.read<AdminProvider>().createNutritionEngineRecipe,
         isNew: true,
       ),
@@ -548,7 +564,8 @@ class _AdminNutritionTemplatesScreenState
       isScrollControlled: true,
       builder: (_) => _NutritionEnginePlanEditorSheet(
         initialPlan: fullPlan,
-        availableVariants: context.read<AdminProvider>().nutritionRecipeVariants,
+        availableVariants:
+            context.read<AdminProvider>().nutritionRecipeVariants,
         onSave: context.read<AdminProvider>().saveNutritionEnginePlan,
       ),
     );
@@ -560,12 +577,20 @@ class _AdminNutritionTemplatesScreenState
       isScrollControlled: true,
       builder: (_) => _NutritionEnginePlanEditorSheet(
         initialPlan: const {
-          'schema_version': '1.0.0', 'plan_type': 'professional', 'market': 'SA',
-          'calorie_band': 2000, 'macro_profile': 'balanced', 'meal_count': 3,
-          'rotation': 1, 'template_target': {}, 'days': [],
-          'assignment_rules': {}, 'validation': {'status': 'admin_edited'},
+          'schema_version': '1.0.0',
+          'plan_type': 'professional',
+          'market': 'SA',
+          'calorie_band': 2000,
+          'macro_profile': 'balanced',
+          'meal_count': 3,
+          'rotation': 1,
+          'template_target': {},
+          'days': [],
+          'assignment_rules': {},
+          'validation': {'status': 'admin_edited'},
         },
-        availableVariants: context.read<AdminProvider>().nutritionRecipeVariants,
+        availableVariants:
+            context.read<AdminProvider>().nutritionRecipeVariants,
         onSave: context.read<AdminProvider>().saveNutritionEnginePlan,
         isNew: true,
       ),
@@ -683,7 +708,7 @@ class _NutritionEngineRecipeCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.ramen_dining, color: AppColors.success),
+            Icon(Icons.ramen_dining, color: context.palette.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -693,10 +718,8 @@ class _NutritionEngineRecipeCard extends StatelessWidget {
                     name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: AppTextStyles.h4
+                        .copyWith(color: context.palette.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -780,7 +803,7 @@ class _NutritionEnginePlanCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.calendar_month, color: AppColors.accent),
+            Icon(Icons.calendar_month, color: context.palette.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -790,10 +813,8 @@ class _NutritionEnginePlanCard extends StatelessWidget {
                     planId,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: AppTextStyles.h4
+                        .copyWith(color: context.palette.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -872,7 +893,7 @@ class _NutritionEngineImportCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Icon(Icons.history, color: AppColors.info),
+            const Icon(Icons.history, color: AppColors.cyan),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -882,10 +903,8 @@ class _NutritionEngineImportCard extends StatelessWidget {
                     '$packageName $version',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
+                    style: AppTextStyles.h4
+                        .copyWith(color: context.palette.textPrimary),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -984,7 +1003,7 @@ class _JsonEditorSheetState extends State<_JsonEditorSheet> {
         maxChildSize: 0.96,
         builder: (context, scrollController) => Material(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: ListView(
             controller: scrollController,
             padding: const EdgeInsets.all(16),
@@ -1166,7 +1185,7 @@ class _NutritionRecipeEditorSheetState
               TextEditingController(text: _stringValue(entry.value)),
             ))
         .toList();
-      _variants = (_asList(recipe['portion_variants']) ?? const [])
+    _variants = (_asList(recipe['portion_variants']) ?? const [])
         .map((item) => Map<String, dynamic>.from(_asMap(item) ?? const {}))
         .toList();
   }
@@ -1195,15 +1214,16 @@ class _NutritionRecipeEditorSheetState
         if (entry.key.trim().isNotEmpty)
           entry.key.trim(): num.tryParse(entry.value.text.trim()) ?? 0,
     };
-    final baseIngredients = merged['ingredients_base_g'] as Map<String, dynamic>;
+    final baseIngredients =
+        merged['ingredients_base_g'] as Map<String, dynamic>;
     merged['portion_variants'] = _variants.map((variant) {
       final scale = num.tryParse(_stringValue(variant['scale_factor'])) ?? 1;
       return {
         ...variant,
         'portion_code': _stringValue(variant['portion_code'], fallback: 'M'),
         'scale_factor': scale,
-        'ingredients_g': baseIngredients.map((id, grams) => MapEntry(
-            id, ((num.tryParse(_stringValue(grams)) ?? 0) * scale))),
+        'ingredients_g': baseIngredients.map((id, grams) =>
+            MapEntry(id, ((num.tryParse(_stringValue(grams)) ?? 0) * scale))),
       };
     }).toList();
     return merged;
@@ -1235,8 +1255,10 @@ class _NutritionRecipeEditorSheetState
 
   void _addVariant() {
     setState(() => _variants.add({
-          'portion_code': 'M', 'scale_factor': 1,
-          'nutrition': {}, 'equivalence_group': 'admin_created',
+          'portion_code': 'M',
+          'scale_factor': 1,
+          'nutrition': {},
+          'equivalence_group': 'admin_created',
         }));
   }
 
@@ -1304,7 +1326,7 @@ class _NutritionRecipeEditorSheetState
         maxChildSize: 0.98,
         builder: (context, scrollController) => Material(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: ListView(
             controller: scrollController,
             padding: const EdgeInsets.all(16),
@@ -1377,8 +1399,7 @@ class _NutritionRecipeEditorSheetState
                   decoration: InputDecoration(
                     hintText: lang.t('plan_editor_engine_meal_json_hint'),
                   ),
-                  style:
-                      const TextStyle(fontFamily: 'monospace', fontSize: 13),
+                  style: const TextStyle(fontFamily: 'monospace', fontSize: 13),
                 )
               else
                 _buildRecipeEditor(lang),
@@ -1528,8 +1549,8 @@ class _NutritionRecipeEditorSheetState
             Expanded(
               child: Text(
                 lang.t('plan_editor_ingredients'),
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: AppTextStyles.h3
+                    .copyWith(color: context.palette.textPrimary),
               ),
             ),
             TextButton.icon(
@@ -1557,22 +1578,30 @@ class _NutritionRecipeEditorSheetState
                     initialValue: TextEditingValue(
                       text: _ingredientLabel(ingredient.key),
                     ),
-                    displayStringForOption: (option) =>
-                        _stringValue(option['name_en'], fallback: option['ingredient_id'].toString()),
+                    displayStringForOption: (option) => _stringValue(
+                        option['name_en'],
+                        fallback: option['ingredient_id'].toString()),
                     optionsBuilder: (value) {
                       final query = value.text.trim().toLowerCase();
                       return _availableIngredients.where((option) {
-                        final id = _stringValue(option['ingredient_id']).toLowerCase();
-                        final nameEn = _stringValue(option['name_en']).toLowerCase();
+                        final id =
+                            _stringValue(option['ingredient_id']).toLowerCase();
+                        final nameEn =
+                            _stringValue(option['name_en']).toLowerCase();
                         final nameAr = _stringValue(option['name_ar']);
-                        return query.isEmpty || id.contains(query) || nameEn.contains(query) || nameAr.contains(value.text.trim());
+                        return query.isEmpty ||
+                            id.contains(query) ||
+                            nameEn.contains(query) ||
+                            nameAr.contains(value.text.trim());
                       });
                     },
                     onSelected: (selected) => _renameIngredient(
                       index,
                       _stringValue(selected['ingredient_id']),
                     ),
-                    fieldViewBuilder: (context, controller, focusNode, onSubmitted) => TextField(
+                    fieldViewBuilder:
+                        (context, controller, focusNode, onSubmitted) =>
+                            TextField(
                       controller: controller,
                       focusNode: focusNode,
                       decoration: InputDecoration(
@@ -1608,7 +1637,8 @@ class _NutritionRecipeEditorSheetState
             Expanded(
               child: Text(
                 lang.t('plan_editor_portion_variants'),
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: AppTextStyles.h3
+                    .copyWith(color: context.palette.textPrimary),
               ),
             ),
             IconButton(
@@ -1625,27 +1655,33 @@ class _NutritionRecipeEditorSheetState
             children: [
               Expanded(
                 child: TextFormField(
-                  initialValue: _stringValue(variant['portion_code'], fallback: 'M'),
+                  initialValue:
+                      _stringValue(variant['portion_code'], fallback: 'M'),
                   decoration: InputDecoration(
                       labelText: lang.t('plan_editor_portion_code')),
-                  onChanged: (value) => variant['portion_code'] = value.toUpperCase(),
+                  onChanged: (value) =>
+                      variant['portion_code'] = value.toUpperCase(),
                 ),
               ),
               const SizedBox(width: 8),
               Expanded(
                 child: TextFormField(
-                  initialValue: _stringValue(variant['scale_factor'], fallback: '1'),
+                  initialValue:
+                      _stringValue(variant['scale_factor'], fallback: '1'),
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                       labelText: lang.t('plan_editor_scale_factor')),
-                  onChanged: (value) => variant['scale_factor'] = num.tryParse(value) ?? 1,
+                  onChanged: (value) =>
+                      variant['scale_factor'] = num.tryParse(value) ?? 1,
                 ),
               ),
               IconButton(
                 tooltip: lang.t('delete'),
-                onPressed: _variants.length > 1 ? () => _removeVariant(index) : null,
-                icon: const Icon(Icons.remove_circle_outline, color: AppColors.error),
+                onPressed:
+                    _variants.length > 1 ? () => _removeVariant(index) : null,
+                icon: const Icon(Icons.remove_circle_outline,
+                    color: AppColors.error),
               ),
             ],
           );
@@ -1762,7 +1798,7 @@ class _NutritionEnginePlanEditorSheetState
         maxChildSize: 0.98,
         builder: (context, scrollController) => Material(
           color: Theme.of(context).cardColor,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: ListView(
             controller: scrollController,
             padding: const EdgeInsets.all(16),
@@ -1912,8 +1948,8 @@ class _NutritionEnginePlanEditorSheetState
             Expanded(
               child: Text(
                 lang.t('plan_editor_days_meals'),
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+                style: AppTextStyles.h3
+                    .copyWith(color: context.palette.textPrimary),
               ),
             ),
             TextButton.icon(
@@ -2080,44 +2116,57 @@ class _NutritionEnginePlanEditorSheetState
                                             : () => _suggestAlternatives(meal),
                                     icon: const Icon(Icons.auto_awesome,
                                         size: 18),
-                                    label: Text(
-                                        lang.t('plan_editor_alternative_suggest')),
+                                    label: Text(lang
+                                        .t('plan_editor_alternative_suggest')),
                                   ),
                                 ),
                               ],
                             ),
                             Wrap(
                               spacing: 6,
-                              children: (_asList(meal['alternative_variant_ids']) ?? const [])
-                                  .map((item) => InputChip(
-                                        // Show the meal name, not the raw id.
-                                        label: Text(_variantLabelById(
-                                            _stringValue(item))),
-                                        onDeleted: () => setState(() {
-                                          final alternatives = List<dynamic>.from(
-                                              _asList(meal['alternative_variant_ids']) ?? const []);
-                                          alternatives.remove(item);
-                                          meal['alternative_variant_ids'] = alternatives;
-                                        }),
-                                      ))
-                                  .toList(),
+                              children:
+                                  (_asList(meal['alternative_variant_ids']) ??
+                                          const [])
+                                      .map((item) => InputChip(
+                                            // Show the meal name, not the raw id.
+                                            label: Text(_variantLabelById(
+                                                _stringValue(item))),
+                                            onDeleted: () => setState(() {
+                                              final alternatives = List<
+                                                  dynamic>.from(_asList(meal[
+                                                      'alternative_variant_ids']) ??
+                                                  const []);
+                                              alternatives.remove(item);
+                                              meal['alternative_variant_ids'] =
+                                                  alternatives;
+                                            }),
+                                          ))
+                                      .toList(),
                             ),
                             Row(
                               children: [
                                 Expanded(
-                                    child: _derivedMacroField(lang.t('plan_editor_calories'), nutrition['calories']),
+                                  child: _derivedMacroField(
+                                      lang.t('plan_editor_calories'),
+                                      nutrition['calories']),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                    child: _derivedMacroField(lang.t('plan_editor_protein'), nutrition['protein_g']),
+                                  child: _derivedMacroField(
+                                      lang.t('plan_editor_protein'),
+                                      nutrition['protein_g']),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                    child: _derivedMacroField(lang.t('plan_editor_carbs'), nutrition['carbs_g']),
+                                  child: _derivedMacroField(
+                                      lang.t('plan_editor_carbs'),
+                                      nutrition['carbs_g']),
                                 ),
                                 const SizedBox(width: 8),
                                 Expanded(
-                                    child: _derivedMacroField(lang.t('plan_editor_fat'), nutrition['fat_g']),
+                                  child: _derivedMacroField(
+                                      lang.t('plan_editor_fat'),
+                                      nutrition['fat_g']),
                                 ),
                               ],
                             ),
@@ -2233,11 +2282,10 @@ class _NutritionEnginePlanEditorSheetState
       meal['planned_nutrition'] =
           _normalizeNutritionMap(defaultVariant?['nutrition']);
       // The planned portion must not also sit in the swap list.
-      final alternatives =
-          List<dynamic>.from(_asList(meal['alternative_variant_ids']) ?? const [])
-            ..removeWhere((item) =>
-                _stringValue(item) ==
-                _stringValue(defaultVariant?['variant_id']));
+      final alternatives = List<dynamic>.from(
+          _asList(meal['alternative_variant_ids']) ?? const [])
+        ..removeWhere((item) =>
+            _stringValue(item) == _stringValue(defaultVariant?['variant_id']));
       meal['alternative_variant_ids'] = alternatives;
     });
   }
@@ -2249,9 +2297,9 @@ class _NutritionEnginePlanEditorSheetState
       meal['planned_recipe_id'] = _stringValue(variant['recipe_id']);
       meal['planned_meal_variant_id'] = variantId;
       meal['planned_nutrition'] = _normalizeNutritionMap(variant['nutrition']);
-      final alternatives =
-          List<dynamic>.from(_asList(meal['alternative_variant_ids']) ?? const [])
-            ..removeWhere((item) => _stringValue(item) == variantId);
+      final alternatives = List<dynamic>.from(
+          _asList(meal['alternative_variant_ids']) ?? const [])
+        ..removeWhere((item) => _stringValue(item) == variantId);
       meal['alternative_variant_ids'] = alternatives;
     });
   }
@@ -2366,7 +2414,8 @@ class _NutritionEnginePlanEditorSheetState
     return options.take(25);
   }
 
-  void _addAlternative(Map<String, dynamic> meal, Map<String, dynamic> variant) {
+  void _addAlternative(
+      Map<String, dynamic> meal, Map<String, dynamic> variant) {
     setState(() {
       final alternatives = List<dynamic>.from(
           _asList(meal['alternative_variant_ids']) ?? const []);
@@ -2400,9 +2449,9 @@ class _NutritionEnginePlanEditorSheetState
     return variant == null ? variantId : _variantLabel(variant);
   }
 
-    Widget _derivedMacroField(String label, dynamic value) => TextFormField(
-      key: ValueKey('$label:${_stringValue(value, fallback: '0')}'),
-      initialValue: _stringValue(value, fallback: '0'),
+  Widget _derivedMacroField(String label, dynamic value) => TextFormField(
+        key: ValueKey('$label:${_stringValue(value, fallback: '0')}'),
+        initialValue: _stringValue(value, fallback: '0'),
         readOnly: true,
         decoration: InputDecoration(labelText: label),
       );
@@ -2604,7 +2653,7 @@ class _NutritionEnginePlanEditorSheetState
 
     final provider = context.read<AdminProvider>();
     final ok = widget.isNew
-      ? await provider.createNutritionEnginePlan(payload)
+        ? await provider.createNutritionEnginePlan(payload)
         : await widget.onSave(payload, includeCoachEdited: _includeCoachEdited);
     if (!mounted) return;
     final providerError = provider.error;
@@ -2806,5 +2855,3 @@ List<dynamic>? _asList(dynamic value) {
   if (value is List) return value;
   return null;
 }
-
-

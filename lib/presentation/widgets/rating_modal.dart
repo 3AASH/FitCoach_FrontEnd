@@ -79,13 +79,13 @@ class _RatingModalState extends State<RatingModal> {
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: context.palette.primary.withValues(alpha: 0.1),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.emoji_events,
                   size: 40,
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                 ),
               ),
             ),
@@ -203,7 +203,7 @@ class _RatingModalState extends State<RatingModal> {
               child: ElevatedButton(
                 onPressed: _rating > 0 ? _submit : null,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primary,
+                  backgroundColor: context.palette.primary,
                   foregroundColor: context.palette.textOnBrand,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),

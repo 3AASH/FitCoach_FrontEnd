@@ -15,31 +15,15 @@ class SplashScreen extends StatefulWidget {
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
-    with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen> {
   bool _showContent = false;
-  late final AnimationController _orbController;
 
   @override
   void initState() {
     super.initState();
-    _orbController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(reverse: true);
     Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) {
-        setState(() {
-          _showContent = true;
-        });
-      }
+      if (mounted) setState(() => _showContent = true);
     });
-  }
-
-  @override
-  void dispose() {
-    _orbController.dispose();
-    super.dispose();
   }
 
   @override
@@ -51,102 +35,31 @@ class _SplashScreenState extends State<SplashScreen>
       languageProvider = LanguageProvider();
     }
 
+    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Scaffold(
+      backgroundColor: context.palette.background,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: AlignmentDirectional.topStart,
-                  end: AlignmentDirectional.bottomEnd,
-                  colors: [
-                    AppColors.headerGradientStart,
-                    AppColors.primaryDark,
-                    AppColors.headerGradientEnd,
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 60,
-              left: 24,
-              child: AnimatedBuilder(
-                animation: _orbController,
-                builder: (context, child) {
-                  final scale = 1 + (_orbController.value * 0.2);
-                  final opacity = 0.2 + (_orbController.value * 0.2);
-                  return Transform.scale(
-                    scale: scale,
-                    child: Opacity(opacity: opacity, child: child),
-                  );
-                },
-                child: Container(
-                  width: 180,
-                  height: 180,
-                  decoration: BoxDecoration(
-                    color: AppColors.accent.withValues(alpha: 0.2),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.accent.withValues(alpha: 0.35),
-                        blurRadius: 80,
-                        spreadRadius: 10,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              bottom: 60,
-              right: 24,
-              child: AnimatedBuilder(
-                animation: _orbController,
-                builder: (context, child) {
-                  final scale = 1.1 + (_orbController.value * 0.25);
-                  final opacity = 0.2 + (_orbController.value * 0.25);
-                  return Transform.scale(
-                    scale: scale,
-                    child: Opacity(opacity: opacity, child: child),
-                  );
-                },
-                child: Container(
-                  width: 200,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryLight.withValues(alpha: 0.14),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primaryLight.withValues(alpha: 0.24),
-                        blurRadius: 90,
-                        spreadRadius: 14,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            SafeArea(
-              child: Center(
-                child: AnimatedOpacity(
+        value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        child: SafeArea(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(24, 24, 24, 28),
+            child: Column(
+              children: [
+                const Spacer(flex: 2),
+                AnimatedOpacity(
                   duration: const Duration(milliseconds: 500),
                   opacity: _showContent ? 1 : 0,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      const AashBrandMark(size: 112),
-                      const SizedBox(height: 28),
+                      const AashBrandMark(size: 154),
+                      const SizedBox(height: 26),
                       Text(
                         languageProvider.t('splash_headline_en'),
                         textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: context.palette.textOnBrand,
+                        style: AppTextStyles.h1.copyWith(
+                          color: context.palette.textPrimary,
+                          fontSize: 30,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -154,40 +67,33 @@ class _SplashScreenState extends State<SplashScreen>
                         languageProvider.t('splash_headline_ar'),
                         textAlign: TextAlign.center,
                         textDirection: TextDirection.rtl,
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: context.palette.textOnBrand
-                              .withValues(alpha: 0.9),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      ElevatedButton(
-                        onPressed: widget.onStart,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.accent,
-                          foregroundColor: AppColors.primaryDark,
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 44, vertical: 18),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          elevation: 12,
-                        ),
-                        child: Text(
-                          languageProvider.t('splash_start'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        style: AppTextStyles.h3.copyWith(
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
                   ),
                 ),
-              ),
+                const Spacer(flex: 3),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: widget.onStart,
+                    icon: const Icon(Icons.arrow_forward_rounded),
+                    label: Text(languageProvider.t('splash_start')),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.palette.primary,
+                      foregroundColor: context.palette.textOnBrand,
+                      minimumSize: const Size(0, 58),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.medium),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

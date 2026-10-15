@@ -135,14 +135,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               icon: Icons.assignment_turned_in,
               title: lang.t('intake_prompt_option1_title'),
               description: lang.t('intake_prompt_option1_desc'),
-              color: AppColors.primary,
+              color: context.palette.primary,
             ),
             const SizedBox(height: 12),
             _buildPromptOption(
               icon: Icons.video_call,
               title: lang.t('intake_prompt_option2_title'),
               description: lang.t('intake_prompt_option2_desc'),
-              color: AppColors.secondary,
+              color: context.palette.textSecondary,
               badgeText:
                   tier == 'Freemium' ? lang.t('intake_prompt_free_call') : null,
             ),
@@ -265,51 +265,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     required Widget child,
   }) {
     return Scaffold(
-      backgroundColor: AppColors.workoutBackground,
+      backgroundColor: context.palette.background,
       appBar: appBar,
-      body: Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: AlignmentDirectional.topStart,
-                  end: AlignmentDirectional.bottomEnd,
-                  colors: [
-                    Color(0xFF071915),
-                    Color(0xFF12362D),
-                    Color(0xFF0B1F1B),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Image.asset(
-              'assets/placeholders/splash_onboarding/workout_onboarding.png',
-              fit: BoxFit.cover,
-              color: Colors.black.withValues(alpha: 0.18),
-              colorBlendMode: BlendMode.darken,
-            ),
-          ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.workoutBackground.withValues(alpha: 0.28),
-                    AppColors.workoutBackground.withValues(alpha: 0.62),
-                    AppColors.workoutBackground.withValues(alpha: 0.86),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SafeArea(child: child),
-        ],
-      ),
+      body: SafeArea(child: child),
     );
   }
 
@@ -547,8 +505,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF030625),
-        borderRadius: BorderRadius.circular(18),
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
+        borderRadius: BorderRadius.circular(AppRadius.xlarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,7 +518,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 visualDensity: VisualDensity.compact,
-                icon: Icon(Icons.arrow_back, color: context.palette.textOnBrand, size: 18),
+                icon: Icon(Icons.arrow_back,
+                    color: context.palette.textPrimary, size: 18),
                 tooltip: lang.t('back'),
                 onPressed: () {
                   if (widget.onBack != null) {
@@ -579,7 +539,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   child: Text(
                     lang.t('workouts_title'),
                     style: AppTextStyles.h1.copyWith(
-                      color: context.palette.textOnBrand,
+                      color: context.palette.textPrimary,
                       height: 1.05,
                     ),
                   ),
@@ -587,25 +547,24 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
               InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap: () =>
-                    context.read<WorkoutProvider>().goToCurrentDay(),
+                onTap: () => context.read<WorkoutProvider>().goToCurrentDay(),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: context.palette.textOnBrand.withValues(alpha: 0.15),
+                    color: context.palette.surfaceVariant,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.calendar_today,
-                          size: 14, color: context.palette.textOnBrand),
+                          size: 14, color: context.palette.textPrimary),
                       const SizedBox(width: 6),
                       Text(
                         lang.t('today'),
-                        style:
-                            AppTextStyles.small.copyWith(color: context.palette.textOnBrand),
+                        style: AppTextStyles.small
+                            .copyWith(color: context.palette.textPrimary),
                       ),
                     ],
                   ),
@@ -628,7 +587,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       'number': '$dayNumber'
                     })}',
                 style: AppTextStyles.h1.copyWith(
-                  color: context.palette.textOnBrand.withValues(alpha: 0.9),
+                  color: context.palette.textSecondary,
                   height: 1.05,
                 ),
               ),
@@ -639,7 +598,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             Text(
               durationLabel,
               style: AppTextStyles.h3.copyWith(
-                color: context.palette.textOnBrand.withValues(alpha: 0.7),
+                color: context.palette.textSecondary,
               ),
             ),
           const SizedBox(height: 12),
@@ -648,15 +607,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 7,
-              backgroundColor: context.palette.textOnBrand.withValues(alpha: 0.24),
-              valueColor: AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
+              backgroundColor: context.palette.surfaceVariant,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.cyan),
             ),
           ),
           const SizedBox(height: 10),
           Text(
             '$completedExercises of $totalExercises ${lang.t('exercises')} ${lang.t('workout_completed').toLowerCase()}',
             style: AppTextStyles.small.copyWith(
-              color: context.palette.textOnBrand.withValues(alpha: 0.82),
+              color: context.palette.textSecondary,
             ),
           ),
         ],
@@ -692,8 +651,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     return CustomCard(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      color: AppColors.primary.withValues(alpha: 0.08),
-      border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+      color: context.palette.surfaceVariant,
+      border: Border.all(color: context.palette.border),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -748,9 +707,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              backgroundColor: context.palette.surfaceVariant,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryLight),
             ),
           ),
           const SizedBox(height: 6),
@@ -847,7 +805,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       : AlignmentDirectional.centerStart,
                   child: Text(
                     planTitle,
-                    style: AppTextStyles.h1.copyWith(
+                    style: AppTextStyles.h2.copyWith(
                       color: context.palette.textPrimary,
                       height: 1.1,
                     ),
@@ -862,15 +820,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF0F1F5),
-                    borderRadius: BorderRadius.circular(12),
+                    color: context.palette.surfaceVariant,
+                    borderRadius: BorderRadius.circular(AppRadius.pill),
                   ),
                   child: Text(
                     difficultyLabel,
-                    style:
-                        AppTextStyles.small.copyWith(
-                          color: const Color(0xFF2A2C3A),
-                        ),
+                    style: AppTextStyles.small.copyWith(
+                      color: context.palette.textPrimary,
+                    ),
                   ),
                 ),
               ),
@@ -1006,10 +963,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: isToday ? const Color(0xFFEAF2FF) : const Color(0xFFF6F7FB),
+          color: isToday
+              ? AppColors.cyan.withValues(alpha: 0.12)
+              : context.palette.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isToday ? const Color(0xFF8AB4F8) : const Color(0xFFE2E4EC),
+            color: isToday ? AppColors.cyan : context.palette.border,
           ),
         ),
         child: Row(
@@ -1023,10 +982,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       Expanded(
                         child: Text(
                           title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF181A27),
-                          ),
+                          style: AppTextStyles.smallMedium
+                              .copyWith(color: context.palette.textPrimary),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -1036,13 +993,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8, vertical: 2),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFDBEAFE),
+                            color: AppColors.cyan.withValues(alpha: 0.12),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             label,
                             style: AppTextStyles.overline.copyWith(
-                              color: const Color(0xFF1D4ED8),
+                              color: AppColors.cyan,
                             ),
                           ),
                         ),
@@ -1052,7 +1009,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   Text(
                     subtitle,
                     style: AppTextStyles.caption.copyWith(
-                      color: const Color(0xFF6C6F83),
+                      color: context.palette.textSecondary,
                     ),
                   ),
                 ],
@@ -1063,10 +1020,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               width: 56,
               child: Text(
                 '${day.progressPercent.round()}%',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2A2C3A),
-                ),
+                style: AppTextStyles.smallMedium
+                    .copyWith(color: context.palette.textPrimary),
                 textAlign: TextAlign.end,
               ),
             ),
@@ -1309,11 +1264,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
-      color: isCompleted ? const Color(0xFFEAF7EE) : context.palette.surface,
+      color: context.palette.surface,
       border: Border.all(
         color: isCompleted
-            ? const Color(0xFFA9E3B8)
-            : (hasConflict ? AppColors.warning : const Color(0xFFDCDDE4)),
+            ? AppColors.cyan
+            : (hasConflict ? AppColors.warning : context.palette.border),
       ),
       onTap: () => _openExerciseDetail(currentDay, index),
       child: LayoutBuilder(
@@ -1323,12 +1278,12 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             onPressed: () => _openExerciseSession(currentDay, index),
             style: FilledButton.styleFrom(
               backgroundColor: isCompleted
-                  ? const Color(0xFF030625)
-                  : const Color(0xFFE8EAF0),
-              foregroundColor:
-                  isCompleted ? context.palette.surface : const Color(0xFF272938),
-              textStyle:
-                  AppTextStyles.smallMedium,
+                  ? context.palette.primary
+                  : context.palette.surfaceVariant,
+              foregroundColor: isCompleted
+                  ? context.palette.textOnBrand
+                  : context.palette.textPrimary,
+              textStyle: AppTextStyles.smallMedium,
               minimumSize: const Size(74, 38),
               padding: const EdgeInsets.symmetric(horizontal: 14),
             ),
@@ -1346,7 +1301,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     child: Text(
                       isArabic ? exercise.nameAr : exercise.nameEn,
                       style: AppTextStyles.h4.copyWith(
-                        color: const Color(0xFF181A27),
+                        color: context.palette.textPrimary,
                         height: 1.15,
                       ),
                       maxLines: 2,
@@ -1354,9 +1309,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                     ),
                   ),
                   if (isCompleted)
-                    const Icon(
+                    Icon(
                       Icons.check_circle_outline,
-                      color: Color(0xFF1F9D4A),
+                      color: AppColors.cyan,
                       size: 22,
                     ),
                 ],
@@ -1369,21 +1324,21 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 children: [
                   Text(
                     '${exercise.sets}\n${lang.t('sets')}',
-                    style:
-                        AppTextStyles.small.copyWith(
-                          color: const Color(0xFF6C6F83),
-                        ),
+                    style: AppTextStyles.small.copyWith(
+                      color: context.palette.textSecondary,
+                    ),
                   ),
-                  const Text('•', style: TextStyle(color: Color(0xFF6C6F83))),
+                  Text('?',
+                      style: TextStyle(color: context.palette.textSecondary)),
                   Text(
                     '${exercise.reps}\n${lang.t('reps')}',
-                    style:
-                        AppTextStyles.small.copyWith(
-                          color: const Color(0xFF6C6F83),
-                        ),
+                    style: AppTextStyles.small.copyWith(
+                      color: context.palette.textSecondary,
+                    ),
                   ),
                   if (muscleLabel.isNotEmpty) ...[
-                    const Text('•', style: TextStyle(color: Color(0xFF6C6F83))),
+                    Text('?',
+                        style: TextStyle(color: context.palette.textSecondary)),
                     ConstrainedBox(
                       constraints: BoxConstraints(
                         maxWidth: compact ? constraints.maxWidth : 180,
@@ -1391,7 +1346,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       child: Text(
                         muscleLabel,
                         style: AppTextStyles.caption.copyWith(
-                          color: const Color(0xFF6C6F83),
+                          color: context.palette.textSecondary,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -1404,7 +1359,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Text(
                 '${isCompleted ? exercise.sets : 0}/${exercise.sets} sets logged',
                 style: AppTextStyles.small.copyWith(
-                  color: const Color(0xFF7D8095),
+                  color: context.palette.textSecondary,
                   decoration: TextDecoration.none,
                 ),
               ),
@@ -1441,7 +1396,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Align(alignment: AlignmentDirectional.centerEnd, child: actionButton),
+                Align(
+                    alignment: AlignmentDirectional.centerEnd,
+                    child: actionButton),
               ],
             );
           }
@@ -1486,10 +1443,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         height: 64,
         child: resolved == null
             ? Container(
-                color: const Color(0xFFE8EAF0),
-                child: const Icon(
+                color: context.palette.surfaceVariant,
+                child: Icon(
                   Icons.fitness_center,
-                  color: Color(0xFF6C6F83),
+                  color: context.palette.textSecondary,
                   size: 26,
                 ),
               )
@@ -1497,10 +1454,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 resolved,
                 fit: BoxFit.cover,
                 errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFE8EAF0),
-                  child: const Icon(
+                  color: context.palette.surfaceVariant,
+                  child: Icon(
                     Icons.fitness_center,
-                    color: Color(0xFF6C6F83),
+                    color: context.palette.textSecondary,
                     size: 26,
                   ),
                 ),
@@ -1625,5 +1582,4 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       ),
     );
   }
-
 }

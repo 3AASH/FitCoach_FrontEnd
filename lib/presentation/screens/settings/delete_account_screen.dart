@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -102,7 +102,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             onPressed: () => Navigator.pop(dialogContext, true),
             child: Text(
               languageProvider.t('delete_account_confirm'),
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
           ),
         ],
@@ -146,17 +146,19 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(t('delete_account_title'))),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         children: [
           CustomCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(Icons.warning_amber, color: AppColors.error),
+                Icon(Icons.warning_amber, color: context.palette.error),
                 const SizedBox(height: 12),
                 Text(
                   t('delete_account_warning'),
-                  style: const TextStyle(fontWeight: FontWeight.w600),
+                  style: AppTextStyles.h3.copyWith(
+                    color: context.palette.textPrimary,
+                  ),
                 ),
               ],
             ),
@@ -165,7 +167,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           _buildList(
             title: t('delete_account_erased_title'),
             icon: Icons.delete_outline,
-            iconColor: AppColors.error,
+            iconColor: context.palette.error,
             items: [
               t('delete_account_erased_profile'),
               t('delete_account_erased_health'),
@@ -189,8 +191,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t('delete_account_identity_title'),
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
+                Text(
+                  t('delete_account_identity_title'),
+                  style: AppTextStyles.h3.copyWith(
+                    color: context.palette.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 12),
                 if (hasPassword)
                   TextField(
@@ -214,8 +220,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                     children: [
                       Text(
                         t('delete_account_code_explainer'),
-                        style:
-                            TextStyle(color: context.palette.textSecondary),
+                        style: TextStyle(color: context.palette.textSecondary),
                       ),
                       const SizedBox(height: 12),
                       OutlinedButton(
@@ -253,7 +258,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: AppColors.error)),
+            Text(
+              _error!,
+              style: AppTextStyles.small.copyWith(
+                color: context.palette.error,
+              ),
+            ),
           ],
           const SizedBox(height: 24),
           SizedBox(
@@ -271,7 +281,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
                   : const Icon(Icons.delete_forever),
               label: Text(t('delete_account_submit')),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.error,
+                backgroundColor: context.palette.error,
                 foregroundColor: context.palette.textOnBrand,
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
@@ -296,7 +306,12 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
             children: [
               Icon(icon, size: 18, color: iconColor),
               const SizedBox(width: 8),
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+              Text(
+                title,
+                style: AppTextStyles.h3.copyWith(
+                  color: context.palette.textPrimary,
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 10),
@@ -322,4 +337,3 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     );
   }
 }
-

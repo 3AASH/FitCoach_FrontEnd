@@ -1,3 +1,5 @@
+import 'dart:ui' as ui;
+
 import '../../widgets/error_banner.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -132,13 +134,13 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                     return ListTile(
                       leading: CircleAvatar(
                         backgroundColor:
-                            AppColors.primary.withValues(alpha: 0.12),
+                            context.palette.primary.withValues(alpha: 0.12),
                         child: Text(
                           client.fullName.isNotEmpty
                               ? client.fullName[0].toUpperCase()
                               : '?',
-                          style: const TextStyle(
-                            color: AppColors.primary,
+                          style: TextStyle(
+                            color: context.palette.primary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -272,7 +274,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     // Already loaded for the dashboard stat card; it just never reached the
     // nav, so a coach opening on Clients or Calendar had no sign a client was
     // waiting on them.
-    final unread = context.watch<CoachProvider>().analytics?.unreadMessages ?? 0;
+    final unread =
+        context.watch<CoachProvider>().analytics?.unreadMessages ?? 0;
 
     return Scaffold(
       body: IndexedStack(
@@ -284,46 +287,175 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           _buildMessagesTab(languageProvider),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: context.palette.textDisabled,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.dashboard_outlined),
-            activeIcon: const Icon(Icons.dashboard),
-            label: languageProvider.t('coach_tab_dashboard'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.people_outline),
-            activeIcon: const Icon(Icons.people),
-            label: languageProvider.t('coach_tab_clients'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.calendar_month_outlined),
-            activeIcon: const Icon(Icons.calendar_month),
-            label: languageProvider.t('coach_tab_calendar'),
-          ),
-          BottomNavigationBarItem(
-            icon: Badge.count(
-              count: unread,
-              isLabelVisible: unread > 0,
-              child: const Icon(Icons.chat_bubble_outline),
+      bottomNavigationBar: _buildBottomNavigationBar(languageProvider, unread),
+    );
+  }
+
+  Widget _buildBottomNavigationBar(LanguageProvider lang, int unread) {
+    final labels = [
+      lang.t('coach_tab_dashboard'),
+      lang.t('coach_tab_clients'),
+      lang.t('coach_tab_calendar'),
+      lang.t('coach_tab_messages'),
+    ];
+    final icons = [
+      Icons.dashboard_outlined,
+      Icons.people_outline,
+      Icons.calendar_month_outlined,
+      Icons.chat_bubble_outline,
+    ];
+    final activeIcons = [
+      Icons.dashboard,
+      Icons.people,
+      Icons.calendar_month,
+      Icons.chat_bubble,
+    ];
+
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          child: BackdropFilter(
+            filter: ui.ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 560),
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: context.palette.surface.withValues(alpha: 0.82),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                border: Border.all(
+                  color: context.palette.border.withValues(alpha: 0.75),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(
+                      alpha: Theme.of(context).brightness == Brightness.dark
+                          ? 0.22
+                          : 0.08,
+                    ),
+                    blurRadius: 24,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: List.generate(labels.length, (index) {
+                  final selected = _selectedIndex == index;
+                  final color = selected
+                      ? context.palette.textOnBrand
+                      : context.palette.textSecondary;
+                  final navIcon = index == 3 && unread > 0
+                      ? Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Icon(
+                              selected ? activeIcons[index] : icons[index],
+                              size: 19,
+                            ),
+                            PositionedDirectional(
+                              top: -5,
+                              end: -7,
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minWidth: 14,
+                                  minHeight: 14,
+                                ),
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 3),
+                                decoration: BoxDecoration(
+                                  color: AppColors.cyan,
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.pill),
+                                  border: Border.all(
+                                    color: selected
+                                        ? context.palette.primary
+                                        : context.palette.surface,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  unread > 99 ? '99+' : '$unread',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: AppColors.primaryDark,
+                                    fontSize: 8,
+                                    fontWeight: FontWeight.w700,
+                                    height: 1.2,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
+                      : Icon(selected ? activeIcons[index] : icons[index],
+                          size: 19);
+
+                  return Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: selected,
+                      label: labels[index],
+                      child: Tooltip(
+                        message: labels[index],
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
+                            onTap: () => setState(() => _selectedIndex = index),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.easeOutCubic,
+                              height: 48,
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 5),
+                              decoration: BoxDecoration(
+                                color: selected
+                                    ? context.palette.primary
+                                    : Colors.transparent,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.pill),
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  IconTheme(
+                                    data: IconThemeData(color: color),
+                                    child: navIcon,
+                                  ),
+                                  if (selected) ...[
+                                    const SizedBox(width: 5),
+                                    Flexible(
+                                      child: Text(
+                                        labels[index],
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          color: color,
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          fontFamily: AppTextStyles.headingFont,
+                                          fontFamilyFallback:
+                                              AppTextStyles.arabicFallback,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
             ),
-            activeIcon: Badge.count(
-              count: unread,
-              isLabelVisible: unread > 0,
-              child: const Icon(Icons.chat_bubble),
-            ),
-            label: languageProvider.t('coach_tab_messages'),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -382,10 +514,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                               'coach_greeting',
                               args: {'name': auth.user?.name ?? ''},
                             ),
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppTextStyles.h1,
                           ),
                           const SizedBox(height: 4),
                           Text(
@@ -451,7 +580,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           title: lang.t('coach_metric_active_clients'),
                           value: '${analytics.activeClients}',
                           icon: Icons.people,
-                          color: AppColors.primary,
+                          color: AppColors.cyan,
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -460,7 +589,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           title: lang.t('coach_metric_upcoming'),
                           value: '$upcomingAppointmentCount',
                           icon: Icons.video_call,
-                          color: AppColors.secondary,
+                          color: AppColors.cyan,
                           onTap: () {
                             setState(() {
                               _selectedIndex = 2;
@@ -482,7 +611,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           title: lang.t('coach_metric_new_messages'),
                           value: '${analytics.unreadMessages}',
                           icon: Icons.message,
-                          color: AppColors.accent,
+                          color: AppColors.cyan,
                           onTap: () {
                             setState(() {
                               _selectedIndex = 3;
@@ -496,7 +625,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           title: lang.t('coach_metric_today_sessions'),
                           value: '$todayAppointmentCount',
                           icon: Icons.today,
-                          color: AppColors.primary,
+                          color: AppColors.cyan,
                           onTap: () {
                             setState(() {
                               _selectedIndex = 2;
@@ -528,10 +657,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   children: [
                     Text(
                       lang.t('coach_schedule_today'),
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.h3,
                     ),
                     TextButton(
                       onPressed: () {
@@ -568,10 +694,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                       children: [
                         Text(
                           lang.t('coach_upcoming_sessions'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.h3,
                         ),
                         TextButton(
                           onPressed: () {
@@ -607,10 +730,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                 offset: const Offset(-0.08, 0),
                 child: Text(
                   lang.t('coach_quick_actions'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
               ),
               const SizedBox(height: 12),
@@ -623,7 +743,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   subtitle:
                       lang.t('coach_quick_action_message_clients_subtitle'),
                   icon: Icons.chat_bubble_outline,
-                  iconColor: AppColors.accent,
+                  iconColor: AppColors.cyan,
                   onTap: () => setState(() => _selectedIndex = 3),
                 ),
               ),
@@ -638,7 +758,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   subtitle:
                       lang.t('coach_quick_action_quick_schedule_subtitle'),
                   icon: Icons.video_call,
-                  iconColor: AppColors.secondary,
+                  iconColor: AppColors.cyan,
                   onTap: () => _openQuickSchedule(lang),
                 ),
               ),
@@ -652,7 +772,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                   title: lang.t('coach_action_workout_plan'),
                   subtitle: lang.t('coach_action_workout_plan_desc'),
                   icon: Icons.fitness_center,
-                  iconColor: AppColors.primary,
+                  iconColor: AppColors.cyan,
                   onTap: () {
                     _openWorkoutPlanBuilder(lang);
                   },
@@ -730,10 +850,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               children: [
                 Text(
                   lang.t('coach_client_spotlight'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
                 TextButton(
                   onPressed: () => setState(() => _selectedIndex = 1),
@@ -746,12 +863,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
               (entry) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: InkWell(
-                  borderRadius: BorderRadius.circular(16),
+                  borderRadius: BorderRadius.circular(AppRadius.large),
                   onTap: () => _openClientDetail(entry.id),
                   child: Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(AppRadius.large),
                       border: Border.all(color: context.palette.border),
                     ),
                     child: Column(
@@ -762,11 +879,11 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                             CircleAvatar(
                               radius: 22,
                               backgroundColor:
-                                  AppColors.primary.withValues(alpha: 0.1),
+                                  AppColors.cyan.withValues(alpha: 0.12),
                               child: Text(
                                 entry.initials,
                                 style: const TextStyle(
-                                  color: AppColors.primary,
+                                  color: AppColors.cyan,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -808,7 +925,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                             .withValues(alpha: 0.12)
                                         : AppColors.success
                                             .withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(999),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.pill),
                                   ),
                                   child: Text(
                                     entry.needsAttention
@@ -833,7 +951,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                     decoration: BoxDecoration(
                                       color: context.palette.textSecondary
                                           .withValues(alpha: 0.12),
-                                      borderRadius: BorderRadius.circular(999),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.pill),
                                     ),
                                     child: Text(
                                       lang.t('coach_clients_needs_score'),
@@ -855,7 +974,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                           minHeight: 6,
                           color: entry.needsAttention
                               ? AppColors.warning
-                              : AppColors.primary,
+                              : context.palette.primary,
                           backgroundColor: context.palette.surfaceVariant,
                         ),
                         const SizedBox(height: 6),
@@ -928,7 +1047,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     required VoidCallback onTap,
   }) {
     final Color activeColor =
-        selected ? AppColors.primary : context.palette.textSecondary;
+        selected ? AppColors.cyan : context.palette.textSecondary;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -938,19 +1057,19 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
           padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
           decoration: BoxDecoration(
             color: selected
-                ? AppColors.primary.withValues(alpha: 0.12)
+                ? context.palette.primary.withValues(alpha: 0.12)
                 : context.palette.surface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(AppRadius.large),
             border: Border.all(
               color: selected
-                  ? AppColors.primary
+                  ? context.palette.primary
                   : context.palette.textDisabled.withValues(alpha: 0.5),
               width: selected ? 1.5 : 1,
             ),
             boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.2),
+                      color: AppColors.cyan.withValues(alpha: 0.2),
                       blurRadius: 14,
                       offset: const Offset(0, 8),
                     ),
@@ -1008,12 +1127,12 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
         width: 48,
         height: 48,
         decoration: BoxDecoration(
-          color: AppColors.primary.withValues(alpha: 0.1),
+          color: context.palette.primary.withValues(alpha: 0.1),
           shape: BoxShape.circle,
         ),
-        child: const Icon(
+        child: Icon(
           Icons.person,
-          color: AppColors.primary,
+          color: context.palette.primary,
         ),
       ),
       title: Text(clientName),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/theme/app_palette.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -12,38 +13,41 @@ class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key, this.userRepository});
 
   @override
-  State<NotificationSettingsScreen> createState() => _NotificationSettingsScreenState();
+  State<NotificationSettingsScreen> createState() =>
+      _NotificationSettingsScreenState();
 }
 
-class _NotificationSettingsScreenState extends State<NotificationSettingsScreen> {
+class _NotificationSettingsScreenState
+    extends State<NotificationSettingsScreen> {
   bool _isLoading = true;
   bool _isSaving = false;
-  
+
   // User notifications
   bool _workoutReminders = true;
   bool _coachMessages = true;
   bool _nutritionTracking = false;
   bool _promotions = true;
-  
+
   // Coach notifications
   bool _newClientAssignments = true;
   bool _clientMessages = true;
   bool _sessionReminders = true;
   bool _paymentAlerts = true;
-  
+
   // Admin notifications
   bool _systemAlerts = true;
   bool _userReports = true;
   bool _coachApplications = true;
   bool _paymentIssues = true;
   bool _securityAlerts = true;
-  
+
   // Notification channels
   bool _pushEnabled = true;
   bool _emailEnabled = true;
   bool _smsEnabled = false;
 
-  UserRepository get _userRepository => widget.userRepository ?? UserRepository();
+  UserRepository get _userRepository =>
+      widget.userRepository ?? UserRepository();
 
   @override
   void initState() {
@@ -54,29 +58,31 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Future<void> _loadSettings() async {
     try {
       final settings = await _userRepository.getNotificationSettings();
-      
+
       if (mounted) {
         setState(() {
           _workoutReminders = settings['workout_reminders'] ?? true;
           _coachMessages = settings['coach_messages_notifications'] ?? true;
-          _nutritionTracking = settings['nutrition_tracking_notifications'] ?? false;
+          _nutritionTracking =
+              settings['nutrition_tracking_notifications'] ?? false;
           _promotions = settings['promotions_notifications'] ?? true;
-          
+
           _newClientAssignments = settings['new_client_assignments'] ?? true;
           _clientMessages = settings['client_messages_notifications'] ?? true;
           _sessionReminders = settings['session_reminders'] ?? true;
           _paymentAlerts = settings['payment_alerts'] ?? true;
-          
+
           _systemAlerts = settings['system_alerts'] ?? true;
           _userReports = settings['user_reports_notifications'] ?? true;
-          _coachApplications = settings['coach_applications_notifications'] ?? true;
+          _coachApplications =
+              settings['coach_applications_notifications'] ?? true;
           _paymentIssues = settings['payment_issues_notifications'] ?? true;
           _securityAlerts = settings['security_alerts'] ?? true;
-          
+
           _pushEnabled = settings['push_enabled'] ?? true;
           _emailEnabled = settings['email_enabled'] ?? true;
           _smsEnabled = settings['sms_enabled'] ?? false;
-          
+
           _isLoading = false;
         });
       }
@@ -135,7 +141,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
             ),
           ),
           const SizedBox(height: 12),
-          
+
           CustomCard(
             child: Column(
               children: [
@@ -180,9 +186,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ],
             ),
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // User notifications
           if (userRole == 'user') ...[
             Text(
@@ -194,7 +200,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ),
             ),
             const SizedBox(height: 12),
-            
             CustomCard(
               child: Column(
                 children: [
@@ -253,7 +258,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ),
             ),
           ],
-          
+
           // Coach notifications
           if (userRole == 'coach') ...[
             Text(
@@ -265,7 +270,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ),
             ),
             const SizedBox(height: 12),
-            
             CustomCard(
               child: Column(
                 children: [
@@ -324,7 +328,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ),
             ),
           ],
-          
+
           // Admin notifications
           if (userRole == 'admin') ...[
             Text(
@@ -336,7 +340,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
               ),
             ),
             const SizedBox(height: 12),
-            
             CustomCard(
               child: Column(
                 children: [
@@ -412,7 +415,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       ),
     );
   }
-  
+
   Widget _buildSwitchTile({
     required String title,
     required String subtitle,
@@ -435,16 +438,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         subtitle,
         style: TextStyle(color: theme.textTheme.bodySmall?.color),
       ),
-      secondary: Icon(icon, color: AppColors.primary),
-      activeThumbColor: AppColors.primary,
+      secondary: Icon(icon, color: context.palette.primary),
+      activeThumbColor: context.palette.primary,
     );
   }
-  
+
   Future<void> _saveSettings() async {
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       await _userRepository.updateNotificationSettings({
         'workoutReminders': _workoutReminders,
@@ -464,7 +467,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         'emailEnabled': _emailEnabled,
         'smsEnabled': _smsEnabled,
       });
-      
     } catch (e) {
       if (mounted) {
         final translator = context.read<LanguageProvider>().t;

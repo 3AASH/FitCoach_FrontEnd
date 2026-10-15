@@ -106,15 +106,15 @@ class _AdminWorkoutTemplatesScreenState
             CatalogSearchField(
               hintText: lang.t('admin_template_search_hint'),
               onChanged: _onSearchChanged,
-              resultLabel: provider.isLoading &&
-                      provider.workoutTemplates.isEmpty
-                  ? null
-                  : catalogResultLabel(
-                      lang,
-                      shown: provider.workoutTemplates.length,
-                      total: provider.workoutTemplates.length,
-                      query: _search,
-                    ),
+              resultLabel:
+                  provider.isLoading && provider.workoutTemplates.isEmpty
+                      ? null
+                      : catalogResultLabel(
+                          lang,
+                          shown: provider.workoutTemplates.length,
+                          total: provider.workoutTemplates.length,
+                          query: _search,
+                        ),
             ),
             Expanded(
               child: RefreshIndicator(
@@ -138,8 +138,7 @@ class _AdminWorkoutTemplatesScreenState
                             padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
                             itemCount: provider.workoutTemplates.length,
                             itemBuilder: (context, index) {
-                              final template =
-                                  provider.workoutTemplates[index];
+                              final template = provider.workoutTemplates[index];
                               return _TemplateCard(
                                 template: template,
                                 onEdit: () => _openEditor(template: template),
@@ -255,7 +254,7 @@ class _TemplateCard extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         child: Row(
           children: [
-            const Icon(Icons.calendar_view_week, color: AppColors.primary),
+            Icon(Icons.calendar_view_week, color: context.palette.primary),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -516,7 +515,8 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
               labelText: _tr('plan_editor_workout_days'),
             ),
             items: programPaths
-              .map((path) => DropdownMenuItem(value: path, child: Text(_formatAdvancedProgramPath(path))))
+                .map((path) => DropdownMenuItem(
+                    value: path, child: Text(_formatAdvancedProgramPath(path))))
                 .toList(),
             onChanged: (path) {
               if (path == null || !_isAdvancedTemplate) return;
@@ -671,31 +671,42 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                                     displayStringForOption: (option) =>
                                         option.nameEn,
                                     optionsBuilder: (value) {
-                                      final query = value.text.trim().toLowerCase();
-                                      return widget.availableExercises.where((item) {
-                                        final id = (item.exId ?? item.id).toLowerCase();
+                                      final query =
+                                          value.text.trim().toLowerCase();
+                                      return widget.availableExercises
+                                          .where((item) {
+                                        final id = (item.exId ?? item.id)
+                                            .toLowerCase();
                                         return query.isEmpty ||
-                                            item.nameEn.toLowerCase().contains(query) ||
+                                            item.nameEn
+                                                .toLowerCase()
+                                                .contains(query) ||
                                             id.contains(query) ||
-                                            (item.nameAr?.contains(value.text.trim()) ?? false);
+                                            (item.nameAr?.contains(
+                                                    value.text.trim()) ??
+                                                false);
                                       });
                                     },
                                     onSelected: (selected) => setState(() {
-                                      exercise['ex_id'] = selected.exId ?? selected.id;
+                                      exercise['ex_id'] =
+                                          selected.exId ?? selected.id;
                                       exercise['name_en'] = selected.nameEn;
                                       exercise['name_ar'] = selected.nameAr;
                                       exercise['video_url'] = selected.videoUrl;
-                                      exercise['thumbnail_url'] = selected.thumbnailUrl;
+                                      exercise['thumbnail_url'] =
+                                          selected.thumbnailUrl;
                                     }),
-                                    fieldViewBuilder: (context, controller, focusNode,
-                                        onSubmitted) => TextField(
+                                    fieldViewBuilder: (context, controller,
+                                            focusNode, onSubmitted) =>
+                                        TextField(
                                       controller: controller,
                                       focusNode: focusNode,
                                       onChanged: (value) {
                                         exercise['name_en'] = value;
                                       },
                                       decoration: InputDecoration(
-                                        labelText: _tr('plan_editor_exercise_name'),
+                                        labelText:
+                                            _tr('plan_editor_exercise_name'),
                                       ),
                                     ),
                                   ),
@@ -780,14 +791,14 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
           });
         });
       });
-      _selectedAdvancedProgramPath ??= _advancedProgramPaths.isEmpty
-          ? null
-          : _advancedProgramPaths.first;
+      _selectedAdvancedProgramPath ??=
+          _advancedProgramPaths.isEmpty ? null : _advancedProgramPaths.first;
       final parts = _selectedAdvancedProgramPath?.split('|') ?? const [];
       if (parts.length == 3) {
         template = {
           ...template,
-          'sessions': _asMap(_asMap(_asMap(template['programs'])?[parts[0]])?[parts[1]])?[parts[2]],
+          'sessions': _asMap(_asMap(
+              _asMap(template['programs'])?[parts[0]])?[parts[1]])?[parts[2]],
         };
       }
     }
@@ -805,7 +816,8 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     }).toList();
   }
 
-  Map<String, dynamic> _normalizeWorkoutExercise(Map<String, dynamic> exercise) {
+  Map<String, dynamic> _normalizeWorkoutExercise(
+      Map<String, dynamic> exercise) {
     final normalized = Map<String, dynamic>.from(exercise);
     final exId = _stringValue(
       normalized['ex_id'] ?? normalized['exId'] ?? normalized['id'],
@@ -842,7 +854,8 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
   String _resolveExerciseName(Map<String, dynamic> exercise) {
     final fromTemplate = _stringValue(exercise['name_en'] ?? exercise['name']);
     if (fromTemplate.isNotEmpty) return fromTemplate;
-    final exId = _stringValue(exercise['ex_id'] ?? exercise['exId'] ?? exercise['id']);
+    final exId =
+        _stringValue(exercise['ex_id'] ?? exercise['exId'] ?? exercise['id']);
     final resolved = _findExerciseById(exId);
     return _stringValue(resolved?.nameEn, fallback: exId);
   }
@@ -888,8 +901,10 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
       final parts = _selectedAdvancedProgramPath?.split('|') ?? const [];
       final programs = _asMap(merged['programs']) ?? <String, dynamic>{};
       if (parts.length == 3) {
-        final goals = Map<String, dynamic>.from(_asMap(programs[parts[0]]) ?? const {});
-        final experiences = Map<String, dynamic>.from(_asMap(goals[parts[1]]) ?? const {});
+        final goals =
+            Map<String, dynamic>.from(_asMap(programs[parts[0]]) ?? const {});
+        final experiences =
+            Map<String, dynamic>.from(_asMap(goals[parts[1]]) ?? const {});
         experiences[parts[2]] = sessions;
         goals[parts[1]] = experiences;
         programs[parts[0]] = goals;
@@ -1029,4 +1044,3 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     if (ok) Navigator.pop(context);
   }
 }
-

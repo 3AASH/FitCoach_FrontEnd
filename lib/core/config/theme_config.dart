@@ -26,10 +26,10 @@ class AppThemeConfig {
       brightness: brightness,
       primary: p.primary,
       onPrimary: p.textOnBrand,
-      secondary: AppColors.secondary,
-      onSecondary: p.textPrimary,
+      secondary: isDark ? AppColors.cyan : AppColors.gold,
+      onSecondary: isDark ? AppColors.backgroundDark : AppColors.textPrimary,
       error: p.error,
-      onError: Colors.white,
+      onError: isDark ? AppColors.backgroundDark : Colors.white,
       // `surface` is the colour Material paints cards, sheets, menus and
       // dialogs with, and `onSurface` the text on top of them. The dark theme
       // previously set surface to white while keeping onSurface near-black,
@@ -101,7 +101,7 @@ class AppThemeConfig {
         elevation: 0,
         shadowColor: Colors.black.withValues(alpha: isDark ? 0.18 : 0.05),
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.medium),
+          borderRadius: BorderRadius.circular(AppRadius.large),
           side: BorderSide(color: p.border, width: 1),
         ),
         margin: EdgeInsets.zero,
@@ -109,7 +109,7 @@ class AppThemeConfig {
 
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: p.surfaceVariant,
+        fillColor: isDark ? p.surface : AppColors.surface,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: inputBorder(p.border, 1),
@@ -139,39 +139,40 @@ class AppThemeConfig {
           elevation: 0,
           shadowColor: Colors.transparent,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.small),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: AppTextStyles.bodyMedium,
-          minimumSize: const Size(0, 36), // h-9 in React
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          textStyle: AppTextStyles.label,
+          minimumSize: const Size(0, 48),
         ),
       ),
 
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: p.textPrimary,
+          foregroundColor: isDark ? AppColors.cyan : p.textPrimary,
           disabledForegroundColor: p.textDisabled,
           elevation: 0,
-          side: BorderSide(color: p.border, width: 1),
+          side: BorderSide(
+              color: isDark ? AppColors.cyan : p.textPrimary, width: 1.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.small),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: AppTextStyles.bodyMedium,
-          minimumSize: const Size(0, 36),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          textStyle: AppTextStyles.label,
+          minimumSize: const Size(0, 48),
         ),
       ),
 
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: p.primary,
+          foregroundColor: isDark ? AppColors.cyan : p.primary,
           disabledForegroundColor: p.textDisabled,
           elevation: 0,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppRadius.small),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          textStyle: AppTextStyles.bodyMedium,
+          textStyle: AppTextStyles.labelSmall,
           minimumSize: const Size(0, 36),
         ),
       ),
@@ -179,18 +180,18 @@ class AppThemeConfig {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: p.primary,
         foregroundColor: colorScheme.onPrimary,
-        elevation: 2,
+        elevation: 6,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.medium),
+          borderRadius: BorderRadius.circular(AppRadius.large),
         ),
       ),
 
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: isDark ? p.surfaceVariant : p.background,
-        selectedItemColor: p.primary,
-        unselectedItemColor: isDark ? p.textSecondary : AppColors.textDisabled,
-        selectedLabelStyle: AppTextStyles.small,
-        unselectedLabelStyle: AppTextStyles.small,
+        backgroundColor: isDark ? p.surface : AppColors.surface,
+        selectedItemColor: isDark ? AppColors.gold : AppColors.primary,
+        unselectedItemColor: p.textSecondary,
+        selectedLabelStyle: AppTextStyles.captionMedium,
+        unselectedLabelStyle: AppTextStyles.caption,
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
@@ -211,10 +212,10 @@ class AppThemeConfig {
       // pinned rather than taken from the palette.
       snackBarTheme: SnackBarThemeData(
         backgroundColor:
-            isDark ? AppColors.surfaceDarkRaised : AppColors.backgroundDark,
+            isDark ? AppColors.surfaceDarkRaised : AppColors.primary,
         contentTextStyle:
             AppTextStyles.body.copyWith(color: AppColors.textPrimaryDark),
-        actionTextColor: AppColors.primaryLight,
+        actionTextColor: isDark ? AppColors.gold : AppColors.cyan,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
@@ -231,9 +232,7 @@ class AppThemeConfig {
             AppTextStyles.small.copyWith(color: colorScheme.onPrimary),
         iconTheme: IconThemeData(color: p.textSecondary, size: 18),
         side: BorderSide.none,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadius.small),
-        ),
+        shape: const StadiumBorder(),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       ),
 
@@ -256,7 +255,7 @@ class AppThemeConfig {
           if (states.contains(WidgetState.selected)) return p.primary;
           return Colors.transparent;
         }),
-        checkColor: const WidgetStatePropertyAll(Colors.white),
+        checkColor: WidgetStatePropertyAll(colorScheme.onPrimary),
         side: BorderSide(color: p.border, width: 2),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(4),
@@ -276,7 +275,7 @@ class AppThemeConfig {
         thumbColor: p.primary,
         overlayColor: p.primary.withValues(alpha: 0.2),
         valueIndicatorTextStyle:
-            AppTextStyles.small.copyWith(color: AppColors.textPrimaryDark),
+            AppTextStyles.small.copyWith(color: p.textOnBrand),
         trackHeight: 4,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
       ),
@@ -355,10 +354,12 @@ class AppThemeConfig {
         collapsedIconColor: p.textPrimary,
       ),
       tabBarTheme: TabBarThemeData(
-        labelColor: p.primary,
+        labelColor: isDark ? AppColors.gold : p.primary,
         unselectedLabelColor: p.textSecondary,
-        labelStyle: AppTextStyles.smallMedium,
-        unselectedLabelStyle: AppTextStyles.small,
+        indicatorColor: isDark ? AppColors.gold : p.primary,
+        labelStyle: AppTextStyles.labelSmall,
+        unselectedLabelStyle:
+            AppTextStyles.labelSmall.copyWith(fontWeight: FontWeight.w500),
       ),
       datePickerTheme: DatePickerThemeData(
         backgroundColor: p.surface,

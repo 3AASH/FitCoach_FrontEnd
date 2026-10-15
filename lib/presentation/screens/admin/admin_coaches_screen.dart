@@ -204,7 +204,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                           )
                         : null,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                   ),
                   onChanged: (value) {
@@ -227,7 +227,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         decoration: InputDecoration(
                           labelText: lang.t('admin_users_filter_status'),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium),
                           ),
                         ),
                         items: [
@@ -358,15 +359,16 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                   // Avatar
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                    backgroundColor:
+                        context.palette.primary.withValues(alpha: 0.1),
                     backgroundImage: coach.profilePhotoUrl != null
                         ? NetworkImage(coach.profilePhotoUrl!)
                         : null,
                     child: coach.profilePhotoUrl == null
                         ? Text(
                             coach.initials,
-                            style: const TextStyle(
-                              color: AppColors.primary,
+                            style: TextStyle(
+                              color: context.palette.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
@@ -468,8 +470,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                         value: 'edit',
                         child: Row(
                           children: [
-                            const Icon(Icons.edit,
-                                size: 18, color: AppColors.primary),
+                            Icon(Icons.edit,
+                                size: 18, color: context.palette.primary),
                             const SizedBox(width: 8),
                             Text(lang.t('admin_edit_user_title')),
                           ],
@@ -512,14 +514,14 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12),
+                        color: context.palette.primary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(AppRadius.medium),
                       ),
                       child: Text(
                         spec,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.primary,
+                          color: context.palette.primary,
                         ),
                       ),
                     );
@@ -539,13 +541,13 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: colors.$1,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Text(
         _statusLabel(coach, lang),
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: 10,
-          color: AppColors.textWhite,
+          color: context.palette.textPrimary,
           fontWeight: FontWeight.bold,
         ),
       ),
@@ -671,7 +673,8 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                   children: coach.specializations.map((spec) {
                     return Chip(
                       label: Text(spec, style: const TextStyle(fontSize: 12)),
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                      backgroundColor:
+                          context.palette.primary.withValues(alpha: 0.1),
                     );
                   }).toList(),
                 ),
@@ -848,8 +851,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
               Navigator.of(sheetContext).pop();
               messenger.showSnackBar(
                 SnackBar(
-                  content:
-                      Text(lang.t('admin_coaches_coach_updated')),
+                  content: Text(lang.t('admin_coaches_coach_updated')),
                   backgroundColor: AppColors.success,
                 ),
               );
@@ -990,7 +992,7 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: context.palette.border,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1009,7 +1011,7 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('admin_full_name_label'),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.medium)),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -1025,7 +1027,7 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('email'),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.medium)),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -1044,7 +1046,7 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('admin_phone_label'),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.medium)),
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
@@ -1070,7 +1072,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                       decoration: InputDecoration(
                         hintText: lang.t('admin_add_specialty_hint'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                       onSubmitted: (_) => _addSpecialization(),
                     ),
@@ -1079,8 +1082,8 @@ class _CreateCoachSheetState extends State<_CreateCoachSheet> {
                   ElevatedButton(
                     onPressed: _addSpecialization,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textWhite,
+                      backgroundColor: context.palette.primary,
+                      foregroundColor: context.palette.textOnBrand,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 14),
                     ),
@@ -1290,7 +1293,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: context.palette.border,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1301,7 +1304,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('admin_full_name_label'),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
                 validator: (value) {
@@ -1317,7 +1320,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('admin_exercise_arabic_name'),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1328,7 +1331,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('email'),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
                 validator: (value) {
@@ -1348,7 +1351,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('admin_phone_label'),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1359,7 +1362,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 decoration: InputDecoration(
                   labelText: lang.t('admin_coaches_profile_photo_url'),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1368,10 +1371,9 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                 controller: _experienceYearsController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
-                  labelText:
-                      lang.t('public_coach_profile_years_exp'),
+                  labelText: lang.t('public_coach_profile_years_exp'),
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1383,7 +1385,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                   labelText: lang.t('admin_coaches_bio'),
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -1404,7 +1406,7 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                       decoration: InputDecoration(
                         hintText: lang.t('admin_add_specialty_hint'),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
                         ),
                       ),
                       onSubmitted: (_) => _addSpecialization(),
@@ -1414,8 +1416,8 @@ class _EditCoachSheetState extends State<_EditCoachSheet> {
                   ElevatedButton(
                     onPressed: _isSubmitting ? null : _addSpecialization,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: AppColors.textWhite,
+                      backgroundColor: context.palette.primary,
+                      foregroundColor: context.palette.textOnBrand,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 14,
@@ -1569,4 +1571,3 @@ class _CoachCreatePayload {
     this.specializations = const [],
   });
 }
-

@@ -57,16 +57,17 @@ class ExerciseLibraryOption {
     // referenced, so it would only be a row the coach can pick and not save.
     if (name == null || id == null) return null;
 
-    final muscle = _joinList(row['muscle_group'] ?? row['muscleGroup'] ?? row['primary_muscles']);
+    final muscle = _joinList(
+        row['muscle_group'] ?? row['muscleGroup'] ?? row['primary_muscles']);
     final equipment = _joinList(row['equipment']);
-    final detail = [muscle, equipment, id]
-        .where((part) => part.isNotEmpty)
-        .join(' · ');
+    final detail =
+        [muscle, equipment, id].where((part) => part.isNotEmpty).join(' · ');
 
     return ExerciseLibraryOption(id: id, name: name, detail: detail);
   }
 
-  static List<ExerciseLibraryOption> fromRows(List<Map<String, dynamic>> rows) =>
+  static List<ExerciseLibraryOption> fromRows(
+          List<Map<String, dynamic>> rows) =>
       rows.map(fromRow).whereType<ExerciseLibraryOption>().toList();
 }
 
@@ -114,8 +115,7 @@ class RecipeVariantOption {
 
   /// Name plus size, e.g. "Koshari (M)". Used wherever one row has to be
   /// distinguishable from the other portions of the same dish.
-  String get label =>
-      portionCode.isEmpty ? name : '$name ($portionCode)';
+  String get label => portionCode.isEmpty ? name : '$name ($portionCode)';
 
   String get detail {
     final parts = <String>[
@@ -127,8 +127,9 @@ class RecipeVariantOption {
     return parts.join(' · ');
   }
 
-  static String _macro(num value) =>
-      value == value.roundToDouble() ? '${value.round()}g' : '${value.toStringAsFixed(1)}g';
+  static String _macro(num value) => value == value.roundToDouble()
+      ? '${value.round()}g'
+      : '${value.toStringAsFixed(1)}g';
 
   static List<String> _stringList(dynamic value) {
     if (value is List) {
@@ -155,7 +156,8 @@ class RecipeVariantOption {
       portionCode:
           (_firstString([row['portion_code'], row['portionCode']]) ?? '')
               .toUpperCase(),
-      name: _firstString([row['name_en'], row['nameEn'], row['name']]) ?? recipeId,
+      name: _firstString([row['name_en'], row['nameEn'], row['name']]) ??
+          recipeId,
       nameAr: _firstString([row['name_ar'], row['nameAr']]),
       mealTypes: _stringList(row['meal_types'] ?? row['mealTypes']),
       marketTags: _stringList(row['market_tags'] ?? row['marketTags']),
@@ -194,7 +196,8 @@ class RecipeMealOption {
   });
 
   String get detail {
-    final portions = variants.map((v) => v.portionCode).where((c) => c.isNotEmpty);
+    final portions =
+        variants.map((v) => v.portionCode).where((c) => c.isNotEmpty);
     return [
       if (mealTypes.isNotEmpty) mealTypes.join(', '),
       if (cuisine != null && cuisine!.isNotEmpty) cuisine!,

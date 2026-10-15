@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -9,10 +11,12 @@ import '../../providers/user_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/messaging_provider.dart';
+import '../../providers/theme_provider.dart';
 import '../../providers/quota_provider.dart';
 import '../../providers/appointment_provider.dart';
 import '../../providers/video_call_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/aash_brand_mark.dart';
 import '../../widgets/animated_reveal.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../../widgets/quota_indicator.dart';
@@ -31,6 +35,7 @@ import '../exercise/exercise_library_screen.dart';
 import '../progress/progress_screen.dart';
 import '../inbody/inbody_input_screen.dart';
 import '../subscription/subscription_manager_screen.dart';
+import '../settings/notification_settings_screen.dart';
 import '../../../data/models/appointment.dart';
 import '../../../core/theme/app_palette.dart';
 
@@ -83,7 +88,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final isArabic = languageProvider.isArabic;
-    final unreadMessages = context.watch<MessagingProvider>().totalUnread;
     final isFreemium =
         (context.watch<AuthProvider>().user?.subscriptionTier ?? 'Freemium') ==
             'Freemium';
@@ -118,68 +122,70 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) async {
-          final tappedCurrentTab = index == _selectedIndex;
-          setState(() {
-            _selectedIndex = index;
-          });
-          if (index == 1 && tappedCurrentTab) {
-            final workoutProvider = context.read<WorkoutProvider>();
-            await workoutProvider.loadActivePlan();
-            await workoutProvider.loadWorkoutCalendar(silent: true);
-          }
-        },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: context.palette.textDisabled,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.home_outlined),
-            activeIcon: const Icon(Icons.home),
-            label: languageProvider.t('home'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.fitness_center_outlined),
-            activeIcon: const Icon(Icons.fitness_center),
-            label: languageProvider.t('workout'),
-          ),
-          BottomNavigationBarItem(
-            // Freemium cannot open Nutrition. Saying so on the icon beats
-            // letting the user tap through to a locked screen.
-            icon: isFreemium
-                ? const Icon(Icons.lock_outline)
-                : const Icon(Icons.restaurant_outlined),
-            activeIcon: isFreemium
-                ? const Icon(Icons.lock)
-                : const Icon(Icons.restaurant),
-            label: languageProvider.t('nutrition'),
-          ),
-          BottomNavigationBarItem(
-            icon: Badge.count(
-              count: unreadMessages,
-              isLabelVisible: unreadMessages > 0,
-              child: const Icon(Icons.chat_bubble_outline),
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.fromLTRB(18, 0, 18, 10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
+              decoration: BoxDecoration(
+                color: context.palette.surface.withValues(alpha: 0.88),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                border: Border.all(color: context.palette.border),
+                boxShadow: Theme.of(context).brightness == Brightness.dark
+                    ? const []
+                    : [
+                        BoxShadow(
+                          color:
+                              context.palette.primary.withValues(alpha: 0.10),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+              ),
+              child: Row(
+                children: [
+                  _buildFloatingNavItem(
+                    context,
+                    index: 0,
+                    currentIndex: _selectedIndex,
+                    icon: Icons.home_outlined,
+                    activeIcon: Icons.home_rounded,
+                    label: languageProvider.t('home'),
+                  ),
+                  _buildFloatingNavItem(
+                    context,
+                    index: 1,
+                    currentIndex: _selectedIndex,
+                    icon: Icons.fitness_center_outlined,
+                    activeIcon: Icons.fitness_center,
+                    label: languageProvider.t('workout'),
+                  ),
+                  _buildFloatingNavItem(
+                    context,
+                    index: 2,
+                    currentIndex: _selectedIndex,
+                    icon: isFreemium
+                        ? Icons.lock_outline
+                        : Icons.restaurant_outlined,
+                    activeIcon: isFreemium ? Icons.lock : Icons.restaurant,
+                    label: languageProvider.t('nutrition'),
+                  ),
+                  _buildFloatingNavItem(
+                    context,
+                    index: 4,
+                    currentIndex: _selectedIndex,
+                    icon: Icons.shopping_bag_outlined,
+                    activeIcon: Icons.shopping_bag,
+                    label: languageProvider.t('store'),
+                  ),
+                ],
+              ),
             ),
-            activeIcon: Badge.count(
-              count: unreadMessages,
-              isLabelVisible: unreadMessages > 0,
-              child: const Icon(Icons.chat_bubble),
-            ),
-            label: languageProvider.t('coach'),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.shopping_bag_outlined),
-            activeIcon: const Icon(Icons.shopping_bag),
-            label: languageProvider.t('store'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.person_outline),
-            activeIcon: const Icon(Icons.person),
-            label: languageProvider.t('account'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -205,6 +211,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             'weeklyProgress': 78,
             'workoutsCompleted': 12,
             'totalWorkouts': 14,
+            'workoutMinutes': 240,
           }
         : {
             'caloriesBurned': 0,
@@ -213,6 +220,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             'weeklyProgress': 0,
             'workoutsCompleted': 0,
             'totalWorkouts': 0,
+            'workoutMinutes': 0,
           };
 
     return Stack(
@@ -307,71 +315,123 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     String? fitnessUpdatedBy,
     Map<String, int> stats,
   ) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 20),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.headerGradientStart, AppColors.headerGradientEnd],
-          begin: AlignmentDirectional.topStart,
-          end: AlignmentDirectional.bottomEnd,
-        ),
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(24)),
-      ),
+    final theme = Theme.of(context);
+    final workoutMinutes = stats['workoutMinutes'] ?? 0;
+    const streak = DemoConfig.isDemo ? 7 : 0;
+
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(18, 8, 18, 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: isArabic
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '${lang.t('home_hello')}, $firstName!',
-                      style:
-                          AppTextStyles.h3.copyWith(color: AppColors.textWhite),
-                      textAlign: TextAlign.start,
+              Semantics(
+                button: true,
+                label: lang.t('account'),
+                child: InkWell(
+                  onTap: () => setState(() => _selectedIndex = 5),
+                  customBorder: const CircleBorder(),
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: context.palette.surfaceVariant,
+                    child: Text(
+                      firstName.isEmpty
+                          ? 'A'
+                          : firstName.characters.first.toUpperCase(),
+                      style: AppTextStyles.h4
+                          .copyWith(color: context.palette.primary),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      lang.t('home_ready'),
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textWhite.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: AppColors.textWhite.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  tierLabel,
-                  style: AppTextStyles.smallMedium
-                      .copyWith(color: AppColors.textWhite),
-                ),
-              ),
-              const SizedBox(width: 8),
+              const Spacer(),
+              const AashBrandMark(size: 48),
+              const Spacer(),
               IconButton(
-                tooltip: lang.t('account'),
-                icon: const Icon(Icons.person,
-                    color: AppColors.textWhite, size: 20),
-                onPressed: () => setState(() => _selectedIndex = 5),
+                tooltip: lang.t('account_tab_notifications'),
+                onPressed: () => Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) => const NotificationSettingsScreen(),
+                  ),
+                ),
+                icon: Icon(Icons.notifications_none_rounded,
+                    color: context.palette.textPrimary),
+              ),
+              IconButton(
+                tooltip: lang.t('account_tab_settings'),
+                onPressed: () => context.read<ThemeProvider>().toggleTheme(),
+                icon: Icon(
+                  theme.brightness == Brightness.dark
+                      ? Icons.light_mode_outlined
+                      : Icons.dark_mode_outlined,
+                  color: context.palette.textSecondary,
+                ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 18),
+          Wrap(
+            spacing: 10,
+            runSpacing: 8,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                '${lang.t('home_hello')}, $firstName!',
+                style: AppTextStyles.h2
+                    .copyWith(color: context.palette.textPrimary),
+              ),
+              Container(
+                padding: const EdgeInsetsDirectional.fromSTEB(10, 6, 10, 6),
+                decoration: BoxDecoration(
+                  color: AppColors.gold.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
+                  border:
+                      Border.all(color: AppColors.gold.withValues(alpha: 0.42)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.local_fire_department_rounded,
+                        size: 16,
+                        color: foregroundFor(Color.alphaBlend(
+                          AppColors.gold.withValues(alpha: 0.14),
+                          context.palette.surface,
+                        ))),
+                    const SizedBox(width: 5),
+                    Text('$streak ${lang.t('progress_streak')}',
+                        style: AppTextStyles.captionMedium.copyWith(
+                          color: foregroundFor(Color.alphaBlend(
+                            AppColors.gold.withValues(alpha: 0.14),
+                            context.palette.surface,
+                          )),
+                        )),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(lang.t('home_ready'),
+              style: AppTextStyles.small
+                  .copyWith(color: context.palette.textSecondary)),
+          const SizedBox(height: 18),
           Container(
-            padding: const EdgeInsets.all(12),
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: AppColors.textWhite.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
+              color: context.palette.surface,
+              borderRadius: BorderRadius.circular(AppRadius.xlarge),
+              border: Border.all(color: context.palette.border),
+              boxShadow: theme.brightness == Brightness.dark
+                  ? const []
+                  : [
+                      BoxShadow(
+                        color: context.palette.primary.withValues(alpha: 0.055),
+                        blurRadius: 20,
+                        offset: const Offset(0, 7),
+                      ),
+                    ],
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -379,170 +439,290 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 Row(
                   children: [
                     Expanded(
+                      child: Text(lang.t('home_weekly_progress'),
+                          style: AppTextStyles.h4
+                              .copyWith(color: context.palette.textPrimary)),
+                    ),
+                    Container(
+                      padding:
+                          const EdgeInsetsDirectional.fromSTEB(10, 5, 10, 5),
+                      decoration: BoxDecoration(
+                        color: context.palette.surfaceVariant
+                            .withValues(alpha: 0.65),
+                        borderRadius: BorderRadius.circular(AppRadius.pill),
+                      ),
+                      child: Text(tierLabel,
+                          style: AppTextStyles.captionMedium
+                              .copyWith(color: context.palette.textSecondary)),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildDashboardRing(
+                        color: AppColors.cyan,
+                        progress: ((stats['caloriesBurned'] ?? 0) / 2500)
+                            .clamp(0, 1)
+                            .toDouble(),
+                        value: '${stats['caloriesBurned'] ?? 0}',
+                        label: lang.t('home_calories_burned'),
+                        unit: 'kcal',
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildDashboardRing(
+                        color: AppColors.gold,
+                        progress: (workoutMinutes / 300).clamp(0, 1).toDouble(),
+                        value: '$workoutMinutes',
+                        label: lang.t('home_this_week'),
+                        unit: lang.t('home_duration_minutes',
+                            args: {'minutes': ''}).trim(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 18),
+                Row(
+                  children: [
+                    Expanded(
                       child: Column(
-                        crossAxisAlignment: isArabic
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            lang.t('home_fitness_score'),
-                            style: AppTextStyles.small.copyWith(
-                              color: AppColors.textWhite.withValues(alpha: 0.7),
-                            ),
-                          ),
-                          const SizedBox(height: 2),
+                          Text(lang.t('home_fitness_score'),
+                              style: AppTextStyles.caption.copyWith(
+                                  color: context.palette.textSecondary)),
+                          const SizedBox(height: 3),
+                          Text('$fitnessScore / 100',
+                              style: AppTextStyles.h4.copyWith(
+                                  color: context.palette.textPrimary)),
                           Text(
                             fitnessUpdatedBy == 'coach'
                                 ? lang.t('home_updated_by_coach')
                                 : lang.t('home_auto_updated'),
-                            style: AppTextStyles.small.copyWith(
-                              color:
-                                  AppColors.textWhite.withValues(alpha: 0.54),
-                            ),
+                            style: AppTextStyles.caption
+                                .copyWith(color: context.palette.textSecondary),
                           ),
                         ],
                       ),
                     ),
-                    Column(
-                      children: [
-                        Text(
-                          '$fitnessScore',
-                          style: AppTextStyles.h2
-                              .copyWith(color: AppColors.textWhite),
-                        ),
-                        Text(
-                          '/100',
-                          style: AppTextStyles.small.copyWith(
-                            color: AppColors.textWhite.withValues(alpha: 0.54),
-                          ),
-                        ),
-                      ],
+                    IconButton(
+                      tooltip: lang.t('home_view_progress'),
+                      onPressed: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                            builder: (_) => const ProgressScreen()),
+                      ),
+                      icon: Icon(
+                        Icons.arrow_forward,
+                        color: context.palette.primary,
+                      ),
                     ),
                   ],
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 8),
                 ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                   child: LinearProgressIndicator(
-                    value: fitnessScore / 100,
-                    minHeight: 6,
-                    backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
+                    value: (fitnessScore / 100).clamp(0, 1).toDouble(),
+                    minHeight: 7,
+                    backgroundColor: context.palette.surfaceVariant,
                     valueColor:
-                        const AlwaysStoppedAnimation<Color>(AppColors.textWhite),
+                        const AlwaysStoppedAnimation<Color>(AppColors.cyan),
                   ),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 16),
           Row(
             children: [
               Expanded(
-                child: _buildHeaderStat(
-                  icon: Icons.local_fire_department,
-                  value: stats['caloriesBurned']?.toString() ?? '0',
-                  label: lang.t('home_calories_burned'),
+                child: _buildCoachingQuickCheck(
+                  icon: Icons.forum_outlined,
+                  title: lang.t('home_coach'),
+                  subtitle: lang.t('home_ready'),
+                  badgeCount: context.watch<MessagingProvider>().totalUnread,
+                  onTap: () => setState(() => _selectedIndex = 3),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 10),
               Expanded(
-                child: _buildHeaderStat(
-                  icon: Icons.local_dining,
-                  value: stats['caloriesConsumed']?.toString() ?? '0',
-                  label: lang.t('home_calories_consumed'),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _buildHeaderStat(
-                  icon: Icons.track_changes,
-                  value: '${stats['planAdherence'] ?? 0}%',
-                  label: lang.t('home_adherence'),
+                child: _buildCoachingQuickCheck(
+                  icon: Icons.event_available_outlined,
+                  title: lang.t('home_todays_workout'),
+                  subtitle:
+                      '${stats['workoutsCompleted'] ?? 0}/${stats['totalWorkouts'] ?? 0} ${lang.t('home_this_week')}',
+                  onTap: () => setState(() => _selectedIndex = 1),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: AppColors.textWhite.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDashboardRing({
+    required Color color,
+    required double progress,
+    required String value,
+    required String label,
+    required String unit,
+  }) {
+    return Column(
+      children: [
+        SizedBox(
+          width: 96,
+          height: 96,
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox.expand(
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 8,
+                  strokeCap: StrokeCap.round,
+                  backgroundColor: color.withValues(alpha: 0.15),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                ),
+              ),
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(value,
+                        style: AppTextStyles.h3
+                            .copyWith(color: context.palette.textPrimary)),
+                  ),
+                  Text(unit,
+                      style: AppTextStyles.caption
+                          .copyWith(color: context.palette.textSecondary)),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(label,
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyles.captionMedium
+                .copyWith(color: context.palette.textSecondary)),
+      ],
+    );
+  }
+
+  Widget _buildCoachingQuickCheck({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    int badgeCount = 0,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: context.palette.surface,
+      borderRadius: BorderRadius.circular(AppRadius.large),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadius.large),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 86),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadius.large),
+            border: Border.all(color: context.palette.border),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: AppColors.cyan.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
+                ),
+                child: Badge.count(
+                  count: badgeCount,
+                  isLabelVisible: badgeCount > 0,
+                  child: Icon(icon, color: AppColors.cyan, size: 19),
+                ),
+              ),
+              const SizedBox(width: 9),
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.captionMedium
+                            .copyWith(color: context.palette.textPrimary)),
+                    const SizedBox(height: 2),
+                    Text(subtitle,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTextStyles.caption
+                            .copyWith(color: context.palette.textSecondary)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFloatingNavItem(
+    BuildContext context, {
+    required int index,
+    required int currentIndex,
+    required IconData icon,
+    required IconData activeIcon,
+    required String label,
+  }) {
+    final isSelected = currentIndex == index;
+    final color =
+        isSelected ? context.palette.primary : context.palette.textSecondary;
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          onTap: () async {
+            final tappedCurrentTab = index == _selectedIndex;
+            setState(() => _selectedIndex = index);
+            if (index == 1 && tappedCurrentTab) {
+              final workoutProvider = context.read<WorkoutProvider>();
+              await workoutProvider.loadActivePlan();
+              await workoutProvider.loadWorkoutCalendar(silent: true);
+            }
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 3),
             child: Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      lang.t('home_weekly_progress'),
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textWhite.withValues(alpha: 0.7),
-                      ),
-                    ),
-                    Text(
-                      '${stats['weeklyProgress'] ?? 0}%',
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textWhite.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 6),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
-                    value: (stats['weeklyProgress'] ?? 0) / 100,
-                    minHeight: 6,
-                    backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(AppColors.textWhite),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      '${stats['workoutsCompleted'] ?? 0}/${stats['totalWorkouts'] ?? 0}',
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textWhite.withValues(alpha: 0.54),
-                      ),
-                    ),
-                    Text(
-                      lang.t('home_this_week'),
-                      style: AppTextStyles.small.copyWith(
-                        color: AppColors.textWhite.withValues(alpha: 0.54),
-                      ),
-                    ),
-                  ],
-                ),
-                Align(
-                  alignment: isArabic
-                      ? AlignmentDirectional.centerStart
-                      : AlignmentDirectional.centerEnd,
-                  child: TextButton.icon(
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => const ProgressScreen(),
-                      ),
-                    ),
-                    icon: Icon(
-                      isArabic ? Icons.arrow_back : Icons.arrow_forward,
-                      size: 16,
-                    ),
-                    label: Text(lang.t('home_view_progress')),
-                    style: TextButton.styleFrom(
-                      foregroundColor: AppColors.textWhite,
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                  ),
+                Icon(isSelected ? activeIcon : icon, color: color, size: 21),
+                const SizedBox(height: 3),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(label,
+                      maxLines: 1,
+                      style:
+                          AppTextStyles.captionMedium.copyWith(color: color)),
                 ),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -708,39 +888,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     return type == 'video';
   }
 
-  Widget _buildHeaderStat({
-    required IconData icon,
-    required String value,
-    required String label,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        color: AppColors.textWhite.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        children: [
-          Icon(icon, color: AppColors.textWhite, size: 18),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style:
-                AppTextStyles.bodyMedium.copyWith(color: AppColors.textWhite),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label.split(' ').first,
-            style: AppTextStyles.small.copyWith(
-              color: AppColors.textWhite.withValues(alpha: 0.7),
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-
   // ignore: unused_element
   Widget _buildTodayWorkoutCard(
     LanguageProvider lang,
@@ -788,8 +935,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           const SizedBox(height: 8),
           Text(
             workout['name'] as String,
-            style:
-                AppTextStyles.bodyMedium.copyWith(color: context.palette.textPrimary),
+            style: AppTextStyles.bodyMedium
+                .copyWith(color: context.palette.textPrimary),
           ),
           const SizedBox(height: 6),
           Row(
@@ -867,9 +1014,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         label: lang.t('home_workouts'),
         description: lang.t('home_workouts_desc'),
         icon: Icons.fitness_center,
-        color: AppColors.primary,
+        color: context.palette.primary,
         index: 1,
-        background: AppColors.primary.withValues(alpha: 0.12),
+        background: context.palette.primary.withValues(alpha: 0.12),
       ),
       _HomeNavItem(
         label: lang.t('home_nutrition'),
@@ -949,21 +1096,24 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     color: item.color,
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(item.icon, color: AppColors.textWhite, size: 22),
+                  child: Icon(
+                    item.icon,
+                    color: foregroundFor(item.color),
+                    size: 22,
+                  ),
                 ),
                 if (item.locked)
                   Positioned.fill(
                     child: Container(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.accent, AppColors.chart5],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
+                        color: AppColors.accent,
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const Icon(Icons.workspace_premium,
-                          color: AppColors.textWhite, size: 22),
+                      child: Icon(
+                        Icons.workspace_premium,
+                        color: foregroundFor(AppColors.accent),
+                        size: 22,
+                      ),
                     ),
                   ),
                 if (item.badge != null)
@@ -982,7 +1132,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                       child: Text(
                         item.badge!,
                         style: AppTextStyles.overline.copyWith(
-                          color: AppColors.textWhite,
+                          color: foregroundFor(AppColors.error),
                         ),
                       ),
                     ),
@@ -1121,7 +1271,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   _buildQuickAccessButton(
                     lang.t('inbody_title'),
                     Icons.monitor_heart,
-                    AppColors.primaryDark,
+                    context.palette.textPrimary,
                     isArabic,
                     () => Navigator.of(context).push(
                       MaterialPageRoute(
@@ -1130,8 +1280,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                             : const SubscriptionManagerScreen(),
                       ),
                     ),
-                    background: AppColors.primary.withValues(alpha: 0.12),
-                    borderColor: AppColors.primary.withValues(alpha: 0.25),
+                    background: context.palette.primary.withValues(alpha: 0.12),
+                    borderColor:
+                        context.palette.primary.withValues(alpha: 0.25),
                   ),
                   const SizedBox(height: 8),
                   _buildQuickAccessButton(
@@ -1167,7 +1318,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             color: iconColor == context.palette.textPrimary ? null : iconColor),
       ),
       style: OutlinedButton.styleFrom(
-        alignment: isArabic ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+        alignment: isArabic
+            ? AlignmentDirectional.centerEnd
+            : AlignmentDirectional.centerStart,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         backgroundColor: background,
         side: borderColor == null ? null : BorderSide(color: borderColor),
@@ -1183,7 +1336,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         children: [
           Row(
             children: [
-              Icon(Icons.trending_up, size: 18, color: context.palette.textPrimary),
+              Icon(Icons.trending_up,
+                  size: 18, color: context.palette.textPrimary),
               const SizedBox(width: 8),
               Text(
                 lang.t('home_recent_activity'),
@@ -1204,7 +1358,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             title: lang.t('home_message_from_coach'),
             subtitle: lang.t('home_day_ago'),
             badge: lang.t('home_new'),
-            color: AppColors.primary,
+            color: context.palette.primary,
           ),
           const SizedBox(height: 8),
           _buildActivityRow(
@@ -1264,20 +1418,17 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.secondary,
-            AppColors.primaryLight.withValues(alpha: 0.2)
-          ],
+          colors: [context.palette.surface, context.palette.surfaceVariant],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppColors.secondary),
+        border: Border.all(color: context.palette.border),
       ),
       child: Column(
         children: [
-          const Icon(Icons.workspace_premium,
-              color: AppColors.secondaryForeground, size: 26),
+          Icon(Icons.workspace_premium,
+              color: context.palette.primary, size: 26),
           const SizedBox(height: 8),
           Text(
             lang.t('home_unlock_premium'),
@@ -1290,7 +1441,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           const SizedBox(height: 6),
           Text(
             lang.t('home_premium_desc'),
-            style: AppTextStyles.small.copyWith(color: context.palette.textSecondary),
+            style: AppTextStyles.small
+                .copyWith(color: context.palette.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -1305,8 +1457,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               icon: const Icon(Icons.star, size: 14),
               label: Text(lang.t('home_upgrade_now')),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.secondaryForeground,
-                foregroundColor: AppColors.textWhite,
+                backgroundColor: context.palette.primary,
+                foregroundColor: context.palette.textOnBrand,
               ),
             ),
           ),
@@ -1445,8 +1597,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     value: fitnessScore / 100,
                     minHeight: 6,
                     backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
-                    valueColor:
-                        const AlwaysStoppedAnimation<Color>(AppColors.textWhite),
+                    valueColor: const AlwaysStoppedAnimation<Color>(
+                        AppColors.textWhite),
                   ),
                 ),
               ],
@@ -1529,7 +1681,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         label: lang.t('home_workouts'),
         description: lang.t('home_workouts_desc'),
         icon: Icons.fitness_center,
-        color: AppColors.primary,
+        color: context.palette.primary,
         index: 1,
       ),
       _HomeNavItem(
@@ -1673,7 +1825,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     Color getColor() {
       switch (tier) {
         case 'Premium':
-          return AppColors.secondary;
+          return AppColors.surfaceDarkRaised;
         case 'Smart Premium':
           return AppColors.accent;
         default:
@@ -1704,7 +1856,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       ),
       child: Row(
         children: [
-          Icon(getIcon(), color: AppColors.textWhite, size: 32),
+          Icon(
+            getIcon(),
+            color: foregroundFor(getColor()),
+            size: 32,
+          ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -1712,13 +1868,15 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               children: [
                 Text(
                   tierLabel,
-                  style: AppTextStyles.h2.copyWith(color: AppColors.textWhite),
+                  style: AppTextStyles.h2.copyWith(
+                    color: foregroundFor(getColor()),
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   lang.t('current_plan'),
                   style: AppTextStyles.small.copyWith(
-                    color: AppColors.textWhite.withValues(alpha: 0.9),
+                    color: foregroundFor(getColor()).withValues(alpha: 0.9),
                   ),
                 ),
               ],
@@ -1732,8 +1890,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 ),
               ),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.textWhite,
-                side: const BorderSide(color: AppColors.textWhite),
+                foregroundColor: foregroundFor(getColor()),
+                side: BorderSide(color: foregroundFor(getColor())),
               ),
               child: Text(lang.t('upgrade')),
             ),
@@ -1760,7 +1918,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             title: lang.t('workouts'),
             value: '24',
             icon: Icons.fitness_center,
-            color: AppColors.primary,
+            color: context.palette.primary,
           ),
         ),
         const SizedBox(width: 12),
@@ -1769,7 +1927,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             title: lang.t('calories'),
             value: '1.8k',
             icon: Icons.local_fire_department_outlined,
-            color: AppColors.secondary,
+            color: context.palette.primary,
           ),
         ),
       ],
@@ -1836,12 +1994,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
+                            color:
+                                context.palette.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.fitness_center,
-                            color: AppColors.primary,
+                            color: context.palette.primary,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -1920,12 +2079,13 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: AppColors.secondary.withValues(alpha: 0.1),
+                            color:
+                                context.palette.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.restaurant,
-                            color: AppColors.secondary,
+                            color: context.palette.primary,
                           ),
                         ),
                         const SizedBox(width: 16),
@@ -1992,7 +2152,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           title: lang.t('message_coach'),
           subtitle: lang.t('connect_with_coach'),
           icon: Icons.chat_bubble_outline,
-          iconColor: AppColors.primary,
+          iconColor: context.palette.primary,
           onTap: () {
             setState(() => _selectedIndex = 3);
           },
@@ -2002,7 +2162,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           title: lang.t('your_progress'),
           subtitle: lang.t('view_achievements'),
           icon: Icons.trending_up,
-          iconColor: AppColors.secondary,
+          iconColor: context.palette.primary,
           onTap: () => Navigator.of(context).push(
             MaterialPageRoute(builder: (_) => const ProgressScreen()),
           ),

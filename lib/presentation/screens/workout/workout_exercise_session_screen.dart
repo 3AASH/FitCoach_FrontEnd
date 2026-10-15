@@ -229,20 +229,18 @@ class _WorkoutExerciseSessionScreenState
       body: Stack(
         children: [
           Positioned.fill(
-            child: Image.asset(
-              'assets/placeholders/splash_onboarding/workout_onboarding.png',
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(color: Colors.black.withValues(alpha: 0.35)),
+            child: Container(color: context.palette.background),
           ),
           SafeArea(
             child: Column(
               children: [
                 Container(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                  color: AppColors.primary.withValues(alpha: 0.85),
+                  decoration: BoxDecoration(
+                    color: context.palette.surface,
+                    border: Border(
+                        bottom: BorderSide(color: context.palette.border)),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -253,7 +251,7 @@ class _WorkoutExerciseSessionScreenState
                             onPressed: () => Navigator.of(context).pop(),
                             icon: Icon(
                               Icons.arrow_back,
-                              color: context.palette.textOnBrand,
+                              color: context.palette.textPrimary,
                             ),
                           ),
                           Expanded(
@@ -265,7 +263,7 @@ class _WorkoutExerciseSessionScreenState
                                       ? currentExercise.nameAr
                                       : currentExercise.nameEn,
                                   style: TextStyle(
-                                    color: context.palette.textOnBrand,
+                                    color: context.palette.textPrimary,
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -277,7 +275,8 @@ class _WorkoutExerciseSessionScreenState
                                     'total': '${currentExercise.sets}',
                                   }),
                                   style: TextStyle(
-                                      color: context.palette.textOnBrand70, fontSize: 12),
+                                      color: context.palette.textSecondary,
+                                      fontSize: 12),
                                 ),
                               ],
                             ),
@@ -290,9 +289,9 @@ class _WorkoutExerciseSessionScreenState
                         child: LinearProgressIndicator(
                           value: progress,
                           minHeight: 6,
-                          backgroundColor: context.palette.textOnBrand.withValues(alpha: 0.2),
+                          backgroundColor: context.palette.surfaceVariant,
                           valueColor:
-                              AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
+                              AlwaysStoppedAnimation<Color>(AppColors.cyan),
                         ),
                       ),
                     ],
@@ -303,25 +302,6 @@ class _WorkoutExerciseSessionScreenState
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-                        _SessionCard(
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _MetricItem(
-                                  value: '${currentExercise.sets}',
-                                  label: lang.t('sets'),
-                                ),
-                              ),
-                              Expanded(
-                                child: _MetricItem(
-                                  value: currentExercise.reps,
-                                  label: lang.t('reps'),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 12),
                         _SessionCard(
                           child: Container(
                             height: 160,
@@ -351,28 +331,45 @@ class _WorkoutExerciseSessionScreenState
                             ),
                           ),
                         ),
+                        _SessionCard(
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: _MetricItem(
+                                  value: '${currentExercise.sets}',
+                                  label: lang.t('sets'),
+                                ),
+                              ),
+                              Expanded(
+                                child: _MetricItem(
+                                  value: currentExercise.reps,
+                                  label: lang.t('reps'),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
                         if (_isResting) ...[
                           const SizedBox(height: 12),
                           _SessionCard(
-                            color: const Color(0xFFEAF2FF),
+                            color: AppColors.gold.withValues(alpha: 0.12),
                             child: Column(
                               children: [
-                                const Icon(Icons.timer,
-                                    size: 32, color: Color(0xFF246BFD)),
+                                Icon(Icons.timer,
+                                    size: 32, color: AppColors.gold),
                                 const SizedBox(height: 8),
                                 Text(
                                   _formatTime(_timerSeconds),
-                                  style: const TextStyle(
+                                  style: AppTextStyles.h1.copyWith(
                                     fontSize: 28,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF246BFD),
+                                    color: AppColors.gold,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   lang.t('workouts_rest_time'),
-                                  style:
-                                      const TextStyle(color: Color(0xFF246BFD)),
+                                  style: TextStyle(color: AppColors.gold),
                                 ),
                                 const SizedBox(height: 12),
                                 Row(
@@ -405,13 +402,16 @@ class _WorkoutExerciseSessionScreenState
                           child: OutlinedButton.icon(
                             onPressed: () =>
                                 widget.onShowSubstitute(currentExercise),
-                            icon: const Icon(Icons.warning_amber_rounded,
-                                color: Color(0xFFB91C1C)),
+                            icon: Icon(Icons.warning_amber_rounded,
+                                color: context.palette.error),
                             label: Text(lang.t('workouts_report_injury')),
                             style: OutlinedButton.styleFrom(
-                              foregroundColor: const Color(0xFFB91C1C),
-                              backgroundColor: const Color(0xFFFFF1F2),
-                              side: const BorderSide(color: Color(0xFFFCA5A5)),
+                              foregroundColor: context.palette.error,
+                              backgroundColor:
+                                  context.palette.error.withValues(alpha: 0.08),
+                              side: BorderSide(
+                                  color: context.palette.error
+                                      .withValues(alpha: 0.4)),
                               padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
                           ),
@@ -424,9 +424,8 @@ class _WorkoutExerciseSessionScreenState
                               children: [
                                 Text(
                                   lang.t('workouts_log_set'),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                  style: AppTextStyles.h4.copyWith(
+                                    color: context.palette.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 12),
@@ -469,9 +468,8 @@ class _WorkoutExerciseSessionScreenState
                               children: [
                                 Text(
                                   lang.t('workouts_completed_sets'),
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
+                                  style: AppTextStyles.h4.copyWith(
+                                    color: context.palette.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(height: 8),
@@ -537,15 +535,16 @@ class _SessionCard extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: color ?? context.palette.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.xlarge),
         border: Border.all(color: context.palette.border),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+        boxShadow: Theme.of(context).brightness == Brightness.dark
+            ? const []
+            : [
+                BoxShadow(
+                    color: context.palette.textPrimary.withValues(alpha: 0.04),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4))
+              ],
       ),
       child: child,
     );
@@ -567,7 +566,7 @@ class _MetricItem extends StatelessWidget {
       children: [
         Text(
           value,
-          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: AppTextStyles.h2.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 4),
         Text(

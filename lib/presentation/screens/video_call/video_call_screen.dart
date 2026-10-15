@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:twilio_flutter_video_sdk/twilio_flutter_video_sdk.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -361,11 +362,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              CircularProgressIndicator(color: context.palette.textOnBrand),
+              CircularProgressIndicator(color: context.palette.primary),
               const SizedBox(height: 20),
               Text(
                 _tr('video_call_connecting'),
-                style: TextStyle(color: context.palette.textOnBrand, fontSize: 16),
+                style:
+                    TextStyle(color: context.palette.textPrimary, fontSize: 16),
               ),
             ],
           ),
@@ -387,7 +389,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 child: Text(
                   _errorMessage!,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: context.palette.textOnBrand, fontSize: 16),
+                  style: TextStyle(
+                      color: context.palette.textPrimary, fontSize: 16),
                 ),
               ),
               const SizedBox(height: 30),
@@ -418,7 +421,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 width: 120,
                 height: 160,
                 decoration: BoxDecoration(
-                  border: Border.all(color: context.palette.textOnBrand, width: 2),
+                  border: Border.all(color: Colors.white, width: 2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: (_localConnected && !_isCameraOff)
@@ -428,9 +431,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                         child: Center(
                           child: _localConnected
                               ? Icon(Icons.videocam_off,
-                                  color: context.palette.textOnBrand.withValues(alpha: 0.54))
+                                  color: context.palette.textPrimary
+                                      .withValues(alpha: 0.7))
                               : CircularProgressIndicator(
-                                  color: context.palette.textOnBrand,
+                                  color: context.palette.primary,
                                 ),
                         ),
                       ),
@@ -461,8 +465,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   const SizedBox(width: 8),
                   Text(
                     _formatDuration(_callDuration),
-                    style: TextStyle(
-                      color: context.palette.textOnBrand,
+                    style: const TextStyle(
+                      color: Colors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -478,12 +482,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(color: context.palette.textOnBrand),
+                  CircularProgressIndicator(color: context.palette.primary),
                   const SizedBox(height: 20),
                   Text(
                     'Waiting for ${widget.coachName} to join...',
                     style: TextStyle(
-                      color: context.palette.textOnBrand,
+                      color: context.palette.textPrimary,
                       fontSize: 16,
                     ),
                   ),
@@ -493,10 +497,15 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
           // Controls
           Positioned(
-            bottom: 50,
+            bottom: 24,
             left: 0,
             right: 0,
-            child: _buildControls(),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: _buildControls(),
+              ),
+            ),
           ),
         ],
       ),
@@ -517,12 +526,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.person, size: 80, color: context.palette.textOnBrand.withValues(alpha: 0.54)),
+            Icon(Icons.person,
+                size: 80,
+                color: context.palette.textSecondary.withValues(alpha: 0.8)),
             const SizedBox(height: 16),
             Text(
               widget.coachName,
               style: TextStyle(
-                color: context.palette.textOnBrand,
+                color: context.palette.textPrimary,
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
@@ -534,61 +545,75 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   Widget _buildControls() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          // Mute button
-          _buildControlButton(
-            icon: _isMuted ? Icons.mic_off : Icons.mic,
-            label: _isMuted ? _tr('video_call_unmute') : _tr('video_call_mute'),
-            color: _isMuted ? Colors.red : context.palette.textOnBrand,
-            backgroundColor: _isMuted ? context.palette.textOnBrand : Colors.black54,
-            onPressed: _toggleMute,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(32),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+          decoration: BoxDecoration(
+            color: Colors.black.withValues(alpha: 0.56),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.16)),
           ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              // Mute button
+              _buildControlButton(
+                icon: _isMuted ? Icons.mic_off : Icons.mic,
+                label: _isMuted
+                    ? _tr('video_call_unmute')
+                    : _tr('video_call_mute'),
+                color: _isMuted ? Colors.red : Colors.white,
+                backgroundColor: _isMuted ? Colors.white : Colors.black54,
+                onPressed: _toggleMute,
+              ),
 
-          // Camera toggle button
-          _buildControlButton(
-            icon: _isCameraOff ? Icons.videocam_off : Icons.videocam,
-            label: _isCameraOff
-                ? _tr('video_call_camera_off')
-                : _tr('video_call_camera_on'),
-            color: _isCameraOff ? Colors.red : context.palette.textOnBrand,
-            backgroundColor: _isCameraOff ? context.palette.textOnBrand : Colors.black54,
-            onPressed: _toggleCamera,
-          ),
+              // Camera toggle button
+              _buildControlButton(
+                icon: _isCameraOff ? Icons.videocam_off : Icons.videocam,
+                label: _isCameraOff
+                    ? _tr('video_call_camera_off')
+                    : _tr('video_call_camera_on'),
+                color: _isCameraOff ? Colors.red : Colors.white,
+                backgroundColor: _isCameraOff ? Colors.white : Colors.black54,
+                onPressed: _toggleCamera,
+              ),
 
-          // End call button
-          _buildControlButton(
-            icon: Icons.call_end,
-            label: _tr('video_call_end'),
-            color: context.palette.textOnBrand,
-            backgroundColor: Colors.red,
-            onPressed: () => _showEndCallDialog(),
-            isLarge: true,
-          ),
+              // End call button
+              _buildControlButton(
+                icon: Icons.call_end,
+                label: _tr('video_call_end'),
+                color: Colors.white,
+                backgroundColor: Colors.red,
+                onPressed: () => _showEndCallDialog(),
+                isLarge: true,
+              ),
 
-          // Switch camera button
-          _buildControlButton(
-            icon: Icons.switch_camera,
-            label: _tr('video_call_switch_camera'),
-            color: context.palette.textOnBrand,
-            backgroundColor: Colors.black54,
-            onPressed: _switchCamera,
-          ),
+              // Switch camera button
+              _buildControlButton(
+                icon: Icons.switch_camera,
+                label: _tr('video_call_switch_camera'),
+                color: Colors.white,
+                backgroundColor: Colors.black54,
+                onPressed: _switchCamera,
+              ),
 
-          // Speaker button
-          _buildControlButton(
-            icon: Icons.volume_up,
-            label: _tr('video_call_speaker'),
-            color: context.palette.textOnBrand,
-            backgroundColor: Colors.black54,
-            onPressed: () {
-              // Speaker is enabled by default for video rooms.
-            },
+              // Speaker button
+              _buildControlButton(
+                icon: Icons.volume_up,
+                label: _tr('video_call_speaker'),
+                color: Colors.white,
+                backgroundColor: Colors.black54,
+                onPressed: () {
+                  // Speaker is enabled by default for video rooms.
+                },
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -624,8 +649,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         const SizedBox(height: 6),
         Text(
           label,
-          style: TextStyle(
-            color: context.palette.textOnBrand,
+          style: const TextStyle(
+            color: Colors.white,
             fontSize: 12,
           ),
         ),

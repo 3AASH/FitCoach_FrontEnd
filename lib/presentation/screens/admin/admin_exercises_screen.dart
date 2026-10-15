@@ -106,8 +106,8 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                               Center(
                                 child: Text(
                                   lang.t('admin_no_exercises_found'),
-                                  style:
-                                      TextStyle(color: context.palette.textSecondary),
+                                  style: TextStyle(
+                                      color: context.palette.textSecondary),
                                 ),
                               ),
                             ],
@@ -834,13 +834,13 @@ class _Badge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: background ?? AppColors.primary.withValues(alpha: 0.1),
+        color: background ?? context.palette.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: foreground ?? AppColors.primary,
+          color: foreground ?? context.palette.primary,
           fontSize: 12,
           fontWeight: FontWeight.w500,
         ),
@@ -848,4 +848,3 @@ class _Badge extends StatelessWidget {
     );
   }
 }
-

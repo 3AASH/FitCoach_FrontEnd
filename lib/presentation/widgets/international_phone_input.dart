@@ -70,8 +70,8 @@ class InternationalPhoneInput extends StatelessWidget {
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium),
-              borderSide: const BorderSide(
-                color: AppColors.primary,
+              borderSide: BorderSide(
+                color: context.palette.primary,
                 width: 1.5,
               ),
             ),

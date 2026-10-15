@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
+import '../widgets/aash_brand_mark.dart';
 import '../providers/language_provider.dart';
 import '../../core/theme/app_palette.dart';
 
@@ -44,23 +45,25 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     return Scaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
-        value: SystemUiOverlayStyle.light,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 420),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: AlignmentDirectional.topStart,
-              end: AlignmentDirectional.bottomEnd,
-              colors: currentSlide.gradientColors,
-            ),
-          ),
+        value: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        child: ColoredBox(
+          color: context.palette.background,
           child: SafeArea(
             child: Stack(
               children: [
+                const Positioned(
+                  top: 4,
+                  left: 0,
+                  right: 0,
+                  child: const Center(child: AashBrandMark(size: 52)),
+                ),
                 // Page view
                 Positioned.fill(
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 140),
+                    padding:
+                        const EdgeInsetsDirectional.only(top: 76, bottom: 140),
                     child: PageView.builder(
                       controller: _pageController,
                       onPageChanged: (index) {
@@ -86,9 +89,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   left: isArabic ? 16 : null,
                   child: TextButton(
                     style: TextButton.styleFrom(
-                      foregroundColor: context.palette.textOnBrand,
-                      backgroundColor:
-                          context.palette.textOnBrand.withValues(alpha: 0.12),
+                      foregroundColor: context.palette.textPrimary,
+                      backgroundColor: context.palette.surfaceVariant,
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -112,8 +114,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 20),
                         decoration: BoxDecoration(
-                          color: AppColors.headerGradientEnd
-                              .withValues(alpha: 0.94),
+                          color: context.palette.surface,
                           border: Border(
                             top: BorderSide(
                                 color: context.palette.border
@@ -164,10 +165,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                         },
                                   style: OutlinedButton.styleFrom(
                                     foregroundColor:
-                                        context.palette.textOnBrand,
+                                        context.palette.textPrimary,
                                     side: BorderSide(
-                                      color: context.palette.textOnBrand
-                                          .withValues(alpha: 0.35),
+                                      color: context.palette.border,
                                     ),
                                     padding: const EdgeInsets.all(12),
                                     minimumSize: const Size(48, 48),
@@ -177,18 +177,17 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                     ),
                                   ),
                                   child: Icon(
-                                    isArabic
-                                        ? Icons.chevron_right
-                                        : Icons.chevron_left,
-                                    color: context.palette.textOnBrand,
+                                    Icons.chevron_left,
+                                    color: context.palette.textPrimary,
                                   ),
                                 ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: ElevatedButton(
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.accent,
-                                      foregroundColor: AppColors.primaryDark,
+                                      backgroundColor: context.palette.primary,
+                                      foregroundColor:
+                                          context.palette.textOnBrand,
                                       minimumSize: const Size(0, 48),
                                     ),
                                     onPressed: () {
@@ -207,7 +206,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                                           ? languageProvider.t('next')
                                           : languageProvider.t('get_started'),
                                       style: AppTextStyles.bodyMedium.copyWith(
-                                        color: AppColors.primaryDark,
+                                        color: context.palette.textOnBrand,
                                       ),
                                     ),
                                   ),
@@ -234,10 +233,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         title: lang.t('onboarding_coaching_title'),
         description: lang.t('onboarding_coaching_desc'),
         imagePath: 'assets/placeholders/splash_onboarding/coach_onboarding.png',
-        gradientColors: [
-          AppColors.headerGradientStart,
-          AppColors.headerGradientEnd,
-        ],
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
@@ -245,10 +240,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         description: lang.t('onboarding_nutrition_desc'),
         imagePath:
             'assets/placeholders/splash_onboarding/nuitration_onboarding.png',
-        gradientColors: [
-          AppColors.headerGradientStart,
-          AppColors.headerGradientEnd,
-        ],
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
@@ -256,20 +247,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         description: lang.t('onboarding_workouts_desc'),
         imagePath:
             'assets/placeholders/splash_onboarding/workout_onboarding.png',
-        gradientColors: [
-          AppColors.headerGradientStart,
-          AppColors.headerGradientEnd,
-        ],
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_store_title'),
         description: lang.t('onboarding_store_desc'),
         imagePath: 'assets/placeholders/splash_onboarding/store_onboarding.png',
-        gradientColors: [
-          AppColors.headerGradientStart,
-          AppColors.headerGradientEnd,
-        ],
         accentColor: AppColors.accent,
       ),
     ];
@@ -280,14 +263,12 @@ class OnboardingSlideData {
   final String title;
   final String description;
   final String imagePath;
-  final List<Color> gradientColors;
   final Color accentColor;
 
   OnboardingSlideData({
     required this.title,
     required this.description,
     required this.imagePath,
-    required this.gradientColors,
     required this.accentColor,
   });
 }
@@ -399,13 +380,14 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                             AspectRatio(
                               aspectRatio: 1,
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.xlarge),
                                 child: Image.asset(
                                   widget.slide.imagePath,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
-                                      color: context.palette.surfaceVariant,
+                                      color: context.palette.surface,
                                       alignment: Alignment.center,
                                       child: Icon(
                                         Icons.image_not_supported_outlined,
@@ -447,7 +429,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                         child: Text(
                           widget.slide.title,
                           style: AppTextStyles.h1.copyWith(
-                            color: context.palette.textOnBrand,
+                            color: context.palette.textPrimary,
                           ),
                           textAlign: TextAlign.start,
                         ),
@@ -464,7 +446,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                         child: Text(
                           widget.slide.description,
                           style: AppTextStyles.body.copyWith(
-                            color: context.palette.textOnBrand70,
+                            color: context.palette.textSecondary,
                           ),
                           textAlign: TextAlign.start,
                         ),

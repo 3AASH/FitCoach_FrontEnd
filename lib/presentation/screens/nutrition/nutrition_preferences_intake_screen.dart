@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../../core/theme/app_palette.dart';
+import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
 
 class NutritionPreferencesIntakeScreen extends StatefulWidget {
@@ -55,17 +56,28 @@ class _NutritionPreferencesIntakeScreenState
     _ageController.text = saved['age']?.toString() ?? '';
     _heightController.text = saved['height_cm']?.toString() ?? '';
     _weightController.text = saved['weight_kg']?.toString() ?? '';
-    _trainingDaysController.text = saved['training_days_per_week']?.toString() ?? '';
-    if (saved['dietary_exclusions'] is List && (saved['dietary_exclusions'] as List).isNotEmpty) {
-      _dietaryExclusions..clear()..addAll((saved['dietary_exclusions'] as List).map((e) => e.toString()));
+    _trainingDaysController.text =
+        saved['training_days_per_week']?.toString() ?? '';
+    if (saved['dietary_exclusions'] is List &&
+        (saved['dietary_exclusions'] as List).isNotEmpty) {
+      _dietaryExclusions
+        ..clear()
+        ..addAll(
+            (saved['dietary_exclusions'] as List).map((e) => e.toString()));
     }
     if (saved['disliked_foods'] is List) {
-      _dislikedFoods.addAll((saved['disliked_foods'] as List).map((e) => e.toString()));
+      _dislikedFoods
+          .addAll((saved['disliked_foods'] as List).map((e) => e.toString()));
     }
     if (saved['medical_nutrition_safety_screen'] is Map) {
-      final flags = (saved['medical_nutrition_safety_screen'] as Map).entries
-          .where((e) => e.value == true && e.key != 'screen_completed').map((e) => e.key.toString());
-      if (flags.isNotEmpty) _medicalFlags..clear()..addAll(flags);
+      final flags = (saved['medical_nutrition_safety_screen'] as Map)
+          .entries
+          .where((e) => e.value == true && e.key != 'screen_completed')
+          .map((e) => e.key.toString());
+      if (flags.isNotEmpty)
+        _medicalFlags
+          ..clear()
+          ..addAll(flags);
     }
   }
 
@@ -201,7 +213,6 @@ class _NutritionPreferencesIntakeScreenState
               _copy('subtitle', lang),
               style: TextStyle(color: context.palette.textSecondary),
             ),
-            const SizedBox(height: 12),
             const SizedBox(height: 20),
             if (_needsAny(const [
               'age',
@@ -228,14 +239,20 @@ class _NutritionPreferencesIntakeScreenState
                   _buildMultiSelect(options: [
                     _Option('chicken', lang.t('nutrition_option_chicken')),
                     _Option('beef', lang.t('nutrition_option_beef')),
-                    _Option('lamb', lang.t('nutrition_preferences_intake_lamb')),
+                    _Option(
+                        'lamb', lang.t('nutrition_preferences_intake_lamb')),
                     _Option('fish', lang.t('nutrition_option_fish')),
-                    _Option('shrimp', lang.t('nutrition_preferences_intake_shrimp')),
-                    _Option('liver', lang.t('nutrition_preferences_intake_liver')),
+                    _Option('shrimp',
+                        lang.t('nutrition_preferences_intake_shrimp')),
+                    _Option(
+                        'liver', lang.t('nutrition_preferences_intake_liver')),
                     _Option('egg', lang.t('nutrition_option_eggs')),
-                    _Option('oats', lang.t('nutrition_preferences_intake_oats')),
-                    _Option('lentils', lang.t('nutrition_preferences_intake_lentils')),
-                    _Option('foul', lang.t('nutrition_preferences_intake_foul')),
+                    _Option(
+                        'oats', lang.t('nutrition_preferences_intake_oats')),
+                    _Option('lentils',
+                        lang.t('nutrition_preferences_intake_lentils')),
+                    _Option(
+                        'foul', lang.t('nutrition_preferences_intake_foul')),
                   ], selection: _dislikedFoods),
                 ],
               ),
@@ -261,8 +278,8 @@ class _NutritionPreferencesIntakeScreenState
                             width: 20,
                             child: CircularProgressIndicator(
                               strokeWidth: 2,
-                              valueColor:
-                                  AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                  context.palette.textOnBrand),
                             ),
                           )
                         : Text(lang.t('nutrition_intake_complete')),
@@ -359,7 +376,8 @@ class _NutritionPreferencesIntakeScreenState
             _Option('sesame', lang.t('nutrition_preferences_intake_sesame')),
             _Option('eggs', lang.t('nutrition_option_eggs')),
             _Option('fish', lang.t('nutrition_option_fish')),
-            _Option('shellfish', lang.t('nutrition_preferences_intake_shellfish')),
+            _Option(
+                'shellfish', lang.t('nutrition_preferences_intake_shellfish')),
             _Option('dairy_lactose', _copy('dairy', lang)),
             _Option('gluten', _copy('gluten', lang)),
             _Option('vegetarian', _copy('vegetarian', lang)),
@@ -503,7 +521,9 @@ class _NutritionPreferencesIntakeScreenState
                     }
                   } else {
                     selection.remove(option.value);
-                    if (selection.isEmpty && options.any((option) => option.value == 'none')) selection.add('none');
+                    if (selection.isEmpty &&
+                        options.any((option) => option.value == 'none'))
+                      selection.add('none');
                   }
                 });
               },
@@ -556,7 +576,8 @@ class _NutritionPreferencesIntakeScreenState
       'therapeuticDiet': 'Therapeutic diet',
     };
     final ar = {
-      'subtitle': 'راجع هذه البيانات قبل إنشاء خطتك. ما سبق أن أجبت عنه تم ملؤه تلقائيا.',
+      'subtitle':
+          'راجع هذه البيانات قبل إنشاء خطتك. ما سبق أن أجبت عنه تم ملؤه تلقائيا.',
       'bodyTrainingTitle': 'بيانات الجسم والتمرين',
       'age': 'العمر',
       'height': 'الطول بالسنتيمتر',
@@ -611,17 +632,35 @@ class _Section extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          ...children,
-        ],
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: context.palette.surface,
+          borderRadius: BorderRadius.circular(AppRadius.large),
+          border: Border.all(color: context.palette.border),
+          boxShadow: Theme.of(context).brightness == Brightness.dark
+              ? const []
+              : [
+                  BoxShadow(
+                      color:
+                          context.palette.textPrimary.withValues(alpha: 0.04),
+                      blurRadius: 14,
+                      offset: const Offset(0, 4))
+                ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style:
+                  AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
+            ),
+            const SizedBox(height: 12),
+            ...children,
+          ],
+        ),
       ),
     );
   }

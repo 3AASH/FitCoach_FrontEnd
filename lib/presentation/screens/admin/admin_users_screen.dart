@@ -114,7 +114,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           )
                         : null,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                   ),
                   onChanged: (value) {
@@ -184,7 +184,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           decoration: InputDecoration(
                             labelText: lang.t('admin_users_filter_tier'),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.medium),
                             ),
                           ),
                           items: [
@@ -221,7 +222,8 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         decoration: InputDecoration(
                           labelText: lang.t('admin_users_filter_status'),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium),
                           ),
                         ),
                         items: [
@@ -379,16 +381,15 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         contentPadding: const EdgeInsets.all(12),
         leading: CircleAvatar(
           radius: 28,
-          backgroundColor: AppColors.secondary.withValues(alpha: 0.12),
+          backgroundColor: context.palette.info.withValues(alpha: 0.12),
           backgroundImage: coach.profilePhotoUrl != null
               ? NetworkImage(coach.profilePhotoUrl!)
               : null,
           child: coach.profilePhotoUrl == null
               ? Text(
                   coach.initials,
-                  style: const TextStyle(
-                    color: AppColors.secondary,
-                    fontWeight: FontWeight.bold,
+                  style: AppTextStyles.h3.copyWith(
+                    color: context.palette.info,
                   ),
                 )
               : null,
@@ -422,7 +423,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                 _buildMiniBadge(status, statusColor),
                 _buildMiniBadge(
                   '${coach.clientCount} ${lang.t('admin_clients_label')}',
-                  AppColors.primary,
+                  context.palette.primary,
                 ),
               ],
             ),
@@ -442,18 +443,27 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
         color: color,
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
       child: Text(
         label,
         style: AppTextStyles.overline.copyWith(
-          color: AppColors.textWhite,
+          color: context.palette.textOnBrand,
         ),
       ),
     );
   }
 
   Widget _buildUserCard(AdminUser user, LanguageProvider lang) {
+    final isSmartPremium =
+        user.subscriptionTier.toLowerCase().contains('smart_premium') ||
+            user.subscriptionTier.toLowerCase().contains('smart premium');
+    final badgeTextColor = isSmartPremium
+        ? (Theme.of(context).brightness == Brightness.dark
+            ? context.palette.textOnBrand
+            : context.palette.textPrimary)
+        : context.palette.textOnBrand;
+
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
       child: InkWell(
@@ -465,7 +475,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
               // Avatar
               CircleAvatar(
                 radius: 28,
-                backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                backgroundColor: context.palette.primary.withValues(alpha: 0.1),
                 backgroundImage: user.profilePhotoUrl != null
                     ? NetworkImage(user.profilePhotoUrl!)
                     : null,
@@ -473,7 +483,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                     ? Text(
                         user.initials,
                         style: AppTextStyles.h3.copyWith(
-                          color: AppColors.primary,
+                          color: context.palette.primary,
                         ),
                       )
                     : null,
@@ -509,12 +519,12 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                           decoration: BoxDecoration(
                             color: _getTierColor(user.subscriptionTier),
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                           child: Text(
                             user.subscriptionTier,
                             style: AppTextStyles.overline.copyWith(
-                              color: AppColors.textWhite,
+                              color: badgeTextColor,
                             ),
                           ),
                         ),
@@ -531,14 +541,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             color: user.isActive
                                 ? AppColors.success
                                 : AppColors.error,
-                            borderRadius: BorderRadius.circular(4),
+                            borderRadius: BorderRadius.circular(AppRadius.pill),
                           ),
                           child: Text(
                             user.isActive
                                 ? (lang.t('admin_status_active'))
                                 : (lang.t('admin_status_inactive')),
                             style: AppTextStyles.overline.copyWith(
-                              color: AppColors.textWhite,
+                              color: context.palette.textOnBrand,
                             ),
                           ),
                         ),
@@ -1144,7 +1154,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       case 'smart_premium':
         return AppColors.accent;
       case 'premium':
-        return AppColors.primary;
+        return context.palette.primary;
       case 'freemium':
       default:
         return context.palette.textSecondary;
@@ -1184,4 +1194,3 @@ class _CoachDropdownOption {
     required this.label,
   });
 }
-

@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/config/demo_config.dart';
@@ -109,7 +109,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         ? Icons.radio_button_checked
                         : Icons.radio_button_unchecked,
                     color: method.id == _defaultMethodId
-                        ? AppColors.primary
+                        ? context.palette.primary
                         : context.palette.textSecondary,
                   ),
                   title: Text('${method.brand} â€¢â€¢â€¢â€¢ ${method.last4}'),
@@ -145,7 +145,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           const SizedBox(height: 8),
           Text(
             lang.t('payment_methods_managed_externally'),
-            style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
+            style:
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -197,7 +198,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading:
-                    const Icon(Icons.receipt_long, color: AppColors.primary),
+                    Icon(Icons.receipt_long, color: context.palette.primary),
                 title: Text(
                   '$tier ${amount ?? '-'} $currency',
                   maxLines: 1,
@@ -220,8 +221,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   /// nothing in the app called it, so a subscriber could not cancel in-app at
   /// all.
   Widget _buildRenewalCard(LanguageProvider lang) {
-    final tier = context.watch<AuthProvider>().user?.subscriptionTier ??
-        'Freemium';
+    final tier =
+        context.watch<AuthProvider>().user?.subscriptionTier ?? 'Freemium';
     final hasPaidPlan = tier != 'Freemium';
 
     return CustomCard(
@@ -249,8 +250,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Icon(Icons.cancel_outlined,
-                        color: context.palette.error),
+                    : Icon(Icons.cancel_outlined, color: context.palette.error),
                 label: Text(
                   lang.t('subscription_cancel_action'),
                   style: TextStyle(color: context.palette.error),
@@ -438,4 +438,3 @@ class _PaymentMethod {
     required this.type,
   });
 }
-

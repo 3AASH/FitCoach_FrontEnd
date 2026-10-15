@@ -22,25 +22,25 @@ class NutritionIntroScreen extends StatelessWidget {
     final featureCards = [
       {
         'icon': Icons.track_changes,
-        'color': AppColors.chart4,
+        'color': context.palette.textSecondary,
         'title': languageProvider.t('nutrition_intro_feature1_title'),
         'description': languageProvider.t('nutrition_intro_feature1_desc'),
       },
       {
         'icon': Icons.restaurant_menu,
-        'color': AppColors.primary,
+        'color': context.palette.primary,
         'title': languageProvider.t('nutrition_intro_feature2_title'),
         'description': languageProvider.t('nutrition_intro_feature2_desc'),
       },
       {
         'icon': Icons.trending_up,
-        'color': AppColors.chart2,
+        'color': AppColors.cyan,
         'title': languageProvider.t('nutrition_intro_feature3_title'),
         'description': languageProvider.t('nutrition_intro_feature3_desc'),
       },
       {
         'icon': Icons.local_florist,
-        'color': AppColors.accent,
+        'color': AppColors.gold,
         'title': languageProvider.t('nutrition_intro_feature4_title'),
         'description': languageProvider.t('nutrition_intro_feature4_desc'),
       },
@@ -65,9 +65,9 @@ class NutritionIntroScreen extends StatelessWidget {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    AppColors.backgroundDark.withValues(alpha: 0.84),
-                    AppColors.primaryDark.withValues(alpha: 0.72),
-                    AppColors.backgroundDark.withValues(alpha: 0.92),
+                    context.palette.background.withValues(alpha: 0.72),
+                    context.palette.background.withValues(alpha: 0.72),
+                    context.palette.background.withValues(alpha: 0.9),
                   ],
                 ),
               ),
@@ -84,8 +84,8 @@ class NutritionIntroScreen extends StatelessWidget {
                     child: Container(
                       width: 80,
                       height: 80,
-                      decoration: const BoxDecoration(
-                        color: AppColors.primary,
+                      decoration: BoxDecoration(
+                        color: context.palette.primary,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.local_florist,
@@ -100,7 +100,7 @@ class NutritionIntroScreen extends StatelessWidget {
                     child: Text(
                       languageProvider.t('nutrition_intro_title'),
                       style: TextStyle(
-                        color: context.palette.textOnBrand,
+                        color: context.palette.textPrimary,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
                       ),
@@ -115,8 +115,7 @@ class NutritionIntroScreen extends StatelessWidget {
                     child: Text(
                       languageProvider.t('nutrition_intro_subtitle'),
                       style: TextStyle(
-                        color:
-                            context.palette.textOnBrand.withValues(alpha: 0.9),
+                        color: context.palette.textSecondary,
                         fontSize: 18,
                       ),
                       textAlign: TextAlign.center,
@@ -156,7 +155,7 @@ class NutritionIntroScreen extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: onGetStarted,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
+                          backgroundColor: context.palette.primary,
                           foregroundColor: context.palette.textOnBrand,
                           textStyle: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.w600),
@@ -181,8 +180,7 @@ class NutritionIntroScreen extends StatelessWidget {
                     child: Text(
                       languageProvider.t('nutrition_intro_note'),
                       style: TextStyle(
-                        color:
-                            context.palette.textOnBrand.withValues(alpha: 0.6),
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                       textAlign: TextAlign.center,
@@ -216,16 +214,15 @@ class _IntroFeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(AppRadius.large),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: context.palette.textOnBrand.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-                color: context.palette.textOnBrand.withValues(alpha: 0.2)),
+            color: context.palette.surface,
+            borderRadius: BorderRadius.circular(AppRadius.large),
+            border: Border.all(color: context.palette.border),
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -239,15 +236,14 @@ class _IntroFeatureCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          color: context.palette.textOnBrand,
+                          color: context.palette.textPrimary,
                           fontWeight: FontWeight.w600),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color:
-                            context.palette.textOnBrand.withValues(alpha: 0.8),
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                     ),

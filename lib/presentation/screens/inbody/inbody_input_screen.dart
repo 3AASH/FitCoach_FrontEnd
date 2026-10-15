@@ -62,7 +62,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final authProvider = context.watch<AuthProvider>();
-        final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
+    final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
     final isPremium =
         subscriptionTier == 'Premium' || subscriptionTier == 'Smart Premium';
 
@@ -106,10 +106,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         children: [
           Text(
             lang.t('inbody_input_choose_input_method'),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style:
+                AppTextStyles.h2.copyWith(color: context.palette.textPrimary),
           ),
           const SizedBox(height: 8),
           Text(
@@ -149,21 +147,26 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                         height: 60,
                         decoration: BoxDecoration(
                           gradient: isPremium
-                              ? const LinearGradient(
-                                  colors: [AppColors.primary, AppColors.accent],
+                              ? LinearGradient(
+                                  colors: [
+                                    context.palette.primary,
+                                    AppColors.accent
+                                  ],
                                   begin: AlignmentDirectional.topStart,
                                   end: AlignmentDirectional.bottomEnd,
                                 )
                               : null,
                           color: isPremium
                               ? null
-                              : context.palette.textDisabled.withValues(alpha: 0.2),
+                              : context.palette.textDisabled
+                                  .withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Icon(
                           Icons.auto_awesome,
-                          color:
-                              isPremium ? context.palette.textOnBrand : context.palette.textDisabled,
+                          color: isPremium
+                              ? context.palette.textOnBrand
+                              : context.palette.textDisabled,
                           size: 30,
                         ),
                       ),
@@ -192,7 +195,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              lang.t('inbody_input_take_a_photo_of_your_inbody'),
+                              lang.t(
+                                  'inbody_input_take_a_photo_of_your_inbody'),
                               style: TextStyle(
                                 fontSize: 13,
                                 color: context.palette.textSecondary,
@@ -203,17 +207,18 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                                 padding: const EdgeInsets.only(top: 8),
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.check_circle,
                                       size: 16,
-                                      color: AppColors.success,
+                                      color: context.palette.success,
                                     ),
                                     const SizedBox(width: 4),
                                     Text(
-                                      lang.t('inbody_input_instant_data_extraction'),
-                                      style: const TextStyle(
+                                      lang.t(
+                                          'inbody_input_instant_data_extraction'),
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.success,
+                                        color: context.palette.success,
                                       ),
                                     ),
                                   ],
@@ -259,9 +264,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     padding:
                         const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFFF97316), Color(0xFFEC4899)],
-                      ),
+                      gradient: AppColors.accentGradient,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Row(
@@ -303,12 +306,12 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                   width: 60,
                   height: 60,
                   decoration: BoxDecoration(
-                    color: AppColors.success.withValues(alpha: 0.1),
+                    color: context.palette.success.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.edit,
-                    color: AppColors.success,
+                    color: context.palette.success,
                     size: 30,
                   ),
                 ),
@@ -319,10 +322,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                     children: [
                       Text(
                         lang.t('inbody_input_manual_input'),
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: AppTextStyles.h3
+                            .copyWith(color: context.palette.textPrimary),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -335,10 +336,10 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.check_circle,
                             size: 16,
-                            color: AppColors.success,
+                            color: context.palette.success,
                           ),
                           const SizedBox(width: 4),
                           Text(
@@ -365,12 +366,12 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
 
           // Info card
           CustomCard(
-            color: AppColors.primary.withValues(alpha: 0.05),
+            color: context.palette.primary.withValues(alpha: 0.05),
             child: Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.info_outline,
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                   size: 24,
                 ),
                 const SizedBox(width: 12),
@@ -392,7 +393,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   }
 
   Widget _buildAIScan(LanguageProvider lang) {
-        return SingleChildScrollView(
+    return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
@@ -441,10 +442,10 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
               Container(
                 width: 80,
                 height: 80,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
-                    colors: [AppColors.primary, AppColors.accent],
+                    colors: [context.palette.primary, AppColors.goldLight],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -560,7 +561,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                       shape: const CircleBorder(),
                       child: IconButton(
                         tooltip: lang.t('close'),
-                        icon: Icon(Icons.close, color: context.palette.textOnBrand),
+                        icon: Icon(Icons.close,
+                            color: context.palette.textOnBrand),
                         onPressed: _isAnalyzing ? null : _clearAiCapture,
                       ),
                     ),
@@ -592,7 +594,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  lang.t('inbody_input_review_the_highlighted_metrics_then_continue'),
+                  lang.t(
+                      'inbody_input_review_the_highlighted_metrics_then_continue'),
                   style: TextStyle(color: context.palette.textSecondary),
                   textAlign: TextAlign.center,
                 ),
@@ -647,7 +650,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
             color: context.palette.surfaceVariant,
             borderRadius: BorderRadius.circular(10),
           ),
-          child: Icon(icon, size: 18, color: AppColors.primary),
+          child: Icon(icon, size: 18, color: context.palette.primary),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -660,7 +663,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
     );
   }
 
-  Widget _buildAiSummaryGrid(Map<String, dynamic> summary, LanguageProvider lang) {
+  Widget _buildAiSummaryGrid(
+      Map<String, dynamic> summary, LanguageProvider lang) {
     final weightValue = _formatNumber(summary['weight'] as num?);
     final bmiValue = _formatNumber(summary['bmi'] as num?);
     final fatValue = _formatNumber(summary['bodyFat'] as num?);
@@ -669,22 +673,22 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       {
         'label': lang.t('weight'),
         'value': weightValue == '--' ? weightValue : '$weightValue kg',
-        'color': AppColors.primary,
+        'color': context.palette.primary,
       },
       {
         'label': 'BMI',
         'value': bmiValue,
-        'color': AppColors.secondaryForeground,
+        'color': context.palette.primary,
       },
       {
         'label': lang.t('inbody_input_body_fat'),
         'value': fatValue == '--' ? fatValue : '$fatValue%',
-        'color': const Color(0xFF22C55E),
+        'color': context.palette.success,
       },
       {
         'label': lang.t('inbody_input_muscle_mass'),
         'value': muscleValue == '--' ? muscleValue : '$muscleValue kg',
-        'color': const Color(0xFF0EA5E9),
+        'color': AppColors.cyan,
       },
     ];
     return GridView.count(
@@ -877,11 +881,13 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
   void _showImageError({String? message, bool retryable = false}) {
     if (!mounted) return;
     final lang = context.read<LanguageProvider>();
-    final fallback = lang.t('inbody_input_something_went_wrong_while_processing_the');
+    final fallback =
+        lang.t('inbody_input_something_went_wrong_while_processing_the');
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message ?? fallback),
-        backgroundColor: retryable ? AppColors.warning : AppColors.error,
+        backgroundColor:
+            retryable ? context.palette.warning : context.palette.error,
         action: retryable
             ? SnackBarAction(
                 label: lang.t('retry'),
@@ -901,7 +907,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         content: Text(
           lang.t('inbody_input_ai_extraction_is_available_for_subscribers'),
         ),
-        backgroundColor: AppColors.warning,
+        backgroundColor: context.palette.warning,
         action: SnackBarAction(
           label: lang.t('subscription_upgrade_cta'),
           textColor: context.palette.textOnBrand,
@@ -972,7 +978,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         content: Text(
           lang.t('inbody_input_extracted_metrics_applied_review_them_before'),
         ),
-        backgroundColor: AppColors.success,
+        backgroundColor: context.palette.success,
       ),
     );
   }
@@ -996,10 +1002,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
         children: [
           Text(
             lang.t('inbody_input_enter_your_measurements'),
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-            ),
+            style:
+                AppTextStyles.h2.copyWith(color: context.palette.textPrimary),
           ),
           const SizedBox(height: 24),
 
@@ -1045,10 +1049,8 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
 
           Text(
             lang.t('inbody_input_additional_measurements_optional'),
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style:
+                AppTextStyles.h3.copyWith(color: context.palette.textPrimary),
           ),
           const SizedBox(height: 16),
 
@@ -1149,9 +1151,9 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: Icon(icon, color: AppColors.primary),
+        prefixIcon: Icon(icon, color: context.palette.primary),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
       ),
     );
@@ -1168,7 +1170,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           content: Text(
             lang.t('inbody_input_please_enter_at_least_weight'),
           ),
-          backgroundColor: AppColors.error,
+          backgroundColor: context.palette.error,
         ),
       );
       return;
@@ -1251,7 +1253,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
           content: Text(
             lang.t('inbody_input_inbody_results_saved_successfully'),
           ),
-          backgroundColor: AppColors.success,
+          backgroundColor: context.palette.success,
         ),
       );
       navigator.pop();
@@ -1269,7 +1271,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: AppColors.error,
+          backgroundColor: context.palette.error,
         ),
       );
     } finally {
