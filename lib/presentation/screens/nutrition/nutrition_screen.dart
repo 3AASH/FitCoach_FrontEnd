@@ -595,12 +595,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
           const SizedBox(height: 12),
           if (meals.isNotEmpty)
             SingleChildScrollView(
+              key: const ValueKey('nutrition-meal-carousel'),
               scrollDirection: Axis.horizontal,
               clipBehavior: Clip.none,
               child:
                   Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 for (final meal in meals)
-                  SizedBox(width: 300, child: _buildMealCard(meal, lang)),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 48)
+                        .clamp(220.0, 300.0)
+                        .toDouble(),
+                    child: _buildMealCard(meal, lang),
+                  ),
               ]),
             ),
         ],
@@ -1378,6 +1384,22 @@ class _NutritionScreenState extends State<NutritionScreen> {
   String _foodMacroLine(FoodItem food, LanguageProvider lang) =>
       _macrosFor(food.macros, lang);
 
+  String _mealCardImageAsset(String type) {
+    switch (type.trim().toLowerCase()) {
+      case 'breakfast':
+        return 'assets/images/meals/breakfast.jpg';
+      case 'lunch':
+        return 'assets/images/meals/lunch.jpg';
+      case 'dinner':
+        return 'assets/images/meals/dinner.jpg';
+      case 'snack':
+      case 'snacks':
+        return 'assets/images/meals/snack.jpg';
+      default:
+        return 'assets/images/meals/lunch.jpg';
+    }
+  }
+
   String _mealInstructions(Meal meal, LanguageProvider lang) {
     final text = lang.isArabic
         ? (meal.instructionsAr ?? meal.instructions ?? meal.instructionsEn)
@@ -1388,149 +1410,148 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   Widget _buildMealCard(Meal meal, LanguageProvider lang) {
     final mealName = _localizedMealName(meal, lang);
-    return CustomCard(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Meal header
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: _getMealColor(meal.type).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  _getMealIcon(meal.type),
-                  color: _getMealColor(meal.type),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      mealName,
-                      style: AppTextStyles.h4.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '${meal.time} • ${meal.calories} ${lang.t('cal_unit')}',
-                      style: AppTextStyles.caption.copyWith(
-                        color: context.palette.textSecondary,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _macroLine(meal, lang),
-                      style: AppTextStyles.caption.copyWith(
-                        color: context.palette.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.chevron_right),
-                tooltip: lang.t('view_details'),
-                onPressed: () {
-                  _showMealDetail(meal, lang);
-                },
-              ),
-              Checkbox(
-                value: meal.completed,
-                onChanged: meal.completed || !meal.canLog
-                    ? null
-                    : (value) async {
-                        if (value != true) return;
-                        final provider = context.read<NutritionProvider>();
-                        // logMeal already updates local state + notifies;
-                        // no full reload needed (avoids full-screen spinner).
-                        final success = await provider
-                            .logMeal(meal.id, {'completed': true});
-                        if (!mounted) return;
-                        if (!success) {
-                          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                              content: Text(provider.error ??
-                                  (lang.t('nutrition_could_not_log_meal')))));
-                        } else {
-                          final history =
-                              await NutritionRepository().getNutritionHistory();
-                          if (mounted)
-                            setState(() => _nutritionHistory = history);
-                        }
-                      },
-              ),
-            ],
-          ),
+    const cardRadius = BorderRadius.all(Radius.circular(24));
 
-          const SizedBox(height: 16),
-
-          // Food items
-          ...meal.foods.take(3).map((food) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: Row(
-                children: [
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.circle,
-                    size: 6,
-                    color: context.palette.textDisabled,
+    return Padding(
+      key: ValueKey('nutrition-meal-card-${meal.id}'),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: AspectRatio(
+        aspectRatio: 1.22,
+        child: ClipRRect(
+          borderRadius: cardRadius,
+          child: Material(
+            color: context.palette.surface,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                InkWell(
+                  onTap: () => _showMealDetail(meal, lang),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.asset(
+                        _mealCardImageAsset(meal.type),
+                        fit: BoxFit.cover,
+                        semanticLabel: mealName,
+                      ),
+                      const DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Color(0x080A1424),
+                              Color(0x300A1424),
+                              Color(0xE80A1424),
+                            ],
+                            stops: [0, 0.42, 1],
+                          ),
+                        ),
+                      ),
+                      PositionedDirectional(
+                        start: 16,
+                        end: 64,
+                        bottom: 16,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  _getMealIcon(meal.type),
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 6),
+                                Flexible(
+                                  child: Text(
+                                    '${meal.time}  ·  ${meal.calories} ${lang.t('cal_unit')}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.captionMedium.copyWith(
+                                      color:
+                                          Colors.white.withValues(alpha: 0.9),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 7),
+                            Text(
+                              mealName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.h3.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PositionedDirectional(
+                        end: 16,
+                        bottom: 18,
+                        child: Icon(
+                          lang.isArabic
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '${_localizedFoodName(food, lang)} (${_formatQuantity(food)})',
-                      style: AppTextStyles.small.copyWith(
-                        color: context.palette.textSecondary,
-                      ),
+                ),
+                PositionedDirectional(
+                  end: 8,
+                  top: 8,
+                  child: Material(
+                    color: Colors.white.withValues(alpha: 0.94),
+                    borderRadius: BorderRadius.circular(14),
+                    child: Checkbox(
+                      value: meal.completed,
+                      checkColor: Colors.white,
+                      activeColor: AppColors.cyan,
+                      side: const BorderSide(color: AppColors.primaryDark),
+                      onChanged: meal.completed || !meal.canLog
+                          ? null
+                          : (value) => _logMeal(meal, lang, value),
                     ),
                   ),
-                ],
-              ),
-            );
-          }),
-
-          if (meal.foods.length > 3) ...[
-            const SizedBox(height: 4),
-            Padding(
-              padding: const EdgeInsetsDirectional.only(start: 20),
-              child: Text(
-                lang.t(
-                  'more_items',
-                  args: {'count': (meal.foods.length - 3).toString()},
                 ),
-                style: AppTextStyles.caption.copyWith(
-                  color: context.palette.textDisabled,
-                ),
-              ),
+              ],
             ),
-          ],
-        ],
+          ),
+        ),
       ),
     );
   }
 
-  Color _getMealColor(String type) {
-    switch (type.toLowerCase()) {
-      case 'breakfast':
-        return AppColors.gold;
-      case 'lunch':
-        return AppColors.cyan;
-      case 'dinner':
-        return context.palette.primary;
-      case 'snack':
-        return AppColors.gold;
-      default:
-        return context.palette.textDisabled;
+  Future<void> _logMeal(
+    Meal meal,
+    LanguageProvider lang,
+    bool? value,
+  ) async {
+    if (value != true) return;
+    final provider = context.read<NutritionProvider>();
+    final success = await provider.logMeal(meal.id, {'completed': true});
+    if (!mounted) return;
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            provider.error ?? lang.t('nutrition_could_not_log_meal'),
+          ),
+        ),
+      );
+      return;
     }
+
+    final history = await NutritionRepository().getNutritionHistory();
+    if (mounted) setState(() => _nutritionHistory = history);
   }
 
   IconData _getMealIcon(String type) {

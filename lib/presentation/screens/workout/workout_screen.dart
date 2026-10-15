@@ -8,7 +8,6 @@ import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_calendar.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../../data/models/user_profile.dart';
-import '../../../data/services/exercise_catalog_service.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -39,8 +38,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   bool _wasActive = true;
   bool _showIntro = false;
   bool _introLoaded = false;
-  final ExerciseCatalogService _catalogService =
-      ExerciseCatalogService.instance;
 
   @override
   void initState() {
@@ -468,8 +465,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 if (currentDay != null && currentDay.exercises.isNotEmpty)
                   _buildExerciseList(
                     currentDay,
-                    workoutProvider,
-                    languageProvider,
                     isArabic,
                   )
                 else
@@ -1225,243 +1220,125 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
   Widget _buildExerciseList(
     WorkoutDay currentDay,
-    WorkoutProvider provider,
-    LanguageProvider lang,
     bool isArabic,
   ) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: currentDay.exercises.length,
-      itemBuilder: (context, index) {
-        final exercise = currentDay.exercises[index];
-        return _buildExerciseCard(
-          currentDay,
-          exercise,
-          provider,
-          lang,
-          isArabic,
-          index,
-        );
-      },
-    );
-  }
-
-  Widget _buildExerciseCard(
-    WorkoutDay currentDay,
-    Exercise exercise,
-    WorkoutProvider provider,
-    LanguageProvider lang,
-    bool isArabic,
-    int index,
-  ) {
-    final authProvider = context.watch<AuthProvider>();
-    final userInjuries = authProvider.user?.injuries ?? [];
-    final hasConflict = exercise.hasInjuryConflict(userInjuries);
-    final isCompleted = provider.isExerciseCompleted(exercise.id);
-    final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
-
-    return CustomCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      color: context.palette.surface,
-      border: Border.all(
-        color: isCompleted
-            ? AppColors.cyan
-            : (hasConflict ? AppColors.warning : context.palette.border),
-      ),
-      onTap: () => _openExerciseDetail(currentDay, index),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final compact = constraints.maxWidth < 360;
-          final actionButton = FilledButton(
-            onPressed: () => _openExerciseSession(currentDay, index),
-            style: FilledButton.styleFrom(
-              backgroundColor: isCompleted
-                  ? context.palette.primary
-                  : context.palette.surfaceVariant,
-              foregroundColor: isCompleted
-                  ? context.palette.textOnBrand
-                  : context.palette.textPrimary,
-              textStyle: AppTextStyles.smallMedium,
-              minimumSize: const Size(74, 38),
-              padding: const EdgeInsets.symmetric(horizontal: 14),
-            ),
-            child: Text(isCompleted ? 'Done' : 'Start'),
-          );
-
-          final thumbnail = _buildExerciseThumbnail(exercise);
-
-          final details = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      isArabic ? exercise.nameAr : exercise.nameEn,
-                      style: AppTextStyles.h4.copyWith(
-                        color: context.palette.textPrimary,
-                        height: 1.15,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (isCompleted)
-                    Icon(
-                      Icons.check_circle_outline,
-                      color: AppColors.cyan,
-                      size: 22,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 14,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    '${exercise.sets}\n${lang.t('sets')}',
-                    style: AppTextStyles.small.copyWith(
-                      color: context.palette.textSecondary,
-                    ),
-                  ),
-                  Text('?',
-                      style: TextStyle(color: context.palette.textSecondary)),
-                  Text(
-                    '${exercise.reps}\n${lang.t('reps')}',
-                    style: AppTextStyles.small.copyWith(
-                      color: context.palette.textSecondary,
-                    ),
-                  ),
-                  if (muscleLabel.isNotEmpty) ...[
-                    Text('?',
-                        style: TextStyle(color: context.palette.textSecondary)),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: compact ? constraints.maxWidth : 180,
-                      ),
-                      child: Text(
-                        muscleLabel,
-                        style: AppTextStyles.caption.copyWith(
-                          color: context.palette.textSecondary,
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${isCompleted ? exercise.sets : 0}/${exercise.sets} sets logged',
-                style: AppTextStyles.small.copyWith(
-                  color: context.palette.textSecondary,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              if (hasConflict) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    lang.t('workout_injury_conflict'),
-                    style: AppTextStyles.overline.copyWith(
-                      color: AppColors.warning,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          );
-
-          if (compact) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    thumbnail,
-                    const SizedBox(width: 12),
-                    Expanded(child: details),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Align(
-                    alignment: AlignmentDirectional.centerEnd,
-                    child: actionButton),
-              ],
-            );
-          }
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              thumbnail,
-              const SizedBox(width: 12),
-              Expanded(child: details),
-              const SizedBox(width: 12),
-              actionButton,
-            ],
+    return SizedBox(
+      height: 210,
+      child: ListView.separated(
+        key: const ValueKey('workout-exercise-carousel'),
+        scrollDirection: Axis.horizontal,
+        reverse: isArabic,
+        clipBehavior: Clip.none,
+        itemCount: currentDay.exercises.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final exercise = currentDay.exercises[index];
+          return _buildExerciseCard(
+            currentDay,
+            exercise,
+            isArabic,
+            index,
           );
         },
       ),
     );
   }
 
-  String _localizeMuscles(String? muscles, bool isArabic) {
-    if (muscles == null || muscles.trim().isEmpty) {
-      return '';
-    }
-    final parts =
-        muscles.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
-    final labels = parts.map((part) {
-      return _catalogService.getMuscleLabel(part, isArabic: isArabic) ?? part;
-    }).toList();
-    return labels.join(', ');
+  Widget _buildExerciseCard(
+    WorkoutDay currentDay,
+    Exercise exercise,
+    bool isArabic,
+    int index,
+  ) {
+    final localizedName = isArabic ? exercise.nameAr : exercise.nameEn;
+    final name =
+        localizedName.trim().isNotEmpty ? localizedName : exercise.name;
+    const cardRadius = BorderRadius.all(Radius.circular(22));
+
+    return SizedBox(
+      key: ValueKey('workout-exercise-card-${exercise.id}'),
+      width: 218,
+      child: CustomCard(
+        padding: EdgeInsets.zero,
+        margin: EdgeInsets.zero,
+        borderRadius: cardRadius,
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
+        onTap: () => _openExerciseDetail(currentDay, index),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildExerciseThumbnail(
+              exercise,
+              width: 218,
+              height: 132,
+            ),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 8),
+                child: Align(
+                  alignment: AlignmentDirectional.topStart,
+                  child: Text(
+                    name,
+                    style: AppTextStyles.bodyMedium.copyWith(
+                      color: context.palette.textPrimary,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildExerciseThumbnail(Exercise exercise) {
+  Widget _buildExerciseThumbnail(
+    Exercise exercise, {
+    required double width,
+    required double height,
+  }) {
     final resolved = VideoThumbnailResolver.resolve(
       thumbnailUrl: exercise.thumbnailUrl,
       videoUrl: exercise.videoUrl,
     );
+    Widget placeholder() => ColoredBox(
+          color: context.palette.surfaceVariant,
+          child: Center(
+            child: Icon(
+              Icons.fitness_center,
+              color: context.palette.textSecondary,
+              size: 34,
+            ),
+          ),
+        );
+
+    final Widget image;
+    if (resolved == null) {
+      image = placeholder();
+    } else if (resolved.startsWith('assets/')) {
+      image = Image.asset(
+        resolved,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => placeholder(),
+      );
+    } else {
+      image = Image.network(
+        resolved,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => placeholder(),
+      );
+    }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
       child: SizedBox(
-        width: 64,
-        height: 64,
-        child: resolved == null
-            ? Container(
-                color: context.palette.surfaceVariant,
-                child: Icon(
-                  Icons.fitness_center,
-                  color: context.palette.textSecondary,
-                  size: 26,
-                ),
-              )
-            : Image.network(
-                resolved,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: context.palette.surfaceVariant,
-                  child: Icon(
-                    Icons.fitness_center,
-                    color: context.palette.textSecondary,
-                    size: 26,
-                  ),
-                ),
-              ),
+        width: width,
+        height: height,
+        child: image,
       ),
     );
   }

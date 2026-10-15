@@ -48,7 +48,6 @@ class HomeDashboardScreen extends StatefulWidget {
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   int _selectedIndex = 0;
-  bool _quickAccessExpanded = false;
   String? _joiningAppointmentId;
 
   @override
@@ -254,6 +253,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        AnimatedReveal(
+                          delay: const Duration(milliseconds: 120),
+                          offset: const Offset(0, 0.14),
+                          initialScale: 0.96,
+                          child: _buildHomeFeatureCarousel(lang, tier),
+                        ),
+                        const SizedBox(height: 16),
+                        AnimatedReveal(
+                          delay: const Duration(milliseconds: 160),
+                          offset: const Offset(0, 0.14),
+                          initialScale: 0.96,
+                          child: _buildHomeShortcutGrid(lang, tier),
+                        ),
+                        const SizedBox(height: 16),
                         if (isAppointmentsLoading) ...[
                           AnimatedReveal(
                             delay: const Duration(milliseconds: 120),
@@ -303,6 +316,340 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildHomeFeatureCarousel(LanguageProvider lang, String tier) {
+    final isFreemium = tier == 'Freemium';
+    final unreadMessages = context.watch<MessagingProvider>().totalUnread;
+    final items = [
+      _HomeFeature(
+        label: lang.t('home_workouts'),
+        imageAsset: 'assets/images/home/workout.jpg',
+        icon: Icons.fitness_center_rounded,
+        index: 1,
+      ),
+      _HomeFeature(
+        label: lang.t('home_nutrition'),
+        imageAsset: 'assets/images/home/nutrition.jpg',
+        icon: Icons.restaurant_rounded,
+        index: 2,
+        locked: isFreemium,
+      ),
+      _HomeFeature(
+        label: lang.t('home_coach'),
+        imageAsset: 'assets/images/home/coach.jpg',
+        icon: Icons.chat_bubble_outline_rounded,
+        index: 3,
+        badgeCount: unreadMessages,
+      ),
+      _HomeFeature(
+        label: lang.t('home_store'),
+        imageAsset: 'assets/images/home/store.jpg',
+        icon: Icons.shopping_bag_outlined,
+        index: 4,
+      ),
+    ];
+    final cardWidth =
+        (MediaQuery.of(context).size.width - 48).clamp(220.0, 300.0);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          lang.t('home_explore_aash'),
+          style: AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
+        ),
+        const SizedBox(height: 12),
+        SingleChildScrollView(
+          key: const ValueKey('home-feature-carousel'),
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: Row(
+            children: [
+              for (final item in items)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 12),
+                  child: SizedBox(
+                    width: cardWidth.toDouble(),
+                    height: 158,
+                    child: _buildHomeFeatureCard(item, lang),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHomeShortcutGrid(LanguageProvider lang, String tier) {
+    final shortcuts = [
+      _HomeShortcut(
+        label: lang.t('home_book_video_session'),
+        imageAsset: 'assets/images/home/shortcuts/book-session.jpg',
+        icon: Icons.videocam_rounded,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const VideoBookingScreen()),
+        ),
+      ),
+      _HomeShortcut(
+        label: lang.t('home_manage_subscription'),
+        imageAsset: 'assets/images/home/shortcuts/subscription.jpg',
+        icon: Icons.workspace_premium_rounded,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const SubscriptionManagerScreen(),
+          ),
+        ),
+      ),
+      _HomeShortcut(
+        label: lang.t('home_view_progress'),
+        imageAsset: 'assets/images/home/shortcuts/progress.jpg',
+        icon: Icons.trending_up_rounded,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ProgressScreen()),
+        ),
+      ),
+      _HomeShortcut(
+        label: lang.t('home_exercise_library'),
+        imageAsset: 'assets/images/home/shortcuts/exercise-library.jpg',
+        icon: Icons.fitness_center_rounded,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => const ExerciseLibraryScreen()),
+        ),
+      ),
+      _HomeShortcut(
+        label: lang.t('inbody_title'),
+        imageAsset: 'assets/images/home/shortcuts/inbody.jpg',
+        icon: Icons.monitor_heart_rounded,
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => tier == 'Freemium'
+                ? const SubscriptionManagerScreen()
+                : const InBodyInputScreen(),
+          ),
+        ),
+      ),
+      _HomeShortcut(
+        label: lang.t('home_supplements'),
+        imageAsset: 'assets/images/home/shortcuts/supplements.jpg',
+        icon: Icons.shopping_bag_rounded,
+        onTap: () => setState(() => _selectedIndex = 4),
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          lang.t('home_quick_access'),
+          style: AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          key: const ValueKey('home-shortcut-grid'),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: shortcuts.length,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.45,
+          ),
+          itemBuilder: (context, index) =>
+              _buildHomeShortcutCard(shortcuts[index]),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHomeShortcutCard(_HomeShortcut shortcut) {
+    const cardRadius = BorderRadius.all(Radius.circular(24));
+
+    return Semantics(
+      button: true,
+      label: shortcut.label,
+      child: Material(
+        color: context.palette.surface,
+        borderRadius: cardRadius,
+        child: InkWell(
+          onTap: shortcut.onTap,
+          borderRadius: cardRadius,
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: cardRadius,
+              border: Border.all(color: context.palette.border),
+              image: DecorationImage(
+                image: AssetImage(shortcut.imageAsset),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                borderRadius: cardRadius,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0x160A1424), Color(0xD90A1424)],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.2),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        shortcut.icon,
+                        color: Colors.white,
+                        size: 18,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      shortcut.label,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHomeFeatureCard(_HomeFeature item, LanguageProvider lang) {
+    const cardRadius = BorderRadius.all(Radius.circular(28));
+
+    return Semantics(
+      button: true,
+      label: item.label,
+      child: Material(
+        color: context.palette.surface,
+        borderRadius: cardRadius,
+        child: InkWell(
+          onTap: () => setState(() => _selectedIndex = item.index),
+          borderRadius: cardRadius,
+          child: Ink(
+            decoration: BoxDecoration(
+              borderRadius: cardRadius,
+              border: Border.all(color: context.palette.border),
+              image: DecorationImage(
+                image: AssetImage(item.imageAsset),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: DecoratedBox(
+              decoration: const BoxDecoration(
+                borderRadius: cardRadius,
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Color(0x180A1424),
+                    Color(0xA60A1424),
+                    Color(0xE60A1424),
+                  ],
+                  stops: [0, 0.42, 1],
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 38,
+                          height: 38,
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.2),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(item.icon, color: Colors.white, size: 20),
+                        ),
+                        const Spacer(),
+                        if (item.locked)
+                          _buildFeatureBadge(
+                            icon: Icons.lock_outline,
+                            label: lang.t('home_locked'),
+                          )
+                        else if (item.badgeCount > 0)
+                          _buildFeatureBadge(
+                            icon: Icons.mark_chat_unread_outlined,
+                            label: '${item.badgeCount}',
+                          ),
+                      ],
+                    ),
+                    const Spacer(),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.label,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.h3.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Icon(
+                          lang.isArabic
+                              ? Icons.arrow_back_rounded
+                              : Icons.arrow_forward_rounded,
+                          color: Colors.white,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeatureBadge({required IconData icon, required String label}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.48),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.36)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 13),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: AppTextStyles.captionMedium.copyWith(color: Colors.white),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1175,155 +1522,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  // ignore: unused_element
-  Widget _buildQuickAccessCard(
-      LanguageProvider lang, bool isArabic, String tier) {
-    final canAccessInbody = tier != 'Freemium';
-    return CustomCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        children: [
-          InkWell(
-            onTap: () =>
-                setState(() => _quickAccessExpanded = !_quickAccessExpanded),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
-                children: [
-                  Icon(Icons.fitness_center,
-                      size: 18, color: context.palette.textPrimary),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      lang.t('home_quick_access'),
-                      style: AppTextStyles.bodyMedium
-                          .copyWith(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                  Icon(
-                    _quickAccessExpanded
-                        ? Icons.expand_less
-                        : Icons.expand_more,
-                    color: context.palette.textSecondary,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          if (_quickAccessExpanded)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-              child: Column(
-                children: [
-                  _buildQuickAccessButton(
-                    lang.t('home_book_video_session'),
-                    Icons.videocam,
-                    AppColors.secondaryForeground,
-                    isArabic,
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const VideoBookingScreen()),
-                    ),
-                    background: AppColors.secondary,
-                    borderColor:
-                        AppColors.secondaryForeground.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildQuickAccessButton(
-                    lang.t('home_manage_subscription'),
-                    Icons.workspace_premium,
-                    AppColors.secondaryForeground,
-                    isArabic,
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const SubscriptionManagerScreen()),
-                    ),
-                    background: AppColors.secondary,
-                    borderColor:
-                        AppColors.secondaryForeground.withValues(alpha: 0.2),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildQuickAccessButton(
-                    lang.t('home_view_progress'),
-                    Icons.trending_up,
-                    context.palette.textPrimary,
-                    isArabic,
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(builder: (_) => const ProgressScreen()),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildQuickAccessButton(
-                    lang.t('home_exercise_library'),
-                    Icons.fitness_center,
-                    context.palette.textPrimary,
-                    isArabic,
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                          builder: (_) => const ExerciseLibraryScreen()),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildQuickAccessButton(
-                    lang.t('inbody_title'),
-                    Icons.monitor_heart,
-                    context.palette.textPrimary,
-                    isArabic,
-                    () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => canAccessInbody
-                            ? const InBodyInputScreen()
-                            : const SubscriptionManagerScreen(),
-                      ),
-                    ),
-                    background: context.palette.primary.withValues(alpha: 0.12),
-                    borderColor:
-                        context.palette.primary.withValues(alpha: 0.25),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildQuickAccessButton(
-                    lang.t('home_supplements'),
-                    Icons.shopping_bag,
-                    context.palette.textPrimary,
-                    isArabic,
-                    () => setState(() => _selectedIndex = 4),
-                  ),
-                ],
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildQuickAccessButton(
-    String label,
-    IconData icon,
-    Color iconColor,
-    bool isArabic,
-    VoidCallback onPressed, {
-    Color? background,
-    Color? borderColor,
-  }) {
-    return OutlinedButton.icon(
-      onPressed: onPressed,
-      icon: Icon(icon, size: 16, color: iconColor),
-      label: Text(
-        label,
-        style: AppTextStyles.smallMedium.copyWith(
-            color: iconColor == context.palette.textPrimary ? null : iconColor),
-      ),
-      style: OutlinedButton.styleFrom(
-        alignment: isArabic
-            ? AlignmentDirectional.centerEnd
-            : AlignmentDirectional.centerStart,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        backgroundColor: background,
-        side: borderColor == null ? null : BorderSide(color: borderColor),
       ),
     );
   }
@@ -2343,6 +2541,38 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
       onBack: () => setState(() => _selectedIndex = 0),
     );
   }
+}
+
+class _HomeFeature {
+  final String label;
+  final String imageAsset;
+  final IconData icon;
+  final int index;
+  final bool locked;
+  final int badgeCount;
+
+  const _HomeFeature({
+    required this.label,
+    required this.imageAsset,
+    required this.icon,
+    required this.index,
+    this.locked = false,
+    this.badgeCount = 0,
+  });
+}
+
+class _HomeShortcut {
+  final String label;
+  final String imageAsset;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _HomeShortcut({
+    required this.label,
+    required this.imageAsset,
+    required this.icon,
+    required this.onTap,
+  });
 }
 
 class _HomeNavItem {

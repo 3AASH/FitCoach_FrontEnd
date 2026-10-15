@@ -158,6 +158,11 @@ void main() {
           reason: 'secondary text on the ${entry.key} surface',
         );
         expect(
+          contrast(palette.textSecondary, palette.surfaceVariant),
+          greaterThanOrEqualTo(4.5),
+          reason: 'secondary text on the ${entry.key} raised surface',
+        );
+        expect(
           contrast(palette.textPrimary, palette.surface),
           greaterThanOrEqualTo(4.5),
           reason: 'primary text on the ${entry.key} surface',
