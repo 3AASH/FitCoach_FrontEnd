@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
@@ -195,7 +196,7 @@ class _NutritionPreferencesIntakeScreenState
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         leading: IconButton(
           tooltip: lang.t('back'),

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -135,8 +136,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned.fill(
-                child: ColoredBox(color: context.palette.background)),
+            const Positioned.fill(child: AashBackdrop()),
             SafeArea(
               child: Center(
                 child: SingleChildScrollView(
@@ -662,8 +662,7 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.palette.background,
-      body: ColoredBox(
-        color: context.palette.background.withValues(alpha: 0.96),
+      body: AashBackdrop(
         child: Center(
           child: Container(
             margin: const EdgeInsets.all(24),

@@ -1,3 +1,4 @@
+import '../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -95,7 +96,7 @@ class _LanguageSelectionScreenState extends State<LanguageSelectionScreen>
 
     final isArabic = languageProvider.isArabic;
 
-    return Scaffold(
+    return AashScaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light

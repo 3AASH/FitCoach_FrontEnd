@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -11,6 +12,8 @@ import '../../providers/language_provider.dart';
 import '../../providers/nutrition_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/animated_reveal.dart';
+import '../../widgets/aash_motion.dart';
 import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
 import '../../../data/repositories/nutrition_repository.dart';
@@ -269,7 +272,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       _loadNutritionState();
     }
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(title: Text(lang.t('nutrition_title'))),
       body: Center(
         child: Padding(
@@ -305,13 +308,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final subscriptionTier = authProvider.user?.subscriptionTier ?? 'Freemium';
 
     if (!_introLoaded || !_preferencesLoaded) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (nutritionProvider.isLoading) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -384,7 +387,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
     return DefaultTabController(
       length: 3,
-      child: Scaffold(
+      child: AashScaffold(
         body: Stack(
           children: [
             Positioned.fill(
@@ -574,40 +577,42 @@ class _NutritionScreenState extends State<NutritionScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildMacroBreakdownGrid(lang, provider),
+          AnimatedReveal(
+            offset: const Offset(0, -0.15),
+            child: _buildMacroBreakdownGrid(lang, provider),
+          ),
           const SizedBox(height: 20),
-          Row(children: [
-            Expanded(
-                child: Text(MaterialLocalizations.of(context)
-                    .formatFullDate(provider.selectedDate))),
-            IconButton(
-                icon: const Icon(Icons.calendar_month),
-                tooltip: lang.t('nutrition_select_date'),
-                onPressed: () async {
-                  final date = await showDatePicker(
-                      context: context,
-                      initialDate: provider.selectedDate,
-                      firstDate: DateTime(2020),
-                      lastDate: DateTime.now());
-                  if (date != null) await provider.selectDate(date);
-                }),
-          ]),
+          AnimatedReveal(
+            delay: const Duration(milliseconds: 150),
+            offset: Offset(lang.isArabic ? 0.2 : -0.2, 0),
+            child: Row(children: [
+              Expanded(
+                  child: Text(MaterialLocalizations.of(context)
+                      .formatFullDate(provider.selectedDate))),
+              IconButton(
+                  icon: const Icon(Icons.calendar_month),
+                  tooltip: lang.t('nutrition_select_date'),
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                        context: context,
+                        initialDate: provider.selectedDate,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now());
+                    if (date != null) await provider.selectDate(date);
+                  }),
+            ]),
+          ),
           const SizedBox(height: 12),
           if (meals.isNotEmpty)
-            SingleChildScrollView(
+            MotionCarousel(
               key: const ValueKey('nutrition-meal-carousel'),
-              scrollDirection: Axis.horizontal,
-              clipBehavior: Clip.none,
-              child:
-                  Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                for (final meal in meals)
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 48)
-                        .clamp(220.0, 300.0)
-                        .toDouble(),
-                    child: _buildMealCard(meal, lang),
-                  ),
-              ]),
+              height: ((MediaQuery.of(context).size.width - 32) * 0.84 - 12) /
+                      1.22 +
+                  16,
+              viewportFraction: 0.84,
+              itemCount: meals.length,
+              itemBuilder: (context, index, delta) =>
+                  _buildMealCard(meals[index], lang, delta: delta),
             ),
         ],
       ),
@@ -638,34 +643,50 @@ class _NutritionScreenState extends State<NutritionScreen> {
             const SizedBox.shrink()
           else if (dayPlans.isEmpty)
             ...((plan.meals ?? const <Meal>[])
-                .map((meal) => _buildMealCard(meal, lang)))
+                .indexed
+                .map((e) => AnimatedReveal(
+                      delay: Duration(milliseconds: e.$1 < 5 ? 90 * e.$1 : 0),
+                      offset: const Offset(0, 0.2),
+                      child: _buildMealCard(e.$2, lang),
+                    )))
           else
-            ...dayPlans.map(
-              (dayPlan) => CustomCard(
-                margin: const EdgeInsets.only(bottom: 12),
-                padding: EdgeInsets.zero,
-                child: Theme(
-                  data: Theme.of(context)
-                      .copyWith(dividerColor: Colors.transparent),
-                  child: ExpansionTile(
-                    initiallyExpanded: dayPlan.dayNumber == todayDayNumber,
-                    title: Text(
-                      lang.t(
-                        'nutrition_day_number',
-                        args: {'number': dayPlan.dayNumber.toString()},
-                      ),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
-                    children: [
-                      for (final meal in dayPlan.meals)
-                        _buildMealCard(meal, lang),
-                    ],
-                  ),
-                ),
+            ...dayPlans.indexed.map(
+              (entry) => AnimatedReveal(
+                delay: Duration(milliseconds: entry.$1 < 7 ? 80 * entry.$1 : 0),
+                offset: Offset(lang.isArabic ? -0.2 : 0.2, 0),
+                child: _buildDayPlanTile(entry.$2, todayDayNumber, lang),
               ),
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDayPlanTile(
+    dynamic dayPlan,
+    int? todayDayNumber,
+    LanguageProvider lang,
+  ) {
+    return CustomCard(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: EdgeInsets.zero,
+      child: Theme(
+        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+        child: ExpansionTile(
+          initiallyExpanded: dayPlan.dayNumber == todayDayNumber,
+          title: Text(
+            lang.t(
+              'nutrition_day_number',
+              args: {'number': dayPlan.dayNumber.toString()},
+            ),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+          childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+          children: [
+            for (final meal in dayPlan.meals)
+              _buildMealCard(meal as Meal, lang),
+          ],
+        ),
       ),
     );
   }
@@ -890,7 +911,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
   // ignore: unused_element
   Widget _buildTrialExpired(LanguageProvider lang) {
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('nutrition')),
       ),
@@ -956,7 +977,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   Widget _buildNoPlan(LanguageProvider lang) {
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('nutrition')),
       ),
@@ -1017,7 +1038,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
         ? (lang.t('nutrition_open_workout'))
         : lang.t('nutrition_unlock_button');
 
-    return Scaffold(
+    return AashScaffold(
       body: Column(
         children: [
           Container(
@@ -1215,12 +1236,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
           child: Stack(
             alignment: Alignment.center,
             children: [
-              CustomPaint(
-                size: const Size(100, 100),
-                painter: _MacroRingPainter(
-                  percentage: percentage,
-                  color: color,
-                  trackColor: context.palette.surfaceVariant,
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: percentage),
+                duration: const Duration(milliseconds: 1000),
+                curve: Curves.easeOutCubic,
+                builder: (context, animated, _) => CustomPaint(
+                  size: const Size(100, 100),
+                  painter: _MacroRingPainter(
+                    percentage: animated,
+                    color: color,
+                    trackColor: context.palette.surfaceVariant,
+                  ),
                 ),
               ),
               Column(
@@ -1322,10 +1348,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
           const SizedBox(height: 16),
           ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
+            child: AnimatedProgressBar(
               value: percentage,
               backgroundColor: context.palette.surfaceVariant,
-              valueColor: const AlwaysStoppedAnimation<Color>(AppColors.cyan),
+              color: AppColors.cyan,
               minHeight: 12,
             ),
           ),
@@ -1408,121 +1434,132 @@ class _NutritionScreenState extends State<NutritionScreen> {
     return lang.t('nutrition_no_ingredients_details_available');
   }
 
-  Widget _buildMealCard(Meal meal, LanguageProvider lang) {
+  Widget _buildMealCard(Meal meal, LanguageProvider lang, {double? delta}) {
     final mealName = _localizedMealName(meal, lang);
     const cardRadius = BorderRadius.all(Radius.circular(24));
+    final mealImage = Image.asset(
+      _mealCardImageAsset(meal.type),
+      fit: BoxFit.cover,
+      semanticLabel: mealName,
+    );
 
-    return Padding(
-      key: ValueKey('nutrition-meal-card-${meal.id}'),
-      padding: const EdgeInsets.only(bottom: 16),
-      child: AspectRatio(
-        aspectRatio: 1.22,
-        child: ClipRRect(
-          borderRadius: cardRadius,
-          child: Material(
-            color: context.palette.surface,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                InkWell(
-                  onTap: () => _showMealDetail(meal, lang),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.asset(
-                        _mealCardImageAsset(meal.type),
-                        fit: BoxFit.cover,
-                        semanticLabel: mealName,
-                      ),
-                      const DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0x050A1424),
-                              Color(0x180A1424),
-                              Color(0xB80A1424),
-                            ],
-                            stops: [0, 0.5, 1],
+    return PressScale(
+      child: Padding(
+        key: ValueKey('nutrition-meal-card-${meal.id}'),
+        padding: const EdgeInsets.only(bottom: 16),
+        child: AspectRatio(
+          aspectRatio: 1.22,
+          child: ClipRRect(
+            borderRadius: cardRadius,
+            child: Material(
+              color: context.palette.surface,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  InkWell(
+                    onTap: () => _showMealDetail(meal, lang),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        delta == null
+                            ? mealImage
+                            : ParallaxFill(
+                                delta: delta,
+                                shift: 30,
+                                zoom: 1.16,
+                                child: mealImage,
+                              ),
+                        const DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Color(0x050A1424),
+                                Color(0x180A1424),
+                                Color(0xB80A1424),
+                              ],
+                              stops: [0, 0.5, 1],
+                            ),
                           ),
                         ),
-                      ),
-                      PositionedDirectional(
-                        start: 16,
-                        end: 64,
-                        bottom: 16,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  _getMealIcon(meal.type),
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 6),
-                                Flexible(
-                                  child: Text(
-                                    '${meal.time}  ·  ${meal.calories} ${lang.t('cal_unit')}',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: AppTextStyles.captionMedium.copyWith(
-                                      color:
-                                          Colors.white.withValues(alpha: 0.9),
+                        PositionedDirectional(
+                          start: 16,
+                          end: 64,
+                          bottom: 16,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    _getMealIcon(meal.type),
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Flexible(
+                                    child: Text(
+                                      '${meal.time}  ·  ${meal.calories} ${lang.t('cal_unit')}',
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style:
+                                          AppTextStyles.captionMedium.copyWith(
+                                        color:
+                                            Colors.white.withValues(alpha: 0.9),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 7),
-                            Text(
-                              mealName,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.h3.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
+                                ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 7),
+                              Text(
+                                mealName,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.h3.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      PositionedDirectional(
-                        end: 16,
-                        bottom: 18,
-                        child: Icon(
-                          lang.isArabic
-                              ? Icons.arrow_back_rounded
-                              : Icons.arrow_forward_rounded,
-                          color: Colors.white,
-                          size: 20,
+                        PositionedDirectional(
+                          end: 16,
+                          bottom: 18,
+                          child: Icon(
+                            lang.isArabic
+                                ? Icons.arrow_back_rounded
+                                : Icons.arrow_forward_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                PositionedDirectional(
-                  end: 8,
-                  top: 8,
-                  child: Material(
-                    color: Colors.white.withValues(alpha: 0.94),
-                    borderRadius: BorderRadius.circular(14),
-                    child: Checkbox(
-                      value: meal.completed,
-                      checkColor: Colors.white,
-                      activeColor: AppColors.cyan,
-                      side: const BorderSide(color: AppColors.primaryDark),
-                      onChanged: meal.completed || !meal.canLog
-                          ? null
-                          : (value) => _logMeal(meal, lang, value),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  PositionedDirectional(
+                    end: 8,
+                    top: 8,
+                    child: Material(
+                      color: Colors.white.withValues(alpha: 0.94),
+                      borderRadius: BorderRadius.circular(14),
+                      child: Checkbox(
+                        value: meal.completed,
+                        checkColor: Colors.white,
+                        activeColor: AppColors.cyan,
+                        side: const BorderSide(color: AppColors.primaryDark),
+                        onChanged: meal.completed || !meal.canLog
+                            ? null
+                            : (value) => _logMeal(meal, lang, value),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

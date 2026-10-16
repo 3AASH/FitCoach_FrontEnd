@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -324,8 +325,7 @@ class _WorkoutExerciseDetailScreenState
       child: Scaffold(
         body: Stack(
           children: [
-            Positioned.fill(
-                child: ColoredBox(color: context.palette.background)),
+            const Positioned.fill(child: AashBackdrop()),
             SafeArea(
               child: Column(
                 children: [

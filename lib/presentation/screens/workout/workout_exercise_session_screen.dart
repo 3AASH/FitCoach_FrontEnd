@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -228,9 +229,7 @@ class _WorkoutExerciseSessionScreenState
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Container(color: context.palette.background),
-          ),
+          const Positioned.fill(child: AashBackdrop()),
           SafeArea(
             child: Column(
               children: [

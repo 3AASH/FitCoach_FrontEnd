@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -90,7 +91,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: hasPassword && _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(title: Text(t('change_password_title'))),
         body: hasPassword ? _buildForm(t) : _buildNoPasswordNotice(t),
       ),

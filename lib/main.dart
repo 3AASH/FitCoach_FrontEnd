@@ -155,6 +155,9 @@ class FitCoachApp extends StatelessWidget {
           create: (_) => ThemeProvider(),
         ),
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
+          // Eager: the stored session must start restoring at launch, not
+          // when the splash button is first tapped.
+          lazy: false,
           create: (context) => AuthProvider(
             context.read<AuthRepository>(),
             pushNotifications:

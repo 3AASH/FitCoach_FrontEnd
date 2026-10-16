@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fitapp/core/auth/session_policy.dart';
 import 'package:fitapp/core/config/demo_config.dart';
@@ -23,14 +25,25 @@ class AuthProvider extends ChangeNotifier {
   bool _registrationComplete = true;
   bool get registrationComplete => _registrationComplete;
 
+  final Completer<void> _restoreCompleter = Completer<void>();
+
+  /// Completes once the stored session has been checked at startup. Routing
+  /// must wait for this, otherwise a signed-in person is sent to login while
+  /// the check is still running.
+  Future<void> get sessionRestored => _restoreCompleter.future;
+
   AuthProvider(
     this._repository, {
     PushNotificationRegistrationService? pushNotifications,
     SessionPolicy sessionPolicy = const SessionPolicy(),
   })  : _pushNotifications = pushNotifications,
         _sessionPolicy = sessionPolicy {
-    if (!DemoConfig.isDemo) {
-      _checkAuthStatus();
+    if (DemoConfig.isDemo) {
+      _restoreCompleter.complete();
+    } else {
+      _checkAuthStatus().whenComplete(() {
+        if (!_restoreCompleter.isCompleted) _restoreCompleter.complete();
+      });
     }
   }
 

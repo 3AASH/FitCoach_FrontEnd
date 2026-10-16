@@ -89,6 +89,7 @@ flutter:
     - assets/images/home/
     - assets/images/home/shortcuts/
     - assets/images/meals/
+    - assets/images/backgrounds/
     - assets/icons/
     - assets/animations/
     - assets/translations/

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -108,7 +109,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
         DemoConfig.isDemo || ((authProvider.user?.coachId ?? '').isNotEmpty);
     final coachData = _resolveCoachData(lang, authProvider);
 
-    return Scaffold(
+    return AashScaffold(
       body: Column(
         children: [
           _buildHeader(lang),

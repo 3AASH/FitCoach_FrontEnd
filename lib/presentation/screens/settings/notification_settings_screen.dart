@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -104,14 +105,14 @@ class _NotificationSettingsScreenState
     final userRole = authProvider.user?.role ?? 'user';
 
     if (_isLoading) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
       );
     }
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(t('notification_settings_title')),
         actions: [

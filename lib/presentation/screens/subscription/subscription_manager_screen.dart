@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -43,7 +44,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     currentPlan ??=
         planProvider.freemiumPlan ?? (plans.isNotEmpty ? plans.first : null);
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(tr('subscription_manage_title')),
       ),

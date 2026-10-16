@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -234,7 +235,7 @@ class _StoreScreenState extends State<StoreScreen> {
       final storeProvider = context.watch<StoreProvider>();
 
       if (!_introLoaded) {
-        return const Scaffold(
+        return const AashScaffold(
           body: Center(child: CircularProgressIndicator()),
         );
       }
@@ -250,7 +251,7 @@ class _StoreScreenState extends State<StoreScreen> {
     }
 
     if (!_introLoaded) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -286,7 +287,7 @@ class _StoreScreenState extends State<StoreScreen> {
       child: Builder(
         builder: (tabContext) {
           _tabController = DefaultTabController.of(tabContext);
-          return Scaffold(
+          return AashScaffold(
             body: Stack(
               children: [
                 Positioned.fill(
@@ -370,7 +371,7 @@ class _StoreScreenState extends State<StoreScreen> {
       child: Builder(
         builder: (tabContext) {
           _tabController = DefaultTabController.of(tabContext);
-          return Scaffold(
+          return AashScaffold(
             body: Stack(
               children: [
                 Positioned.fill(

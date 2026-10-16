@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../widgets/aash_brand_mark.dart';
@@ -631,8 +632,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
     return Scaffold(
       backgroundColor: context.palette.background,
-      body: ColoredBox(
-        color: context.palette.background,
+      body: AashBackdrop(
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(

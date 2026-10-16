@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -17,6 +16,8 @@ import '../../providers/video_call_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/aash_brand_mark.dart';
 import '../../widgets/animated_reveal.dart';
+import '../../widgets/aash_backdrop.dart';
+import '../../widgets/aash_motion.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../../widgets/quota_indicator.dart';
 import '../../widgets/custom_button.dart';
@@ -47,6 +48,8 @@ class HomeDashboardScreen extends StatefulWidget {
 
 class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   int _selectedIndex = 0;
+  int _lastBuiltIndex = 0;
+  int _homeVisit = 0;
   String? _joiningAppointmentId;
 
   @override
@@ -70,6 +73,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final futures = <Future<void>>[
       userProvider.loadProfile(),
       workoutProvider.loadActivePlan(),
+      workoutProvider.loadWorkoutCalendar(silent: true),
       nutritionProvider.loadActivePlan(),
       nutritionProvider.checkTrialStatus(),
     ];
@@ -87,13 +91,20 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final isArabic = languageProvider.isArabic;
 
+    // Coming back to Home replays its entrance animations.
+    if (_selectedIndex == 0 && _lastBuiltIndex != 0) _homeVisit++;
+    _lastBuiltIndex = _selectedIndex;
+
     return Scaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
           TickerMode(
             enabled: _selectedIndex == 0,
-            child: _buildHomeTab(languageProvider, isArabic),
+            child: KeyedSubtree(
+              key: ValueKey('home-visit-$_homeVisit'),
+              child: _buildHomeTab(languageProvider, isArabic),
+            ),
           ),
           TickerMode(
             enabled: _selectedIndex == 1,
@@ -161,21 +172,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             'totalWorkouts': 14,
             'workoutMinutes': 240,
           }
-        : {
-            'caloriesBurned': 0,
-            'caloriesConsumed': 0,
-            'planAdherence': 0,
-            'weeklyProgress': 0,
-            'workoutsCompleted': 0,
-            'totalWorkouts': 0,
-            'workoutMinutes': 0,
-          };
+        : () {
+            final wp = context.watch<WorkoutProvider>();
+            final done = wp.weeklyCompletedExercises;
+            final total = wp.weeklyTotalExercises;
+            final kg = (user?.weight ?? 75).toDouble();
+            return {
+              'caloriesBurned': (done * 6 * 5 * 3.5 * kg / 200).round(),
+              'caloriesConsumed': 0,
+              'planAdherence': total == 0 ? 0 : (done * 100 / total).round(),
+              'weeklyProgress': total == 0 ? 0 : (done * 100 / total).round(),
+              'workoutsCompleted': wp.weeklyCompletedDays,
+              'totalWorkouts': wp.weeklyTotalDays,
+              'workoutMinutes': done * 6,
+            };
+          }();
 
     return Stack(
       children: [
-        Positioned.fill(
-          child: ColoredBox(color: context.palette.background),
-        ),
+        const Positioned.fill(child: AashBackdrop()),
         SafeArea(
           child: RefreshIndicator(
             onRefresh: _loadData,
@@ -293,34 +308,25 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         badgeCount: unreadMessages,
       ),
     ];
-    final cardWidth =
-        (MediaQuery.of(context).size.width - 48).clamp(220.0, 300.0);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          lang.t('home_explore_aash'),
-          style: AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
+        AnimatedReveal(
+          offset: Offset(lang.isArabic ? 0.2 : -0.2, 0),
+          child: Text(
+            lang.t('home_explore_aash'),
+            style:
+                AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
+          ),
         ),
         const SizedBox(height: 12),
-        SingleChildScrollView(
+        MotionCarousel(
           key: const ValueKey('home-feature-carousel'),
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          child: Row(
-            children: [
-              for (final item in items)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 12),
-                  child: SizedBox(
-                    width: cardWidth.toDouble(),
-                    height: 158,
-                    child: _buildHomeFeatureCard(item, lang),
-                  ),
-                ),
-            ],
-          ),
+          height: 162,
+          viewportFraction: 0.84,
+          itemCount: items.length,
+          itemBuilder: (context, index, delta) =>
+              _buildHomeFeatureCard(items[index], lang, delta),
         ),
       ],
     );
@@ -381,95 +387,113 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         onTap: () => setState(() => _selectedIndex = 4),
       ),
     ];
-    final cardWidth =
-        (MediaQuery.of(context).size.width - 56).clamp(180.0, 240.0);
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          lang.t('home_quick_access'),
-          style: AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
+        AnimatedReveal(
+          delay: const Duration(milliseconds: 120),
+          offset: Offset(lang.isArabic ? 0.2 : -0.2, 0),
+          child: Text(
+            lang.t('home_quick_access'),
+            style:
+                AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
+          ),
         ),
         const SizedBox(height: 12),
-        SingleChildScrollView(
+        MotionCarousel(
           key: const ValueKey('home-shortcut-carousel'),
-          scrollDirection: Axis.horizontal,
-          clipBehavior: Clip.none,
-          child: Row(
-            children: [
-              for (final shortcut in shortcuts)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 12),
-                  child: SizedBox(
-                    width: cardWidth.toDouble(),
-                    height: 146,
-                    child: _buildHomeShortcutCard(shortcut),
-                  ),
-                ),
-            ],
-          ),
+          height: 150,
+          viewportFraction: 0.58,
+          itemCount: shortcuts.length,
+          itemBuilder: (context, index, delta) =>
+              _buildHomeShortcutCard(shortcuts[index], delta),
         ),
       ],
     );
   }
 
-  Widget _buildHomeShortcutCard(_HomeShortcut shortcut) {
+  Widget _buildHomeShortcutCard(_HomeShortcut shortcut, double delta) {
     const cardRadius = BorderRadius.all(Radius.circular(24));
+    final focus = 1 - delta.abs().clamp(0.0, 1.0);
 
-    return Semantics(
-      button: true,
-      label: shortcut.label,
-      child: Material(
-        color: context.palette.surface,
-        borderRadius: cardRadius,
-        child: InkWell(
-          onTap: shortcut.onTap,
-          borderRadius: cardRadius,
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: cardRadius,
-              border: Border.all(color: context.palette.border),
-              image: DecorationImage(
-                image: AssetImage(shortcut.imageAsset),
-                fit: BoxFit.cover,
+    return PressScale(
+      child: Semantics(
+        button: true,
+        label: shortcut.label,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: cardRadius,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10 + 0.14 * focus),
+                blurRadius: 10 + 14 * focus,
+                offset: Offset(0, 4 + 6 * focus),
               ),
-            ),
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                borderRadius: cardRadius,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x080A1424), Color(0x8A0A1424)],
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: cardRadius,
+            child: Material(
+              color: context.palette.surface,
+              child: InkWell(
+                onTap: shortcut.onTap,
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Container(
-                      width: 34,
-                      height: 34,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withValues(alpha: 0.2),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        shortcut.icon,
-                        color: Colors.white,
-                        size: 18,
+                    ParallaxFill(
+                      delta: delta,
+                      shift: 26,
+                      zoom: 1.16,
+                      child: Image.asset(
+                        shortcut.imageAsset,
+                        fit: BoxFit.cover,
                       ),
                     ),
-                    const Spacer(),
-                    Text(
-                      shortcut.label,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: AppTextStyles.bodyMedium.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0x080A1424), Color(0x8A0A1424)],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Transform.scale(
+                            scale: 0.9 + 0.2 * focus,
+                            child: Container(
+                              width: 34,
+                              height: 34,
+                              decoration: BoxDecoration(
+                                color: Colors.white
+                                    .withValues(alpha: 0.16 + 0.12 * focus),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                shortcut.icon,
+                                color: Colors.white,
+                                size: 18,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Transform.translate(
+                            offset: Offset(0, 6 * (1 - focus)),
+                            child: Text(
+                              shortcut.label,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.bodyMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -482,93 +506,128 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     );
   }
 
-  Widget _buildHomeFeatureCard(_HomeFeature item, LanguageProvider lang) {
+  Widget _buildHomeFeatureCard(
+    _HomeFeature item,
+    LanguageProvider lang,
+    double delta,
+  ) {
     const cardRadius = BorderRadius.all(Radius.circular(28));
+    final focus = 1 - delta.abs().clamp(0.0, 1.0);
 
-    return Semantics(
-      button: true,
-      label: item.label,
-      child: Material(
-        color: context.palette.surface,
-        borderRadius: cardRadius,
-        child: InkWell(
-          onTap: () => setState(() => _selectedIndex = item.index),
-          borderRadius: cardRadius,
-          child: Ink(
-            decoration: BoxDecoration(
-              borderRadius: cardRadius,
-              border: Border.all(color: context.palette.border),
-              image: DecorationImage(
-                image: AssetImage(item.imageAsset),
-                fit: BoxFit.cover,
+    return PressScale(
+      child: Semantics(
+        button: true,
+        label: item.label,
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: cardRadius,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.10 + 0.16 * focus),
+                blurRadius: 12 + 16 * focus,
+                offset: Offset(0, 5 + 7 * focus),
               ),
-            ),
-            child: DecoratedBox(
-              decoration: const BoxDecoration(
-                borderRadius: cardRadius,
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Color(0x080A1424),
-                    Color(0x500A1424),
-                    Color(0xB00A1424),
-                  ],
-                  stops: [0, 0.45, 1],
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            ],
+          ),
+          child: ClipRRect(
+            borderRadius: cardRadius,
+            child: Material(
+              color: context.palette.surface,
+              child: InkWell(
+                onTap: () => setState(() => _selectedIndex = item.index),
+                child: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 38,
-                          height: 38,
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(item.icon, color: Colors.white, size: 20),
-                        ),
-                        const Spacer(),
-                        if (item.locked)
-                          _buildFeatureBadge(
-                            icon: Icons.lock_outline,
-                            label: lang.t('home_locked'),
-                          )
-                        else if (item.badgeCount > 0)
-                          _buildFeatureBadge(
-                            icon: Icons.mark_chat_unread_outlined,
-                            label: '${item.badgeCount}',
-                          ),
-                      ],
+                    ParallaxFill(
+                      delta: delta,
+                      child: Image.asset(
+                        item.imageAsset,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    const Spacer(),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.label,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: AppTextStyles.h3.copyWith(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                            ),
+                    const DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Color(0x080A1424),
+                            Color(0x500A1424),
+                            Color(0xB00A1424),
+                          ],
+                          stops: [0, 0.45, 1],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Transform.scale(
+                                scale: 0.9 + 0.2 * focus,
+                                child: Container(
+                                  width: 38,
+                                  height: 38,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white
+                                        .withValues(alpha: 0.16 + 0.12 * focus),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(item.icon,
+                                      color: Colors.white, size: 20),
+                                ),
+                              ),
+                              const Spacer(),
+                              if (item.locked)
+                                _buildFeatureBadge(
+                                  icon: Icons.lock_outline,
+                                  label: lang.t('home_locked'),
+                                )
+                              else if (item.badgeCount > 0)
+                                _buildFeatureBadge(
+                                  icon: Icons.mark_chat_unread_outlined,
+                                  label: '${item.badgeCount}',
+                                ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Icon(
-                          lang.isArabic
-                              ? Icons.arrow_back_rounded
-                              : Icons.arrow_forward_rounded,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ],
+                          const Spacer(),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Transform.translate(
+                                  offset: Offset(0, 6 * (1 - focus)),
+                                  child: Text(
+                                    item.label,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.h3.copyWith(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Transform.translate(
+                                offset: Offset(
+                                  (lang.isArabic ? -1 : 1) * 6 * (1 - focus),
+                                  0,
+                                ),
+                                child: Icon(
+                                  lang.isArabic
+                                      ? Icons.arrow_back_rounded
+                                      : Icons.arrow_forward_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -294,7 +295,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_progress_label')),
         actions: [

@@ -231,8 +231,11 @@ void main() {
     );
 
     expect(find.byType(WorkoutExerciseDetailScreen), findsOneWidget);
-    // The preview is the only exercise image, never a full-screen background.
-    final imageFinder = find.byType(Image);
+    // The preview is the only exercise image; the Aash backdrop is excluded.
+    final imageFinder = find.byWidgetPredicate((w) =>
+        w is Image &&
+        !((w.image is AssetImage) &&
+            (w.image as AssetImage).assetName.contains('/backgrounds/')));
     expect(imageFinder, findsOneWidget);
     expect(tester.widget<Image>(imageFinder).fit, BoxFit.contain);
     expect(tester.getSize(imageFinder).height, 220);

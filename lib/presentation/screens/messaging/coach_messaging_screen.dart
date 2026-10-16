@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -290,7 +291,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     final isCoachInboxView = _isCoachInboxView(isCoach);
 
     if (!_introLoaded) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -301,7 +302,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
 
     final statusText = _statusText(lang, messagingProvider);
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
           Positioned.fill(

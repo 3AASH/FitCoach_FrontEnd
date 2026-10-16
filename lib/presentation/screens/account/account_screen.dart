@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -124,7 +125,7 @@ class _AccountScreenState extends State<AccountScreen> {
           languageProvider.t('account_tab_settings')),
     ];
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
           Positioned.fill(

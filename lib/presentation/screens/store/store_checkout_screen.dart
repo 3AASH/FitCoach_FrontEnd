@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -400,7 +401,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         body: SafeArea(
           child: Column(
             children: [

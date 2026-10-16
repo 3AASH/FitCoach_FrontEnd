@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -58,7 +59,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('payment_management_title')),
       ),

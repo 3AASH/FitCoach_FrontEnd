@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:image_picker/image_picker.dart';
@@ -68,7 +69,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(
           title: Text(lang.t('inbody_input_inbody_analysis')),
         ),

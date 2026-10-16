@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,11 +42,23 @@ class _AppState extends State<App> {
     _completeSplashAsync();
   }
 
+  bool _startingUp = false;
+
   Future<void> _completeSplashAsync() async {
+    if (_startingUp) return;
+    _startingUp = true;
     final languageProvider = context.read<LanguageProvider>();
     final authProvider = context.read<AuthProvider>();
     final prefs = await SharedPreferences.getInstance();
     final hasSeenOnboarding = prefs.getBool(_onboardingSeenKey) ?? false;
+
+    // Wait for the stored session to be checked before choosing a screen.
+    // Capped so a dead network cannot hold the app on the splash forever.
+    var restoreTimedOut = false;
+    await authProvider.sessionRestored.timeout(
+      const Duration(seconds: 12),
+      onTimeout: () => restoreTimedOut = true,
+    );
     if (!mounted) return;
 
     setState(() {
@@ -59,6 +73,17 @@ class _AppState extends State<App> {
         _currentScreen = _resolvePostAuthScreen(authProvider);
       }
     });
+
+    if (restoreTimedOut) {
+      // The check finished after we gave up waiting: if it found a valid
+      // session, move on from the login/onboarding screen.
+      unawaited(authProvider.sessionRestored.then((_) {
+        if (!mounted || !authProvider.isAuthenticated) return;
+        if (_currentScreen == 'auth' || _currentScreen == 'onboarding') {
+          _navigateToScreen(_resolvePostAuthScreen(authProvider));
+        }
+      }));
+    }
   }
 
   Future<void> _completeOnboarding() async {

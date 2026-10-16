@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -67,7 +68,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       });
     }
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(tr('subscription_upgrade_title')),
       ),

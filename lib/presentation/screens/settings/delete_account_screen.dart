@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -143,7 +144,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
     final t = languageProvider.t;
     final hasPassword = authProvider.user?.hasPassword ?? false;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(title: Text(t('delete_account_title'))),
       body: ListView(
         padding: const EdgeInsets.all(20),

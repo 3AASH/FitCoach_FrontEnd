@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -71,7 +72,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
     return Scaffold(
       body: Stack(
         children: [
-          Positioned.fill(child: ColoredBox(color: context.palette.background)),
+          const Positioned.fill(child: AashBackdrop()),
           SafeArea(
             child: Center(
               child: SingleChildScrollView(

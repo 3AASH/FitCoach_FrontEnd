@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -116,7 +117,7 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(title: Text(t('change_mobile_title'))),
         body: ListView(
           padding: const EdgeInsets.all(20),

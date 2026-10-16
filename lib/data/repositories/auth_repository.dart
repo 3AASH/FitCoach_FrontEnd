@@ -454,11 +454,15 @@ class AuthRepository implements AuthRepositoryBase {
   // Get stored token
   @override
   Future<String?> getStoredToken() async {
-    try {
-      return await _secureStorage.read(key: _tokenKey);
-    } catch (e) {
-      return null;
+    for (var attempt = 0; attempt < 3; attempt++) {
+      try {
+        return await _secureStorage.read(key: _tokenKey);
+      } catch (e) {
+        // Keystore reads can fail transiently right after launch.
+        await Future<void>.delayed(const Duration(milliseconds: 250));
+      }
     }
+    return null;
   }
 
   // Store token

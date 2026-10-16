@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -12,6 +13,8 @@ import '../../providers/language_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/animated_reveal.dart';
+import '../../widgets/aash_motion.dart';
 import '../intake/second_intake_screen.dart';
 import '../messaging/coach_messaging_screen.dart';
 import './workout_intro_screen.dart';
@@ -38,6 +41,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   bool _wasActive = true;
   bool _showIntro = false;
   bool _introLoaded = false;
+  final ScrollController _exerciseScroll = ScrollController();
+  final ScrollController _calendarScroll = ScrollController();
+
+  @override
+  void dispose() {
+    _exerciseScroll.dispose();
+    _calendarScroll.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -264,7 +276,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return Scaffold(
       backgroundColor: context.palette.background,
       appBar: appBar,
-      body: SafeArea(child: child),
+      body: AashBackdrop(child: SafeArea(child: child)),
     );
   }
 
@@ -438,14 +450,17 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildWorkoutHeroHeader(
-                  plan,
-                  currentDay,
-                  languageProvider,
-                  completedExercises,
-                  totalExercises,
-                  workoutProgress,
-                  isArabic,
+                AnimatedReveal(
+                  offset: const Offset(0, -0.2),
+                  child: _buildWorkoutHeroHeader(
+                    plan,
+                    currentDay,
+                    languageProvider,
+                    completedExercises,
+                    totalExercises,
+                    workoutProgress,
+                    isArabic,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 if (currentDay != null && currentDay.exercises.isNotEmpty)
@@ -469,12 +484,16 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   isArabic,
                 ),
                 const SizedBox(height: 14),
-                _buildWorkoutSummaryCard(
-                  plan,
-                  currentDay,
-                  languageProvider,
-                  workoutProgress,
-                  isArabic,
+                AnimatedReveal(
+                  delay: const Duration(milliseconds: 520),
+                  offset: const Offset(0, 0.25),
+                  child: _buildWorkoutSummaryCard(
+                    plan,
+                    currentDay,
+                    languageProvider,
+                    workoutProgress,
+                    isArabic,
+                  ),
                 ),
               ],
             ),
@@ -570,7 +589,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           const SizedBox(height: 8),
           Text(
             [
-              '${lang.t('workout_week', args: {'number': '1'})}, ${lang.t('workout_day_label', args: {'number': '$dayNumber'})}',
+              '${lang.t('workout_week', args: {
+                    'number': '1'
+                  })}, ${lang.t('workout_day_label', args: {
+                    'number': '$dayNumber'
+                  })}',
               if (durationLabel.isNotEmpty) durationLabel,
             ].join('  •  '),
             style: AppTextStyles.smallMedium.copyWith(
@@ -583,11 +606,11 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Expanded(
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: LinearProgressIndicator(
+                  child: AnimatedProgressBar(
                     value: progress,
                     minHeight: 6,
                     backgroundColor: context.palette.surfaceVariant,
-                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.cyan),
+                    color: AppColors.cyan,
                   ),
                 ),
               ),
@@ -758,6 +781,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
+  int _estimatedKcal(int exercises) {
+    final weight = context.read<AuthProvider?>()?.user?.weight;
+    final kg = (weight != null && weight > 20) ? weight : 75.0;
+    // ~6 min per exercise at MET 5 (resistance training)
+    return (exercises * 6 * 5 * 3.5 * kg / 200).round();
+  }
+
   Widget _buildWorkoutSummaryCard(
     WorkoutPlan plan,
     WorkoutDay? currentDay,
@@ -766,9 +796,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     bool isArabic,
   ) {
     final totalExercises = currentDay?.exercises.length ?? 0;
+    final provider = context.watch<WorkoutProvider>();
+    final completed = currentDay == null
+        ? 0
+        : currentDay.exercises
+            .where((e) => provider.isExerciseCompleted(e.id))
+            .length;
     final durationLabel = _estimateWorkoutDuration(currentDay, lang);
-    final planTitle = _localizedPlanName(plan, lang, isArabic);
-    final difficultyLabel = _localizedPlanDifficulty(plan, lang, isArabic);
+    final burned = _estimatedKcal(completed);
 
     return CustomCard(
       padding: const EdgeInsets.all(16),
@@ -780,36 +815,25 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           Row(
             children: [
               Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: isArabic
-                      ? AlignmentDirectional.centerEnd
-                      : AlignmentDirectional.centerStart,
-                  child: Text(
-                    planTitle,
-                    style: AppTextStyles.h2.copyWith(
-                      color: context.palette.textPrimary,
-                      height: 1.1,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: AnimatedProgressBar(
+                    value: progress.clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: context.palette.surfaceVariant,
+                    color: AppColors.cyan,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: context.palette.surfaceVariant,
-                    borderRadius: BorderRadius.circular(AppRadius.pill),
-                  ),
-                  child: Text(
-                    difficultyLabel,
-                    style: AppTextStyles.small.copyWith(
-                      color: context.palette.textPrimary,
-                    ),
+              const SizedBox(width: 12),
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: progress * 100),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (context, v, _) => Text(
+                  '${v.round()}%',
+                  style: AppTextStyles.smallMedium.copyWith(
+                    color: context.palette.textPrimary,
                   ),
                 ),
               ),
@@ -821,7 +845,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Expanded(
                 child: _buildSummaryItem(
                   icon: Icons.track_changes,
-                  value: '$totalExercises',
+                  value: '$completed/$totalExercises',
                   label: lang.t('exercises'),
                 ),
               ),
@@ -834,9 +858,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
               Expanded(
                 child: _buildSummaryItem(
-                  icon: Icons.check_circle_outline,
-                  value: '${(progress * 100).round()}%',
-                  label: lang.t('workout_complete_label'),
+                  icon: Icons.local_fire_department_outlined,
+                  value: '$burned ${lang.t('kcal_short')}',
+                  label: lang.t('workout_calories_burned'),
                 ),
               ),
             ],
@@ -866,29 +890,40 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     ];
 
     return SizedBox(
-      height: 62,
+      height: 64,
       child: ListView.separated(
         key: const ValueKey('workout-calendar-strip'),
+        controller: _calendarScroll,
         scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
         itemCount: entries.length,
         separatorBuilder: (_, __) => const SizedBox(width: 8),
         itemBuilder: (context, i) {
           final (day, label) = entries[i];
-          return SizedBox(
-            width: 168,
-            child: _buildCalendarDayCard(
-              day: day,
-              label: label,
-              isToday: label != null,
-              isArabic: isArabic,
-              onTap: () => _openCalendarDay(provider, day),
+          return AnimatedReveal(
+            delay: Duration(milliseconds: i < 5 ? 80 * i : 0),
+            offset: Offset(isArabic ? -0.4 : 0.4, 0),
+            child: ScrollMotionItem(
+              controller: _calendarScroll,
+              index: i,
+              extent: 148,
+              minOpacity: 0.75,
+              builder: (context, _) => SizedBox(
+                width: 140,
+                child: _buildCalendarDayCard(
+                  day: day,
+                  label: label,
+                  isToday: label != null,
+                  isArabic: isArabic,
+                  onTap: () => _openCalendarDay(provider, day),
+                ),
+              ),
             ),
           );
         },
       ),
     );
   }
-
 
   Widget _buildCalendarDayCard({
     required WorkoutCalendarDayEntry day,
@@ -900,75 +935,53 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     final title = isArabic && (day.dayNameAr?.isNotEmpty == true)
         ? day.dayNameAr!
         : day.dayName;
-    final subtitle =
-        '${day.completedExercises}/${day.totalExercises} exercises';
+    final percent = day.progressPercent.round();
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
           color: isToday
               ? AppColors.cyan.withValues(alpha: 0.12)
               : context.palette.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isToday ? AppColors.cyan : context.palette.border,
           ),
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: AppTextStyles.smallMedium
-                              .copyWith(color: context.palette.textPrimary),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (label != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: AppColors.cyan.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            label,
-                            style: AppTextStyles.overline.copyWith(
-                              color: AppColors.cyan,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.caption.copyWith(
-                      color: context.palette.textSecondary,
+            Text(
+              title,
+              style: AppTextStyles.smallMedium
+                  .copyWith(color: context.palette.textPrimary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: AnimatedProgressBar(
+                      value: (percent / 100).clamp(0.0, 1.0),
+                      minHeight: 5,
+                      backgroundColor: context.palette.surfaceVariant,
+                      color: AppColors.cyan,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 56,
-              child: Text(
-                '${day.progressPercent.round()}%',
-                style: AppTextStyles.smallMedium
-                    .copyWith(color: context.palette.textPrimary),
-                textAlign: TextAlign.end,
-              ),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  '$percent%',
+                  style: AppTextStyles.caption
+                      .copyWith(color: context.palette.textSecondary),
+                ),
+              ],
             ),
           ],
         ),
@@ -1140,34 +1153,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return '${minutes.toInt()} ${lang.t('minute_short')}';
   }
 
-  String _localizedPlanName(
-      WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
-    final fallback = lang.t('workout');
-    if (isArabic) {
-      if (plan.nameAr?.isNotEmpty == true) {
-        return plan.nameAr!;
-      }
-      if (plan.name?.isNotEmpty == true) {
-        return plan.name!;
-      }
-      return fallback;
-    }
-    return plan.name ?? fallback;
-  }
-
-  String _localizedPlanDifficulty(
-      WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
-    final englishDescription =
-        plan.description ?? lang.t('workout_difficulty_intermediate');
-    if (isArabic) {
-      if (plan.descriptionAr?.isNotEmpty == true) {
-        return plan.descriptionAr!;
-      }
-      return lang.t('workout_difficulty_intermediate');
-    }
-    return englishDescription;
-  }
-
   Widget _buildExerciseList(
     WorkoutDay currentDay,
     bool isArabic,
@@ -1176,18 +1161,32 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       height: 210,
       child: ListView.separated(
         key: const ValueKey('workout-exercise-carousel'),
+        controller: _exerciseScroll,
         scrollDirection: Axis.horizontal,
         reverse: isArabic,
         clipBehavior: Clip.none,
+        physics: const BouncingScrollPhysics(),
         itemCount: currentDay.exercises.length,
         separatorBuilder: (_, __) => const SizedBox(width: 12),
         itemBuilder: (context, index) {
           final exercise = currentDay.exercises[index];
-          return _buildExerciseCard(
-            currentDay,
-            exercise,
-            isArabic,
-            index,
+          return AnimatedReveal(
+            delay: Duration(milliseconds: index < 4 ? 110 * index : 0),
+            offset: Offset(isArabic ? -0.5 : 0.5, 0),
+            initialScale: 0.88,
+            duration: const Duration(milliseconds: 560),
+            child: ScrollMotionItem(
+              controller: _exerciseScroll,
+              index: index,
+              extent: 230,
+              builder: (context, delta) => _buildExerciseCard(
+                currentDay,
+                exercise,
+                isArabic,
+                index,
+                delta,
+              ),
+            ),
           );
         },
       ),
@@ -1199,57 +1198,99 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     Exercise exercise,
     bool isArabic,
     int index,
+    double delta,
   ) {
     final localizedName = isArabic ? exercise.nameAr : exercise.nameEn;
     final name =
         localizedName.trim().isNotEmpty ? localizedName : exercise.name;
     const cardRadius = BorderRadius.all(Radius.circular(22));
 
-    return SizedBox(
-      key: ValueKey('workout-exercise-card-${exercise.id}'),
-      width: 218,
-      child: CustomCard(
-        padding: EdgeInsets.zero,
-        margin: EdgeInsets.zero,
-        borderRadius: cardRadius,
-        color: context.palette.surface,
-        border: Border.all(color: context.palette.border),
-        onTap: () => _openExerciseDetail(currentDay, index),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final locked = !context.watch<WorkoutProvider>().isDayStartable(currentDay);
+
+    return PressScale(
+      child: SizedBox(
+        key: ValueKey('workout-exercise-card-${exercise.id}'),
+        width: 218,
+        child: Stack(
           children: [
-            _buildExerciseThumbnail(
-              exercise,
-              width: 218,
-              height: 132,
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 8),
-                child: Align(
-                  alignment: AlignmentDirectional.topStart,
-                  child: Text(
-                    name,
-                    style: AppTextStyles.bodyMedium.copyWith(
-                      color: context.palette.textPrimary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
+            Positioned.fill(
+              child: Opacity(
+                opacity: locked ? 0.7 : 1,
+                child: _exerciseCardBody(
+                    currentDay, exercise, name, index, delta, cardRadius),
               ),
             ),
+            if (locked)
+              PositionedDirectional(
+                top: 10,
+                end: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_rounded,
+                      size: 16, color: Colors.white),
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
+  Widget _exerciseCardBody(
+    WorkoutDay currentDay,
+    Exercise exercise,
+    String name,
+    int index,
+    double delta,
+    BorderRadius cardRadius,
+  ) {
+    return CustomCard(
+          padding: EdgeInsets.zero,
+          margin: EdgeInsets.zero,
+          borderRadius: cardRadius,
+          color: context.palette.surface,
+          border: Border.all(color: context.palette.border),
+          onTap: () => _openExerciseDetail(currentDay, index),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildExerciseThumbnail(
+                exercise,
+                width: 218,
+                height: 132,
+                delta: delta,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 8),
+                  child: Align(
+                    alignment: AlignmentDirectional.topStart,
+                    child: Text(
+                      name,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.palette.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+  }
+
   Widget _buildExerciseThumbnail(
     Exercise exercise, {
     required double width,
     required double height,
+    double delta = 0,
   }) {
     final resolved = VideoThumbnailResolver.resolve(
       thumbnailUrl: exercise.thumbnailUrl,
@@ -1288,12 +1329,22 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       child: SizedBox(
         width: width,
         height: height,
-        child: image,
+        child: delta == 0
+            ? image
+            : ParallaxFill(delta: delta, shift: 18, zoom: 1.14, child: image),
       ),
     );
   }
 
   void _openExerciseSession(WorkoutDay day, int startIndex) {
+    if (!context.read<WorkoutProvider>().isDayStartable(day)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read<LanguageProvider>().t('workout_day_locked')),
+        ),
+      );
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => WorkoutExerciseSessionScreen(

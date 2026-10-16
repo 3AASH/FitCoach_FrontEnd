@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -112,13 +113,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     if (_isLoading) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
 
     if (_error != null) {
-      return Scaffold(
+      return AashScaffold(
         appBar: AppBar(
           title: Text(lang.t('exercise_library_exercise_library')),
         ),
@@ -147,7 +148,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
       return true;
     }).toList();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('exercise_library_exercise_library')),
         actions: [

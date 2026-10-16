@@ -1,3 +1,4 @@
+import '../widgets/aash_backdrop.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     final slides = _getSlides(languageProvider);
     final currentSlide = slides[_currentPage];
 
-    return Scaffold(
+    return AashScaffold(
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: Theme.of(context).brightness == Brightness.dark
             ? SystemUiOverlayStyle.light
@@ -232,27 +233,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       OnboardingSlideData(
         title: lang.t('onboarding_coaching_title'),
         description: lang.t('onboarding_coaching_desc'),
-        imagePath: 'assets/placeholders/splash_onboarding/coach_onboarding.png',
+        imagePath: 'assets/images/home/coach.jpg',
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_nutrition_title'),
         description: lang.t('onboarding_nutrition_desc'),
         imagePath:
-            'assets/placeholders/splash_onboarding/nuitration_onboarding.png',
+            'assets/images/home/nutrition.jpg',
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_workouts_title'),
         description: lang.t('onboarding_workouts_desc'),
         imagePath:
-            'assets/placeholders/splash_onboarding/workout_onboarding.png',
+            'assets/images/home/workout.jpg',
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_store_title'),
         description: lang.t('onboarding_store_desc'),
-        imagePath: 'assets/placeholders/splash_onboarding/store_onboarding.png',
+        imagePath: 'assets/images/home/store.jpg',
         accentColor: AppColors.accent,
       ),
     ];

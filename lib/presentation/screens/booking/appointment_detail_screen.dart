@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -307,7 +308,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     final canJoinSoon = now.isAfter(tenMinutesBefore) &&
         widget.appointment.status == 'confirmed';
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(languageProvider.t('appointment_details')),
       ),
