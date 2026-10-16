@@ -787,7 +787,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
     return CustomCard(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       child: Row(children: [
-        Icon(Icons.water_drop, color: AppColors.cyan),
+        const Icon(Icons.water_drop, color: AppColors.cyan),
         const SizedBox(width: 10),
         Expanded(
             child: Text(lang.t('nutrition_water'),
@@ -1440,11 +1440,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Color(0x080A1424),
-                              Color(0x300A1424),
-                              Color(0xE80A1424),
+                              Color(0x050A1424),
+                              Color(0x180A1424),
+                              Color(0xB80A1424),
                             ],
-                            stops: [0, 0.42, 1],
+                            stops: [0, 0.5, 1],
                           ),
                         ),
                       ),

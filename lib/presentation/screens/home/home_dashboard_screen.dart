@@ -343,12 +343,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         index: 3,
         badgeCount: unreadMessages,
       ),
-      _HomeFeature(
-        label: lang.t('home_store'),
-        imageAsset: 'assets/images/home/store.jpg',
-        icon: Icons.shopping_bag_outlined,
-        index: 4,
-      ),
     ];
     final cardWidth =
         (MediaQuery.of(context).size.width - 48).clamp(220.0, 300.0);
@@ -438,6 +432,8 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
         onTap: () => setState(() => _selectedIndex = 4),
       ),
     ];
+    final cardWidth =
+        (MediaQuery.of(context).size.width - 56).clamp(180.0, 240.0);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -447,19 +443,23 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           style: AppTextStyles.h4.copyWith(color: context.palette.textPrimary),
         ),
         const SizedBox(height: 12),
-        GridView.builder(
-          key: const ValueKey('home-shortcut-grid'),
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: shortcuts.length,
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-            crossAxisSpacing: 12,
-            mainAxisSpacing: 12,
-            childAspectRatio: 1.45,
+        SingleChildScrollView(
+          key: const ValueKey('home-shortcut-carousel'),
+          scrollDirection: Axis.horizontal,
+          clipBehavior: Clip.none,
+          child: Row(
+            children: [
+              for (final shortcut in shortcuts)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(end: 12),
+                  child: SizedBox(
+                    width: cardWidth.toDouble(),
+                    height: 146,
+                    child: _buildHomeShortcutCard(shortcut),
+                  ),
+                ),
+            ],
           ),
-          itemBuilder: (context, index) =>
-              _buildHomeShortcutCard(shortcuts[index]),
         ),
       ],
     );
@@ -492,7 +492,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0x160A1424), Color(0xD90A1424)],
+                  colors: [Color(0x080A1424), Color(0x8A0A1424)],
                 ),
               ),
               child: Padding(
@@ -561,11 +561,11 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0x180A1424),
-                    Color(0xA60A1424),
-                    Color(0xE60A1424),
+                    Color(0x080A1424),
+                    Color(0x500A1424),
+                    Color(0xB00A1424),
                   ],
-                  stops: [0, 0.42, 1],
+                  stops: [0, 0.45, 1],
                 ),
               ),
               child: Padding(

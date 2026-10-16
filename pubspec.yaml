@@ -86,6 +86,9 @@ flutter:
     - assets/data/
     - assets/demo/
     - assets/images/
+    - assets/images/home/
+    - assets/images/home/shortcuts/
+    - assets/images/meals/
     - assets/icons/
     - assets/animations/
     - assets/translations/

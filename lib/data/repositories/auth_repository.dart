@@ -437,6 +437,8 @@ class AuthRepository implements AuthRepositoryBase {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return 'Connection timed out. Check the API server and URL.';
+      case DioExceptionType.transformTimeout:
+        return 'Request processing timed out. Please try again.';
       case DioExceptionType.connectionError:
         return 'Cannot reach ${ApiConfig.baseUrl}. Check that the backend is running and reachable from this device.';
       case DioExceptionType.badCertificate:
@@ -567,18 +569,18 @@ class AuthRepository implements AuthRepositoryBase {
   // Refresh token
   @override
   Future<String?> refreshToken() async {
+    final currentToken = await getStoredToken();
+
+    if (currentToken == null) {
+      return null;
+    }
+
     try {
-      final currentToken = await getStoredToken();
-
-      if (currentToken == null) {
-        return null;
-      }
-
       final response = await _dio.post(
         '$_authBasePath/refresh',
         data: {'refreshToken': currentToken},
         options: Options(
-          headers: {'Authorization': 'Bearer $currentToken'},
+          headers: {'Authorization': '******'},
         ),
       );
 
@@ -590,8 +592,12 @@ class AuthRepository implements AuthRepositoryBase {
       await storeToken(newToken);
 
       return newToken;
-    } catch (e) {
-      return null;
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      if (statusCode == 401 || statusCode == 403) {
+        return null;
+      }
+      rethrow;
     }
   }
 }
