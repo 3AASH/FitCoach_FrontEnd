@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -87,9 +86,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   Widget build(BuildContext context) {
     final languageProvider = context.watch<LanguageProvider>();
     final isArabic = languageProvider.isArabic;
-    final isFreemium =
-        (context.watch<AuthProvider>().user?.subscriptionTier ?? 'Freemium') ==
-            'Freemium';
 
     return Scaffold(
       body: IndexedStack(
@@ -121,71 +117,24 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: SafeArea(
-        minimum: const EdgeInsets.fromLTRB(18, 0, 18, 10),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7),
-              decoration: BoxDecoration(
-                color: context.palette.surface.withValues(alpha: 0.88),
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(color: context.palette.border),
-                boxShadow: Theme.of(context).brightness == Brightness.dark
-                    ? const []
-                    : [
-                        BoxShadow(
-                          color:
-                              context.palette.primary.withValues(alpha: 0.10),
-                          blurRadius: 24,
-                          offset: const Offset(0, 8),
-                        ),
-                      ],
-              ),
-              child: Row(
-                children: [
-                  _buildFloatingNavItem(
-                    context,
-                    index: 0,
-                    currentIndex: _selectedIndex,
-                    icon: Icons.home_outlined,
-                    activeIcon: Icons.home_rounded,
-                    label: languageProvider.t('home'),
+      bottomNavigationBar: _selectedIndex == 0
+          ? null
+          : SafeArea(
+              minimum: const EdgeInsets.only(bottom: 10),
+              child: Center(
+                heightFactor: 1,
+                child: Material(
+                  color: context.palette.primary,
+                  shape: const CircleBorder(),
+                  elevation: 4,
+                  child: IconButton(
+                    tooltip: languageProvider.t('home'),
+                    onPressed: () => setState(() => _selectedIndex = 0),
+                    icon: const Icon(Icons.home_rounded, color: Colors.white),
                   ),
-                  _buildFloatingNavItem(
-                    context,
-                    index: 1,
-                    currentIndex: _selectedIndex,
-                    icon: Icons.fitness_center_outlined,
-                    activeIcon: Icons.fitness_center,
-                    label: languageProvider.t('workout'),
-                  ),
-                  _buildFloatingNavItem(
-                    context,
-                    index: 2,
-                    currentIndex: _selectedIndex,
-                    icon: isFreemium
-                        ? Icons.lock_outline
-                        : Icons.restaurant_outlined,
-                    activeIcon: isFreemium ? Icons.lock : Icons.restaurant,
-                    label: languageProvider.t('nutrition'),
-                  ),
-                  _buildFloatingNavItem(
-                    context,
-                    index: 4,
-                    currentIndex: _selectedIndex,
-                    icon: Icons.shopping_bag_outlined,
-                    activeIcon: Icons.shopping_bag,
-                    label: languageProvider.t('store'),
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -882,30 +831,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
               ],
             ),
           ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Expanded(
-                child: _buildCoachingQuickCheck(
-                  icon: Icons.forum_outlined,
-                  title: lang.t('home_coach'),
-                  subtitle: lang.t('home_ready'),
-                  badgeCount: context.watch<MessagingProvider>().totalUnread,
-                  onTap: () => setState(() => _selectedIndex = 3),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: _buildCoachingQuickCheck(
-                  icon: Icons.event_available_outlined,
-                  title: lang.t('home_todays_workout'),
-                  subtitle:
-                      '${stats['workoutsCompleted'] ?? 0}/${stats['totalWorkouts'] ?? 0} ${lang.t('home_this_week')}',
-                  onTap: () => setState(() => _selectedIndex = 1),
-                ),
-              ),
-            ],
-          ),
         ],
       ),
     );
@@ -960,117 +885,6 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
             style: AppTextStyles.captionMedium
                 .copyWith(color: context.palette.textSecondary)),
       ],
-    );
-  }
-
-  Widget _buildCoachingQuickCheck({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    int badgeCount = 0,
-    required VoidCallback onTap,
-  }) {
-    return Material(
-      color: context.palette.surface,
-      borderRadius: BorderRadius.circular(AppRadius.large),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(AppRadius.large),
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 86),
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(AppRadius.large),
-            border: Border.all(color: context.palette.border),
-          ),
-          child: Row(
-            children: [
-              Container(
-                width: 36,
-                height: 36,
-                decoration: BoxDecoration(
-                  color: AppColors.cyan.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(AppRadius.medium),
-                ),
-                child: Badge.count(
-                  count: badgeCount,
-                  isLabelVisible: badgeCount > 0,
-                  child: Icon(icon, color: AppColors.cyan, size: 19),
-                ),
-              ),
-              const SizedBox(width: 9),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.captionMedium
-                            .copyWith(color: context.palette.textPrimary)),
-                    const SizedBox(height: 2),
-                    Text(subtitle,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.caption
-                            .copyWith(color: context.palette.textSecondary)),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFloatingNavItem(
-    BuildContext context, {
-    required int index,
-    required int currentIndex,
-    required IconData icon,
-    required IconData activeIcon,
-    required String label,
-  }) {
-    final isSelected = currentIndex == index;
-    final color =
-        isSelected ? context.palette.primary : context.palette.textSecondary;
-    return Expanded(
-      child: Semantics(
-        button: true,
-        selected: isSelected,
-        label: label,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(AppRadius.pill),
-          onTap: () async {
-            final tappedCurrentTab = index == _selectedIndex;
-            setState(() => _selectedIndex = index);
-            if (index == 1 && tappedCurrentTab) {
-              final workoutProvider = context.read<WorkoutProvider>();
-              await workoutProvider.loadActivePlan();
-              await workoutProvider.loadWorkoutCalendar(silent: true);
-            }
-          },
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 3),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(isSelected ? activeIcon : icon, color: color, size: 21),
-                const SizedBox(height: 3),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(label,
-                      maxLines: 1,
-                      style:
-                          AppTextStyles.captionMedium.copyWith(color: color)),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 

@@ -448,20 +448,6 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   isArabic,
                 ),
                 const SizedBox(height: 14),
-                _buildWorkoutCalendarSections(
-                  workoutProvider,
-                  languageProvider,
-                  isArabic,
-                ),
-                const SizedBox(height: 14),
-                _buildWorkoutSummaryCard(
-                  plan,
-                  currentDay,
-                  languageProvider,
-                  workoutProgress,
-                  isArabic,
-                ),
-                const SizedBox(height: 14),
                 if (currentDay != null && currentDay.exercises.isNotEmpty)
                   _buildExerciseList(
                     currentDay,
@@ -476,6 +462,20 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
+                const SizedBox(height: 14),
+                _buildWorkoutCalendarSections(
+                  workoutProvider,
+                  languageProvider,
+                  isArabic,
+                ),
+                const SizedBox(height: 14),
+                _buildWorkoutSummaryCard(
+                  plan,
+                  currentDay,
+                  languageProvider,
+                  workoutProgress,
+                  isArabic,
+                ),
               ],
             ),
           ),
@@ -567,51 +567,38 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: isArabic
-                  ? AlignmentDirectional.centerEnd
-                  : AlignmentDirectional.centerStart,
-              child: Text(
-                '${lang.t('workout_week', args: {
-                      'number': '1'
-                    })}, ${lang.t('workout_day_label', args: {
-                      'number': '$dayNumber'
-                    })}',
-                style: AppTextStyles.h1.copyWith(
-                  color: context.palette.textSecondary,
-                  height: 1.05,
-                ),
-              ),
-            ),
-          ),
           const SizedBox(height: 8),
-          if (durationLabel.isNotEmpty)
-            Text(
-              durationLabel,
-              style: AppTextStyles.h3.copyWith(
-                color: context.palette.textSecondary,
-              ),
-            ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 7,
-              backgroundColor: context.palette.surfaceVariant,
-              valueColor: AlwaysStoppedAnimation<Color>(AppColors.cyan),
+          Text(
+            [
+              '${lang.t('workout_week', args: {'number': '1'})}, ${lang.t('workout_day_label', args: {'number': '$dayNumber'})}',
+              if (durationLabel.isNotEmpty) durationLabel,
+            ].join('  •  '),
+            style: AppTextStyles.smallMedium.copyWith(
+              color: context.palette.textSecondary,
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            '$completedExercises of $totalExercises ${lang.t('exercises')} ${lang.t('workout_completed').toLowerCase()}',
-            style: AppTextStyles.small.copyWith(
-              color: context.palette.textSecondary,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: LinearProgressIndicator(
+                    value: progress,
+                    minHeight: 6,
+                    backgroundColor: context.palette.surfaceVariant,
+                    valueColor: AlwaysStoppedAnimation<Color>(AppColors.cyan),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '$completedExercises/$totalExercises',
+                style: AppTextStyles.small.copyWith(
+                  color: context.palette.textSecondary,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -872,73 +859,36 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [
-        if (today != null) ...[
-          _buildCalendarDayCard(
-            day: today,
-            label: lang.t('today'),
-            isToday: true,
-            isArabic: isArabic,
-            onTap: () => _openCalendarDay(provider, today),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (previous.isNotEmpty)
-          _buildCalendarSection(
-            title: lang.t('calendar_previous'),
-            days: previous,
-            isArabic: isArabic,
-            onTap: (day) => _openCalendarDay(provider, day),
-          ),
-        if (previous.isNotEmpty && upcoming.isNotEmpty)
-          const SizedBox(height: 10),
-        if (upcoming.isNotEmpty)
-          _buildCalendarSection(
-            title: lang.t('calendar_upcoming'),
-            days: upcoming,
-            isArabic: isArabic,
-            onTap: (day) => _openCalendarDay(provider, day),
-          ),
-      ],
-    );
-  }
+    final entries = <(WorkoutCalendarDayEntry, String?)>[
+      if (today != null) (today, lang.t('today')),
+      for (final d in previous) (d, null),
+      for (final d in upcoming) (d, null),
+    ];
 
-  Widget _buildCalendarSection({
-    required String title,
-    required List<WorkoutCalendarDayEntry> days,
-    required bool isArabic,
-    required void Function(WorkoutCalendarDayEntry day) onTap,
-  }) {
-    return CustomCard(
-      padding: const EdgeInsets.all(12),
-      color: context.palette.surface,
-      border: Border.all(color: context.palette.border),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: AppTextStyles.h4.copyWith(
-              color: context.palette.textPrimary,
+    return SizedBox(
+      height: 62,
+      child: ListView.separated(
+        key: const ValueKey('workout-calendar-strip'),
+        scrollDirection: Axis.horizontal,
+        itemCount: entries.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final (day, label) = entries[i];
+          return SizedBox(
+            width: 168,
+            child: _buildCalendarDayCard(
+              day: day,
+              label: label,
+              isToday: label != null,
+              isArabic: isArabic,
+              onTap: () => _openCalendarDay(provider, day),
             ),
-          ),
-          const SizedBox(height: 8),
-          ...days.map(
-            (day) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _buildCalendarDayCard(
-                day: day,
-                isToday: false,
-                isArabic: isArabic,
-                onTap: () => onTap(day),
-              ),
-            ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
+
 
   Widget _buildCalendarDayCard({
     required WorkoutCalendarDayEntry day,
