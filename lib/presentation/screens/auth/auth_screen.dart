@@ -1429,7 +1429,10 @@ class _AuthScreenState extends State<AuthScreen> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        // A fixed height with the label centred: vertical padding left the text
+        // sitting low in the pill, depending on the font's line metrics.
+        height: 40,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isSelected ? selectedColor : Colors.transparent,
           borderRadius: BorderRadius.circular(AppRadius.medium),
