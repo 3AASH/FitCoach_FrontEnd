@@ -31,12 +31,14 @@ class CoachMessagingScreen extends StatefulWidget {
   final int initialTabIndex;
   final String? targetClientId;
   final String? targetClientName;
+  final VoidCallback? onBack;
 
   const CoachMessagingScreen({
     super.key,
     this.initialTabIndex = 0,
     this.targetClientId,
     this.targetClientName,
+    this.onBack,
   });
 
   @override
@@ -410,7 +412,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           Row(
             children: [
               IconButton(
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: widget.onBack ??
+                    () => Navigator.of(context).maybePop(),
                 icon: Icon(
                   Icons.arrow_back,
                   color: context.palette.textOnBrand,
@@ -584,7 +587,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   Text(
                     _formatInboxTime(timestamp, lang),
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: context.palette.textDisabled,
                     ),
                   ),
@@ -603,7 +606,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       '${conversation!.unreadCount}',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onError,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -989,7 +992,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 Text(
                   _formatTime(message.createdAt, lang),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: context.palette.textDisabled,
                   ),
                 ),

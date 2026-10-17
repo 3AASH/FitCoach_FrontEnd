@@ -112,6 +112,16 @@ class LanguageProvider with ChangeNotifier {
   }
 
   static final Map<String, String> _englishTranslations = {
+    'filter': 'Filter',
+    'clear': 'Clear',
+    'remove': 'Remove',
+    'attach_file': 'Attach file',
+    'edit_profile_photo': 'Edit profile photo',
+    'show': 'Show',
+    'hide': 'Hide',
+    'decrease': 'Decrease',
+    'increase': 'Increase',
+    'cart': 'Cart',
     'app_name': 'Aash',
     'welcome': 'Welcome to Aash',
     'select_language': 'Select your language',
@@ -2415,6 +2425,16 @@ class LanguageProvider with ChangeNotifier {
 
   // Arabic translations
   static final Map<String, String> _arabicTranslations = {
+    'filter': 'تصفية',
+    'clear': 'مسح',
+    'remove': 'إزالة',
+    'attach_file': 'إرفاق ملف',
+    'edit_profile_photo': 'تعديل صورة الملف الشخصي',
+    'show': 'إظهار',
+    'hide': 'إخفاء',
+    'decrease': 'تقليل',
+    'increase': 'زيادة',
+    'cart': 'السلة',
     'plan_editor_plan': 'الخطة',
     'plan_editor_json': 'JSON',
     'plan_editor_plan_id': 'معرف الخطة',
@@ -3561,7 +3581,7 @@ class LanguageProvider with ChangeNotifier {
     'home_nutrition': 'التغذية',
     'home_nutrition_desc': 'الوجبات والماكروز والأهداف اليومية',
     'home_quick_access': 'وصول سريع',
-    'home_explore_aash': 'استكشف آش',
+    'home_explore_aash': 'استكشف عاش',
     'home_ready': 'هل أنت مستعد للجلسة التالية؟',
     'home_store': 'المتجر',
     'home_store_desc': 'مكملات ومعدات',

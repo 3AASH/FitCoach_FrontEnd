@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -41,7 +42,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
     final adminProvider = context.watch<AdminProvider>();
     final lang = languageProvider;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_audit_logs_title')),
         actions: [
@@ -127,7 +128,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                             Text(
                               adminProvider.error!,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error),
+                              style: TextStyle(color: context.palette.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(

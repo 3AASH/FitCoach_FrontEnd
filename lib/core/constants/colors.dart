@@ -190,7 +190,7 @@ class AppTextStyles {
   static const TextStyle overline = TextStyle(
     fontFamily: headingFont,
     fontFamilyFallback: arabicFallback,
-    fontSize: 11,
+    fontSize: 12,
     fontWeight: FontWeight.w700,
     height: 1.3,
     letterSpacing: 0.8,

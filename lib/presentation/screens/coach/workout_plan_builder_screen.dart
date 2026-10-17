@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -138,7 +139,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         // One save, not two. This screen had a TextButton save in the AppBar and
         // a full-width save at the foot of the form -- the same action twice.
         // The foot button moved to a persistent bottom bar, so it stays both

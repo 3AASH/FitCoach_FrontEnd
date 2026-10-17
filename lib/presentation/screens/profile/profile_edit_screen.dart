@@ -411,7 +411,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               leading: const Icon(Icons.delete, color: AppColors.error),
               title: Text(
                 lang.t('edit_profile_remove_photo'),
-                style: const TextStyle(color: AppColors.error),
+                style: TextStyle(color: context.palette.error),
               ),
               onTap: () {
                 Navigator.pop(context);

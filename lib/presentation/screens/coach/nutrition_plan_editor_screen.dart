@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -44,12 +45,14 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   List<Map<String, dynamic>> _days = <Map<String, dynamic>>[];
 
   // Snapshots for change detection (captured after load)
-  late String _initialCalories;
-  late String _initialProtein;
-  late String _initialCarbs;
-  late String _initialFats;
-  late String _initialNotes;
-  late String _initialDaysJson;
+  // Empty until the plan loads: the dirty check reads these while the screen
+  // is still loading (and when there is no plan), so they cannot be `late`.
+  String _initialCalories = '';
+  String _initialProtein = '';
+  String _initialCarbs = '';
+  String _initialFats = '';
+  String _initialNotes = '';
+  String _initialDaysJson = '';
 
   @override
   void initState() {
@@ -393,7 +396,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(
           title: Text(lang.t('coach_nutrition_editor_title')),
           actions: [
@@ -657,7 +660,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                   .map((variant) => DropdownMenuItem<String>(
                         value: variant.variantId,
                         child: Text(
-                          '${_portionLabel(lang, variant.portionCode)} Â· '
+                          '${_portionLabel(lang, variant.portionCode)} · '
                           '${variant.calories.round()} ${lang.t('coach_nutrition_kcal')}',
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -787,8 +790,8 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
         padding: const EdgeInsets.only(top: 4, bottom: 4),
         child: Text(
           '${lang.t('coach_nutrition_editor_day_total')}: '
-          '${calories.round()} ${lang.t('coach_nutrition_kcal')} Â· '
-          'P ${g(protein)} Â· C ${g(carbs)} Â· F ${g(fat)}',
+          '${calories.round()} ${lang.t('coach_nutrition_kcal')} · '
+          'P ${g(protein)} · C ${g(carbs)} · F ${g(fat)}',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -807,7 +810,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       'XL': 'plan_editor_portion_xlarge',
     };
     final key = names[portionCode];
-    return key == null ? portionCode : '$portionCode Â· ${lang.t(key)}';
+    return key == null ? portionCode : '$portionCode · ${lang.t(key)}';
   }
 
   /// Matches a meal on its name in either language, its id, its slot or its

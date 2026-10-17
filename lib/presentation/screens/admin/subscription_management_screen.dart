@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -39,7 +40,7 @@ class _SubscriptionManagementScreenState
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
 
-    return Scaffold(
+    return AashScaffold(
       body: Column(
         children: [
           _buildHeader(context, languageProvider, planProvider),
@@ -221,9 +222,9 @@ class _SubscriptionManagementScreenState
                 ),
                 child: Text(
                   tr('subscription_request_status_pending'),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.warning,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: context.palette.warning,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -384,9 +385,9 @@ class _SubscriptionManagementScreenState
                             ),
                             child: Text(
                               tr('subscription_recommended_label'),
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.success,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.palette.success,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -662,7 +663,7 @@ class _MetricChip extends StatelessWidget {
           Text(
             label,
             style:
-                TextStyle(fontSize: 11, color: context.palette.textSecondary),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -697,7 +698,7 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: AppColors.error, fontSize: 13),
+              style: TextStyle(color: context.palette.error, fontSize: 13),
             ),
           ),
           TextButton(

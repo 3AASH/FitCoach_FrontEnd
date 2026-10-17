@@ -296,6 +296,23 @@ class _ProgressScreenState extends State<ProgressScreen> {
     final lang = context.watch<LanguageProvider>();
 
     return AashScaffold(
+      bottomNavigationBar: SafeArea(
+        minimum: const EdgeInsets.only(bottom: 10),
+        child: Center(
+          heightFactor: 1,
+          child: Material(
+            color: context.palette.primary,
+            shape: const CircleBorder(),
+            elevation: 4,
+            child: IconButton(
+              tooltip: lang.t('home'),
+              onPressed: () =>
+                  Navigator.of(context).popUntil((route) => route.isFirst),
+              icon: const Icon(Icons.home_rounded, color: Colors.white),
+            ),
+          ),
+        ),
+      ),
       appBar: AppBar(
         title: Text(lang.t('coach_progress_label')),
         actions: [
@@ -315,7 +332,7 @@ class _ProgressScreenState extends State<ProgressScreen> {
                     child: Text(
                       _error!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(color: AppColors.error),
+                      style: TextStyle(color: context.palette.error),
                     ),
                   ),
                 )

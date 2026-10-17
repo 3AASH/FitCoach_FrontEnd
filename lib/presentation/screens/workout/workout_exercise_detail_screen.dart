@@ -322,7 +322,7 @@ class _WorkoutExerciseDetailScreenState
 
     return DefaultTabController(
       length: 3,
-      child: Scaffold(
+      child: AashScaffold(
         body: Stack(
           children: [
             const Positioned.fill(child: AashBackdrop()),
@@ -756,7 +756,7 @@ class _DifficultyBadge extends StatelessWidget {
         label,
         style: TextStyle(
           color: foreground,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
       ),

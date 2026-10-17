@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -72,7 +73,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
         ? adminProvider.coachesError
         : adminProvider.usersError;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_users_title')),
         actions: [
@@ -181,6 +182,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                       Expanded(
                         child: DropdownButtonFormField<String?>(
                           initialValue: _tierFilter,
+                          isExpanded: true,
                           decoration: InputDecoration(
                             labelText: lang.t('admin_users_filter_tier'),
                             border: OutlineInputBorder(
@@ -280,7 +282,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             Text(
                               directoryError,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error),
+                              style: TextStyle(color: context.palette.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -509,7 +511,10 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         ),
                       ),
                     const SizedBox(height: 8),
-                    Row(
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         // Tier badge
                         Container(
@@ -528,8 +533,6 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                             ),
                           ),
                         ),
-
-                        const SizedBox(width: 8),
 
                         // Status badge
                         Container(
@@ -553,18 +556,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                           ),
                         ),
 
-                        if (user.coachName != null) ...[
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              '${lang.t('admin_coach_prefix')} ${user.coachName}',
-                              style: AppTextStyles.overline.copyWith(
-                                color: context.palette.textSecondary,
-                              ),
-                              overflow: TextOverflow.ellipsis,
+                        if (user.coachName != null)
+                          Text(
+                            '${lang.t('admin_coach_prefix')} ${user.coachName}',
+                            style: AppTextStyles.overline.copyWith(
+                              color: context.palette.textSecondary,
                             ),
+                            overflow: TextOverflow.ellipsis,
                           ),
-                        ],
                       ],
                     ),
                   ],
@@ -617,7 +616,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
                         const SizedBox(width: 8),
                         Text(
                           lang.t('admin_action_delete'),
-                          style: const TextStyle(color: AppColors.error),
+                          style: TextStyle(color: context.palette.error),
                         ),
                       ],
                     ),

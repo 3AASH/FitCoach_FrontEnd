@@ -13,6 +13,7 @@ import '../../providers/nutrition_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
 import '../../widgets/animated_reveal.dart';
+import '../../widgets/sheet_header.dart';
 import '../../widgets/aash_motion.dart';
 import 'nutrition_intro_screen.dart';
 import 'nutrition_preferences_intake_screen.dart';
@@ -436,8 +437,10 @@ class _NutritionScreenState extends State<NutritionScreen> {
                               ),
                             ),
                             IconButton(
+                              // The header is a surface, not a brand fill, so
+                              // the icon takes the brand colour, not white.
                               icon: Icon(Icons.settings,
-                                  color: context.palette.textOnBrand),
+                                  color: context.palette.primary),
                               onPressed: () async {
                                 await nutritionProvider.loadIntakeRequirements(
                                     planType: subscriptionTier.toLowerCase() ==
@@ -1315,7 +1318,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   Text(
                     '$consumed',
                     style: AppTextStyles.h1.copyWith(
-                      color: AppColors.cyan,
+                      color: context.palette.info,
                     ),
                   ),
                   Text(
@@ -1332,7 +1335,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                   Text(
                     '$remaining',
                     style: AppTextStyles.h1.copyWith(
-                      color: context.palette.textSecondary,
+                      color: context.palette.textPrimary,
                     ),
                   ),
                   Text(
@@ -1351,7 +1354,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             child: AnimatedProgressBar(
               value: percentage,
               backgroundColor: context.palette.surfaceVariant,
-              color: AppColors.cyan,
+              color: context.palette.info,
               minHeight: 12,
             ),
           ),
@@ -1530,10 +1533,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         PositionedDirectional(
                           end: 16,
                           bottom: 18,
+                          // Author the LTR glyph; Flutter mirrors it in RTL.
                           child: Icon(
-                            lang.isArabic
-                                ? Icons.arrow_back_rounded
-                                : Icons.arrow_forward_rounded,
+                            Icons.arrow_forward_rounded,
                             color: Colors.white,
                             size: 20,
                           ),
@@ -1755,12 +1757,128 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 
   /// Opens the swap list for a meal and reports the outcome. The provider
-  /// TODO: Meal swap feature removed with deleted meal_detail_screen.
-  /// Implement meal swap UI or remove this method if not needed.
+  /// asks the server for alternatives; an empty list shows "none available".
   Future<void> _openMealSwap(Meal meal) async {
     final lang = context.read<LanguageProvider>();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(lang.t('meal_swap_not_available'))),
+    final provider = context.read<NutritionProvider>();
+    final messenger = ScaffoldMessenger.of(context);
+    final isArabic = lang.isArabic;
+
+    final alternatives = await provider.getMealAlternatives(meal.id);
+    if (!mounted) return;
+    if (alternatives.isEmpty) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(lang.t('meal_swap_none'))),
+      );
+      return;
+    }
+
+    final chosen = await showModalBottomSheet<MealAlternative>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: context.palette.surface,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (sheetContext) {
+        final palette = sheetContext.palette;
+        return SafeArea(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(sheetContext).size.height * 0.8,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 4),
+                  child: SheetHeader(title: lang.t('meal_swap_title')),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+                  child: Text(
+                    lang.t('meal_swap_subtitle'),
+                    style: AppTextStyles.small
+                        .copyWith(color: palette.textSecondary),
+                  ),
+                ),
+                Flexible(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+                    itemCount: alternatives.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 10),
+                    itemBuilder: (_, i) {
+                      final alt = alternatives[i];
+                      final delta = alt.calorieDelta;
+                      return Material(
+                        color: palette.background,
+                        borderRadius: BorderRadius.circular(16),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => Navigator.of(sheetContext).pop(alt),
+                          child: Padding(
+                            padding: const EdgeInsets.all(14),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        alt.displayName(isArabic),
+                                        style:
+                                            AppTextStyles.bodyMedium.copyWith(
+                                          color: palette.textPrimary,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        '${alt.calories} kcal  •  P ${alt.protein.round()}  C ${alt.carbs.round()}  F ${alt.fats.round()}',
+                                        style: AppTextStyles.caption.copyWith(
+                                            color: palette.textSecondary),
+                                      ),
+                                      if (alt.suggestedByTemplate) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          lang.t('meal_swap_suggested'),
+                                          style: AppTextStyles.caption.copyWith(
+                                              color: palette.primary),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${delta > 0 ? '+' : ''}$delta',
+                                  style: AppTextStyles.small.copyWith(
+                                      color: palette.textSecondary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+    if (chosen == null || !mounted) return;
+
+    final ok = await provider.swapMeal(meal.id, chosen.variantId);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(lang.t(ok ? 'meal_swap_done' : 'meal_swap_failed')),
+      ),
     );
   }
 }

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -46,7 +47,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
-    return Scaffold(
+    return AashScaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -142,7 +143,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     textAlign: TextAlign.center,
                     style: AppTextStyles.captionMedium.copyWith(
                       color: color,
-                      fontSize: 10,
+                      fontSize: 12,
                     ),
                   ),
                 ],

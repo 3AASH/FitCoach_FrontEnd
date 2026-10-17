@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -37,7 +38,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
     final lang = languageProvider;
     final revenue = adminProvider.revenueAnalytics;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_revenue_title')),
         actions: [
@@ -61,7 +62,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                       Text(
                         adminProvider.error ?? lang.t('admin_load_failed'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -248,7 +249,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                               child: Text(
                                                 '${period.month}/${period.day}',
                                                 style: TextStyle(
-                                                  fontSize: 10,
+                                                  fontSize: 12,
                                                   color: context
                                                       .palette.textSecondary,
                                                 ),
@@ -265,7 +266,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                             return Text(
                                               '\$${value.toInt()}',
                                               style: TextStyle(
-                                                fontSize: 10,
+                                                fontSize: 12,
                                                 color: context
                                                     .palette.textSecondary,
                                               ),
@@ -401,10 +402,10 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                           children: [
                                             Text(
                                               '\$${tier.revenue.toStringAsFixed(2)}',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
-                                                color: AppColors.success,
+                                                color: context.palette.success,
                                               ),
                                             ),
                                             Text(

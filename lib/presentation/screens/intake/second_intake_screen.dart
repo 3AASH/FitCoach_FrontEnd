@@ -133,7 +133,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         body: Stack(
           children: [
             const Positioned.fill(child: AashBackdrop()),
@@ -660,7 +660,7 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AashScaffold(
       backgroundColor: context.palette.background,
       body: AashBackdrop(
         child: Center(

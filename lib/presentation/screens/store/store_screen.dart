@@ -1237,7 +1237,7 @@ class _StoreScreenState extends State<StoreScreen> {
                                     overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 2),
                                 Text(
-                                  '$qty Ã— ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
+                                  '$qty × ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
                                   style: AppTextStyles.caption.copyWith(
                                     color: context.palette.textSecondary,
                                   ),

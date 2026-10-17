@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -62,7 +63,7 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
     final provider = context.watch<AdminProvider>();
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('home_exercise_library')),
         actions: [
@@ -91,7 +92,7 @@ class _AdminExercisesScreenState extends State<AdminExercisesScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   provider.error!,
-                  style: const TextStyle(color: AppColors.error),
+                  style: TextStyle(color: context.palette.error),
                 ),
               ),
             Expanded(
@@ -228,7 +229,7 @@ class _ExerciseAdminCard extends StatelessWidget {
         exercise.muscleGroups.map(_humanizeSnakeCase).join(', '),
       if (exercise.equipment.isNotEmpty)
         exercise.equipment.map(_humanizeSnakeCase).join(', '),
-    ].join(' â€¢ ');
+    ].join(' • ');
     final alternativesCount =
         exercise.alternativesCount ?? exercise.alternatives.length;
     final alternativeLabels = _alternativeLabels();
@@ -435,7 +436,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
         builder: (context, scrollController) => Material(
           // Not context.palette.textOnBrand: the field labels come from the theme
           // (textSecondary, #D1D5DB in dark mode) and were being drawn on a
-          // sheet that stayed white, which is about 1.5:1 contrast â€” the
+          // sheet that stayed white, which is about 1.5:1 contrast — the
           // labels simply were not there.
           color: context.palette.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -733,7 +734,7 @@ class _ExerciseEditorSheetState extends State<_ExerciseEditorSheet> {
                                         exercise.equipment
                                             .map(_humanizeSnakeCase)
                                             .join(', '),
-                                    ].join(' â€¢ '),
+                                    ].join(' • '),
                                     style: TextStyle(
                                         color: context.palette.textSecondary),
                                   ),

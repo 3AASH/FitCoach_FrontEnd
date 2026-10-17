@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:ui' as ui;
 
 import '../../widgets/error_banner.dart';
@@ -277,7 +278,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
     final unread =
         context.watch<CoachProvider>().analytics?.unreadMessages ?? 0;
 
-    return Scaffold(
+    return AashScaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -380,7 +381,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     color: AppColors.primaryDark,
-                                    fontSize: 8,
+                                    fontSize: 12,
                                     fontWeight: FontWeight.w700,
                                     height: 1.2,
                                   ),
@@ -434,7 +435,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                         textAlign: TextAlign.center,
                                         style: TextStyle(
                                           color: color,
-                                          fontSize: 10,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.w700,
                                           fontFamily: AppTextStyles.headingFont,
                                           fontFamilyFallback:
@@ -882,8 +883,8 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                   AppColors.cyan.withValues(alpha: 0.12),
                               child: Text(
                                 entry.initials,
-                                style: const TextStyle(
-                                  color: AppColors.cyan,
+                                style: TextStyle(
+                                  color: context.palette.info,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
@@ -933,7 +934,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                         ? lang.t('coach_needs_checkin')
                                         : lang.t('coach_on_track'),
                                     style: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w700,
                                       color: entry.needsAttention
                                           ? AppColors.error
@@ -957,7 +958,7 @@ class _CoachDashboardScreenState extends State<CoachDashboardScreen> {
                                     child: Text(
                                       lang.t('coach_clients_needs_score'),
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                         color: context.palette.textSecondary,
                                       ),

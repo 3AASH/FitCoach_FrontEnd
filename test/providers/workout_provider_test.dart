@@ -9,6 +9,10 @@ import 'package:fitapp/data/models/workout_plan.dart';
 class FakeWorkoutRepository extends WorkoutRepository {
   WorkoutPlan? _plan;
 
+  /// Exercises the server has recorded as done. Like the backend, a reloaded
+  /// plan reports them with `isCompleted` set.
+  final Set<String> _done = {};
+
   FakeWorkoutRepository() {
     _plan = buildPlan();
   }
@@ -16,6 +20,7 @@ class FakeWorkoutRepository extends WorkoutRepository {
   static WorkoutPlan buildPlan({
     String id = 'plan1',
     String name = 'Test Plan',
+    Set<String> done = const {},
   }) {
     final exercise = Exercise(
       id: 'ex1',
@@ -24,6 +29,7 @@ class FakeWorkoutRepository extends WorkoutRepository {
       nameEn: 'Push Up',
       sets: 3,
       reps: '10',
+      isCompleted: done.contains('ex1'),
     );
 
     final day = WorkoutDay(
@@ -45,7 +51,9 @@ class FakeWorkoutRepository extends WorkoutRepository {
 
   @override
   Future<WorkoutPlan?> getActivePlan() async {
-    return _plan;
+    final plan = _plan;
+    if (plan == null) return null;
+    return buildPlan(id: plan.id, name: plan.name ?? 'Test Plan', done: _done);
   }
 
   @override
@@ -88,6 +96,7 @@ class FakeWorkoutRepository extends WorkoutRepository {
   @override
   Future<WorkoutExerciseCompletionResult> markExerciseComplete(
       String exerciseId) async {
+    _done.add(exerciseId);
     return WorkoutExerciseCompletionResult(
       dayCompleted: false,
       nextDayNumber: null,

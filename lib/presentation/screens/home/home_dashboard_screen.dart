@@ -95,7 +95,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
     if (_selectedIndex == 0 && _lastBuiltIndex != 0) _homeVisit++;
     _lastBuiltIndex = _selectedIndex;
 
-    return Scaffold(
+    return AashScaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -616,10 +616,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                                   (lang.isArabic ? -1 : 1) * 6 * (1 - focus),
                                   0,
                                 ),
+                                // Author the LTR glyph; Flutter mirrors it in RTL.
                                 child: Icon(
-                                  lang.isArabic
-                                      ? Icons.arrow_back_rounded
-                                      : Icons.arrow_forward_rounded,
+                                  Icons.arrow_forward_rounded,
                                   color: Colors.white,
                                   size: 20,
                                 ),
@@ -1864,7 +1863,7 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
                   ),
                   child: Text(
                     item.lockedLabel,
-                    style: AppTextStyles.small.copyWith(color: AppColors.error),
+                    style: AppTextStyles.small.copyWith(color: context.palette.error),
                   ),
                 ),
               ),
@@ -2400,7 +2399,9 @@ class _HomeDashboardScreenState extends State<HomeDashboardScreen> {
   }
 
   Widget _buildCoachTab() {
-    return const CoachMessagingScreen();
+    return CoachMessagingScreen(
+      onBack: () => setState(() => _selectedIndex = 0),
+    );
   }
 
   Widget _buildStoreTab() {

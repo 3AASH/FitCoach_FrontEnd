@@ -322,7 +322,7 @@ class _DeleteAccountScreenState extends State<DeleteAccountScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('â€¢ '),
+                  const Text('• '),
                   Expanded(
                     child: Text(
                       item,

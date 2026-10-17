@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/config/demo_config.dart';
-import '../../../core/constants/colors.dart';
 import '../../../data/repositories/payment_repository.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -34,7 +33,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
     const _PaymentMethod(
       id: 'apple_pay',
       brand: 'Apple Pay',
-      last4: 'â€”',
+      last4: '—',
       expiry: '',
       holder: 'Layla iPhone',
       type: 'wallet',
@@ -113,7 +112,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         ? context.palette.primary
                         : context.palette.textSecondary,
                   ),
-                  title: Text('${method.brand} â€¢â€¢â€¢â€¢ ${method.last4}'),
+                  title: Text('${method.brand} •••• ${method.last4}'),
                   subtitle: Text(method.type == 'card'
                       ? 'Exp ${method.expiry}'
                       : method.holder),
@@ -180,7 +179,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           else if (_historyError != null)
             Text(
               _historyError!,
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             )
           else if (_paymentHistory.isEmpty)
             Text(

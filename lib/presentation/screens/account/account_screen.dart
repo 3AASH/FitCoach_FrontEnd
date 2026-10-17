@@ -236,7 +236,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                         ? languageProvider.t('admin')
                                         : user?.subscriptionTier ?? 'Freemium',
                                 style: AppTextStyles.captionMedium.copyWith(
-                                  color: AppColors.gold,
+                                  color: context.palette.accent,
                                 ),
                               ),
                             ),
@@ -806,7 +806,7 @@ class _AccountScreenState extends State<AccountScreen> {
             icon: const Icon(Icons.logout, color: AppColors.error),
             label: Text(
               languageProvider.t('account_logout'),
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.error),
@@ -829,7 +829,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: AppColors.error, size: 20),
             label: Text(
               languageProvider.t('delete_account_title'),
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
           ),
         ),
@@ -848,7 +848,7 @@ class _AccountScreenState extends State<AccountScreen> {
       return CustomCard(
         child: Text(
           _roleProfileError!,
-          style: TextStyle(color: AppColors.error),
+          style: TextStyle(color: context.palette.error),
         ),
       );
     }
@@ -1175,7 +1175,7 @@ class _AccountScreenState extends State<AccountScreen> {
           Text(
             label,
             style:
-                TextStyle(color: context.palette.textSecondary, fontSize: 11),
+                TextStyle(color: context.palette.textSecondary, fontSize: 12),
           ),
         ],
       ),
@@ -1422,7 +1422,7 @@ class _AccountScreenState extends State<AccountScreen> {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               languageProvider.t('account_logout'),
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
           ),
         ],

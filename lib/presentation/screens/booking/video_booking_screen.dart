@@ -322,7 +322,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                 Text(
                   lang.t('video_booking_your_assigned_coach'),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: context.palette.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -378,7 +378,7 @@ class _VideoBookingScreenState extends State<VideoBookingScreen> {
                       ),
                       child: Text(
                         specialty,
-                        style: const TextStyle(fontSize: 11),
+                        style: const TextStyle(fontSize: 12),
                       ),
                     );
                   }).toList(),

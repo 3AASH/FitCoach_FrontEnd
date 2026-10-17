@@ -116,7 +116,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     final isBusy = authProvider.isLoading;
     final providerError = authProvider.error;
 
-    return Scaffold(
+    return AashScaffold(
       backgroundColor: context.palette.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,

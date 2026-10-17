@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -184,7 +185,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final lang = languageProvider;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('store_management_title')),
       ),
@@ -196,7 +197,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
               padding: const EdgeInsets.all(12),
               child: Text(
                 _error!,
-                style: const TextStyle(color: AppColors.error, fontSize: 12),
+                style: TextStyle(color: context.palette.error, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -401,7 +402,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       icon: const Icon(Icons.delete, size: 18),
                       label: Text(lang.t('store_delete')),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
+                        foregroundColor: context.palette.error,
                       ),
                     ),
                   ),
@@ -602,7 +603,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: context.palette.textSecondary,
           ),
         ),
@@ -796,8 +797,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                     const SizedBox(height: 8),
                     Text(
                       lang.t('store_upload_product_photo_ready'),
-                      style: const TextStyle(
-                        color: AppColors.success,
+                      style: TextStyle(
+                        color: context.palette.success,
                         fontSize: 12,
                       ),
                     ),
@@ -1150,7 +1151,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       icon: const Icon(Icons.delete_outline),
                       label: Text(lang.t('store_delete')),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.error),
+                          foregroundColor: context.palette.error),
                     ),
                   ),
                 ],
@@ -1367,7 +1368,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       icon: const Icon(Icons.delete_outline),
                       label: Text(lang.t('store_delete')),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.error),
+                          foregroundColor: context.palette.error),
                     ),
                   ),
                 ],

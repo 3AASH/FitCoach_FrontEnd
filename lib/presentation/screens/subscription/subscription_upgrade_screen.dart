@@ -266,7 +266,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                 child: Text(
                   badge,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
                     color: isSelected
                         ? context.palette.primary
@@ -349,7 +349,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                         child: Text(
                           plan.badge ?? tr('subscription_best_value_badge'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: accentColor,
                             fontWeight: FontWeight.bold,
                           ),
@@ -368,7 +368,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                         child: Text(
                           tr('subscription_status_current'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: context.palette.textOnBrand,
                             fontWeight: FontWeight.bold,
                           ),

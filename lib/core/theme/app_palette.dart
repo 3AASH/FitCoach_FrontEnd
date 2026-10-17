@@ -93,11 +93,15 @@ class AppPalette extends ThemeExtension<AppPalette> {
     border: AppColors.border,
     divider: AppColors.divider,
     primary: AppColors.primary,
-    success: AppColors.success,
-    warning: AppColors.warning,
-    error: AppColors.error,
-    info: AppColors.info,
-    accent: AppColors.accent,
+    // Status and accent hues are darkened here so they pass 4.5:1 as text on
+    // the porcelain surface and on their own 15% tinted badge. The brand
+    // constants are too pale on white (gold 2.1:1, amber 3.6:1, green 3.3:1,
+    // red 3.5:1 on its tint).
+    success: Color(0xFF166534),
+    warning: Color(0xFF92400E),
+    error: Color(0xFFB91C1C),
+    info: Color(0xFF075985),
+    accent: Color(0xFF7C5C12),
   );
 
   /// Dark mode neutrals. Content surfaces are genuinely dark here: the old

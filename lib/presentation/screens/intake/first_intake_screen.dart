@@ -69,7 +69,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final userProvider = context.watch<UserProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
           const Positioned.fill(child: AashBackdrop()),

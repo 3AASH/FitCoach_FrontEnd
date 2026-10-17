@@ -239,20 +239,21 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     }
   }
 
+  // Badge text is painted with these colours, so they come from the palette:
+  // the static brand tokens fail contrast on one theme or the other.
   Color _getStatusColor(String status) {
+    final p = context.palette;
     switch (status) {
       case 'pending':
-        return AppColors.warning;
+        return p.warning;
       case 'confirmed':
-        return AppColors.success;
+        return p.success;
       case 'in_progress':
-        return AppColors.cyan;
-      case 'completed':
-        return AppColors.textDisabled;
+        return p.info;
       case 'cancelled':
-        return AppColors.error;
+        return p.error;
       default:
-        return AppColors.textDisabled;
+        return p.textSecondary;
     }
   }
 
@@ -321,8 +322,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
+                // 0.15, not 0.2: the status text must still pass 4.5:1 on it.
                 color: _getStatusColor(widget.appointment.status)
-                    .withValues(alpha: 0.2),
+                    .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: _getStatusColor(widget.appointment.status),
@@ -453,8 +455,8 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                               Expanded(
                                 child: Text(
                                   languageProvider.t('can_join_now'),
-                                  style: const TextStyle(
-                                    color: AppColors.success,
+                                  style: TextStyle(
+                                    color: context.palette.success,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

@@ -124,6 +124,7 @@ class WorkoutProvider extends ChangeNotifier {
       await _ensureCatalogLoaded();
       if (loadToken != _activePlanLoadToken) return;
       _activePlan = plan == null ? null : _applyCatalogToPlan(plan);
+      _syncCompletionFromPlan(_activePlan);
       if (_activePlan?.days != null && _activePlan!.days!.isNotEmpty) {
         final currentDayNumber = _activePlan!.currentDayNumber;
         if (currentDayNumber != null) {
@@ -242,6 +243,17 @@ class WorkoutProvider extends ChangeNotifier {
       _currentDayIndex = 0;
     }
     notifyListeners();
+  }
+
+  /// The server records which exercises are done (`isCompleted` on each plan
+  /// exercise). Without reading it back, a relaunch forgets them and the
+  /// workout starts again from the first exercise.
+  void _syncCompletionFromPlan(WorkoutPlan? plan) {
+    for (final day in plan?.days ?? const <WorkoutDay>[]) {
+      for (final exercise in day.exercises) {
+        _completedExercises[exercise.id] = exercise.isCompleted;
+      }
+    }
   }
 
   Future<bool> completeExercise(String exerciseId) async {

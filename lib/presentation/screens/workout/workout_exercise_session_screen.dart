@@ -226,7 +226,7 @@ class _WorkoutExerciseSessionScreenState
         ? 0.0
         : (logged.length / currentExercise.sets);
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
           const Positioned.fill(child: AashBackdrop()),
@@ -362,13 +362,13 @@ class _WorkoutExerciseSessionScreenState
                                   _formatTime(_timerSeconds),
                                   style: AppTextStyles.h1.copyWith(
                                     fontSize: 28,
-                                    color: AppColors.gold,
+                                    color: context.palette.accent,
                                   ),
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
                                   lang.t('workouts_rest_time'),
-                                  style: TextStyle(color: AppColors.gold),
+                                  style: TextStyle(color: context.palette.accent),
                                 ),
                                 const SizedBox(height: 12),
                                 Row(

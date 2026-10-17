@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -102,7 +103,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     final checkIns = coachProvider.clientCheckIns;
     final latestCheckIn = coachProvider.latestClientCheckIn;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(
           client?.fullName ?? lang.t('coach_client_detail_title'),
@@ -132,7 +133,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                         coachProvider.error ??
                             lang.t('coach_client_detail_load_failed'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -745,7 +746,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                 child: Text(
                   _checkInTypeLabel(checkIn, lang),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _checkInTypeColor(checkIn.type),
                   ),
@@ -1156,7 +1157,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           child: Text(
             '$label: $sign${value.toStringAsFixed(1)}$suffix',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -1270,7 +1271,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
-    return '${date.day}/${date.month}/${date.year} â€¢ $hour:$minute $period';
+    return '${date.day}/${date.month}/${date.year} • $hour:$minute $period';
   }
 
   void _showAssignScoreDialog(

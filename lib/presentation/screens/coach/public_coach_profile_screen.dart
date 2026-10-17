@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -353,7 +354,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       bottomNavigationBar: (widget.onMessage != null ||
               widget.onBookCall != null)
           ? SafeArea(
@@ -1105,7 +1106,7 @@ class _QuickStatCard extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 color: context.palette.textSecondary,
               ),
             ),

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
@@ -74,7 +75,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
         ? _getAppointmentsForDay(_selectedDay!, coachProvider.appointments)
         : <Appointment>[];
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_tab_calendar')),
         actions: [
@@ -106,7 +107,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                       Text(
                         coachProvider.error!,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -306,11 +307,15 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                             color: context.palette.textSecondary,
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            '${_getTypeDisplayName(appointment.type, lang)} - ${appointment.durationMinutes ?? '-'} ${lang.t('minute_short')}',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: context.palette.textSecondary,
+                          // Flexible so a long type name wraps instead of
+                          // overflowing the card.
+                          Flexible(
+                            child: Text(
+                              '${_getTypeDisplayName(appointment.type, lang)} - ${appointment.durationMinutes ?? '-'} ${lang.t('minute_short')}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.palette.textSecondary,
+                              ),
                             ),
                           ),
                         ],
@@ -335,7 +340,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                   child: Text(
                     _getStatusDisplayName(appointment.status, lang),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: _getStatusColor(appointment.status),
                       fontWeight: FontWeight.bold,
                     ),
@@ -384,7 +389,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                     icon: const Icon(Icons.cancel, size: 16),
                     label: Text(lang.t('coach_calendar_reject')),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.error,
+                      foregroundColor: context.palette.error,
                     ),
                   ),
                 ],
@@ -408,7 +413,7 @@ class _CoachCalendarScreenState extends State<CoachCalendarScreen> {
                     icon: const Icon(Icons.cancel, size: 16),
                     label: Text(lang.t('auth_cancel')),
                     style: TextButton.styleFrom(
-                      foregroundColor: AppColors.error,
+                      foregroundColor: context.palette.error,
                     ),
                   ),
                 ],

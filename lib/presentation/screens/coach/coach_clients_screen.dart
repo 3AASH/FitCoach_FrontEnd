@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -53,7 +54,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final coachProvider = context.watch<CoachProvider>();
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_clients_title')),
         actions: [
@@ -163,7 +164,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             Text(
                               coachProvider.error!,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error),
+                              style: TextStyle(color: context.palette.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -297,7 +298,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                               child: Text(
                                 client.subscriptionTier,
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color: _getTierColor(client.subscriptionTier),
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -321,7 +322,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                               child: Text(
                                 client.statusText,
                                 style: TextStyle(
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   color: _getStatusColor(client.statusText),
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -360,7 +361,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         Text(
                           lang.t('coach_clients_score_label'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: context.palette.textSecondary,
                           ),
                         ),
@@ -431,9 +432,9 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          fontSize: 10,
-          color: AppColors.cyan,
+        style: TextStyle(
+          fontSize: 12,
+          color: context.palette.info,
           fontWeight: FontWeight.w600,
         ),
       ),

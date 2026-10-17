@@ -280,7 +280,7 @@ class _InBodyInputScreenState extends State<InBodyInputScreen> {
                         Text(
                           lang.t('inbody_input_premium_feature'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.bold,
                             color: context.palette.textOnBrand,
                           ),

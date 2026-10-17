@@ -1,4 +1,5 @@
-﻿import 'dart:convert';
+import '../../widgets/aash_backdrop.dart';
+import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -79,7 +80,7 @@ class _AdminWorkoutTemplatesScreenState
     final provider = context.watch<AdminProvider>();
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_workout_templates_title')),
         actions: [
@@ -245,7 +246,7 @@ class _TemplateCard extends StatelessWidget {
       if (template.location != null) template.location!,
       if (template.trainingDays != null) '${template.trainingDays}d',
       if (template.weeks != null) '${template.weeks}w',
-    ].join(' â€¢ ');
+    ].join(' • ');
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 12),
@@ -269,7 +270,7 @@ class _TemplateCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${template.planId} â€¢ $subtitle',
+                    '${template.planId} • $subtitle',
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
@@ -421,7 +422,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                 ),
               SegmentedButton<bool>(
@@ -499,7 +500,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
     // A starter template holds one variant instead of a programs matrix, so it
     // gets a single-entry dropdown to keep this editor laid out like the
     // advanced one. Only an advanced template can switch variants, so selecting
-    // the starter entry stays a no-op â€” routing it through
+    // the starter entry stays a no-op — routing it through
     // _selectedAdvancedProgramPath would make _buildTemplate write the sessions
     // into `programs` and strip the `sessions` the backend reads.
     final List<String> programPaths =
@@ -988,7 +989,7 @@ class _TemplateEditorSheetState extends State<_TemplateEditorSheet> {
             ? word
             : '${word[0].toUpperCase()}${word.substring(1)}')
         .join(' ');
-    return '${humanize(parts[0])} â€¢ ${humanize(parts[1])} â€¢ ${humanize(parts[2])}';
+    return '${humanize(parts[0])} • ${humanize(parts[1])} • ${humanize(parts[2])}';
   }
 
   Future<void> _save() async {

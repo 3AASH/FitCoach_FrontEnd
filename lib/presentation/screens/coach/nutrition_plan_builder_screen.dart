@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -165,7 +166,7 @@ class _NutritionPlanBuilderScreenState
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         // One save, not two -- see the workout builder for the same change.
         appBar: AppBar(
           title: Text(lang.t('coach_nutrition_builder_title')),
@@ -451,7 +452,7 @@ class _NutritionPlanBuilderScreenState
                 title: Text(food['name'] ?? ''),
                 subtitle: Text(
                   '${food['calories']} cal | P: ${food['protein']}g | C: ${food['carbs']}g | F: ${food['fat']}g',
-                  style: const TextStyle(fontSize: 11),
+                  style: const TextStyle(fontSize: 12),
                 ),
                 trailing: IconButton(
                   tooltip: 'Delete food',

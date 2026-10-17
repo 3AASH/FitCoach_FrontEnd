@@ -68,7 +68,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                       ),
                       child: Text(
                         tr('error_generic'),
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                     ),
                   if (plans.isNotEmpty) ...[
@@ -149,9 +149,9 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                   ),
                   child: Text(
                     tr('subscription_status_active'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.success,
+                      color: context.palette.success,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -243,7 +243,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                   child: Text(
                     plan.badge!,
                     style:
-                        TextStyle(fontSize: 11, color: context.palette.primary),
+                        TextStyle(fontSize: 12, color: context.palette.primary),
                   ),
                 ),
             ],
@@ -529,7 +529,7 @@ class _MetricChip extends StatelessWidget {
               Text(
                 label,
                 style: TextStyle(
-                    fontSize: 11, color: context.palette.textSecondary),
+                    fontSize: 12, color: context.palette.textSecondary),
               ),
               Text(
                 value,

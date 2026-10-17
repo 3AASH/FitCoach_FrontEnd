@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -186,7 +187,7 @@ class _AdminNutritionTemplatesScreenState
     final provider = context.watch<AdminProvider>();
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_nutrition_templates_title')),
         bottom: TabBar(
@@ -407,7 +408,7 @@ class _AdminNutritionTemplatesScreenState
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: context.palette.textSecondary,
-                    fontSize: 11,
+                    fontSize: 12,
                   ),
                 ),
               ],
@@ -622,7 +623,7 @@ class _InlineError extends StatelessWidget {
               message,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: AppColors.error, fontSize: 12),
+              style: TextStyle(color: context.palette.error, fontSize: 12),
             ),
           ),
           IconButton(
@@ -1028,7 +1029,7 @@ class _JsonEditorSheetState extends State<_JsonEditorSheet> {
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                 ),
               TextField(
@@ -1291,7 +1292,7 @@ class _NutritionRecipeEditorSheetState
   void _recalculateRecipeMacros() {
     num calories = 0, protein = 0, carbs = 0, fat = 0;
     for (final entry in _ingredients) {
-      // Ingredients are defined per 100 g, so scale by grams / 100 â€” the same
+      // Ingredients are defined per 100 g, so scale by grams / 100 — the same
       // formula the backend uses when it recomputes the recipe on save.
       final perGram = _ingredientPerGram(_findIngredient(entry.key));
       final grams = num.tryParse(entry.value.text) ?? 0;
@@ -1352,7 +1353,7 @@ class _NutritionRecipeEditorSheetState
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                 ),
               SegmentedButton<bool>(
@@ -1824,7 +1825,7 @@ class _NutritionEnginePlanEditorSheetState
                   padding: const EdgeInsets.only(bottom: 12),
                   child: Text(
                     _error!,
-                    style: const TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                 ),
               SegmentedButton<bool>(
@@ -2193,7 +2194,7 @@ class _NutritionEnginePlanEditorSheetState
   }
 
   /// The portion of the selected meal. Constrained to that meal's own variants,
-  /// which is also what the backend requires â€” it rejects a plan meal whose
+  /// which is also what the backend requires — it rejects a plan meal whose
   /// variant belongs to a different recipe.
   Widget _buildPortionField(LanguageProvider lang, Map<String, dynamic> meal) {
     final recipeId = _stringValue(meal['planned_recipe_id']);
@@ -2766,7 +2767,7 @@ Future<Map<String, dynamic>?> _showIngredientForm(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: Text(
                     error!,
-                    style: const TextStyle(color: AppColors.error),
+                    style: TextStyle(color: context.palette.error),
                   ),
                 ),
               TextField(

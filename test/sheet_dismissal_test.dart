@@ -166,7 +166,9 @@ void main() {
     final stranded = <String>[];
     sources.forEach((path, source) {
       for (final match in _openSheet.allMatches(source)) {
-        final call = _callText(source, match.start);
+        // Start at the call's own `(`: a record return type such as
+        // `<({String id})>` has one of its own, which would end the call early.
+        final call = _callText(source, match.end - 1);
         if (_hasExit(call)) continue;
 
         // The call is only plumbing: follow the sheet widget it hands off to.

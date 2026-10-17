@@ -508,6 +508,13 @@ class _NutritionPreferencesIntakeScreenState
             (option) => FilterChip(
               label: Text(option.label),
               selected: selection.contains(option.value),
+              // FilterChip ignores the selected state for its label, so set it
+              // here: the selected chip is filled with the brand colour.
+              labelStyle: TextStyle(
+                color: selection.contains(option.value)
+                    ? context.palette.textOnBrand
+                    : context.palette.textPrimary,
+              ),
               onSelected: (selected) {
                 setState(() {
                   if (selected) {

@@ -440,7 +440,6 @@ class _NotificationSettingsScreenState
         style: TextStyle(color: theme.textTheme.bodySmall?.color),
       ),
       secondary: Icon(icon, color: context.palette.primary),
-      activeThumbColor: context.palette.primary,
     );
   }
 

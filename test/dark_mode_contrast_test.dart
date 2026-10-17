@@ -222,6 +222,51 @@ void main() {
         );
       }
     });
+
+    test('status text is readable on its surface and its 20% badge tint', () {
+      for (final entry in {
+        'light': AppPalette.light,
+        'dark': AppPalette.dark,
+      }.entries) {
+        final palette = entry.value;
+        for (final status in [
+          palette.success,
+          palette.warning,
+          palette.info,
+          palette.error,
+          palette.textSecondary,
+        ]) {
+          // 0.15 is the alpha the appointment status badge paints with.
+          final tint = Color.alphaBlend(
+            status.withValues(alpha: 0.15),
+            palette.surface,
+          );
+          for (final bg in [palette.surface, tint]) {
+            expect(
+              contrast(status, bg),
+              greaterThanOrEqualTo(4.5),
+              reason: '$status on ${entry.key} $bg',
+            );
+          }
+        }
+      }
+    });
+  });
+
+  test('an on switch keeps its thumb visible against its track', () {
+    // Track is the brand fill when on (see SwitchThemeData); the thumb must
+    // stand out from it. 3:1 is the WCAG floor for graphics.
+    for (final theme in [
+      AppThemeConfig.getLightTheme(),
+      AppThemeConfig.getDarkTheme(),
+    ]) {
+      final track = theme.switchTheme.trackColor!
+          .resolve({WidgetState.selected})!;
+      final thumb = theme.switchTheme.thumbColor!
+          .resolve({WidgetState.selected})!;
+      expect(contrast(thumb, track), greaterThanOrEqualTo(3.0),
+          reason: '${theme.brightness} on-switch thumb on its track');
+    }
   });
 
   test('no sheet or card pins its surface to a literal colour', () {

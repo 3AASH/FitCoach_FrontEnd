@@ -114,7 +114,8 @@ class AppThemeConfig {
             const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         border: inputBorder(p.border, 1),
         enabledBorder: inputBorder(p.border, 1),
-        focusedBorder: inputBorder(AppColors.ring, 2),
+        // Cyan focus ring is 2.1:1 on white in light mode; WCAG needs 3:1.
+        focusedBorder: inputBorder(isDark ? AppColors.ring : p.primary, 2),
         errorBorder: inputBorder(p.error, 1),
         focusedErrorBorder: inputBorder(p.error, 2),
         labelStyle: AppTextStyles.label.copyWith(color: p.textSecondary),
@@ -243,7 +244,12 @@ class AppThemeConfig {
       ),
 
       switchTheme: SwitchThemeData(
-        thumbColor: const WidgetStatePropertyAll(Colors.white),
+        // On a brand-filled track the thumb takes the on-brand colour, so it
+        // stays visible: white on navy in light, obsidian on gold in dark.
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return p.textOnBrand;
+          return Colors.white;
+        }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) return p.primary;
           return p.border;

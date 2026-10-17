@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -135,7 +136,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
     final adminProvider = context.watch<AdminProvider>();
     final coachesError = adminProvider.coachesError;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_coaches_title')),
         actions: [
@@ -224,6 +225,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                     Expanded(
                       child: DropdownButtonFormField<String?>(
                         initialValue: _statusFilter,
+                        isExpanded: true,
                         decoration: InputDecoration(
                           labelText: lang.t('admin_users_filter_status'),
                           border: OutlineInputBorder(
@@ -262,6 +264,13 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                       child: FilterChip(
                         label: Text(lang.t('admin_pending_only')),
                         selected: _showPendingOnly,
+                        // Selected chips use the brand fill, so the label
+                        // flips to the on-brand colour (FilterChip won't).
+                        labelStyle: TextStyle(
+                          color: _showPendingOnly
+                              ? context.palette.textOnBrand
+                              : context.palette.textPrimary,
+                        ),
                         onSelected: (value) {
                           setState(() {
                             _showPendingOnly = value;
@@ -291,7 +300,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                             Text(
                               coachesError,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error),
+                              style: TextStyle(color: context.palette.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -407,27 +416,26 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                             ),
                           ),
                         const SizedBox(height: 8),
-                        Row(
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
                           children: [
                             _buildStatChip(
                               Icons.people,
                               '${coach.clientCount}',
                               lang.t('admin_clients_label'),
                             ),
-                            const SizedBox(width: 8),
                             _buildStatChip(
                               Icons.attach_money,
                               '\$${coach.totalEarnings.toStringAsFixed(0)}',
                               lang.t('admin_earned_label'),
                             ),
-                            if (coach.averageRating != null) ...[
-                              const SizedBox(width: 8),
+                            if (coach.averageRating != null)
                               _buildStatChip(
                                 Icons.star,
                                 coach.averageRating!.toStringAsFixed(1),
                                 lang.t('admin_rating_label'),
                               ),
-                            ],
                           ],
                         ),
                       ],
@@ -520,7 +528,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
                       child: Text(
                         spec,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           color: context.palette.primary,
                         ),
                       ),
@@ -546,7 +554,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
       child: Text(
         _statusLabel(coach, lang),
         style: TextStyle(
-          fontSize: 10,
+          fontSize: 12,
           color: context.palette.textPrimary,
           fontWeight: FontWeight.bold,
         ),
@@ -593,7 +601,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           Text(
             value,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -601,7 +609,7 @@ class _AdminCoachesScreenState extends State<AdminCoachesScreen> {
           Text(
             label,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 12,
               color: context.palette.textSecondary,
             ),
           ),

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -44,7 +45,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
     final coachProvider = context.watch<CoachProvider>();
     final earnings = coachProvider.earnings;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_earnings_title')),
         actions: [
@@ -71,7 +72,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                       Text(
                         coachProvider.error ?? lang.t('coach_earnings_failed'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -151,10 +152,10 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                   const SizedBox(height: 12),
                   Text(
                     '\$${earnings.summary.totalCommission.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.gold,
+                      color: context.palette.accent,
                     ),
                   ),
                 ],
@@ -333,7 +334,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                             child: Text(
                               '${period.month}/${period.day}',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: context.palette.textSecondary,
                               ),
                             ),
@@ -349,7 +350,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                           return Text(
                             '\$${value.toInt()}',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 12,
                               color: context.palette.textSecondary,
                             ),
                           );
@@ -491,17 +492,17 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
             children: [
               Text(
                 '+\$${transaction.coachCommission.toStringAsFixed(2)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.gold,
+                  color: context.palette.accent,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 transaction.type,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   color: context.palette.textSecondary,
                 ),
               ),

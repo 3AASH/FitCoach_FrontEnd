@@ -30,7 +30,10 @@ class SubscriptionComparisonTable extends StatelessWidget {
     }
 
     final labels = featureLabels ?? _collectFeatureLabels();
-    final tableWidth = 180 + plans.length * 180;
+    // Container width includes its padding and border, so the rows (which only
+    // get the inside) overflow unless these are added: 24 for the padding, 2
+    // for the 1px border on each side.
+    final tableWidth = 180 + plans.length * 180 + 26;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -124,7 +127,7 @@ class SubscriptionComparisonTable extends StatelessWidget {
                         child: Text(
                           plan.badge!,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: context.palette.primary,
                           ),
                         ),

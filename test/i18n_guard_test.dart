@@ -23,9 +23,10 @@ const _providerPath = 'lib/presentation/providers/language_provider.dart';
 
 /// A `'key': 'value',` entry. Dart lets either quote style be the outer one and
 /// the app uses both (`"Today's Sessions"` avoids escaping the apostrophe), so
-/// match them separately rather than assuming single quotes.
+/// match them separately rather than assuming single quotes. A value may be
+/// several adjacent literals split across lines; the first one is the one read.
 final _entry = RegExp(
-  r"""^\s*'([a-zA-Z0-9_]+)'\s*:\s*\n?\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")\s*,""",
+  r"""^\s*'([a-zA-Z0-9_]+)'\s*:\s*\n?\s*(?:'((?:[^'\\]|\\.)*)'|"((?:[^"\\]|\\.)*)")(?:\s*(?:'(?:[^'\\]|\\.)*'|"(?:[^"\\]|\\.)*"))*\s*,""",
   multiLine: true,
 );
 

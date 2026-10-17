@@ -630,7 +630,7 @@ class _AuthScreenState extends State<AuthScreen> {
         _isSendingSignupCode ||
         _isCreatingSignupAccount;
 
-    return Scaffold(
+    return AashScaffold(
       backgroundColor: context.palette.background,
       body: AashBackdrop(
         child: SafeArea(

@@ -1,7 +1,6 @@
 import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -212,7 +211,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: AppColors.error)),
+            Text(_error!, style: TextStyle(color: context.palette.error)),
           ],
           const SizedBox(height: 24),
           SizedBox(

@@ -137,6 +137,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         title: Text(lang.t('intake_prompt_title')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(lang.t('intake_prompt_description')),
             const SizedBox(height: 16),
@@ -145,15 +146,23 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               title: lang.t('intake_prompt_option1_title'),
               description: lang.t('intake_prompt_option1_desc'),
               color: context.palette.primary,
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                _openSecondIntake();
+              },
             ),
             const SizedBox(height: 12),
             _buildPromptOption(
               icon: Icons.video_call,
               title: lang.t('intake_prompt_option2_title'),
               description: lang.t('intake_prompt_option2_desc'),
-              color: context.palette.textSecondary,
+              color: context.palette.info,
               badgeText:
                   tier == 'Freemium' ? lang.t('intake_prompt_free_call') : null,
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                _openCoachSessions();
+              },
             ),
           ],
         ),
@@ -162,86 +171,90 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(lang.t('intake_prompt_later')),
           ),
-          TextButton.icon(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              _openCoachSessions();
-            },
-            icon: const Icon(Icons.video_call),
-            label: Text(lang.t('intake_prompt_book_call')),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              _openSecondIntake();
-            },
-            icon: const Icon(Icons.assignment_turned_in),
-            label: Text(lang.t('intake_prompt_complete')),
-          ),
         ],
       ),
     );
   }
 
+  /// A tappable option card: icon, title, description and a chevron, so the
+  /// whole card reads as the choice it makes.
   Widget _buildPromptOption({
     required IconData icon,
     required String title,
     required String description,
     required Color color,
+    required VoidCallback onTap,
     String? badgeText,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+    final radius = BorderRadius.circular(12);
+    return Material(
+      color: color.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: color.withValues(alpha: 0.35)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: context.palette.textPrimary,
-                  ),
+      child: InkWell(
+        borderRadius: radius,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: AppTextStyles.caption.copyWith(
-                    color: context.palette.textSecondary,
-                  ),
-                ),
-                if (badgeText != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      badgeText,
-                      style: AppTextStyles.overline.copyWith(
-                        color: AppColors.success,
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.palette.textPrimary,
                       ),
                     ),
-                  ),
-                ],
-              ],
-            ),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: AppTextStyles.small.copyWith(
+                        color: context.palette.textSecondary,
+                      ),
+                    ),
+                    if (badgeText != null) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: context.palette.success.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          badgeText,
+                          style: AppTextStyles.captionMedium.copyWith(
+                            color: context.palette.success,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: context.palette.textSecondary,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -273,7 +286,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     PreferredSizeWidget? appBar,
     required Widget child,
   }) {
-    return Scaffold(
+    return AashScaffold(
       backgroundColor: context.palette.background,
       appBar: appBar,
       body: AashBackdrop(child: SafeArea(child: child)),
@@ -1232,6 +1245,25 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   ),
                   child: const Icon(Icons.lock_rounded,
                       size: 16, color: Colors.white),
+                ),
+              ),
+            // Done mark, so the client can see which exercises they finished.
+            if (context.watch<WorkoutProvider>().isExerciseCompleted(exercise.id))
+              PositionedDirectional(
+                top: 10,
+                start: 10,
+                child: Tooltip(
+                  message: context.read<LanguageProvider>().t('workout_completed'),
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: context.palette.success,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.check_rounded,
+                        size: 16,
+                        color: foregroundFor(context.palette.success)),
+                  ),
                 ),
               ),
           ],
