@@ -112,8 +112,18 @@ class LanguageProvider with ChangeNotifier {
   }
 
   static final Map<String, String> _englishTranslations = {
-    'app_name': 'FitCoach+',
-    'welcome': 'Welcome to FitCoach+',
+    'filter': 'Filter',
+    'clear': 'Clear',
+    'remove': 'Remove',
+    'attach_file': 'Attach file',
+    'edit_profile_photo': 'Edit profile photo',
+    'show': 'Show',
+    'hide': 'Hide',
+    'decrease': 'Decrease',
+    'increase': 'Increase',
+    'cart': 'Cart',
+    'app_name': 'Aash',
+    'welcome': 'Welcome to Aash',
     'select_language': 'Select your language',
     'english': 'English',
     'arabic': 'Arabic',
@@ -161,8 +171,8 @@ class LanguageProvider with ChangeNotifier {
     'unsaved_keep_editing': 'Keep editing',
     'unsaved_discard': 'Discard',
     'unknown': 'Unknown',
-    'splash_headline_en': 'Your Fitness Journey Starts Now',
-    'splash_headline_ar': 'رحلتك الرياضية تبدأ الآن',
+    'splash_headline_en': 'Move well. Live fully.',
+    'splash_headline_ar': 'تحرّك بصحة. عِش حياتك كاملة.',
     'splash_start': 'Start / ابدأ',
     // --- Added for workout timer screen ---
     'reps': 'Reps',
@@ -185,7 +195,7 @@ class LanguageProvider with ChangeNotifier {
     'done': 'Done',
 
     // Auth
-    'auth_app_name': 'FitCoach',
+    'auth_app_name': 'Aash',
     'auth_tagline': 'Your Fitness Journey Starts Here',
     'auth_welcome': 'Welcome',
     'auth_welcome_subtitle': 'Sign in to continue',
@@ -475,7 +485,7 @@ class LanguageProvider with ChangeNotifier {
     'auth_no_account': 'Don\'t have an account?',
     'auth_have_account': 'Already have an account?',
     'auth_create_account': 'Create Account',
-    'auth_create_account_subtitle': 'Join FitCoach and start your journey',
+    'auth_create_account_subtitle': 'Join Aash and start your journey',
     'auth_missing_fields': 'Please fill in all required fields',
     'auth_invalid_email': 'Enter a valid email address',
     'auth_password_mismatch': 'Passwords do not match',
@@ -664,7 +674,7 @@ class LanguageProvider with ChangeNotifier {
     'account_contact_us': 'Contact Us',
     'account_contact_us_subtitle': 'Get in touch with support',
     'account_about': 'About',
-    'account_about_legalese': 'Copyright 2024 FitCoach. All rights reserved.',
+    'account_about_legalese': 'Copyright 2026 Aash. All rights reserved.',
     'account_about_description':
         'Comprehensive fitness app with personal coaching.',
     'account_terms': 'Terms & Conditions',
@@ -811,7 +821,7 @@ class LanguageProvider with ChangeNotifier {
     'subscription_admin_form_badge_optional': 'Badge (optional)',
     'subscription_admin_form_accent_color': 'Accent color',
     'subscription_admin_form_color_required': 'Accent color is required',
-    'subscription_admin_form_color_invalid': 'Use a color like #7C3AED',
+    'subscription_admin_form_color_invalid': 'Use a color like #0B6254',
     'subscription_admin_form_recommended_toggle': 'Mark as recommended',
     'subscription_admin_form_messages_limit': 'Coach messages limit',
     'subscription_admin_form_video_limit': 'Video call limit',
@@ -835,6 +845,7 @@ class LanguageProvider with ChangeNotifier {
     'nutrition_plan': 'Nutrition Plan',
     'message_coach': 'Message Coach',
     'no_active_workout_plan': 'No active workout plan',
+    'workout_day_locked': "You can only start today's workout. Finish your current day first.",
     'workout_plan_coming_soon': 'Your coach will create a plan for you soon',
     'workout_select_day': 'Select a day to view exercises',
     'workout_overview': 'Workout Overview',
@@ -856,6 +867,8 @@ class LanguageProvider with ChangeNotifier {
     'duration': 'Duration',
     'workout_difficulty_intermediate': 'Intermediate',
     'workout_complete_label': 'Complete',
+    'workout_calories_burned': 'Burned (est.)',
+    'kcal_short': 'kcal',
     'workout_previous': 'Previous Workout',
     'workout_continue': 'Continue Workout',
     'workout_completed': 'Workout Completed',
@@ -899,6 +912,7 @@ class LanguageProvider with ChangeNotifier {
     'home_calories_consumed': 'Calories Consumed',
     'home_workouts_completed': 'Workouts Completed',
     'home_quick_access': 'Quick Access',
+    'home_explore_aash': 'Explore Aash',
     'home_workouts': 'Workouts',
     'home_workouts_desc': 'Training plans and today\'s session',
     'home_nutrition': 'Nutrition',
@@ -983,7 +997,8 @@ class LanguageProvider with ChangeNotifier {
     // catalogLabel() falls back to the raw value for anything not listed.
     // Admin dashboard hubs and their tiles.
     'admin_hub_people': 'Users',
-    'admin_hub_people_desc': 'Manage customers, coaches, and admin access points.',
+    'admin_hub_people_desc':
+        'Manage customers, coaches, and admin access points.',
     'admin_hub_customers': 'Customers',
     'admin_hub_customers_desc':
         'View, suspend, assign coaches, and edit subscriptions.',
@@ -1012,8 +1027,7 @@ class LanguageProvider with ChangeNotifier {
     'admin_hub_subscription_plans_desc':
         'Edit package names, prices, features, and requests.',
     'admin_hub_revenue': 'Revenue',
-    'admin_hub_revenue_desc':
-        'Review payment and subscription performance.',
+    'admin_hub_revenue_desc': 'Review payment and subscription performance.',
     'admin_hub_store': 'Store',
     'admin_hub_store_desc': 'Manage store products and order operations.',
     'admin_hub_audit_logs': 'Audit Logs',
@@ -1389,7 +1403,7 @@ class LanguageProvider with ChangeNotifier {
     'store_equipment': 'Equipment',
     'store_apparel': 'Apparel',
     'store_accessories': 'Accessories',
-    'store_title': 'FitCoach Store',
+    'store_title': 'Aash Store',
     'store_subtitle': 'Supplements and gear picked for you',
     'store_search_placeholder': 'Search products or brands',
     'store_products': 'Products',
@@ -1644,7 +1658,7 @@ class LanguageProvider with ChangeNotifier {
     'otp_invalid_phone': 'Enter a valid phone number',
     'otp_incomplete': 'Please enter the complete OTP code',
     'change_phone': 'Change phone number',
-    'onboarding_slide1_title': 'Welcome to FitCoach+',
+    'onboarding_slide1_title': 'Welcome to Aash',
     'onboarding_slide1_desc':
         'Your fitness journey starts here with professional coaches',
     'onboarding_slide2_title': 'Personalized Workout Plans',
@@ -1704,7 +1718,7 @@ class LanguageProvider with ChangeNotifier {
     'intake_banner_book_call': 'Book call',
     'language_title': 'Choose your language',
     'language_subtitle': 'You can change this later in settings',
-    'language_footer': 'Continue to FitCoach',
+    'language_footer': 'Continue to Aash',
     'exercise_demo': 'demo',
     'exercise_watch_video_btn': 'Watch video',
     'exercise_overview': 'Overview',
@@ -1950,8 +1964,10 @@ class LanguageProvider with ChangeNotifier {
         'Showing {shown} of {total} - search to reach the rest',
     'admin_exercise_search_hint':
         'Search name, ID, muscle, equipment or difficulty',
-    'admin_template_search_hint': 'Search templates by name, ID, goal or location',
-    'admin_meal_search_hint': 'Search meals by name, ID, cuisine, slot or market',
+    'admin_template_search_hint':
+        'Search templates by name, ID, goal or location',
+    'admin_meal_search_hint':
+        'Search meals by name, ID, cuisine, slot or market',
     'admin_ingredient_search_hint': 'Search ingredients by name or ID',
     'admin_plan_search_hint':
         'Search plans by ID, market (SA / EG), calories or profile',
@@ -2072,7 +2088,7 @@ class LanguageProvider with ChangeNotifier {
     'delete_account_confirm': 'Delete',
     'delete_account_submit': 'Delete my account',
     'delete_account_success': 'Your account was deleted.',
-  
+
     // Previously Arabic-only, so English readers saw Arabic here.
     'additional_info': 'Additional information',
     'admin_tab_coaches': 'Coaches',
@@ -2116,36 +2132,52 @@ class LanguageProvider with ChangeNotifier {
 
     // Lifted out of feature_intro_screen.dart.
     'feature_intro_14_day_free_trial': '14-Day Free Trial',
-    'feature_intro_book_live_video_calls_with_your': 'Book live video calls with your coach for support',
-    'feature_intro_browse_and_buy_high_quality_supplements': 'Browse and buy high-quality supplements and equipment',
-    'feature_intro_chat_with_your_coach_in_real': 'Chat with your coach in real-time and get personalized guidance',
+    'feature_intro_book_live_video_calls_with_your':
+        'Book live video calls with your coach for support',
+    'feature_intro_browse_and_buy_high_quality_supplements':
+        'Browse and buy high-quality supplements and equipment',
+    'feature_intro_chat_with_your_coach_in_real':
+        'Chat with your coach in real-time and get personalized guidance',
     'feature_intro_complete_nutrition_plans': 'Complete Nutrition Plans',
     'feature_intro_connect_with_coach': 'Connect with Coach',
-    'feature_intro_enjoy_full_nutrition_access_for_14': 'Enjoy full nutrition access for 14 days with Freemium',
+    'feature_intro_enjoy_full_nutrition_access_for_14':
+        'Enjoy full nutrition access for 14 days with Freemium',
     'feature_intro_exercise_substitution': 'Exercise Substitution',
-    'feature_intro_get_detailed_meal_plans_with_macro': 'Get detailed meal plans with macro nutrient tracking',
-    'feature_intro_get_safe_alternatives_for_exercises_that': 'Get safe alternatives for exercises that may cause injuries',
-    'feature_intro_get_workout_plans_tailored_to_your': 'Get workout plans tailored to your goals and fitness level',
-    'feature_intro_get_your_orders_with_fast_and': 'Get your orders with fast and reliable delivery',
-    'feature_intro_monitor_calories_protein_carbs_and_fats': 'Monitor calories, protein, carbs, and fats daily',
+    'feature_intro_get_detailed_meal_plans_with_macro':
+        'Get detailed meal plans with macro nutrient tracking',
+    'feature_intro_get_safe_alternatives_for_exercises_that':
+        'Get safe alternatives for exercises that may cause injuries',
+    'feature_intro_get_workout_plans_tailored_to_your':
+        'Get workout plans tailored to your goals and fitness level',
+    'feature_intro_get_your_orders_with_fast_and':
+        'Get your orders with fast and reliable delivery',
+    'feature_intro_monitor_calories_protein_carbs_and_fats':
+        'Monitor calories, protein, carbs, and fats daily',
     'feature_intro_personalized_workouts': 'Personalized Workouts',
     'feature_intro_ratings_reviews': 'Ratings & Reviews',
-    'feature_intro_read_real_reviews_from_other_users': 'Read real reviews from other users',
-    'feature_intro_send_photos_and_videos_to_track': 'Send photos and videos to track your progress',
+    'feature_intro_read_real_reviews_from_other_users':
+        'Read real reviews from other users',
+    'feature_intro_send_photos_and_videos_to_track':
+        'Send photos and videos to track your progress',
     'feature_intro_share_progress': 'Share Progress',
     'feature_intro_shop_products': 'Shop Products',
     'feature_intro_track_macros': 'Track Macros',
-    'feature_intro_track_your_weekly_workouts_and_tap': 'Track your weekly workouts and tap any day to see details',
+    'feature_intro_track_your_weekly_workouts_and_tap':
+        'Track your weekly workouts and tap any day to see details',
     'feature_intro_video_calls': 'Video Calls',
     'feature_intro_weekly_schedule': 'Weekly Schedule',
 
     // Lifted out of inbody_input_screen.dart.
-    'inbody_input_additional_measurements_optional': 'Additional Measurements (Optional)',
-    'inbody_input_ai_extraction_is_available_for_subscribers': 'AI extraction is available for subscribers only. Upgrade to continue.',
+    'inbody_input_additional_measurements_optional':
+        'Additional Measurements (Optional)',
+    'inbody_input_ai_extraction_is_available_for_subscribers':
+        'AI extraction is available for subscribers only. Upgrade to continue.',
     'inbody_input_ai_powered_inbody_analysis': 'AI-powered InBody analysis',
     'inbody_input_ai_scan': 'AI Scan',
-    'inbody_input_align_the_entire_report_inside_the': 'Align the entire report inside the frame.',
-    'inbody_input_analysis_takes_only_a_few_seconds': 'Analysis takes only a few seconds.',
+    'inbody_input_align_the_entire_report_inside_the':
+        'Align the entire report inside the frame.',
+    'inbody_input_analysis_takes_only_a_few_seconds':
+        'Analysis takes only a few seconds.',
     'inbody_input_analyzing_your_scan': 'Analyzing your scan...',
     'inbody_input_available_for_all_users': 'Available for all users',
     'inbody_input_bmi': 'BMI',
@@ -2153,18 +2185,24 @@ class LanguageProvider with ChangeNotifier {
     'inbody_input_body_fat': 'Body fat',
     'inbody_input_body_fat_2': 'Body Fat (%)',
     'inbody_input_body_water': 'Body Water (%)',
-    'inbody_input_capture_a_clear_photo_of_your': 'Capture a clear photo of your InBody report and we will fill every metric for you.',
+    'inbody_input_capture_a_clear_photo_of_your':
+        'Capture a clear photo of your InBody report and we will fill every metric for you.',
     'inbody_input_choose_from_gallery': 'Choose from Gallery',
     'inbody_input_choose_input_method': 'Choose Input Method',
     'inbody_input_data_extraction_complete': 'Data extraction complete',
     'inbody_input_enter_measurements_manually': 'Enter measurements manually',
     'inbody_input_enter_your_measurements': 'Enter Your Measurements',
-    'inbody_input_extracted_metrics_applied_review_them_before': 'Extracted metrics applied. Review them before saving.',
-    'inbody_input_failed_to_save_results_please_try': 'Failed to save results. Please try again.',
-    'inbody_input_how_would_you_like_to_enter': 'How would you like to enter your InBody data?',
+    'inbody_input_extracted_metrics_applied_review_them_before':
+        'Extracted metrics applied. Review them before saving.',
+    'inbody_input_failed_to_save_results_please_try':
+        'Failed to save results. Please try again.',
+    'inbody_input_how_would_you_like_to_enter':
+        'How would you like to enter your InBody data?',
     'inbody_input_inbody_analysis': 'InBody Analysis',
-    'inbody_input_inbody_analysis_helps_you_track_your': 'InBody analysis helps you track your body composition accurately and set realistic goals',
-    'inbody_input_inbody_results_saved_successfully': 'InBody results saved successfully',
+    'inbody_input_inbody_analysis_helps_you_track_your':
+        'InBody analysis helps you track your body composition accurately and set realistic goals',
+    'inbody_input_inbody_results_saved_successfully':
+        'InBody results saved successfully',
     'inbody_input_instant_data_extraction': 'Instant data extraction',
     'inbody_input_manual_input': 'Manual Input',
     'inbody_input_mineral_kg': 'Mineral (kg)',
@@ -2176,33 +2214,42 @@ class LanguageProvider with ChangeNotifier {
     'inbody_input_preparing_preview': 'Preparing preview...',
     'inbody_input_protein_kg': 'Protein (kg)',
     'inbody_input_retake_photo': 'Retake photo',
-    'inbody_input_review_the_highlighted_metrics_then_continue': 'Review the highlighted metrics, then continue to fine-tune before saving.',
+    'inbody_input_review_the_highlighted_metrics_then_continue':
+        'Review the highlighted metrics, then continue to fine-tune before saving.',
     'inbody_input_save_results': 'Save Results',
-    'inbody_input_something_went_wrong_while_processing_the': 'Something went wrong while processing the image. Please try again.',
+    'inbody_input_something_went_wrong_while_processing_the':
+        'Something went wrong while processing the image. Please try again.',
     'inbody_input_switch_to_manual_entry': 'Switch to manual entry',
-    'inbody_input_take_a_photo_of_your_inbody': 'Take a photo of your InBody report',
-    'inbody_input_the_scan_was_saved_but_the': 'The scan was saved, but the latest result could not be loaded yet.',
+    'inbody_input_take_a_photo_of_your_inbody':
+        'Take a photo of your InBody report',
+    'inbody_input_the_scan_was_saved_but_the':
+        'The scan was saved, but the latest result could not be loaded yet.',
     'inbody_input_upgrade_for_ai': 'Upgrade for AI',
     'inbody_input_use_extracted_data': 'Use extracted data',
-    'inbody_input_use_good_lighting_and_a_clean': 'Use good lighting and a clean background.',
+    'inbody_input_use_good_lighting_and_a_clean':
+        'Use good lighting and a clean background.',
     'inbody_input_visceral_fat': 'Visceral Fat',
-    'inbody_input_we_extract_every_important_metric_from': 'We extract every important metric from your report.',
+    'inbody_input_we_extract_every_important_metric_from':
+        'We extract every important metric from your report.',
 
     // Lifted out of signup_screen.dart.
     'signup_and': ' and ',
     'signup_create_account': 'Create Account',
     'signup_creating_account': 'Creating account...',
     'signup_enter_6_digits': 'Enter 6 digits',
-    'signup_enter_a_6_digit_verification_code': 'Enter a 6-digit verification code',
+    'signup_enter_a_6_digit_verification_code':
+        'Enter a 6-digit verification code',
     'signup_i_agree_to_the': 'I agree to the ',
     'signup_invalid_email': 'Invalid email',
     'signup_john_doe': 'John Doe',
-    'signup_join_us_and_start_your_fitness': 'Join us and start your fitness journey',
+    'signup_join_us_and_start_your_fitness':
+        'Join us and start your fitness journey',
     'signup_name_is_too_short': 'Name is too short',
     'signup_or_sign_up_with': 'Or sign up with',
     'signup_password_too_short': 'Password too short',
     'signup_passwords_don_t_match': 'Passwords don\'t match',
-    'signup_please_agree_to_terms_conditions': 'Please agree to Terms & Conditions',
+    'signup_please_agree_to_terms_conditions':
+        'Please agree to Terms & Conditions',
     'signup_please_confirm_password': 'Please confirm password',
     'signup_please_enter_email': 'Please enter email',
     'signup_please_enter_password': 'Please enter password',
@@ -2221,27 +2268,36 @@ class LanguageProvider with ChangeNotifier {
     'video_booking_loading_coach_details': 'Loading coach details...',
     'video_booking_minutes': 'minutes',
     'video_booking_no_available_slots': 'No available slots',
-    'video_booking_no_coach_is_assigned_yet_booking': 'No coach is assigned yet. Booking will be available once a coach is assigned.',
+    'video_booking_no_coach_is_assigned_yet_booking':
+        'No coach is assigned yet. Booking will be available once a coach is assigned.',
     'video_booking_notes_optional': 'Notes (optional)',
-    'video_booking_reserve_a_1_on_1_session': 'Reserve a 1-on-1 session with your coach',
+    'video_booking_reserve_a_1_on_1_session':
+        'Reserve a 1-on-1 session with your coach',
     'video_booking_select_date': 'Select Date',
-    'video_booking_selected_time_slot_is_no_longer': 'Selected time slot is no longer available. Slots were refreshed.',
+    'video_booking_selected_time_slot_is_no_longer':
+        'Selected time slot is no longer available. Slots were refreshed.',
     'video_booking_session_details': 'Session Details',
-    'video_booking_unable_to_complete_booking_please_try': 'Unable to complete booking. Please try again.',
-    'video_booking_unable_to_load_available_slots': 'Unable to load available slots',
-    'video_booking_unable_to_load_coach_details': 'Unable to load coach details',
-    'video_booking_video_session_booked_successfully': 'Video session booked successfully',
+    'video_booking_unable_to_complete_booking_please_try':
+        'Unable to complete booking. Please try again.',
+    'video_booking_unable_to_load_available_slots':
+        'Unable to load available slots',
+    'video_booking_unable_to_load_coach_details':
+        'Unable to load coach details',
+    'video_booking_video_session_booked_successfully':
+        'Video session booked successfully',
     'video_booking_years_exp': 'years exp',
     'video_booking_your_assigned_coach': 'Your Assigned Coach',
 
     // Lifted out of coach_client_detail_screen.dart.
     'coach_client_detail_body_fat': 'Body Fat',
     'coach_client_detail_check_in_timeline': 'Check-in timeline',
-    'coach_client_detail_every_client_check_in_including_inbody': 'Every client check-in, including InBody, progress, and intake events.',
+    'coach_client_detail_every_client_check_in_including_inbody':
+        'Every client check-in, including InBody, progress, and intake events.',
     'coach_client_detail_experience_level': 'Experience level',
     'coach_client_detail_full_intake': 'Full intake',
     'coach_client_detail_inbody': 'InBody',
-    'coach_client_detail_inbody_progress_and_intake_events_will': 'InBody, progress, and intake events will appear here once available.',
+    'coach_client_detail_inbody_progress_and_intake_events_will':
+        'InBody, progress, and intake events will appear here once available.',
     'coach_client_detail_intake': 'Intake',
     'coach_client_detail_latest_check_in': 'Latest Check-in',
     'coach_client_detail_latest_check_in_snapshot': 'Latest Check-in Snapshot',
@@ -2264,7 +2320,8 @@ class LanguageProvider with ChangeNotifier {
     'exercise_library_core': 'Core',
     'exercise_library_difficulty_level': 'Difficulty Level',
     'exercise_library_exercise_library': 'Exercise Library',
-    'exercise_library_failed_to_load_exercise_library': 'Failed to load exercise library',
+    'exercise_library_failed_to_load_exercise_library':
+        'Failed to load exercise library',
     'exercise_library_legs': 'Legs',
     'exercise_library_no_exercises_found': 'No exercises found',
     'exercise_library_search_exercises': 'Search exercises...',
@@ -2276,7 +2333,8 @@ class LanguageProvider with ChangeNotifier {
     'admin_coaches_bio': 'Bio',
     'admin_coaches_coach_deleted': 'Coach deleted',
     'admin_coaches_coach_updated': 'Coach updated',
-    'admin_coaches_delete_confirm': 'Delete coach {name}? This action cannot be undone.',
+    'admin_coaches_delete_confirm':
+        'Delete coach {name}? This action cannot be undone.',
     'admin_coaches_edit_coach': 'Edit coach',
     'admin_coaches_experience': 'Experience',
     'admin_coaches_failed_to_delete_coach': 'Failed to delete coach',
@@ -2284,24 +2342,34 @@ class LanguageProvider with ChangeNotifier {
     'admin_coaches_failed_to_update_coach': 'Failed to update coach',
     'admin_coaches_profile_photo_url': 'Profile photo URL',
     'admin_coaches_suspended': 'Suspended',
-    'admin_coaches_turning_this_off_will_mark_the': 'Turning this off will mark the coach as suspended',
-    'admin_coaches_whether_the_coach_is_approved': 'Whether the coach is approved',
+    'admin_coaches_turning_this_off_will_mark_the':
+        'Turning this off will mark the coach as suspended',
+    'admin_coaches_whether_the_coach_is_approved':
+        'Whether the coach is approved',
 
     // Lifted out of coach_messaging_screen.dart.
-    'coach_messaging_choose_a_client_to_open_the': 'Choose a client to open the chat',
+    'coach_messaging_choose_a_client_to_open_the':
+        'Choose a client to open the chat',
     'coach_messaging_client_chat': 'Client chat',
-    'coach_messaging_direct_1_to_1_chat_with': 'Direct 1-to-1 chat with your client.',
-    'coach_messaging_direct_1_to_1_chat_with_2': 'Direct 1-to-1 chat with your assigned coach.',
-    'coach_messaging_direct_chat_with_your_coach': 'Direct chat with your coach',
+    'coach_messaging_direct_1_to_1_chat_with':
+        'Direct 1-to-1 chat with your client.',
+    'coach_messaging_direct_1_to_1_chat_with_2':
+        'Direct 1-to-1 chat with your assigned coach.',
+    'coach_messaging_direct_chat_with_your_coach':
+        'Direct chat with your coach',
     'coach_messaging_no_clients_yet': 'No clients yet',
     'coach_messaging_no_messages_yet': 'No messages yet',
     'coach_messaging_offline': 'Offline',
-    'coach_messaging_one_direct_conversation_only': 'One direct conversation only',
-    'coach_messaging_open_a_direct_chat_target_to': 'Open a direct chat target to start messaging',
+    'coach_messaging_one_direct_conversation_only':
+        'One direct conversation only',
+    'coach_messaging_open_a_direct_chat_target_to':
+        'Open a direct chat target to start messaging',
     'coach_messaging_reconnecting': 'Reconnecting...',
-    'coach_messaging_start_the_conversation_and_real_messages': 'Start the conversation and real messages will appear here.',
+    'coach_messaging_start_the_conversation_and_real_messages':
+        'Start the conversation and real messages will appear here.',
     'coach_messaging_typing': 'typing...',
-    'coach_messaging_your_clients_will_appear_here_so': 'Your clients will appear here so you can start chatting.',
+    'coach_messaging_your_clients_will_appear_here_so':
+        'Your clients will appear here so you can start chatting.',
 
     // Lifted out of nutrition_preferences_intake_screen.dart.
     'nutrition_preferences_intake_foul': 'Foul',
@@ -2315,14 +2383,18 @@ class LanguageProvider with ChangeNotifier {
 
     // Lifted out of nutrition_screen.dart.
     'nutrition_complete_first_workout': 'Complete First Workout',
-    'nutrition_complete_your_first_and_second_intake': 'Complete your first and second intake before starting nutrition.',
-    'nutrition_complete_your_first_workout_before_starting': 'Complete your first workout before starting your nutrition plan.',
+    'nutrition_complete_your_first_and_second_intake':
+        'Complete your first and second intake before starting nutrition.',
+    'nutrition_complete_your_first_workout_before_starting':
+        'Complete your first workout before starting your nutrition plan.',
     'nutrition_could_not_log_meal': 'Could not log meal',
     'nutrition_daily_history': 'Daily history',
-    'nutrition_no_ingredients_details_available': 'No ingredients/details available',
+    'nutrition_no_ingredients_details_available':
+        'No ingredients/details available',
     'nutrition_open_workout': 'Open Workout',
     'nutrition_select_date': 'Select date',
-    'nutrition_we_need_your_basic_profile_details': 'We need your basic profile details first so we can calculate your calorie needs.',
+    'nutrition_we_need_your_basic_profile_details':
+        'We need your basic profile details first so we can calculate your calorie needs.',
 
     // Lifted out of coach_clients_screen.dart.
     'coach_clients_active_today': 'Active today',
@@ -2331,8 +2403,10 @@ class LanguageProvider with ChangeNotifier {
     'coach_clients_last_inbody_daysago': 'Last InBody {days}d ago',
 
     // Lifted out of profile_edit_screen.dart.
-    'profile_edit_failed_to_remove_profile_photo': 'Failed to remove profile photo',
-    'profile_edit_failed_to_update_profile_photo': 'Failed to update profile photo',
+    'profile_edit_failed_to_remove_profile_photo':
+        'Failed to remove profile photo',
+    'profile_edit_failed_to_update_profile_photo':
+        'Failed to update profile photo',
     'profile_edit_profile_photo_removed': 'Profile photo removed',
     'profile_edit_profile_photo_updated': 'Profile photo updated',
 
@@ -2347,10 +2421,20 @@ class LanguageProvider with ChangeNotifier {
     'auth_oauth_apple': 'Apple',
     'calendar_previous': 'Previous',
     'calendar_upcoming': 'Upcoming',
-};
+  };
 
   // Arabic translations
   static final Map<String, String> _arabicTranslations = {
+    'filter': 'تصفية',
+    'clear': 'مسح',
+    'remove': 'إزالة',
+    'attach_file': 'إرفاق ملف',
+    'edit_profile_photo': 'تعديل صورة الملف الشخصي',
+    'show': 'إظهار',
+    'hide': 'إخفاء',
+    'decrease': 'تقليل',
+    'increase': 'زيادة',
+    'cart': 'السلة',
     'plan_editor_plan': 'الخطة',
     'plan_editor_json': 'JSON',
     'plan_editor_plan_id': 'معرف الخطة',
@@ -2471,7 +2555,8 @@ class LanguageProvider with ChangeNotifier {
         'اختر نسخة البرنامج التي ستُحفظ فيها هذه الأيام',
     'catalog_result_total': '{total} في المكتبة',
     'catalog_result_matches': '{total} مطابقة لـ "{query}"',
-    'catalog_result_truncated': 'عرض {shown} من {total} - ابحث للوصول إلى الباقي',
+    'catalog_result_truncated':
+        'عرض {shown} من {total} - ابحث للوصول إلى الباقي',
     'admin_exercise_search_hint':
         'ابحث بالاسم أو المعرف أو العضلة أو الأداة أو المستوى',
     'admin_template_search_hint':
@@ -2481,7 +2566,8 @@ class LanguageProvider with ChangeNotifier {
     'admin_ingredient_search_hint': 'ابحث في المكونات بالاسم أو المعرف',
     'admin_plan_search_hint':
         'ابحث في الخطط بالمعرف أو السوق (SA / EG) أو السعرات أو النمط',
-    'admin_import_search_hint': 'ابحث في عمليات الاستيراد بالحزمة أو الإصدار أو الحالة',
+    'admin_import_search_hint':
+        'ابحث في عمليات الاستيراد بالحزمة أو الإصدار أو الحالة',
     'plan_editor_portion_small': 'صغيرة',
     'plan_editor_portion_medium': 'متوسطة',
     'plan_editor_portion_large': 'كبيرة',
@@ -2620,7 +2706,7 @@ class LanguageProvider with ChangeNotifier {
     'coach_specialty_strength': 'تمارين القوة',
     'coach_specialty_weight_loss': 'إنقاص الوزن',
     'coach_specialty_nutrition': 'التغذية',
-    'auth_app_name': 'فيت كوتش',
+    'auth_app_name': 'عاش',
     'auth_tagline': 'رحلتك الرياضية تبدأ هنا',
     'auth_welcome': 'مرحباً',
     'auth_welcome_subtitle': 'سجل الدخول للمتابعة',
@@ -2638,7 +2724,7 @@ class LanguageProvider with ChangeNotifier {
     'auth_no_account': 'ليس لديك حساب؟',
     'auth_have_account': 'لديك حساب بالفعل؟',
     'auth_create_account': 'إنشاء حساب',
-    'auth_create_account_subtitle': 'انضم إلى فيت كوتش وابدأ رحلتك',
+    'auth_create_account_subtitle': 'انضم إلى عاش وابدأ رحلتك',
     'auth_invalid_email': 'أدخل بريداً إلكترونياً صالحاً',
     'store_category_protein': 'بروتين',
     'store_category_pre_workout': 'ما قبل التمرين',
@@ -2934,8 +3020,7 @@ class LanguageProvider with ChangeNotifier {
     'coach_workout_plan_saved': 'تم حفظ الخطة',
     'coach_workout_plan_save_failed': 'فشل حفظ الخطة',
     'auth_full_name': 'الاسم الكامل',
-    'auth_complete_profile_desc':
-        'تم تأكيد رقمك. أكمل إعداد حسابك.',
+    'auth_complete_profile_desc': 'تم تأكيد رقمك. أكمل إعداد حسابك.',
     'auth_email_optional': 'البريد الإلكتروني (اختياري)',
     'auth_password_min_length': '8 أحرف على الأقل',
     'auth_finish': 'إنهاء',
@@ -2986,8 +3071,8 @@ class LanguageProvider with ChangeNotifier {
     'auth_resend_in': 'إعادة الإرسال خلال',
     'auth_attempts_remaining': 'محاولات متبقية',
     'auth_change_phone': 'تغيير رقم الهاتف',
-    'splash_headline_en': 'Your Fitness Journey Starts Now',
-    'splash_headline_ar': 'رحلتك الرياضية تبدأ الآن',
+    'splash_headline_en': 'Move well. Live fully.',
+    'splash_headline_ar': 'تحرّك بصحة. عِش حياتك كاملة.',
     'splash_start': 'Start / ابدأ',
     'account': 'الحساب',
     'account_manage_profile': 'إدارة ملفك الشخصي',
@@ -3071,7 +3156,7 @@ class LanguageProvider with ChangeNotifier {
     'account_contact_us': 'تواصل معنا',
     'account_contact_us_subtitle': 'تواصل مع فريق الدعم',
     'account_about': 'عن التطبيق',
-    'account_about_legalese': 'حقوق النشر 2024 FitCoach. جميع الحقوق محفوظة.',
+    'account_about_legalese': 'حقوق النشر 2026 عاش. جميع الحقوق محفوظة.',
     'account_about_description': 'تطبيق لياقة شامل مع تدريب شخصي.',
     'account_terms': 'الشروط والأحكام',
     'account_privacy': 'سياسة الخصوصية',
@@ -3212,7 +3297,7 @@ class LanguageProvider with ChangeNotifier {
     'subscription_admin_form_badge_optional': 'الشارة (اختياري)',
     'subscription_admin_form_accent_color': 'لون التمييز',
     'subscription_admin_form_color_required': 'لون التمييز مطلوب',
-    'subscription_admin_form_color_invalid': 'استخدم لوناً مثل #7C3AED',
+    'subscription_admin_form_color_invalid': 'استخدم لوناً مثل #0B6254',
     'subscription_admin_form_recommended_toggle': 'تمييز كخطة موصى بها',
     'subscription_admin_form_messages_limit': 'حد رسائل المدرب',
     'subscription_admin_form_video_limit': 'حد مكالمات الفيديو',
@@ -3254,7 +3339,8 @@ class LanguageProvider with ChangeNotifier {
     'dismiss': 'إخفاء',
     'processing': 'جاري المعالجة...',
     'error_generic': 'حدث خطأ. حاول مرة أخرى.',
-    'error_offline': 'يبدو أنك غير متصل بالإنترنت. تحقق من الاتصال وحاول مجدداً.',
+    'error_offline':
+        'يبدو أنك غير متصل بالإنترنت. تحقق من الاتصال وحاول مجدداً.',
     'error_timeout': 'استغرق الطلب وقتاً طويلاً. حاول مرة أخرى.',
     'error_session_expired': 'انتهت صلاحية جلستك. يرجى تسجيل الدخول مجدداً.',
     'error_forbidden': 'ليس لديك صلاحية للقيام بذلك.',
@@ -3466,6 +3552,7 @@ class LanguageProvider with ChangeNotifier {
     'exercises': 'تمارين',
     'exercise': 'تمرين',
     'no_active_workout_plan': 'لا توجد خطة تمرين نشطة',
+    'workout_day_locked': 'يمكنك بدء تمرين اليوم الحالي فقط. أنهِ يومك الحالي أولاً.',
     'workout_plan_coming_soon': 'سيقوم مدربك بإنشاء خطة لك قريباً',
     'workout_select_day': 'اختر يوماً لعرض التمارين',
     'workout_overview': 'نظرة عامة على التمرين',
@@ -3494,6 +3581,7 @@ class LanguageProvider with ChangeNotifier {
     'home_nutrition': 'التغذية',
     'home_nutrition_desc': 'الوجبات والماكروز والأهداف اليومية',
     'home_quick_access': 'وصول سريع',
+    'home_explore_aash': 'استكشف عاش',
     'home_ready': 'هل أنت مستعد للجلسة التالية؟',
     'home_store': 'المتجر',
     'home_store_desc': 'مكملات ومعدات',
@@ -3572,6 +3660,8 @@ class LanguageProvider with ChangeNotifier {
     'duration': 'المدة',
     'workout_difficulty_intermediate': 'متوسط',
     'workout_complete_label': 'مكتمل',
+    'workout_calories_burned': 'محروقة (تقديري)',
+    'kcal_short': 'سعرة',
     'workout_previous': 'التمرين السابق',
     'workout_continue': 'متابعة التمرين',
     'workout_completed': 'تم إكمال التمرين',
@@ -3782,7 +3872,7 @@ class LanguageProvider with ChangeNotifier {
     'store_equipment': 'معدات',
     'store_apparel': 'ملابس',
     'store_accessories': 'إكسسوارات',
-    'store_title': 'متجر فت كوتش',
+    'store_title': 'متجر عاش',
     'store_subtitle': 'مكملات ومعدات مختارة لك',
     'store_search_placeholder': 'ابحث عن منتج أو علامة تجارية',
     'store_products': 'المنتجات',
@@ -3968,7 +4058,7 @@ class LanguageProvider with ChangeNotifier {
     'coach_intro_get_started': 'ابدأ الآن',
     'language_title': 'اختر لغتك',
     'language_subtitle': 'يمكنك تغييرها لاحقًا في الإعدادات',
-    'language_footer': 'تابع إلى FitCoach',
+    'language_footer': 'تابع إلى عاش',
     'exercise_demo': 'عرض',
     'exercise_watch_video_btn': 'شاهد الفيديو',
     'exercise_overview': 'نظرة عامة',
@@ -4223,7 +4313,7 @@ class LanguageProvider with ChangeNotifier {
     'delete_account_confirm': 'حذف',
     'delete_account_submit': 'حذف حسابي',
     'delete_account_success': 'تم حذف حسابك.',
-  
+
     // Previously English-only, so Arabic readers saw English here.
     'ask_coach': 'اطلب خطة من مدربك',
     'buy_now': 'اشترِ الآن',
@@ -4257,7 +4347,7 @@ class LanguageProvider with ChangeNotifier {
     'no_plan': 'لا توجد خطة تمارين بعد',
     'nutrition_plan': 'خطة التغذية',
     'onboarding_slide1_desc': 'رحلتك نحو اللياقة تبدأ هنا مع مدربين محترفين',
-    'onboarding_slide1_title': 'مرحبًا بك في FitCoach+',
+    'onboarding_slide1_title': 'مرحبًا بك في عاش',
     'onboarding_slide2_desc': 'احصل على خطط تمارين مصممة لأهدافك وحالتك',
     'onboarding_slide2_title': 'خطط تمارين مخصصة',
     'onboarding_slide3_desc': 'تواصل مباشر مع مدربك للإرشاد والدعم',
@@ -4302,36 +4392,51 @@ class LanguageProvider with ChangeNotifier {
 
     // Lifted out of feature_intro_screen.dart.
     'feature_intro_14_day_free_trial': 'تجربة مجانية 14 يوم',
-    'feature_intro_book_live_video_calls_with_your': 'احجز مكالمات فيديو مباشرة مع مدربك للحصول على الدعم',
-    'feature_intro_browse_and_buy_high_quality_supplements': 'تصفح وشراء مكملات ومعدات رياضية عالية الجودة',
-    'feature_intro_chat_with_your_coach_in_real': 'تحدث مع مدربك في الوقت الفعلي واحصل على إرشادات شخصية',
+    'feature_intro_book_live_video_calls_with_your':
+        'احجز مكالمات فيديو مباشرة مع مدربك للحصول على الدعم',
+    'feature_intro_browse_and_buy_high_quality_supplements':
+        'تصفح وشراء مكملات ومعدات رياضية عالية الجودة',
+    'feature_intro_chat_with_your_coach_in_real':
+        'تحدث مع مدربك في الوقت الفعلي واحصل على إرشادات شخصية',
     'feature_intro_complete_nutrition_plans': 'خطط تغذية متكاملة',
     'feature_intro_connect_with_coach': 'تواصل مع مدربك',
-    'feature_intro_enjoy_full_nutrition_access_for_14': 'استمتع بالوصول الكامل للتغذية لمدة 14 يوماً مع الاشتراك المجاني',
+    'feature_intro_enjoy_full_nutrition_access_for_14':
+        'استمتع بالوصول الكامل للتغذية لمدة 14 يوماً مع الاشتراك المجاني',
     'feature_intro_exercise_substitution': 'استبدال التمارين',
-    'feature_intro_get_detailed_meal_plans_with_macro': 'احصل على خطط وجبات مفصلة مع تتبع المغذيات الكبرى',
-    'feature_intro_get_safe_alternatives_for_exercises_that': 'احصل على بدائل آمنة للتمارين التي قد تسبب إصابات',
-    'feature_intro_get_workout_plans_tailored_to_your': 'احصل على خطط تمرين مصممة خصيصاً لأهدافك ومستوى لياقتك',
-    'feature_intro_get_your_orders_with_fast_and': 'احصل على طلباتك مع توصيل سريع وموثوق',
-    'feature_intro_monitor_calories_protein_carbs_and_fats': 'تابع السعرات والبروتين والكربوهيدرات والدهون يومياً',
+    'feature_intro_get_detailed_meal_plans_with_macro':
+        'احصل على خطط وجبات مفصلة مع تتبع المغذيات الكبرى',
+    'feature_intro_get_safe_alternatives_for_exercises_that':
+        'احصل على بدائل آمنة للتمارين التي قد تسبب إصابات',
+    'feature_intro_get_workout_plans_tailored_to_your':
+        'احصل على خطط تمرين مصممة خصيصاً لأهدافك ومستوى لياقتك',
+    'feature_intro_get_your_orders_with_fast_and':
+        'احصل على طلباتك مع توصيل سريع وموثوق',
+    'feature_intro_monitor_calories_protein_carbs_and_fats':
+        'تابع السعرات والبروتين والكربوهيدرات والدهون يومياً',
     'feature_intro_personalized_workouts': 'خطط تمرين مخصصة',
     'feature_intro_ratings_reviews': 'تقييمات ومراجعات',
-    'feature_intro_read_real_reviews_from_other_users': 'اقرأ تقييمات حقيقية من مستخدمين آخرين',
-    'feature_intro_send_photos_and_videos_to_track': 'أرسل صور وفيديوهات لتتبع تقدمك',
+    'feature_intro_read_real_reviews_from_other_users':
+        'اقرأ تقييمات حقيقية من مستخدمين آخرين',
+    'feature_intro_send_photos_and_videos_to_track':
+        'أرسل صور وفيديوهات لتتبع تقدمك',
     'feature_intro_share_progress': 'شارك التقدم',
     'feature_intro_shop_products': 'تسوق المنتجات',
     'feature_intro_track_macros': 'تتبع المغذيات',
-    'feature_intro_track_your_weekly_workouts_and_tap': 'تابع تمارينك الأسبوعية واضغط على أي يوم لرؤية التفاصيل',
+    'feature_intro_track_your_weekly_workouts_and_tap':
+        'تابع تمارينك الأسبوعية واضغط على أي يوم لرؤية التفاصيل',
     'feature_intro_video_calls': 'مكالمات فيديو',
     'feature_intro_weekly_schedule': 'جدولة أسبوعية',
 
     // Lifted out of inbody_input_screen.dart.
     'inbody_input_additional_measurements_optional': 'قياسات إضافية (اختياري)',
-    'inbody_input_ai_extraction_is_available_for_subscribers': 'استخراج البيانات بالذكاء الاصطناعي متاح للمشتركين فقط. قم بالترقية للمتابعة.',
+    'inbody_input_ai_extraction_is_available_for_subscribers':
+        'استخراج البيانات بالذكاء الاصطناعي متاح للمشتركين فقط. قم بالترقية للمتابعة.',
     'inbody_input_ai_powered_inbody_analysis': 'تحليل InBody بالذكاء الاصطناعي',
     'inbody_input_ai_scan': 'مسح بالذكاء الاصطناعي',
-    'inbody_input_align_the_entire_report_inside_the': 'قم بمحاذاة التقرير بالكامل داخل الإطار.',
-    'inbody_input_analysis_takes_only_a_few_seconds': 'يستغرق التحليل ثوانٍ معدودة.',
+    'inbody_input_align_the_entire_report_inside_the':
+        'قم بمحاذاة التقرير بالكامل داخل الإطار.',
+    'inbody_input_analysis_takes_only_a_few_seconds':
+        'يستغرق التحليل ثوانٍ معدودة.',
     'inbody_input_analyzing_your_scan': 'يتم الآن تحليل الصورة...',
     'inbody_input_available_for_all_users': 'متاح لجميع المستخدمين',
     'inbody_input_bmi': 'مؤشر كتلة الجسم',
@@ -4339,18 +4444,24 @@ class LanguageProvider with ChangeNotifier {
     'inbody_input_body_fat': 'دهون الجسم',
     'inbody_input_body_fat_2': 'نسبة الدهون (%)',
     'inbody_input_body_water': 'ماء الجسم (%)',
-    'inbody_input_capture_a_clear_photo_of_your': 'التقط صورة واضحة لتقرير InBody وسنملأ الأرقام تلقائياً.',
+    'inbody_input_capture_a_clear_photo_of_your':
+        'التقط صورة واضحة لتقرير InBody وسنملأ الأرقام تلقائياً.',
     'inbody_input_choose_from_gallery': 'اختيار من المعرض',
     'inbody_input_choose_input_method': 'اختر طريقة الإدخال',
     'inbody_input_data_extraction_complete': 'تم استخراج البيانات',
     'inbody_input_enter_measurements_manually': 'أدخل القياسات يدوياً',
     'inbody_input_enter_your_measurements': 'أدخل قياساتك',
-    'inbody_input_extracted_metrics_applied_review_them_before': 'تمت إضافة القياسات المستخرجة، تأكد منها قبل الحفظ.',
-    'inbody_input_failed_to_save_results_please_try': 'فشل في حفظ النتائج. حاول مرة أخرى.',
-    'inbody_input_how_would_you_like_to_enter': 'كيف تريد إدخال بيانات InBody الخاصة بك؟',
+    'inbody_input_extracted_metrics_applied_review_them_before':
+        'تمت إضافة القياسات المستخرجة، تأكد منها قبل الحفظ.',
+    'inbody_input_failed_to_save_results_please_try':
+        'فشل في حفظ النتائج. حاول مرة أخرى.',
+    'inbody_input_how_would_you_like_to_enter':
+        'كيف تريد إدخال بيانات InBody الخاصة بك؟',
     'inbody_input_inbody_analysis': 'تحليل InBody',
-    'inbody_input_inbody_analysis_helps_you_track_your': 'يساعدك تحليل InBody على تتبع تكوين جسمك بدقة وتحديد أهداف واقعية',
-    'inbody_input_inbody_results_saved_successfully': 'تم حفظ نتائج InBody بنجاح',
+    'inbody_input_inbody_analysis_helps_you_track_your':
+        'يساعدك تحليل InBody على تتبع تكوين جسمك بدقة وتحديد أهداف واقعية',
+    'inbody_input_inbody_results_saved_successfully':
+        'تم حفظ نتائج InBody بنجاح',
     'inbody_input_instant_data_extraction': 'استخراج فوري للبيانات',
     'inbody_input_manual_input': 'إدخال يدوي',
     'inbody_input_mineral_kg': 'المعادن (كجم)',
@@ -4362,24 +4473,31 @@ class LanguageProvider with ChangeNotifier {
     'inbody_input_preparing_preview': 'جارٍ تجهيز المعاينة...',
     'inbody_input_protein_kg': 'البروتين (كجم)',
     'inbody_input_retake_photo': 'إعادة الالتقاط',
-    'inbody_input_review_the_highlighted_metrics_then_continue': 'راجع أبرز القياسات ثم تابع لتعديل أي قيمة قبل الحفظ.',
+    'inbody_input_review_the_highlighted_metrics_then_continue':
+        'راجع أبرز القياسات ثم تابع لتعديل أي قيمة قبل الحفظ.',
     'inbody_input_save_results': 'حفظ النتائج',
-    'inbody_input_something_went_wrong_while_processing_the': 'حدث خطأ أثناء معالجة الصورة. حاول مرة أخرى.',
+    'inbody_input_something_went_wrong_while_processing_the':
+        'حدث خطأ أثناء معالجة الصورة. حاول مرة أخرى.',
     'inbody_input_switch_to_manual_entry': 'الانتقال للإدخال اليدوي',
-    'inbody_input_take_a_photo_of_your_inbody': 'التقط صورة لتقرير InBody الخاص بك',
-    'inbody_input_the_scan_was_saved_but_the': 'تم حفظ الفحص، لكن تعذر تحميل أحدث نتيجة الآن.',
+    'inbody_input_take_a_photo_of_your_inbody':
+        'التقط صورة لتقرير InBody الخاص بك',
+    'inbody_input_the_scan_was_saved_but_the':
+        'تم حفظ الفحص، لكن تعذر تحميل أحدث نتيجة الآن.',
     'inbody_input_upgrade_for_ai': 'ترقية للذكاء الاصطناعي',
     'inbody_input_use_extracted_data': 'استخدام هذه البيانات',
-    'inbody_input_use_good_lighting_and_a_clean': 'احرص على إضاءة جيدة وخلفية نظيفة.',
+    'inbody_input_use_good_lighting_and_a_clean':
+        'احرص على إضاءة جيدة وخلفية نظيفة.',
     'inbody_input_visceral_fat': 'الدهون الحشوية',
-    'inbody_input_we_extract_every_important_metric_from': 'نستخرج تلقائياً كل البيانات المهمة من تقريرك.',
+    'inbody_input_we_extract_every_important_metric_from':
+        'نستخرج تلقائياً كل البيانات المهمة من تقريرك.',
 
     // Lifted out of signup_screen.dart.
     'signup_and': ' و',
     'signup_create_account': 'إنشاء حساب جديد',
     'signup_creating_account': 'جاري الإنشاء...',
     'signup_enter_6_digits': 'أدخل 6 أرقام',
-    'signup_enter_a_6_digit_verification_code': 'أدخل رمز تحقق مكوناً من 6 أرقام',
+    'signup_enter_a_6_digit_verification_code':
+        'أدخل رمز تحقق مكوناً من 6 أرقام',
     'signup_i_agree_to_the': 'أوافق على ',
     'signup_invalid_email': 'بريد غير صالح',
     'signup_john_doe': 'أحمد محمد',
@@ -4388,7 +4506,8 @@ class LanguageProvider with ChangeNotifier {
     'signup_or_sign_up_with': 'أو إنشاء حساب باستخدام',
     'signup_password_too_short': 'كلمة المرور قصيرة',
     'signup_passwords_don_t_match': 'كلمة المرور غير متطابقة',
-    'signup_please_agree_to_terms_conditions': 'الرجاء الموافقة على الشروط والأحكام',
+    'signup_please_agree_to_terms_conditions':
+        'الرجاء الموافقة على الشروط والأحكام',
     'signup_please_confirm_password': 'الرجاء تأكيد كلمة المرور',
     'signup_please_enter_email': 'الرجاء إدخال البريد',
     'signup_please_enter_password': 'الرجاء إدخال كلمة المرور',
@@ -4407,14 +4526,18 @@ class LanguageProvider with ChangeNotifier {
     'video_booking_loading_coach_details': 'جارٍ تحميل بيانات المدرب...',
     'video_booking_minutes': 'دقيقة',
     'video_booking_no_available_slots': 'لا توجد أوقات متاحة',
-    'video_booking_no_coach_is_assigned_yet_booking': 'لم يتم تعيين مدرب لك بعد. سيتم تفعيل الحجز بعد التعيين.',
+    'video_booking_no_coach_is_assigned_yet_booking':
+        'لم يتم تعيين مدرب لك بعد. سيتم تفعيل الحجز بعد التعيين.',
     'video_booking_notes_optional': 'ملاحظات إضافية',
     'video_booking_reserve_a_1_on_1_session': 'احجز جلسة فردية مع مدربك',
     'video_booking_select_date': 'اختر التاريخ',
-    'video_booking_selected_time_slot_is_no_longer': 'هذا الموعد لم يعد متاحًا. تم تحديث الأوقات.',
+    'video_booking_selected_time_slot_is_no_longer':
+        'هذا الموعد لم يعد متاحًا. تم تحديث الأوقات.',
     'video_booking_session_details': 'تفاصيل الجلسة',
-    'video_booking_unable_to_complete_booking_please_try': 'تعذر إتمام الحجز. حاول مرة أخرى.',
-    'video_booking_unable_to_load_available_slots': 'تعذر تحميل المواعيد المتاحة',
+    'video_booking_unable_to_complete_booking_please_try':
+        'تعذر إتمام الحجز. حاول مرة أخرى.',
+    'video_booking_unable_to_load_available_slots':
+        'تعذر تحميل المواعيد المتاحة',
     'video_booking_unable_to_load_coach_details': 'تعذر تحميل بيانات المدرب',
     'video_booking_video_session_booked_successfully': 'تم حجز الجلسة بنجاح',
     'video_booking_years_exp': 'سنوات خبرة',
@@ -4423,11 +4546,13 @@ class LanguageProvider with ChangeNotifier {
     // Lifted out of coach_client_detail_screen.dart.
     'coach_client_detail_body_fat': 'نسبة الدهون',
     'coach_client_detail_check_in_timeline': 'سجل تسجيلات المتابعة',
-    'coach_client_detail_every_client_check_in_including_inbody': 'كل تسجيلات العميل، بما في ذلك InBody والاستبيانات والتقدم.',
+    'coach_client_detail_every_client_check_in_including_inbody':
+        'كل تسجيلات العميل، بما في ذلك InBody والاستبيانات والتقدم.',
     'coach_client_detail_experience_level': 'مستوى الخبرة',
     'coach_client_detail_full_intake': 'استبيان كامل',
     'coach_client_detail_inbody': 'InBody',
-    'coach_client_detail_inbody_progress_and_intake_events_will': 'ستظهر هنا تسجيلات InBody والتقدم والاستبيانات عند توفرها.',
+    'coach_client_detail_inbody_progress_and_intake_events_will':
+        'ستظهر هنا تسجيلات InBody والتقدم والاستبيانات عند توفرها.',
     'coach_client_detail_intake': 'استبيان أولي',
     'coach_client_detail_latest_check_in': 'آخر تسجيل',
     'coach_client_detail_latest_check_in_snapshot': 'ملخص آخر تسجيل',
@@ -4450,7 +4575,8 @@ class LanguageProvider with ChangeNotifier {
     'exercise_library_core': 'بطن',
     'exercise_library_difficulty_level': 'المستوى',
     'exercise_library_exercise_library': 'مكتبة التمارين',
-    'exercise_library_failed_to_load_exercise_library': 'تعذر تحميل مكتبة التمارين',
+    'exercise_library_failed_to_load_exercise_library':
+        'تعذر تحميل مكتبة التمارين',
     'exercise_library_legs': 'أرجل',
     'exercise_library_no_exercises_found': 'لم يتم العثور على تمارين',
     'exercise_library_search_exercises': 'ابحث عن تمرين...',
@@ -4462,7 +4588,8 @@ class LanguageProvider with ChangeNotifier {
     'admin_coaches_bio': 'نبذة',
     'admin_coaches_coach_deleted': 'تم حذف المدرب',
     'admin_coaches_coach_updated': 'تم تحديث المدرب',
-    'admin_coaches_delete_confirm': 'هل تريد حذف المدرب {name}؟ لا يمكن التراجع عن هذا الإجراء.',
+    'admin_coaches_delete_confirm':
+        'هل تريد حذف المدرب {name}؟ لا يمكن التراجع عن هذا الإجراء.',
     'admin_coaches_edit_coach': 'تعديل بيانات المدرب',
     'admin_coaches_experience': 'سنوات الخبرة',
     'admin_coaches_failed_to_delete_coach': 'فشل حذف المدرب',
@@ -4470,24 +4597,30 @@ class LanguageProvider with ChangeNotifier {
     'admin_coaches_failed_to_update_coach': 'فشل تحديث المدرب',
     'admin_coaches_profile_photo_url': 'رابط الصورة الشخصية',
     'admin_coaches_suspended': 'معلّق',
-    'admin_coaches_turning_this_off_will_mark_the': 'تعطيل هذا الخيار سيجعل حالة المدرب معلّقة',
-    'admin_coaches_whether_the_coach_is_approved': 'تحديد ما إذا كان المدرب معتمدًا',
+    'admin_coaches_turning_this_off_will_mark_the':
+        'تعطيل هذا الخيار سيجعل حالة المدرب معلّقة',
+    'admin_coaches_whether_the_coach_is_approved':
+        'تحديد ما إذا كان المدرب معتمدًا',
 
     // Lifted out of coach_messaging_screen.dart.
     'coach_messaging_choose_a_client_to_open_the': 'اختر عميلًا لفتح المحادثة',
     'coach_messaging_client_chat': 'محادثة العميل',
     'coach_messaging_direct_1_to_1_chat_with': 'محادثة مباشرة مع العميل.',
-    'coach_messaging_direct_1_to_1_chat_with_2': 'محادثة مباشرة مع مدربك المعتمد.',
+    'coach_messaging_direct_1_to_1_chat_with_2':
+        'محادثة مباشرة مع مدربك المعتمد.',
     'coach_messaging_direct_chat_with_your_coach': 'تواصل مباشر مع مدربك',
     'coach_messaging_no_clients_yet': 'لا يوجد عملاء بعد',
     'coach_messaging_no_messages_yet': 'لا توجد رسائل بعد',
     'coach_messaging_offline': 'غير متصل',
     'coach_messaging_one_direct_conversation_only': 'محادثة مباشرة واحدة فقط',
-    'coach_messaging_open_a_direct_chat_target_to': 'لا يمكن بدء المحادثة من هنا بعد',
+    'coach_messaging_open_a_direct_chat_target_to':
+        'لا يمكن بدء المحادثة من هنا بعد',
     'coach_messaging_reconnecting': 'جارٍ إعادة الاتصال...',
-    'coach_messaging_start_the_conversation_and_real_messages': 'ابدأ المحادثة وستظهر الرسائل الحقيقية هنا فورًا.',
+    'coach_messaging_start_the_conversation_and_real_messages':
+        'ابدأ المحادثة وستظهر الرسائل الحقيقية هنا فورًا.',
     'coach_messaging_typing': 'يكتب الآن...',
-    'coach_messaging_your_clients_will_appear_here_so': 'سيظهر عملاؤك هنا لبدء المحادثة معهم.',
+    'coach_messaging_your_clients_will_appear_here_so':
+        'سيظهر عملاؤك هنا لبدء المحادثة معهم.',
 
     // Lifted out of nutrition_preferences_intake_screen.dart.
     'nutrition_preferences_intake_foul': 'فول',
@@ -4501,14 +4634,17 @@ class LanguageProvider with ChangeNotifier {
 
     // Lifted out of nutrition_screen.dart.
     'nutrition_complete_first_workout': 'أكمل التمرين الأول',
-    'nutrition_complete_your_first_and_second_intake': 'أكمل الاستبيان الأول والثاني قبل بدء التغذية.',
-    'nutrition_complete_your_first_workout_before_starting': 'أكمل تمرينك الأول قبل بدء خطتك الغذائية.',
+    'nutrition_complete_your_first_and_second_intake':
+        'أكمل الاستبيان الأول والثاني قبل بدء التغذية.',
+    'nutrition_complete_your_first_workout_before_starting':
+        'أكمل تمرينك الأول قبل بدء خطتك الغذائية.',
     'nutrition_could_not_log_meal': 'تعذر تسجيل الوجبة',
     'nutrition_daily_history': 'السجل اليومي',
     'nutrition_no_ingredients_details_available': 'لا توجد مكونات/تفاصيل متاحة',
     'nutrition_open_workout': 'فتح التمرين',
     'nutrition_select_date': 'اختيار اليوم',
-    'nutrition_we_need_your_basic_profile_details': 'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.',
+    'nutrition_we_need_your_basic_profile_details':
+        'نحتاج إكمال بيانات ملفك الأساسي أولا حتى نحسب احتياجك من السعرات.',
 
     // Lifted out of coach_clients_screen.dart.
     'coach_clients_active_today': 'نشاط اليوم',
@@ -4533,5 +4669,5 @@ class LanguageProvider with ChangeNotifier {
     'auth_oauth_apple': 'Apple',
     'calendar_previous': 'السابق',
     'calendar_upcoming': 'القادم',
-};
+  };
 }

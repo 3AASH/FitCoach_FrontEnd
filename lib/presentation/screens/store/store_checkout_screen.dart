@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -400,7 +401,7 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         body: SafeArea(
           child: Column(
             children: [
@@ -416,7 +417,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                 padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
                 child: CustomButton(
                   text: _primaryCtaText(lang),
-                  onPressed: _isSubmitting ? null : () => _onPrimaryAction(lang),
+                  onPressed:
+                      _isSubmitting ? null : () => _onPrimaryAction(lang),
                   isLoading: _isSubmitting,
                   fullWidth: true,
                   size: ButtonSize.large,
@@ -446,9 +448,12 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
   Widget _buildHeader(LanguageProvider lang, bool isArabic) {
     return Container(
       padding: const EdgeInsetsDirectional.fromSTEB(8, 10, 16, 10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF2563EB), Color(0xFF06B6D4)],
+          colors: [
+            context.palette.primary,
+            context.palette.primary.withValues(alpha: 0.86)
+          ],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
@@ -506,8 +511,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
         fillColor = AppColors.success;
         textColor = context.palette.textOnBrand;
       } else if (isActive) {
-        borderColor = AppColors.primary;
-        fillColor = AppColors.primary;
+        borderColor = context.palette.primary;
+        fillColor = context.palette.primary;
         textColor = context.palette.textOnBrand;
       } else {
         borderColor = context.palette.border;
@@ -528,7 +533,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               ),
               child: Center(
                 child: isComplete
-                    ? Icon(Icons.check, color: context.palette.textOnBrand, size: 18)
+                    ? Icon(Icons.check,
+                        color: context.palette.textOnBrand, size: 18)
                     : Text(
                         '${index + 1}',
                         style: TextStyle(
@@ -738,8 +744,10 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
               // shown as the single, pre-selected option.
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.payments_outlined,
-                    color: AppColors.primary),
+                leading: Icon(
+                  Icons.payments_outlined,
+                  color: context.palette.primary,
+                ),
                 title: Text(lang.t('payment_method_cod')),
                 subtitle: Text(lang.t('checkout_cod_only_note')),
                 trailing:
@@ -873,7 +881,8 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
                         Text(
                           '$qty x ${price.toStringAsFixed(2)} ${lang.t('currency_sar')}',
                           style: TextStyle(
-                              color: context.palette.textSecondary, fontSize: 12),
+                              color: context.palette.textSecondary,
+                              fontSize: 12),
                         ),
                       ],
                     ),
@@ -918,7 +927,9 @@ class _StoreCheckoutScreenState extends State<StoreCheckoutScreen> {
     Widget row(String label, String value, {bool strong = false}) {
       final style = TextStyle(
         fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
-        color: strong ? context.palette.textPrimary : context.palette.textSecondary,
+        color: strong
+            ? context.palette.textPrimary
+            : context.palette.textSecondary,
       );
       return Padding(
         padding: const EdgeInsets.only(bottom: 8),

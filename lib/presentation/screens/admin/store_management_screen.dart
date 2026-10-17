@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:provider/provider.dart';
@@ -184,7 +185,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final lang = languageProvider;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('store_management_title')),
       ),
@@ -196,7 +197,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
               padding: const EdgeInsets.all(12),
               child: Text(
                 _error!,
-                style: const TextStyle(color: AppColors.error, fontSize: 12),
+                style: TextStyle(color: context.palette.error, fontSize: 12),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -246,7 +247,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _addNew(lang),
-        backgroundColor: AppColors.primary,
+        backgroundColor: context.palette.primary,
         icon: const Icon(Icons.add),
         label: Text(
           _selectedTab == 'products'
@@ -273,7 +274,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
           decoration: BoxDecoration(
             border: Border(
               bottom: BorderSide(
-                color: isSelected ? AppColors.primary : context.palette.surface,
+                color: isSelected
+                    ? context.palette.primary
+                    : context.palette.surface,
                 width: 2,
               ),
             ),
@@ -282,7 +285,9 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
             label,
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: isSelected ? AppColors.primary : context.palette.textSecondary,
+              color: isSelected
+                  ? context.palette.primary
+                  : context.palette.textSecondary,
               fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
             ),
           ),
@@ -362,7 +367,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                   _buildStatItem(
                     lang.t('store_price_label'),
                     '${product['price']} ${lang.t('store_currency')}',
-                    AppColors.primary,
+                    context.palette.primary,
                   ),
                   _buildStatItem(
                     lang.t('store_stock_label'),
@@ -397,7 +402,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       icon: const Icon(Icons.delete, size: 18),
                       label: Text(lang.t('store_delete')),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.error,
+                        foregroundColor: context.palette.error,
                       ),
                     ),
                   ),
@@ -432,12 +437,12 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                 width: 50,
                 height: 50,
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
+                  color: context.palette.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
                   category['icon'] as IconData,
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                 ),
               ),
               const SizedBox(width: 16),
@@ -528,11 +533,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                   ),
                   Text(
                     '${order['total']} ${lang.t('store_currency')}',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                    style: AppTextStyles.h4
+                        .copyWith(color: context.palette.primary),
                   ),
                 ],
               ),
@@ -565,7 +567,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         label = lang.t('store_status_pending');
         break;
       case 'shipped':
-        color = AppColors.primary;
+        color = context.palette.primary;
         label = lang.t('store_status_shipped');
         break;
       case 'delivered':
@@ -581,7 +583,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Text(
         label,
@@ -601,7 +603,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
         Text(
           label,
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             color: context.palette.textSecondary,
           ),
         ),
@@ -795,8 +797,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                     const SizedBox(height: 8),
                     Text(
                       lang.t('store_upload_product_photo_ready'),
-                      style: const TextStyle(
-                        color: AppColors.success,
+                      style: TextStyle(
+                        color: context.palette.success,
                         fontSize: 12,
                       ),
                     ),
@@ -1149,7 +1151,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       icon: const Icon(Icons.delete_outline),
                       label: Text(lang.t('store_delete')),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.error),
+                          foregroundColor: context.palette.error),
                     ),
                   ),
                 ],
@@ -1338,8 +1340,8 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
               const SizedBox(height: 12),
               Text(
                 '${lang.t('store_total')}: ${order['total']} ${lang.t('store_currency')}',
-                style: const TextStyle(
-                    fontWeight: FontWeight.bold, color: AppColors.primary),
+                style: AppTextStyles.bodyMedium
+                    .copyWith(color: context.palette.primary),
               ),
               const SizedBox(height: 16),
               Row(
@@ -1366,7 +1368,7 @@ class _StoreManagementScreenState extends State<StoreManagementScreen> {
                       icon: const Icon(Icons.delete_outline),
                       label: Text(lang.t('store_delete')),
                       style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.error),
+                          foregroundColor: context.palette.error),
                     ),
                   ),
                 ],

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -85,7 +86,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.error,
+        backgroundColor: context.palette.error,
       ),
     );
   }
@@ -132,182 +133,181 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         body: Stack(
-        children: [
-          Positioned.fill(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1680761827444-9214a9c3129f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-              fit: BoxFit.cover,
-              color: Colors.black.withValues(alpha: 0.2),
-              colorBlendMode: BlendMode.darken,
-            ),
-          ),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      // Follows the theme rather than staying white: the card's
-                      // labels and button text inherit the theme's text colour,
-                      // which is near-white in dark mode and vanished here.
-                      color: context.palette.surface.withValues(alpha: 0.95),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.auto_awesome,
-                                      color: AppColors.secondaryForeground,
-                                      size: 20),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    languageProvider.t('intake_second_title'),
-                                    style: const TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.w700,
+          children: [
+            const Positioned.fill(child: AashBackdrop()),
+            SafeArea(
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(24),
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 420),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        // Follows the theme rather than staying white: the card's
+                        // labels and button text inherit the theme's text colour,
+                        // which is near-white in dark mode and vanished here.
+                        color: context.palette.surface,
+                        borderRadius: BorderRadius.circular(AppRadius.xlarge),
+                        border: Border.all(color: context.palette.border),
+                        boxShadow:
+                            Theme.of(context).brightness == Brightness.light
+                                ? [
+                                    BoxShadow(
+                                      color: context.palette.primary.withValues(
+                                        alpha: 0.05,
+                                      ),
+                                      blurRadius: 20,
+                                      offset: const Offset(0, 10),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Text(
-                              '${_currentStep + 1}/5',
-                              style: TextStyle(
-                                  color: context.palette.textSecondary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          languageProvider.t('intake_second_subtitle'),
-                          style:
-                              TextStyle(color: context.palette.textSecondary),
-                        ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: (_currentStep + 1) / 5,
-                          backgroundColor: context.palette.surfaceVariant,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              AppColors.secondaryForeground),
-                        ),
-                        const SizedBox(height: 24),
-                        _buildCurrentStep(languageProvider),
-                        const SizedBox(height: 24),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  if (_currentStep > 0) {
-                                    setState(() => _currentStep--);
-                                  } else {
-                                    if (widget.onBack != null) {
-                                      widget.onBack!();
-                                    } else {
-                                      Navigator.of(context).pop();
-                                    }
-                                  }
-                                },
+                                  ]
+                                : const [],
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    const Icon(
-                                      Icons.arrow_back,
-                                      size: 18,
-                                    ),
-                                    const SizedBox(width: 6),
-                                    Flexible(
-                                      child: Text(
-                                        languageProvider.t('back'),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                    Icon(Icons.auto_awesome,
+                                        color: context.palette.primary,
+                                        size: 20),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      languageProvider.t('intake_second_title'),
+                                      style: AppTextStyles.h3.copyWith(
+                                        color: context.palette.textPrimary,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      AppColors.secondaryForeground,
-                                ),
-                                onPressed: userProvider.isLoading
-                                    ? null
-                                    : () {
-                                        if (!_canProceedToNext()) {
-                                          _showError(languageProvider
-                                              .t('intake_incomplete'));
-                                          return;
-                                        }
-                                        if (_currentStep < 4) {
-                                          setState(() => _currentStep++);
-                                        } else {
-                                          _submitIntake();
-                                        }
-                                      },
-                                child: userProvider.isLoading
-                                    ? const SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                                  AppColors.secondaryForeground),
-                                        ),
-                                      )
-                                    : Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            _currentStep == 4
-                                                ? languageProvider
-                                                    .t('intake_second_complete')
-                                                : languageProvider
-                                                    .t('continue'),
-                                          ),
-                                          const SizedBox(width: 6),
-                                          const Icon(
-                                            Icons.arrow_forward,
-                                            size: 18,
-                                          ),
-                                        ],
-                                      ),
+                              Text(
+                                '${_currentStep + 1}/5',
+                                style: TextStyle(
+                                    color: context.palette.textSecondary),
                               ),
-                            ),
-                          ],
-                        ),
-                      ],
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            languageProvider.t('intake_second_subtitle'),
+                            style:
+                                TextStyle(color: context.palette.textSecondary),
+                          ),
+                          const SizedBox(height: 12),
+                          LinearProgressIndicator(
+                            value: (_currentStep + 1) / 5,
+                            backgroundColor: context.palette.surfaceVariant,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                                context.palette.primary),
+                          ),
+                          const SizedBox(height: 24),
+                          _buildCurrentStep(languageProvider),
+                          const SizedBox(height: 24),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: OutlinedButton(
+                                  onPressed: () {
+                                    if (_currentStep > 0) {
+                                      setState(() => _currentStep--);
+                                    } else {
+                                      if (widget.onBack != null) {
+                                        widget.onBack!();
+                                      } else {
+                                        Navigator.of(context).pop();
+                                      }
+                                    }
+                                  },
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Icon(
+                                        Icons.arrow_back,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Flexible(
+                                        child: Text(
+                                          languageProvider.t('back'),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: context.palette.primary,
+                                    foregroundColor:
+                                        context.palette.textOnBrand,
+                                  ),
+                                  onPressed: userProvider.isLoading
+                                      ? null
+                                      : () {
+                                          if (!_canProceedToNext()) {
+                                            _showError(languageProvider
+                                                .t('intake_incomplete'));
+                                            return;
+                                          }
+                                          if (_currentStep < 4) {
+                                            setState(() => _currentStep++);
+                                          } else {
+                                            _submitIntake();
+                                          }
+                                        },
+                                  child: userProvider.isLoading
+                                      ? SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor: AlwaysStoppedAnimation<
+                                                    Color>(
+                                                context.palette.textOnBrand),
+                                          ),
+                                        )
+                                      : Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              _currentStep == 4
+                                                  ? languageProvider.t(
+                                                      'intake_second_complete')
+                                                  : languageProvider
+                                                      .t('continue'),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            const Icon(
+                                              Icons.arrow_forward,
+                                              size: 18,
+                                            ),
+                                          ],
+                                        ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -451,20 +451,20 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  color: context.palette.success.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
                   border: Border.all(
-                      color: AppColors.success.withValues(alpha: 0.2)),
+                      color: context.palette.success.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle,
-                        color: AppColors.success, size: 18),
+                    Icon(Icons.check_circle,
+                        color: context.palette.success, size: 18),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
                         lang.t('intake_second_injuries_none'),
-                        style: const TextStyle(color: AppColors.success),
+                        style: TextStyle(color: context.palette.success),
                       ),
                     ),
                   ],
@@ -484,18 +484,18 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
       padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap: () => _toggleInjury(value),
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(AppRadius.large),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
           decoration: BoxDecoration(
             color: isSelected
-                ? AppColors.secondaryForeground.withValues(alpha: 0.08)
+                ? context.palette.primary.withValues(alpha: 0.08)
                 : context.palette.surface,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(AppRadius.large),
             border: Border.all(
               color:
-                  isSelected ? AppColors.secondaryForeground : context.palette.border,
+                  isSelected ? context.palette.primary : context.palette.border,
               width: 1.2,
             ),
             boxShadow: [
@@ -511,7 +511,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
               Checkbox(
                 value: isSelected,
                 onChanged: (_) => _toggleInjury(value),
-                activeColor: AppColors.secondaryForeground,
+                activeColor: context.palette.primary,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
               const SizedBox(width: 8),
@@ -520,7 +520,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                   label,
                   style: TextStyle(
                     color: isSelected
-                        ? AppColors.secondaryForeground
+                        ? context.palette.primary
                         : context.palette.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -541,17 +541,17 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.medium),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.secondaryForeground.withValues(alpha: 0.08)
+              ? context.palette.primary.withValues(alpha: 0.08)
               : context.palette.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(
             color:
-                isSelected ? AppColors.secondaryForeground : context.palette.border,
+                isSelected ? context.palette.primary : context.palette.border,
             width: 1.5,
           ),
         ),
@@ -562,7 +562,7 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               color: isSelected
-                  ? AppColors.secondaryForeground
+                  ? context.palette.primary
                   : context.palette.textSecondary,
             ),
             const SizedBox(width: 8),
@@ -572,7 +572,8 @@ class _SecondIntakeScreenState extends State<SecondIntakeScreen> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: AppTextStyles.labelSmall
+                        .copyWith(color: context.palette.textPrimary),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
@@ -614,11 +615,12 @@ class _StepSection extends StatelessWidget {
       children: [
         Column(
           children: [
-            Icon(icon, size: 56, color: AppColors.secondaryForeground),
+            Icon(icon, size: 56, color: context.palette.primary),
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              style:
+                  AppTextStyles.h2.copyWith(color: context.palette.textPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
@@ -658,16 +660,9 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: [Color(0xFFF4E9FF), Color(0xFFE7F0FF)],
-          ),
-        ),
+    return AashScaffold(
+      backgroundColor: context.palette.background,
+      body: AashBackdrop(
         child: Center(
           child: Container(
             margin: const EdgeInsets.all(24),
@@ -689,11 +684,12 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
                 Container(
                   width: 64,
                   height: 64,
-                  decoration: const BoxDecoration(
-                    color: AppColors.secondaryForeground,
+                  decoration: BoxDecoration(
+                    color: context.palette.primary,
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(Icons.fitness_center, color: AppColors.secondary),
+                  child: Icon(Icons.fitness_center,
+                      color: context.palette.textOnBrand),
                 ),
                 const SizedBox(height: 16),
                 Text(
@@ -711,8 +707,8 @@ class _GeneratingPlanScreenState extends State<_GeneratingPlanScreen> {
                 LinearProgressIndicator(
                   value: 0.75,
                   backgroundColor: context.palette.surfaceVariant,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                      AppColors.secondaryForeground),
+                  valueColor:
+                      AlwaysStoppedAnimation<Color>(context.palette.primary),
                 ),
               ],
             ),

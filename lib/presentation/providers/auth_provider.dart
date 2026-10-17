@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:fitapp/core/auth/session_policy.dart';
 import 'package:fitapp/core/config/demo_config.dart';
@@ -23,14 +25,25 @@ class AuthProvider extends ChangeNotifier {
   bool _registrationComplete = true;
   bool get registrationComplete => _registrationComplete;
 
+  final Completer<void> _restoreCompleter = Completer<void>();
+
+  /// Completes once the stored session has been checked at startup. Routing
+  /// must wait for this, otherwise a signed-in person is sent to login while
+  /// the check is still running.
+  Future<void> get sessionRestored => _restoreCompleter.future;
+
   AuthProvider(
     this._repository, {
     PushNotificationRegistrationService? pushNotifications,
     SessionPolicy sessionPolicy = const SessionPolicy(),
   })  : _pushNotifications = pushNotifications,
         _sessionPolicy = sessionPolicy {
-    if (!DemoConfig.isDemo) {
-      _checkAuthStatus();
+    if (DemoConfig.isDemo) {
+      _restoreCompleter.complete();
+    } else {
+      _checkAuthStatus().whenComplete(() {
+        if (!_restoreCompleter.isCompleted) _restoreCompleter.complete();
+      });
     }
   }
 
@@ -80,13 +93,18 @@ class AuthProvider extends ChangeNotifier {
       _token = storedToken;
 
       if (verdict == SessionVerdict.needsRefresh) {
-        final refreshed = await _repository.refreshToken();
-        if (refreshed == null) {
-          await _repository.removeToken();
-          _token = null;
-          return;
+        try {
+          final refreshed = await _repository.refreshToken();
+          if (refreshed == null) {
+            await _repository.removeToken();
+            _token = null;
+            return;
+          }
+          _token = refreshed;
+        } catch (_) {
+          // A refresh failure caused by connectivity should not log the
+          // person out. Keep the stored token and let profile loading decide.
         }
-        _token = refreshed;
       }
 
       await _loadProfileForRestoredSession();
@@ -137,20 +155,28 @@ class AuthProvider extends ChangeNotifier {
   /// Returns the profile when the session was recovered. Returns null when it
   /// is really over, having signed the person out locally first.
   Future<UserProfile?> _recoverExpiredSession() async {
-    final refreshed = await _repository.refreshToken();
-    if (refreshed == null) {
-      await _forgetSession();
-      return null;
-    }
-    _token = refreshed;
     try {
-      return await _repository.getUserProfile();
-    } on SessionExpiredException {
-      await _forgetSession();
-      return null;
+      final refreshed = await _repository.refreshToken();
+      if (refreshed == null) {
+        await _forgetSession();
+        return null;
+      }
+      _token = refreshed;
+      try {
+        return await _repository.getUserProfile();
+      } on SessionExpiredException {
+        await _forgetSession();
+        return null;
+      } catch (_) {
+        // The refresh worked; the follow-up call did not reach the server.
+        // Keep the new token and try again next time.
+        _isAuthenticated = true;
+        return null;
+      }
     } catch (_) {
-      // The refresh worked; the follow-up call did not reach the server.
-      // Keep the new token and try again next time.
+      // A refresh failure caused by connectivity should keep the current
+      // session alive. The caller can retry once the network is back.
+      _isAuthenticated = true;
       return null;
     }
   }

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -86,7 +87,7 @@ class _CoachWorkoutPlanViewerScreenState
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_workout_plan_title')),
         actions: [
@@ -138,10 +139,7 @@ class _CoachWorkoutPlanViewerScreenState
           children: [
             Text(
               plan.name ?? lang.t('coach_plan_untitled'),
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h2,
             ),
             if (plan.description != null) ...[
               const SizedBox(height: 8),
@@ -216,7 +214,9 @@ class _CoachWorkoutPlanViewerScreenState
             return ListTile(
               leading: Icon(
                 completed ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: completed ? AppColors.success : context.palette.textDisabled,
+                color: completed
+                    ? AppColors.success
+                    : context.palette.textDisabled,
               ),
               title: Text(exercise.name),
               subtitle: Text('${exercise.sets} x ${exercise.reps}'),
@@ -236,7 +236,7 @@ class _CoachWorkoutPlanViewerScreenState
           Text(
             label,
             style:
-                TextStyle(fontSize: 11, color: context.palette.textSecondary),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
           Text(
             value,

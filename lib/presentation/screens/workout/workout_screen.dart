@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -8,11 +9,12 @@ import '../../../core/utils/video_thumbnail_resolver.dart';
 import '../../../data/models/workout_calendar.dart';
 import '../../../data/models/workout_plan.dart';
 import '../../../data/models/user_profile.dart';
-import '../../../data/services/exercise_catalog_service.dart';
 import '../../providers/language_provider.dart';
 import '../../providers/workout_provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/animated_reveal.dart';
+import '../../widgets/aash_motion.dart';
 import '../intake/second_intake_screen.dart';
 import '../messaging/coach_messaging_screen.dart';
 import './workout_intro_screen.dart';
@@ -39,8 +41,15 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
   bool _wasActive = true;
   bool _showIntro = false;
   bool _introLoaded = false;
-  final ExerciseCatalogService _catalogService =
-      ExerciseCatalogService.instance;
+  final ScrollController _exerciseScroll = ScrollController();
+  final ScrollController _calendarScroll = ScrollController();
+
+  @override
+  void dispose() {
+    _exerciseScroll.dispose();
+    _calendarScroll.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -128,6 +137,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
         title: Text(lang.t('intake_prompt_title')),
         content: Column(
           mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(lang.t('intake_prompt_description')),
             const SizedBox(height: 16),
@@ -135,16 +145,24 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               icon: Icons.assignment_turned_in,
               title: lang.t('intake_prompt_option1_title'),
               description: lang.t('intake_prompt_option1_desc'),
-              color: AppColors.primary,
+              color: context.palette.primary,
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                _openSecondIntake();
+              },
             ),
             const SizedBox(height: 12),
             _buildPromptOption(
               icon: Icons.video_call,
               title: lang.t('intake_prompt_option2_title'),
               description: lang.t('intake_prompt_option2_desc'),
-              color: AppColors.secondary,
+              color: context.palette.info,
               badgeText:
                   tier == 'Freemium' ? lang.t('intake_prompt_free_call') : null,
+              onTap: () {
+                Navigator.of(dialogContext).pop();
+                _openCoachSessions();
+              },
             ),
           ],
         ),
@@ -153,86 +171,90 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             onPressed: () => Navigator.of(dialogContext).pop(),
             child: Text(lang.t('intake_prompt_later')),
           ),
-          TextButton.icon(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              _openCoachSessions();
-            },
-            icon: const Icon(Icons.video_call),
-            label: Text(lang.t('intake_prompt_book_call')),
-          ),
-          ElevatedButton.icon(
-            onPressed: () {
-              Navigator.of(dialogContext).pop();
-              _openSecondIntake();
-            },
-            icon: const Icon(Icons.assignment_turned_in),
-            label: Text(lang.t('intake_prompt_complete')),
-          ),
         ],
       ),
     );
   }
 
+  /// A tappable option card: icon, title, description and a chevron, so the
+  /// whole card reads as the choice it makes.
   Widget _buildPromptOption({
     required IconData icon,
     required String title,
     required String description,
     required Color color,
+    required VoidCallback onTap,
     String? badgeText,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.3)),
+    final radius = BorderRadius.circular(12);
+    return Material(
+      color: color.withValues(alpha: 0.08),
+      shape: RoundedRectangleBorder(
+        borderRadius: radius,
+        side: BorderSide(color: color.withValues(alpha: 0.35)),
       ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: context.palette.textPrimary,
-                  ),
+      child: InkWell(
+        borderRadius: radius,
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: AppTextStyles.caption.copyWith(
-                    color: context.palette.textSecondary,
-                  ),
-                ),
-                if (badgeText != null) ...[
-                  const SizedBox(height: 8),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: AppColors.success.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Text(
-                      badgeText,
-                      style: AppTextStyles.overline.copyWith(
-                        color: AppColors.success,
+                child: Icon(icon, color: color, size: 22),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: context.palette.textPrimary,
                       ),
                     ),
-                  ),
-                ],
-              ],
-            ),
+                    const SizedBox(height: 2),
+                    Text(
+                      description,
+                      style: AppTextStyles.small.copyWith(
+                        color: context.palette.textSecondary,
+                      ),
+                    ),
+                    if (badgeText != null) ...[
+                      const SizedBox(height: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(
+                          color: context.palette.success.withValues(alpha: 0.15),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Text(
+                          badgeText,
+                          style: AppTextStyles.captionMedium.copyWith(
+                            color: context.palette.success,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right_rounded,
+                color: context.palette.textSecondary,
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -264,52 +286,10 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     PreferredSizeWidget? appBar,
     required Widget child,
   }) {
-    return Scaffold(
-      backgroundColor: AppColors.workoutBackground,
+    return AashScaffold(
+      backgroundColor: context.palette.background,
       appBar: appBar,
-      body: Stack(
-        children: [
-          const Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: AlignmentDirectional.topStart,
-                  end: AlignmentDirectional.bottomEnd,
-                  colors: [
-                    Color(0xFF071915),
-                    Color(0xFF12362D),
-                    Color(0xFF0B1F1B),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned.fill(
-            child: Image.asset(
-              'assets/placeholders/splash_onboarding/workout_onboarding.png',
-              fit: BoxFit.cover,
-              color: Colors.black.withValues(alpha: 0.18),
-              colorBlendMode: BlendMode.darken,
-            ),
-          ),
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    AppColors.workoutBackground.withValues(alpha: 0.28),
-                    AppColors.workoutBackground.withValues(alpha: 0.62),
-                    AppColors.workoutBackground.withValues(alpha: 0.86),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SafeArea(child: child),
-        ],
-      ),
+      body: AashBackdrop(child: SafeArea(child: child)),
     );
   }
 
@@ -483,35 +463,22 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildWorkoutHeroHeader(
-                  plan,
-                  currentDay,
-                  languageProvider,
-                  completedExercises,
-                  totalExercises,
-                  workoutProgress,
-                  isArabic,
-                ),
-                const SizedBox(height: 14),
-                _buildWorkoutCalendarSections(
-                  workoutProvider,
-                  languageProvider,
-                  isArabic,
-                ),
-                const SizedBox(height: 14),
-                _buildWorkoutSummaryCard(
-                  plan,
-                  currentDay,
-                  languageProvider,
-                  workoutProgress,
-                  isArabic,
+                AnimatedReveal(
+                  offset: const Offset(0, -0.2),
+                  child: _buildWorkoutHeroHeader(
+                    plan,
+                    currentDay,
+                    languageProvider,
+                    completedExercises,
+                    totalExercises,
+                    workoutProgress,
+                    isArabic,
+                  ),
                 ),
                 const SizedBox(height: 14),
                 if (currentDay != null && currentDay.exercises.isNotEmpty)
                   _buildExerciseList(
                     currentDay,
-                    workoutProvider,
-                    languageProvider,
                     isArabic,
                   )
                 else
@@ -523,6 +490,24 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                       textAlign: TextAlign.center,
                     ),
                   ),
+                const SizedBox(height: 14),
+                _buildWorkoutCalendarSections(
+                  workoutProvider,
+                  languageProvider,
+                  isArabic,
+                ),
+                const SizedBox(height: 14),
+                AnimatedReveal(
+                  delay: const Duration(milliseconds: 520),
+                  offset: const Offset(0, 0.25),
+                  child: _buildWorkoutSummaryCard(
+                    plan,
+                    currentDay,
+                    languageProvider,
+                    workoutProgress,
+                    isArabic,
+                  ),
+                ),
               ],
             ),
           ),
@@ -547,8 +532,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
       decoration: BoxDecoration(
-        color: const Color(0xFF030625),
-        borderRadius: BorderRadius.circular(18),
+        color: context.palette.surface,
+        border: Border.all(color: context.palette.border),
+        borderRadius: BorderRadius.circular(AppRadius.xlarge),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -559,7 +545,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints(),
                 visualDensity: VisualDensity.compact,
-                icon: Icon(Icons.arrow_back, color: context.palette.textOnBrand, size: 18),
+                icon: Icon(Icons.arrow_back,
+                    color: context.palette.textPrimary, size: 18),
                 tooltip: lang.t('back'),
                 onPressed: () {
                   if (widget.onBack != null) {
@@ -579,7 +566,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
                   child: Text(
                     lang.t('workouts_title'),
                     style: AppTextStyles.h1.copyWith(
-                      color: context.palette.textOnBrand,
+                      color: context.palette.textPrimary,
                       height: 1.05,
                     ),
                   ),
@@ -587,25 +574,24 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
               InkWell(
                 borderRadius: BorderRadius.circular(10),
-                onTap: () =>
-                    context.read<WorkoutProvider>().goToCurrentDay(),
+                onTap: () => context.read<WorkoutProvider>().goToCurrentDay(),
                 child: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: context.palette.textOnBrand.withValues(alpha: 0.15),
+                    color: context.palette.surfaceVariant,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.calendar_today,
-                          size: 14, color: context.palette.textOnBrand),
+                          size: 14, color: context.palette.textPrimary),
                       const SizedBox(width: 6),
                       Text(
                         lang.t('today'),
-                        style:
-                            AppTextStyles.small.copyWith(color: context.palette.textOnBrand),
+                        style: AppTextStyles.small
+                            .copyWith(color: context.palette.textPrimary),
                       ),
                     ],
                   ),
@@ -613,51 +599,42 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          SizedBox(
-            width: double.infinity,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: isArabic
-                  ? AlignmentDirectional.centerEnd
-                  : AlignmentDirectional.centerStart,
-              child: Text(
-                '${lang.t('workout_week', args: {
-                      'number': '1'
-                    })}, ${lang.t('workout_day_label', args: {
-                      'number': '$dayNumber'
-                    })}',
-                style: AppTextStyles.h1.copyWith(
-                  color: context.palette.textOnBrand.withValues(alpha: 0.9),
-                  height: 1.05,
-                ),
-              ),
-            ),
-          ),
           const SizedBox(height: 8),
-          if (durationLabel.isNotEmpty)
-            Text(
-              durationLabel,
-              style: AppTextStyles.h3.copyWith(
-                color: context.palette.textOnBrand.withValues(alpha: 0.7),
-              ),
-            ),
-          const SizedBox(height: 12),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 7,
-              backgroundColor: context.palette.textOnBrand.withValues(alpha: 0.24),
-              valueColor: AlwaysStoppedAnimation<Color>(context.palette.textOnBrand),
+          Text(
+            [
+              '${lang.t('workout_week', args: {
+                    'number': '1'
+                  })}, ${lang.t('workout_day_label', args: {
+                    'number': '$dayNumber'
+                  })}',
+              if (durationLabel.isNotEmpty) durationLabel,
+            ].join('  •  '),
+            style: AppTextStyles.smallMedium.copyWith(
+              color: context.palette.textSecondary,
             ),
           ),
           const SizedBox(height: 10),
-          Text(
-            '$completedExercises of $totalExercises ${lang.t('exercises')} ${lang.t('workout_completed').toLowerCase()}',
-            style: AppTextStyles.small.copyWith(
-              color: context.palette.textOnBrand.withValues(alpha: 0.82),
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: AnimatedProgressBar(
+                    value: progress,
+                    minHeight: 6,
+                    backgroundColor: context.palette.surfaceVariant,
+                    color: AppColors.cyan,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Text(
+                '$completedExercises/$totalExercises',
+                style: AppTextStyles.small.copyWith(
+                  color: context.palette.textSecondary,
+                ),
+              ),
+            ],
           ),
         ],
       ),
@@ -692,8 +669,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
 
     return CustomCard(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
-      color: AppColors.primary.withValues(alpha: 0.08),
-      border: Border.all(color: AppColors.primary.withValues(alpha: 0.25)),
+      color: context.palette.surfaceVariant,
+      border: Border.all(color: context.palette.border),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -748,9 +725,8 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 6,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.primary),
+              backgroundColor: context.palette.surfaceVariant,
+              valueColor: AlwaysStoppedAnimation<Color>(AppColors.primaryLight),
             ),
           ),
           const SizedBox(height: 6),
@@ -818,6 +794,13 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     );
   }
 
+  int _estimatedKcal(int exercises) {
+    final weight = context.read<AuthProvider?>()?.user?.weight;
+    final kg = (weight != null && weight > 20) ? weight : 75.0;
+    // ~6 min per exercise at MET 5 (resistance training)
+    return (exercises * 6 * 5 * 3.5 * kg / 200).round();
+  }
+
   Widget _buildWorkoutSummaryCard(
     WorkoutPlan plan,
     WorkoutDay? currentDay,
@@ -826,9 +809,14 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     bool isArabic,
   ) {
     final totalExercises = currentDay?.exercises.length ?? 0;
+    final provider = context.watch<WorkoutProvider>();
+    final completed = currentDay == null
+        ? 0
+        : currentDay.exercises
+            .where((e) => provider.isExerciseCompleted(e.id))
+            .length;
     final durationLabel = _estimateWorkoutDuration(currentDay, lang);
-    final planTitle = _localizedPlanName(plan, lang, isArabic);
-    final difficultyLabel = _localizedPlanDifficulty(plan, lang, isArabic);
+    final burned = _estimatedKcal(completed);
 
     return CustomCard(
       padding: const EdgeInsets.all(16),
@@ -840,37 +828,25 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
           Row(
             children: [
               Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  alignment: isArabic
-                      ? AlignmentDirectional.centerEnd
-                      : AlignmentDirectional.centerStart,
-                  child: Text(
-                    planTitle,
-                    style: AppTextStyles.h1.copyWith(
-                      color: context.palette.textPrimary,
-                      height: 1.1,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: AnimatedProgressBar(
+                    value: progress.clamp(0.0, 1.0),
+                    minHeight: 8,
+                    backgroundColor: context.palette.surfaceVariant,
+                    color: AppColors.cyan,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF0F1F5),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    difficultyLabel,
-                    style:
-                        AppTextStyles.small.copyWith(
-                          color: const Color(0xFF2A2C3A),
-                        ),
+              const SizedBox(width: 12),
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: progress * 100),
+                duration: const Duration(milliseconds: 900),
+                curve: Curves.easeOutCubic,
+                builder: (context, v, _) => Text(
+                  '${v.round()}%',
+                  style: AppTextStyles.smallMedium.copyWith(
+                    color: context.palette.textPrimary,
                   ),
                 ),
               ),
@@ -882,7 +858,7 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               Expanded(
                 child: _buildSummaryItem(
                   icon: Icons.track_changes,
-                  value: '$totalExercises',
+                  value: '$completed/$totalExercises',
                   label: lang.t('exercises'),
                 ),
               ),
@@ -895,9 +871,9 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
               ),
               Expanded(
                 child: _buildSummaryItem(
-                  icon: Icons.check_circle_outline,
-                  value: '${(progress * 100).round()}%',
-                  label: lang.t('workout_complete_label'),
+                  icon: Icons.local_fire_department_outlined,
+                  value: '$burned ${lang.t('kcal_short')}',
+                  label: lang.t('workout_calories_burned'),
                 ),
               ),
             ],
@@ -920,70 +896,44 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [
-        if (today != null) ...[
-          _buildCalendarDayCard(
-            day: today,
-            label: lang.t('today'),
-            isToday: true,
-            isArabic: isArabic,
-            onTap: () => _openCalendarDay(provider, today),
-          ),
-          const SizedBox(height: 10),
-        ],
-        if (previous.isNotEmpty)
-          _buildCalendarSection(
-            title: lang.t('calendar_previous'),
-            days: previous,
-            isArabic: isArabic,
-            onTap: (day) => _openCalendarDay(provider, day),
-          ),
-        if (previous.isNotEmpty && upcoming.isNotEmpty)
-          const SizedBox(height: 10),
-        if (upcoming.isNotEmpty)
-          _buildCalendarSection(
-            title: lang.t('calendar_upcoming'),
-            days: upcoming,
-            isArabic: isArabic,
-            onTap: (day) => _openCalendarDay(provider, day),
-          ),
-      ],
-    );
-  }
+    final entries = <(WorkoutCalendarDayEntry, String?)>[
+      if (today != null) (today, lang.t('today')),
+      for (final d in previous) (d, null),
+      for (final d in upcoming) (d, null),
+    ];
 
-  Widget _buildCalendarSection({
-    required String title,
-    required List<WorkoutCalendarDayEntry> days,
-    required bool isArabic,
-    required void Function(WorkoutCalendarDayEntry day) onTap,
-  }) {
-    return CustomCard(
-      padding: const EdgeInsets.all(12),
-      color: context.palette.surface,
-      border: Border.all(color: context.palette.border),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: AppTextStyles.h4.copyWith(
-              color: context.palette.textPrimary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          ...days.map(
-            (day) => Padding(
-              padding: const EdgeInsets.only(bottom: 8),
-              child: _buildCalendarDayCard(
-                day: day,
-                isToday: false,
-                isArabic: isArabic,
-                onTap: () => onTap(day),
+    return SizedBox(
+      height: 64,
+      child: ListView.separated(
+        key: const ValueKey('workout-calendar-strip'),
+        controller: _calendarScroll,
+        scrollDirection: Axis.horizontal,
+        clipBehavior: Clip.none,
+        itemCount: entries.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) {
+          final (day, label) = entries[i];
+          return AnimatedReveal(
+            delay: Duration(milliseconds: i < 5 ? 80 * i : 0),
+            offset: Offset(isArabic ? -0.4 : 0.4, 0),
+            child: ScrollMotionItem(
+              controller: _calendarScroll,
+              index: i,
+              extent: 148,
+              minOpacity: 0.75,
+              builder: (context, _) => SizedBox(
+                width: 140,
+                child: _buildCalendarDayCard(
+                  day: day,
+                  label: label,
+                  isToday: label != null,
+                  isArabic: isArabic,
+                  onTap: () => _openCalendarDay(provider, day),
+                ),
               ),
             ),
-          ),
-        ],
+          );
+        },
       ),
     );
   }
@@ -998,77 +948,53 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     final title = isArabic && (day.dayNameAr?.isNotEmpty == true)
         ? day.dayNameAr!
         : day.dayName;
-    final subtitle =
-        '${day.completedExercises}/${day.totalExercises} exercises';
+    final percent = day.progressPercent.round();
     return InkWell(
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isToday ? const Color(0xFFEAF2FF) : const Color(0xFFF6F7FB),
-          borderRadius: BorderRadius.circular(12),
+          color: isToday
+              ? AppColors.cyan.withValues(alpha: 0.12)
+              : context.palette.surface,
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
-            color: isToday ? const Color(0xFF8AB4F8) : const Color(0xFFE2E4EC),
+            color: isToday ? AppColors.cyan : context.palette.border,
           ),
         ),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          title,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w600,
-                            color: Color(0xFF181A27),
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      if (label != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 2),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFDBEAFE),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            label,
-                            style: AppTextStyles.overline.copyWith(
-                              color: const Color(0xFF1D4ED8),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: AppTextStyles.caption.copyWith(
-                      color: const Color(0xFF6C6F83),
+            Text(
+              title,
+              style: AppTextStyles.smallMedium
+                  .copyWith(color: context.palette.textPrimary),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Row(
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: AnimatedProgressBar(
+                      value: (percent / 100).clamp(0.0, 1.0),
+                      minHeight: 5,
+                      backgroundColor: context.palette.surfaceVariant,
+                      color: AppColors.cyan,
                     ),
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 10),
-            SizedBox(
-              width: 56,
-              child: Text(
-                '${day.progressPercent.round()}%',
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  color: Color(0xFF2A2C3A),
                 ),
-                textAlign: TextAlign.end,
-              ),
+                const SizedBox(width: 8),
+                Text(
+                  '$percent%',
+                  style: AppTextStyles.caption
+                      .copyWith(color: context.palette.textSecondary),
+                ),
+              ],
             ),
           ],
         ),
@@ -1240,276 +1166,217 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
     return '${minutes.toInt()} ${lang.t('minute_short')}';
   }
 
-  String _localizedPlanName(
-      WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
-    final fallback = lang.t('workout');
-    if (isArabic) {
-      if (plan.nameAr?.isNotEmpty == true) {
-        return plan.nameAr!;
-      }
-      if (plan.name?.isNotEmpty == true) {
-        return plan.name!;
-      }
-      return fallback;
-    }
-    return plan.name ?? fallback;
-  }
-
-  String _localizedPlanDifficulty(
-      WorkoutPlan plan, LanguageProvider lang, bool isArabic) {
-    final englishDescription =
-        plan.description ?? lang.t('workout_difficulty_intermediate');
-    if (isArabic) {
-      if (plan.descriptionAr?.isNotEmpty == true) {
-        return plan.descriptionAr!;
-      }
-      return lang.t('workout_difficulty_intermediate');
-    }
-    return englishDescription;
-  }
-
   Widget _buildExerciseList(
     WorkoutDay currentDay,
-    WorkoutProvider provider,
-    LanguageProvider lang,
     bool isArabic,
   ) {
-    return ListView.builder(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: currentDay.exercises.length,
-      itemBuilder: (context, index) {
-        final exercise = currentDay.exercises[index];
-        return _buildExerciseCard(
-          currentDay,
-          exercise,
-          provider,
-          lang,
-          isArabic,
-          index,
-        );
-      },
-    );
-  }
-
-  Widget _buildExerciseCard(
-    WorkoutDay currentDay,
-    Exercise exercise,
-    WorkoutProvider provider,
-    LanguageProvider lang,
-    bool isArabic,
-    int index,
-  ) {
-    final authProvider = context.watch<AuthProvider>();
-    final userInjuries = authProvider.user?.injuries ?? [];
-    final hasConflict = exercise.hasInjuryConflict(userInjuries);
-    final isCompleted = provider.isExerciseCompleted(exercise.id);
-    final muscleLabel = _localizeMuscles(exercise.muscleGroup, isArabic);
-
-    return CustomCard(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      color: isCompleted ? const Color(0xFFEAF7EE) : context.palette.surface,
-      border: Border.all(
-        color: isCompleted
-            ? const Color(0xFFA9E3B8)
-            : (hasConflict ? AppColors.warning : const Color(0xFFDCDDE4)),
-      ),
-      onTap: () => _openExerciseDetail(currentDay, index),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final compact = constraints.maxWidth < 360;
-          final actionButton = FilledButton(
-            onPressed: () => _openExerciseSession(currentDay, index),
-            style: FilledButton.styleFrom(
-              backgroundColor: isCompleted
-                  ? const Color(0xFF030625)
-                  : const Color(0xFFE8EAF0),
-              foregroundColor:
-                  isCompleted ? context.palette.surface : const Color(0xFF272938),
-              textStyle:
-                  AppTextStyles.smallMedium,
-              minimumSize: const Size(74, 38),
-              padding: const EdgeInsets.symmetric(horizontal: 14),
+    return SizedBox(
+      height: 210,
+      child: ListView.separated(
+        key: const ValueKey('workout-exercise-carousel'),
+        controller: _exerciseScroll,
+        scrollDirection: Axis.horizontal,
+        reverse: isArabic,
+        clipBehavior: Clip.none,
+        physics: const BouncingScrollPhysics(),
+        itemCount: currentDay.exercises.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 12),
+        itemBuilder: (context, index) {
+          final exercise = currentDay.exercises[index];
+          return AnimatedReveal(
+            delay: Duration(milliseconds: index < 4 ? 110 * index : 0),
+            offset: Offset(isArabic ? -0.5 : 0.5, 0),
+            initialScale: 0.88,
+            duration: const Duration(milliseconds: 560),
+            child: ScrollMotionItem(
+              controller: _exerciseScroll,
+              index: index,
+              extent: 230,
+              builder: (context, delta) => _buildExerciseCard(
+                currentDay,
+                exercise,
+                isArabic,
+                index,
+                delta,
+              ),
             ),
-            child: Text(isCompleted ? 'Done' : 'Start'),
-          );
-
-          final thumbnail = _buildExerciseThumbnail(exercise);
-
-          final details = Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      isArabic ? exercise.nameAr : exercise.nameEn,
-                      style: AppTextStyles.h4.copyWith(
-                        color: const Color(0xFF181A27),
-                        height: 1.15,
-                      ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  if (isCompleted)
-                    const Icon(
-                      Icons.check_circle_outline,
-                      color: Color(0xFF1F9D4A),
-                      size: 22,
-                    ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Wrap(
-                spacing: 14,
-                runSpacing: 6,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Text(
-                    '${exercise.sets}\n${lang.t('sets')}',
-                    style:
-                        AppTextStyles.small.copyWith(
-                          color: const Color(0xFF6C6F83),
-                        ),
-                  ),
-                  const Text('•', style: TextStyle(color: Color(0xFF6C6F83))),
-                  Text(
-                    '${exercise.reps}\n${lang.t('reps')}',
-                    style:
-                        AppTextStyles.small.copyWith(
-                          color: const Color(0xFF6C6F83),
-                        ),
-                  ),
-                  if (muscleLabel.isNotEmpty) ...[
-                    const Text('•', style: TextStyle(color: Color(0xFF6C6F83))),
-                    ConstrainedBox(
-                      constraints: BoxConstraints(
-                        maxWidth: compact ? constraints.maxWidth : 180,
-                      ),
-                      child: Text(
-                        muscleLabel,
-                        style: AppTextStyles.caption.copyWith(
-                          color: const Color(0xFF6C6F83),
-                        ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                '${isCompleted ? exercise.sets : 0}/${exercise.sets} sets logged',
-                style: AppTextStyles.small.copyWith(
-                  color: const Color(0xFF7D8095),
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              if (hasConflict) ...[
-                const SizedBox(height: 8),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.warning.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    lang.t('workout_injury_conflict'),
-                    style: AppTextStyles.overline.copyWith(
-                      color: AppColors.warning,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          );
-
-          if (compact) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    thumbnail,
-                    const SizedBox(width: 12),
-                    Expanded(child: details),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                Align(alignment: AlignmentDirectional.centerEnd, child: actionButton),
-              ],
-            );
-          }
-
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              thumbnail,
-              const SizedBox(width: 12),
-              Expanded(child: details),
-              const SizedBox(width: 12),
-              actionButton,
-            ],
           );
         },
       ),
     );
   }
 
-  String _localizeMuscles(String? muscles, bool isArabic) {
-    if (muscles == null || muscles.trim().isEmpty) {
-      return '';
-    }
-    final parts =
-        muscles.split(',').map((e) => e.trim()).where((e) => e.isNotEmpty);
-    final labels = parts.map((part) {
-      return _catalogService.getMuscleLabel(part, isArabic: isArabic) ?? part;
-    }).toList();
-    return labels.join(', ');
+  Widget _buildExerciseCard(
+    WorkoutDay currentDay,
+    Exercise exercise,
+    bool isArabic,
+    int index,
+    double delta,
+  ) {
+    final localizedName = isArabic ? exercise.nameAr : exercise.nameEn;
+    final name =
+        localizedName.trim().isNotEmpty ? localizedName : exercise.name;
+    const cardRadius = BorderRadius.all(Radius.circular(22));
+
+    final locked = !context.watch<WorkoutProvider>().isDayStartable(currentDay);
+
+    return PressScale(
+      child: SizedBox(
+        key: ValueKey('workout-exercise-card-${exercise.id}'),
+        width: 218,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Opacity(
+                opacity: locked ? 0.7 : 1,
+                child: _exerciseCardBody(
+                    currentDay, exercise, name, index, delta, cardRadius),
+              ),
+            ),
+            if (locked)
+              PositionedDirectional(
+                top: 10,
+                end: 10,
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: const BoxDecoration(
+                    color: Colors.black54,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.lock_rounded,
+                      size: 16, color: Colors.white),
+                ),
+              ),
+            // Done mark, so the client can see which exercises they finished.
+            if (context.watch<WorkoutProvider>().isExerciseCompleted(exercise.id))
+              PositionedDirectional(
+                top: 10,
+                start: 10,
+                child: Tooltip(
+                  message: context.read<LanguageProvider>().t('workout_completed'),
+                  child: Container(
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: context.palette.success,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.check_rounded,
+                        size: 16,
+                        color: foregroundFor(context.palette.success)),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
-  Widget _buildExerciseThumbnail(Exercise exercise) {
+  Widget _exerciseCardBody(
+    WorkoutDay currentDay,
+    Exercise exercise,
+    String name,
+    int index,
+    double delta,
+    BorderRadius cardRadius,
+  ) {
+    return CustomCard(
+          padding: EdgeInsets.zero,
+          margin: EdgeInsets.zero,
+          borderRadius: cardRadius,
+          color: context.palette.surface,
+          border: Border.all(color: context.palette.border),
+          onTap: () => _openExerciseDetail(currentDay, index),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildExerciseThumbnail(
+                exercise,
+                width: 218,
+                height: 132,
+                delta: delta,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(14, 10, 12, 8),
+                  child: Align(
+                    alignment: AlignmentDirectional.topStart,
+                    child: Text(
+                      name,
+                      style: AppTextStyles.bodyMedium.copyWith(
+                        color: context.palette.textPrimary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+  }
+
+  Widget _buildExerciseThumbnail(
+    Exercise exercise, {
+    required double width,
+    required double height,
+    double delta = 0,
+  }) {
     final resolved = VideoThumbnailResolver.resolve(
       thumbnailUrl: exercise.thumbnailUrl,
       videoUrl: exercise.videoUrl,
     );
+    Widget placeholder() => ColoredBox(
+          color: context.palette.surfaceVariant,
+          child: Center(
+            child: Icon(
+              Icons.fitness_center,
+              color: context.palette.textSecondary,
+              size: 34,
+            ),
+          ),
+        );
+
+    final Widget image;
+    if (resolved == null) {
+      image = placeholder();
+    } else if (resolved.startsWith('assets/')) {
+      image = Image.asset(
+        resolved,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => placeholder(),
+      );
+    } else {
+      image = Image.network(
+        resolved,
+        fit: BoxFit.cover,
+        errorBuilder: (_, __, ___) => placeholder(),
+      );
+    }
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(22)),
       child: SizedBox(
-        width: 64,
-        height: 64,
-        child: resolved == null
-            ? Container(
-                color: const Color(0xFFE8EAF0),
-                child: const Icon(
-                  Icons.fitness_center,
-                  color: Color(0xFF6C6F83),
-                  size: 26,
-                ),
-              )
-            : Image.network(
-                resolved,
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: const Color(0xFFE8EAF0),
-                  child: const Icon(
-                    Icons.fitness_center,
-                    color: Color(0xFF6C6F83),
-                    size: 26,
-                  ),
-                ),
-              ),
+        width: width,
+        height: height,
+        child: delta == 0
+            ? image
+            : ParallaxFill(delta: delta, shift: 18, zoom: 1.14, child: image),
       ),
     );
   }
 
   void _openExerciseSession(WorkoutDay day, int startIndex) {
+    if (!context.read<WorkoutProvider>().isDayStartable(day)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(context.read<LanguageProvider>().t('workout_day_locked')),
+        ),
+      );
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => WorkoutExerciseSessionScreen(
@@ -1625,5 +1492,4 @@ class _WorkoutScreenState extends State<WorkoutScreen> {
       ),
     );
   }
-
 }

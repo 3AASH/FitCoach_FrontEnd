@@ -52,7 +52,7 @@ void main() {
 
       // Switch to English and test
       await languageProvider.setLanguage('en');
-      expect(languageProvider.t('welcome'), 'Welcome to FitCoach+');
+      expect(languageProvider.t('welcome'), 'Welcome to Aash');
       expect(languageProvider.t('login'), 'Login'); // Humanized fallback
     });
 

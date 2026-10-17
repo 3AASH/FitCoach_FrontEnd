@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -30,12 +31,14 @@ class CoachMessagingScreen extends StatefulWidget {
   final int initialTabIndex;
   final String? targetClientId;
   final String? targetClientName;
+  final VoidCallback? onBack;
 
   const CoachMessagingScreen({
     super.key,
     this.initialTabIndex = 0,
     this.targetClientId,
     this.targetClientName,
+    this.onBack,
   });
 
   @override
@@ -290,7 +293,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     final isCoachInboxView = _isCoachInboxView(isCoach);
 
     if (!_introLoaded) {
-      return const Scaffold(
+      return const AashScaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
@@ -301,15 +304,20 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
 
     final statusText = _statusText(lang, messagingProvider);
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.8,
-              child: Image.asset(
-                'assets/placeholders/splash_onboarding/coach_onboarding.png',
-                fit: BoxFit.cover,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: RadialGradient(
+                  center: const Alignment(0.9, -0.9),
+                  radius: 1.25,
+                  colors: [
+                    context.palette.primary.withValues(alpha: 0.10),
+                    context.palette.background,
+                  ],
+                ),
               ),
             ),
           ),
@@ -388,9 +396,12 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
   ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [Color(0xFF4338CA), Color(0xFF6D28D9)],
+          colors: [
+            context.palette.primary,
+            context.palette.primary.withValues(alpha: 0.84)
+          ],
           begin: AlignmentDirectional.topStart,
           end: AlignmentDirectional.bottomEnd,
         ),
@@ -401,7 +412,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           Row(
             children: [
               IconButton(
-                onPressed: () => Navigator.of(context).maybePop(),
+                onPressed: widget.onBack ??
+                    () => Navigator.of(context).maybePop(),
                 icon: Icon(
                   Icons.arrow_back,
                   color: context.palette.textOnBrand,
@@ -424,7 +436,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     ),
                     Text(
                       isCoachInboxView
-                          ? (lang.t('coach_messaging_choose_a_client_to_open_the'))
+                          ? (lang
+                              .t('coach_messaging_choose_a_client_to_open_the'))
                           : (statusText ?? _threadSubtitle(lang)),
                       style: TextStyle(
                         fontSize: 12,
@@ -465,7 +478,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           _buildEmptyState(
             lang,
             title: lang.t('coach_messaging_no_clients_yet'),
-            description: lang.t('coach_messaging_your_clients_will_appear_here_so'),
+            description:
+                lang.t('coach_messaging_your_clients_will_appear_here_so'),
           ),
         ],
       );
@@ -531,11 +545,11 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+              backgroundColor: context.palette.primary.withValues(alpha: 0.12),
               child: Text(
                 client.initials,
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -547,7 +561,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 children: [
                   Text(
                     client.fullName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),
@@ -573,7 +587,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   Text(
                     _formatInboxTime(timestamp, lang),
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: context.palette.textDisabled,
                     ),
                   ),
@@ -592,7 +606,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       '${conversation!.unreadCount}',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onError,
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -629,7 +643,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
       return _buildEmptyState(
         lang,
         title: lang.t('coach_messaging_no_messages_yet'),
-        description: lang.t('coach_messaging_start_the_conversation_and_real_messages'),
+        description:
+            lang.t('coach_messaging_start_the_conversation_and_real_messages'),
       );
     }
 
@@ -650,11 +665,11 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           children: [
             CircleAvatar(
               radius: 24,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.12),
+              backgroundColor: context.palette.primary.withValues(alpha: 0.12),
               child: Text(
                 _initialsForName(clientName),
                 style: TextStyle(
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -666,7 +681,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 children: [
                   Text(
                     clientName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                     ),
@@ -698,7 +713,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             children: [
               CircleAvatar(
                 radius: 24,
-                backgroundColor: const Color(0xFF7E22CE),
+                backgroundColor: context.palette.primary,
                 child: Text(
                   _initialsForName(lang.t('coach')),
                   style: TextStyle(
@@ -714,7 +729,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                   children: [
                     Text(
                       lang.t('coach'),
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -778,8 +793,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                     icon: const Icon(Icons.videocam, size: 18),
                     label: Text(lang.t('book_video_call')),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                      backgroundColor: context.palette.primary,
+                      foregroundColor: context.palette.textOnBrand,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -868,7 +883,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
     final isMe = message.senderId == currentUserId;
 
     return Align(
-      alignment: isMe ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+      alignment: isMe
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Container(
         constraints: BoxConstraints(
           maxWidth: MediaQuery.of(context).size.width * 0.75,
@@ -881,7 +898,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: isMe ? AppColors.primary : context.palette.surface,
+                color: isMe ? context.palette.primary : context.palette.surface,
                 borderRadius: BorderRadius.circular(16).copyWith(
                   bottomRight: isMe ? const Radius.circular(4) : null,
                   bottomLeft: !isMe ? const Radius.circular(4) : null,
@@ -903,7 +920,9 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       style: TextStyle(
                         fontSize: 15,
                         height: 1.4,
-                        color: isMe ? Theme.of(context).colorScheme.onPrimary : context.palette.textPrimary,
+                        color: isMe
+                            ? Theme.of(context).colorScheme.onPrimary
+                            : context.palette.textPrimary,
                       ),
                     ),
                   if (message.type == MessageType.image &&
@@ -935,7 +954,8 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: isMe
-                            ? context.palette.textOnBrand.withValues(alpha: 0.18)
+                            ? context.palette.textOnBrand
+                                .withValues(alpha: 0.18)
                             : context.palette.surfaceVariant,
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -944,15 +964,18 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                         children: [
                           Icon(
                             Icons.insert_drive_file,
-                            color: isMe ? Theme.of(context).colorScheme.onPrimary : AppColors.primary,
+                            color: isMe
+                                ? context.palette.textOnBrand
+                                : context.palette.primary,
                           ),
                           const SizedBox(width: 8),
                           Flexible(
                             child: Text(
                               message.content,
                               style: TextStyle(
-                                color:
-                                    isMe ? Theme.of(context).colorScheme.onPrimary : context.palette.textPrimary,
+                                color: isMe
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : context.palette.textPrimary,
                               ),
                             ),
                           ),
@@ -969,7 +992,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                 Text(
                   _formatTime(message.createdAt, lang),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: context.palette.textDisabled,
                   ),
                 ),
@@ -983,7 +1006,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
                             : Icons.done,
                     size: 14,
                     color: message.status == 'read'
-                        ? AppColors.primary
+                        ? context.palette.primary
                         : context.palette.textDisabled,
                   ),
                 ],
@@ -1064,7 +1087,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
             onPressed: canCompose && !messagingProvider.isSending
                 ? () => _sendMessage(messagingProvider, isCoach)
                 : null,
-            color: AppColors.primary,
+            color: context.palette.primary,
           ),
         ],
       ),
@@ -1147,7 +1170,10 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: const Icon(Icons.photo, color: AppColors.primary),
+              leading: Icon(
+                Icons.photo,
+                color: context.palette.primary,
+              ),
               title: Text(lang.t('photo')),
               onTap: () {
                 Navigator.pop(context);
@@ -1155,7 +1181,7 @@ class _CoachMessagingScreenState extends State<CoachMessagingScreen> {
               },
             ),
             ListTile(
-              leading: const Icon(Icons.videocam, color: AppColors.secondary),
+              leading: Icon(Icons.videocam, color: context.palette.primary),
               title: Text(lang.t('video')),
               onTap: () {
                 Navigator.pop(context);

@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/colors.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
@@ -23,25 +24,25 @@ class StoreIntroScreen extends StatelessWidget {
     final featureCards = [
       {
         'icon': Icons.shopping_bag_outlined,
-        'color': const Color(0xFFF59E0B),
+        'color': AppColors.accent,
         'title': languageProvider.t('store_intro_feature1_title'),
         'description': languageProvider.t('store_intro_feature1_desc'),
       },
       {
         'icon': Icons.auto_awesome,
-        'color': const Color(0xFF3B82F6),
+        'color': AppColors.primaryLight,
         'title': languageProvider.t('store_intro_feature2_title'),
         'description': languageProvider.t('store_intro_feature2_desc'),
       },
       {
         'icon': Icons.local_shipping_outlined,
-        'color': const Color(0xFF22C55E),
+        'color': AppColors.chart4,
         'title': languageProvider.t('store_intro_feature3_title'),
         'description': languageProvider.t('store_intro_feature3_desc'),
       },
       {
         'icon': Icons.inventory_2_outlined,
-        'color': const Color(0xFF8B5CF6),
+        'color': AppColors.chart2,
         'title': languageProvider.t('store_intro_feature4_title'),
         'description': languageProvider.t('store_intro_feature4_desc'),
       },
@@ -61,14 +62,14 @@ class StoreIntroScreen extends StatelessWidget {
           ),
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0x99000000),
-                    Color(0x80000000),
-                    Color(0xB3000000),
+                    AppColors.backgroundDark.withValues(alpha: 0.84),
+                    AppColors.primaryDark.withValues(alpha: 0.72),
+                    AppColors.backgroundDark.withValues(alpha: 0.92),
                   ],
                 ),
               ),
@@ -77,7 +78,9 @@ class StoreIntroScreen extends StatelessWidget {
           if (onBack != null)
             SafeArea(
               child: Align(
-                alignment: isArabic ? AlignmentDirectional.topEnd : AlignmentDirectional.topStart,
+                alignment: isArabic
+                    ? AlignmentDirectional.topEnd
+                    : AlignmentDirectional.topStart,
                 child: Padding(
                   padding: const EdgeInsets.all(16),
                   child: Material(
@@ -127,7 +130,8 @@ class StoreIntroScreen extends StatelessWidget {
                           child: Text(
                             languageProvider.t('store_intro_subtitle'),
                             style: TextStyle(
-                              color: context.palette.textOnBrand.withValues(alpha: 0.9),
+                              color: context.palette.textOnBrand
+                                  .withValues(alpha: 0.9),
                               fontSize: 18,
                             ),
                             textAlign: TextAlign.start,
@@ -167,9 +171,9 @@ class StoreIntroScreen extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: onGetStarted,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFFEA580C),
+                                backgroundColor: context.palette.primary,
                                 foregroundColor: context.palette.textOnBrand,
-                                textStyle: TextStyle(
+                                textStyle: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                               child: Text(languageProvider
@@ -208,15 +212,23 @@ class _IntroFeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(22),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: context.palette.textOnBrand.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.palette.textOnBrand.withValues(alpha: 0.2)),
+            color: context.palette.surface.withValues(alpha: 0.76),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+                color: context.palette.textOnBrand.withValues(alpha: 0.24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.14),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -229,13 +241,14 @@ class _IntroFeatureCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          color: context.palette.textOnBrand, fontWeight: FontWeight.w600),
+                          color: context.palette.textPrimary,
+                          fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color: context.palette.textOnBrand.withValues(alpha: 0.8),
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -265,8 +278,8 @@ class _IntroIcon extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(24),
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Icon(icon, color: color, size: 26),
     );

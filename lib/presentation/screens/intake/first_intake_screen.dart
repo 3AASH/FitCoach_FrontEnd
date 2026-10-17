@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -58,7 +59,7 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
-        backgroundColor: AppColors.error,
+        backgroundColor: context.palette.error,
       ),
     );
   }
@@ -68,17 +69,10 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
     final languageProvider = context.watch<LanguageProvider>();
     final userProvider = context.watch<UserProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
-          Positioned.fill(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-              fit: BoxFit.cover,
-              color: Colors.black.withValues(alpha: 0.2),
-              colorBlendMode: BlendMode.darken,
-            ),
-          ),
+          const Positioned.fill(child: AashBackdrop()),
           SafeArea(
             child: Center(
               child: SingleChildScrollView(
@@ -91,15 +85,21 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                       // Follows the theme rather than staying white: the card's
                       // labels and button text inherit the theme's text colour,
                       // which is near-white in dark mode and vanished here.
-                      color: context.palette.surface.withValues(alpha: 0.95),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.15),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
+                      color: context.palette.surface,
+                      borderRadius: BorderRadius.circular(AppRadius.xlarge),
+                      border: Border.all(color: context.palette.border),
+                      boxShadow:
+                          Theme.of(context).brightness == Brightness.light
+                              ? [
+                                  BoxShadow(
+                                    color: context.palette.primary.withValues(
+                                      alpha: 0.05,
+                                    ),
+                                    blurRadius: 20,
+                                    offset: const Offset(0, 10),
+                                  ),
+                                ]
+                              : const [],
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -109,8 +109,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  const Icon(Icons.auto_awesome,
-                                      color: AppColors.primary, size: 20),
+                                  Icon(Icons.auto_awesome,
+                                      color: context.palette.primary, size: 20),
                                   const SizedBox(width: 8),
                                   Text(
                                     languageProvider.t('intake_first_title'),
@@ -139,8 +139,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                         LinearProgressIndicator(
                           value: (_currentStep + 1) / 3,
                           backgroundColor: context.palette.surfaceVariant,
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              AppColors.primary),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                              context.palette.primary),
                         ),
                         const SizedBox(height: 24),
                         _buildCurrentStep(languageProvider),
@@ -344,16 +344,17 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(AppRadius.medium),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.primary.withValues(alpha: 0.08)
+              ? context.palette.primary.withValues(alpha: 0.08)
               : context.palette.surface,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
           border: Border.all(
-            color: isSelected ? AppColors.primary : context.palette.border,
+            color:
+                isSelected ? context.palette.primary : context.palette.border,
             width: 1.5,
           ),
         ),
@@ -363,7 +364,9 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
               isSelected
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
-              color: isSelected ? AppColors.primary : context.palette.textSecondary,
+              color: isSelected
+                  ? context.palette.primary
+                  : context.palette.textSecondary,
             ),
             const SizedBox(width: 8),
             Expanded(
@@ -372,7 +375,8 @@ class _FirstIntakeScreenState extends State<FirstIntakeScreen> {
                 children: [
                   Text(
                     title,
-                    style: const TextStyle(fontWeight: FontWeight.w600),
+                    style: AppTextStyles.labelSmall
+                        .copyWith(color: context.palette.textPrimary),
                   ),
                   if (subtitle != null) ...[
                     const SizedBox(height: 4),
@@ -414,11 +418,12 @@ class _StepSection extends StatelessWidget {
       children: [
         Column(
           children: [
-            Icon(icon, size: 56, color: AppColors.primary),
+            Icon(icon, size: 56, color: context.palette.primary),
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              style:
+                  AppTextStyles.h2.copyWith(color: context.palette.textPrimary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),

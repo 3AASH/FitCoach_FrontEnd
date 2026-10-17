@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -53,8 +54,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
     final isWebLink =
         uri != null && (uri.scheme == 'http' || uri.scheme == 'https');
 
-    final launched = isWebLink &&
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
+    final launched =
+        isWebLink && await launchUrl(uri, mode: LaunchMode.externalApplication);
 
     if (!launched && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -353,7 +354,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       bottomNavigationBar: (widget.onMessage != null ||
               widget.onBookCall != null)
           ? SafeArea(
@@ -407,14 +408,13 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                       SliverAppBar(
                         pinned: true,
                         elevation: 0,
-                        backgroundColor:
-                            context.palette.background.withValues(alpha: 0),
+                        backgroundColor: context.palette.background,
                         leading: IconButton(
                           tooltip: lang.t('back'),
                           onPressed: () => Navigator.of(context).maybePop(),
-                          icon: const Icon(
+                          icon: Icon(
                             Icons.arrow_back,
-                            color: AppColors.textWhite,
+                            color: context.palette.textPrimary,
                           ),
                         ),
                         title: Column(
@@ -422,33 +422,18 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                           children: [
                             Text(
                               lang.t('public_coach_profile_title'),
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textWhite,
+                              style: AppTextStyles.h3.copyWith(
+                                color: context.palette.textPrimary,
                               ),
                             ),
                             Text(
                               lang.t('public_coach_profile_subtitle'),
                               style: TextStyle(
                                 fontSize: 12,
-                                color:
-                                    AppColors.textWhite.withValues(alpha: 0.7),
+                                color: context.palette.textSecondary,
                               ),
                             ),
                           ],
-                        ),
-                        flexibleSpace: Container(
-                          decoration: const BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: AlignmentDirectional.topStart,
-                              end: AlignmentDirectional.bottomEnd,
-                              colors: [
-                                AppColors.primary,
-                                AppColors.primaryDark
-                              ],
-                            ),
-                          ),
                         ),
                       ),
                       SliverToBoxAdapter(
@@ -469,9 +454,9 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                         delegate: _SliverAppBarDelegate(
                           TabBar(
                             controller: _tabController,
-                            labelColor: AppColors.primary,
+                            labelColor: context.palette.primary,
                             unselectedLabelColor: context.palette.textSecondary,
-                            indicatorColor: AppColors.primary,
+                            indicatorColor: context.palette.primary,
                             indicatorWeight: 3,
                             tabs: [
                               Tab(
@@ -511,7 +496,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
 
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.large)),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -522,11 +508,11 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
               children: [
                 CircleAvatar(
                   radius: 40,
-                  backgroundColor: AppColors.secondary.withValues(alpha: 0.4),
+                  backgroundColor: context.palette.surfaceVariant,
                   child: Text(
                     _profile!.initials,
-                    style: const TextStyle(
-                      color: AppColors.secondaryForeground,
+                    style: TextStyle(
+                      color: context.palette.textPrimary,
                       fontSize: 22,
                       fontWeight: FontWeight.w700,
                     ),
@@ -556,23 +542,23 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                color:
-                                    AppColors.secondary.withValues(alpha: 0.4),
-                                borderRadius: BorderRadius.circular(16),
+                                color: context.palette.surfaceVariant,
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.large),
                               ),
                               child: Row(
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(
+                                  Icon(
                                     Icons.workspace_premium,
                                     size: 14,
-                                    color: AppColors.secondaryForeground,
+                                    color: context.palette.textPrimary,
                                   ),
                                   const SizedBox(width: 6),
                                   Text(
                                     lang.t('public_coach_profile_verified'),
-                                    style: const TextStyle(
-                                      color: AppColors.secondaryForeground,
+                                    style: TextStyle(
+                                      color: context.palette.textPrimary,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                     ),
@@ -616,7 +602,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                           ),
                           Text(
                             '-',
-                            style: TextStyle(color: context.palette.textSecondary),
+                            style:
+                                TextStyle(color: context.palette.textSecondary),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -638,7 +625,8 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                           ),
                           Text(
                             '-',
-                            style: TextStyle(color: context.palette.textSecondary),
+                            style:
+                                TextStyle(color: context.palette.textSecondary),
                           ),
                           Row(
                             mainAxisSize: MainAxisSize.min,
@@ -678,7 +666,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                       ),
                       decoration: BoxDecoration(
                         color: context.palette.surfaceVariant,
-                        borderRadius: BorderRadius.circular(14),
+                        borderRadius: BorderRadius.circular(AppRadius.large),
                         border: Border.all(color: context.palette.border),
                       ),
                       child: Text(
@@ -705,7 +693,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
         Expanded(
           child: _QuickStatCard(
             icon: Icons.people,
-            iconColor: AppColors.secondaryForeground,
+            iconColor: AppColors.cyan,
             value: '${_profile!.totalClients}',
             label: lang.t('public_coach_profile_total_clients'),
           ),
@@ -714,7 +702,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
         Expanded(
           child: _QuickStatCard(
             icon: Icons.videocam,
-            iconColor: AppColors.primary,
+            iconColor: context.palette.info,
             value: '${_profile!.completedSessions}',
             label: lang.t('public_coach_profile_sessions'),
           ),
@@ -776,14 +764,14 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                 padding:
                     const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.primary),
+                  color: context.palette.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(AppRadius.xlarge),
+                  border: Border.all(color: context.palette.primary),
                 ),
                 child: Text(
                   spec,
-                  style: const TextStyle(
-                    color: AppColors.primary,
+                  style: TextStyle(
+                    color: context.palette.primary,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -807,7 +795,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
             child: Column(
               children: [
                 ListTile(
-                  leading: const Icon(Icons.email, color: AppColors.primary),
+                  leading: Icon(Icons.email, color: context.palette.info),
                   title: Text(
                     _profile!.email,
                     style: TextStyle(color: context.palette.textPrimary),
@@ -815,7 +803,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                 ),
                 if (_profile!.phoneNumber != null)
                   ListTile(
-                    leading: const Icon(Icons.phone, color: AppColors.primary),
+                    leading: Icon(Icons.phone, color: context.palette.info),
                     title: Text(
                       _profile!.phoneNumber!,
                       style: TextStyle(color: context.palette.textPrimary),
@@ -848,12 +836,12 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      color: context.palette.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     child: const Icon(
                       Icons.workspace_premium,
-                      color: AppColors.primary,
+                      color: AppColors.gold,
                     ),
                   ),
                   title: Text(
@@ -915,8 +903,9 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     decoration: BoxDecoration(
                       color: exp.isCurrent
                           ? AppColors.success.withValues(alpha: 0.1)
-                          : context.palette.textSecondary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                          : context.palette.textSecondary
+                              .withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     child: Icon(
                       Icons.work,
@@ -982,7 +971,7 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
                     decoration: BoxDecoration(
                       color: _getAchievementColor(achievement.type)
                           .withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     child: Icon(
                       _getAchievementIcon(achievement.type),
@@ -1042,11 +1031,11 @@ class _PublicCoachProfileScreenState extends State<PublicCoachProfileScreen>
       case 'medal':
         return AppColors.warning;
       case 'award':
-        return AppColors.secondaryForeground;
+        return AppColors.gold;
       case 'recognition':
-        return AppColors.primary;
+        return AppColors.gold;
       default:
-        return AppColors.primary;
+        return AppColors.gold;
     }
   }
 }
@@ -1095,7 +1084,8 @@ class _QuickStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Card(
       elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadius.large)),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(
@@ -1116,7 +1106,7 @@ class _QuickStatCard extends StatelessWidget {
               label,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 color: context.palette.textSecondary,
               ),
             ),

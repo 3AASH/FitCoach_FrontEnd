@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -8,6 +9,7 @@ import '../../providers/auth_provider.dart';
 import '../../providers/messaging_provider.dart';
 import '../../providers/theme_provider.dart';
 import '../../widgets/custom_card.dart';
+import '../../widgets/aash_brand_mark.dart';
 import '../../widgets/custom_stat_info_card.dart';
 import '../subscription/subscription_upgrade_screen.dart';
 import '../progress/progress_screen.dart';
@@ -123,24 +125,18 @@ class _AccountScreenState extends State<AccountScreen> {
           languageProvider.t('account_tab_settings')),
     ];
 
-    return Scaffold(
+    return AashScaffold(
       body: Stack(
         children: [
           Positioned.fill(
-            child: Opacity(
-              opacity: 0.8,
-              child: Image.asset(
-                'assets/placeholders/splash_onboarding/workout_onboarding.png',
-                fit: BoxFit.cover,
-              ),
-            ),
+            child: ColoredBox(color: context.palette.background),
           ),
           SafeArea(
             child: Column(
               children: [
                 Container(
                   padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
-                  color: AppColors.primary,
+                  color: context.palette.background,
                   child: Column(
                     children: [
                       Row(
@@ -150,7 +146,7 @@ class _AccountScreenState extends State<AccountScreen> {
                             onPressed: () => _handleBack(),
                             icon: Icon(
                               Icons.arrow_back,
-                              color: Theme.of(context).colorScheme.onPrimary,
+                              color: context.palette.textPrimary,
                             ),
                           ),
                           Expanded(
@@ -160,7 +156,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 Text(
                                   languageProvider.t('account'),
                                   style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onPrimary,
+                                    color: context.palette.textPrimary,
                                     fontSize: 20,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -168,32 +164,34 @@ class _AccountScreenState extends State<AccountScreen> {
                                 Text(
                                   languageProvider.t('account_manage_profile'),
                                   style: TextStyle(
-                                      color: Colors.white70, fontSize: 12),
+                                      color: context.palette.textSecondary,
+                                      fontSize: 12),
                                 ),
                               ],
                             ),
                           ),
+                          const AashBrandMark(size: 42),
                         ],
                       ),
                       const SizedBox(height: 12),
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: context.palette.textOnBrand.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(16),
+                          color: context.palette.surface,
+                          borderRadius: BorderRadius.circular(AppRadius.xlarge),
+                          border: Border.all(color: context.palette.border),
                         ),
                         child: Row(
                           children: [
                             CircleAvatar(
                               radius: 24,
-                              backgroundColor:
-                                  context.palette.textOnBrand.withValues(alpha: 0.2),
+                              backgroundColor: context.palette.surfaceVariant,
                               child: Text(
                                 user?.name.substring(0, 1).toUpperCase() ?? 'U',
                                 style: TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  color: context.palette.textOnBrand,
                                 ),
                               ),
                             ),
@@ -204,17 +202,21 @@ class _AccountScreenState extends State<AccountScreen> {
                                 children: [
                                   Text(
                                     user?.name ?? languageProvider.t('user'),
-                                    style: TextStyle(
-                                      color: Theme.of(context).colorScheme.onPrimary,
-                                      fontSize: 16,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.h4.copyWith(
+                                      color: context.palette.textPrimary,
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     user?.email ?? user?.phoneNumber ?? '',
-                                    style: TextStyle(
-                                        color: Colors.white70, fontSize: 12),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTextStyles.caption.copyWith(
+                                      color: context.palette.textSecondary,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -223,8 +225,9 @@ class _AccountScreenState extends State<AccountScreen> {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color: context.palette.textOnBrand.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(12),
+                                color: AppColors.gold.withValues(alpha: 0.14),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.pill),
                               ),
                               child: Text(
                                 role == 'coach'
@@ -232,8 +235,9 @@ class _AccountScreenState extends State<AccountScreen> {
                                     : role == 'admin'
                                         ? languageProvider.t('admin')
                                         : user?.subscriptionTier ?? 'Freemium',
-                                style: TextStyle(
-                                    color: Theme.of(context).colorScheme.onPrimary, fontSize: 12),
+                                style: AppTextStyles.captionMedium.copyWith(
+                                  color: context.palette.accent,
+                                ),
                               ),
                             ),
                           ],
@@ -276,39 +280,34 @@ class _AccountScreenState extends State<AccountScreen> {
   }
 
   Widget _buildTabSelector(List<_AccountTabOption> options) {
-    return CustomCard(
-      padding: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String>(
-            value: _activeTab,
-            isExpanded: true,
-            icon: const Icon(Icons.expand_more),
-            items: options
-                .map(
-                  (option) => DropdownMenuItem<String>(
-                    value: option.id,
-                    child: Row(
-                      children: [
-                        Icon(option.icon,
-                            size: 18, color: context.palette.textSecondary),
-                        const SizedBox(width: 8),
-                        Text(option.label),
-                      ],
-                    ),
-                  ),
-                )
-                .toList(),
-            onChanged: (value) {
-              if (value == null) {
-                return;
-              }
-              setState(() => _activeTab = value);
-            },
+    final colorScheme = Theme.of(context).colorScheme;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: options.map((option) {
+        final isSelected = _activeTab == option.id;
+        return ChoiceChip(
+          selected: isSelected,
+          showCheckmark: false,
+          avatar: Icon(
+            option.icon,
+            size: 18,
+            color: isSelected
+                ? colorScheme.onPrimary
+                : context.palette.textSecondary,
           ),
-        ),
-      ),
+          label: Text(option.label),
+          labelStyle: TextStyle(
+            color: isSelected ? colorScheme.onPrimary : colorScheme.onSurface,
+          ),
+          selectedColor: colorScheme.primary,
+          backgroundColor: context.palette.surfaceVariant,
+          side: BorderSide(
+            color: isSelected ? colorScheme.primary : context.palette.border,
+          ),
+          onSelected: (_) => setState(() => _activeTab = option.id),
+        );
+      }).toList(),
     );
   }
 
@@ -326,7 +325,7 @@ class _AccountScreenState extends State<AccountScreen> {
           title: languageProvider.t('account_section_personal_info'),
           subtitle: languageProvider.t('account_personal_info_subtitle'),
           icon: Icons.person,
-          iconColor: AppColors.primary,
+          iconColor: context.palette.primary,
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ProfileEditScreen()),
@@ -340,7 +339,7 @@ class _AccountScreenState extends State<AccountScreen> {
               title: languageProvider.t('account_fitness_goals'),
               subtitle: languageProvider.t('account_fitness_goals_subtitle'),
               icon: Icons.flag,
-              iconColor: AppColors.secondary,
+              iconColor: context.palette.primary,
               onTap: () => _showComingSoon(isArabic),
             ),
             const SizedBox(height: 12),
@@ -430,7 +429,7 @@ class _AccountScreenState extends State<AccountScreen> {
           title: languageProvider.t('account_progress'),
           subtitle: languageProvider.t('account_progress_subtitle'),
           icon: Icons.trending_up,
-          iconColor: AppColors.primary,
+          iconColor: context.palette.primary,
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(builder: (_) => const ProgressScreen()),
@@ -452,7 +451,7 @@ class _AccountScreenState extends State<AccountScreen> {
           title: languageProvider.t('account_manage_subscription'),
           subtitle: languageProvider.t('account_manage_subscription_subtitle'),
           icon: Icons.card_membership,
-          iconColor: AppColors.primary,
+          iconColor: context.palette.primary,
           onTap: () {
             Navigator.push(
               context,
@@ -467,7 +466,7 @@ class _AccountScreenState extends State<AccountScreen> {
           title: languageProvider.t('account_payment_history'),
           subtitle: languageProvider.t('account_payment_history_subtitle'),
           icon: Icons.payment,
-          iconColor: AppColors.secondary,
+          iconColor: context.palette.primary,
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute(
@@ -536,8 +535,8 @@ class _AccountScreenState extends State<AccountScreen> {
             children: [
               if (!isCoach && !isAdmin) ...[
                 SwitchListTile(
-                  secondary: const Icon(Icons.fitness_center,
-                      color: AppColors.primary),
+                  secondary: Icon(Icons.fitness_center,
+                      color: context.palette.primary),
                   title: Text(languageProvider
                       .t('account_notification_workout_reminders')),
                   value: _workoutReminders,
@@ -576,7 +575,7 @@ class _AccountScreenState extends State<AccountScreen> {
               if (isCoach) ...[
                 SwitchListTile(
                   secondary:
-                      const Icon(Icons.group_add, color: AppColors.primary),
+                      Icon(Icons.group_add, color: context.palette.primary),
                   title: Text(languageProvider
                       .t('account_notification_new_assignments')),
                   value: _coachNewAssignments,
@@ -593,8 +592,8 @@ class _AccountScreenState extends State<AccountScreen> {
                 ),
                 const Divider(height: 1),
                 SwitchListTile(
-                  secondary: const Icon(Icons.calendar_month,
-                      color: AppColors.secondary),
+                  secondary: Icon(Icons.calendar_month,
+                      color: context.palette.primary),
                   title: Text(languageProvider
                       .t('account_notification_session_reminders')),
                   value: _coachSessionReminders,
@@ -634,7 +633,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 const Divider(height: 1),
                 SwitchListTile(
                   secondary:
-                      const Icon(Icons.verified_user, color: AppColors.primary),
+                      Icon(Icons.verified_user, color: context.palette.primary),
                   title: Text(languageProvider
                       .t('account_notification_coach_applications')),
                   value: _adminCoachApplications,
@@ -644,7 +643,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 const Divider(height: 1),
                 SwitchListTile(
                   secondary:
-                      const Icon(Icons.payment, color: AppColors.secondary),
+                      Icon(Icons.payment, color: context.palette.primary),
                   title: Text(languageProvider
                       .t('account_notification_payment_issues')),
                   value: _adminPaymentIssues,
@@ -685,13 +684,12 @@ class _AccountScreenState extends State<AccountScreen> {
           child: Column(
             children: [
               ListTile(
-                leading: const Icon(Icons.language, color: AppColors.primary),
+                leading: Icon(Icons.language, color: context.palette.primary),
                 title: Text(languageProvider.t('account_language')),
                 subtitle: Text(isArabic
                     ? languageProvider.t('arabic')
                     : languageProvider.t('english')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () =>
                     _showLanguageDialog(context, languageProvider, isArabic),
               ),
@@ -715,8 +713,7 @@ class _AccountScreenState extends State<AccountScreen> {
                     Text(languageProvider.t('account_notification_settings')),
                 subtitle: Text(languageProvider
                     .t('account_notification_settings_subtitle')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -729,8 +726,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 leading: Icon(Icons.lock_outline,
                     color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_password_title')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -743,8 +739,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 leading: Icon(Icons.phone_iphone,
                     color: context.palette.textSecondary),
                 title: Text(languageProvider.t('change_mobile_title')),
-                trailing:
-                    const Icon(Icons.chevron_right),
+                trailing: const Icon(Icons.chevron_right),
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -761,7 +756,7 @@ class _AccountScreenState extends State<AccountScreen> {
             title: languageProvider.t('account_help_center'),
             subtitle: languageProvider.t('account_help_center_subtitle'),
             icon: Icons.help_outline,
-            iconColor: AppColors.primary,
+            iconColor: context.palette.primary,
             onTap: () => _showComingSoon(isArabic),
           ),
         ],
@@ -771,14 +766,14 @@ class _AccountScreenState extends State<AccountScreen> {
             title: languageProvider.t('account_contact_us'),
             subtitle: languageProvider.t('account_contact_us_subtitle'),
             icon: Icons.email,
-            iconColor: AppColors.secondary,
+            iconColor: context.palette.primary,
             onTap: () => _showComingSoon(isArabic),
           ),
         ],
         const SizedBox(height: 12),
         CustomInfoCard(
           title: languageProvider.t('account_about'),
-          subtitle: 'FitCoach+ v2.0.0',
+          subtitle: 'Aash v2.0.0',
           icon: Icons.info_outline,
           iconColor: AppColors.accent,
           onTap: () {
@@ -811,7 +806,7 @@ class _AccountScreenState extends State<AccountScreen> {
             icon: const Icon(Icons.logout, color: AppColors.error),
             label: Text(
               languageProvider.t('account_logout'),
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
             style: OutlinedButton.styleFrom(
               side: const BorderSide(color: AppColors.error),
@@ -834,7 +829,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 color: AppColors.error, size: 20),
             label: Text(
               languageProvider.t('delete_account_title'),
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
           ),
         ),
@@ -853,7 +848,7 @@ class _AccountScreenState extends State<AccountScreen> {
       return CustomCard(
         child: Text(
           _roleProfileError!,
-          style: TextStyle(color: AppColors.error),
+          style: TextStyle(color: context.palette.error),
         ),
       );
     }
@@ -1010,7 +1005,7 @@ class _AccountScreenState extends State<AccountScreen> {
         children: [
           Row(
             children: [
-              Icon(icon, color: AppColors.primary, size: 18),
+              Icon(icon, color: context.palette.primary, size: 18),
               const SizedBox(width: 8),
               Text(
                 title,
@@ -1123,7 +1118,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: _buildStatPill(
                   '1,247',
                   languageProvider.t('account_admin_total_users'),
-                  AppColors.primary,
+                  context.palette.primary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -1131,7 +1126,7 @@ class _AccountScreenState extends State<AccountScreen> {
                 child: _buildStatPill(
                   '43',
                   languageProvider.t('account_admin_active_coaches'),
-                  AppColors.secondary,
+                  context.palette.primary,
                 ),
               ),
             ],
@@ -1180,7 +1175,7 @@ class _AccountScreenState extends State<AccountScreen> {
           Text(
             label,
             style:
-                TextStyle(color: context.palette.textSecondary, fontSize: 11),
+                TextStyle(color: context.palette.textSecondary, fontSize: 12),
           ),
         ],
       ),
@@ -1393,7 +1388,7 @@ class _AccountScreenState extends State<AccountScreen> {
     final languageProvider = context.read<LanguageProvider>();
     showAboutDialog(
       context: context,
-      applicationName: 'FitCoach+',
+      applicationName: 'Aash',
       applicationVersion: '2.0.0',
       applicationLegalese: languageProvider.t('account_about_legalese'),
       children: [
@@ -1427,7 +1422,7 @@ class _AccountScreenState extends State<AccountScreen> {
             onPressed: () => Navigator.pop(context, true),
             child: Text(
               languageProvider.t('account_logout'),
-              style: TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             ),
           ),
         ],

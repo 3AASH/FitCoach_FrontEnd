@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -28,7 +29,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isSaving = false;
   bool _isUpdatingPhoto = false;
-  
+
   late TextEditingController _nameController;
   late TextEditingController _emailController;
   late TextEditingController _ageController;
@@ -36,19 +37,22 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
   late TextEditingController _heightController;
   String _selectedGender = 'male';
 
-  UserRepository get _userRepository => widget.userRepository ?? UserRepository();
+  UserRepository get _userRepository =>
+      widget.userRepository ?? UserRepository();
   ImagePicker get _imagePicker => widget.imagePicker ?? ImagePicker();
 
   @override
   void initState() {
     super.initState();
     final user = context.read<AuthProvider>().user;
-    
+
     _nameController = TextEditingController(text: user?.name ?? '');
     _emailController = TextEditingController(text: user?.email ?? '');
     _ageController = TextEditingController(text: user?.age?.toString() ?? '');
-    _weightController = TextEditingController(text: user?.weight?.toString() ?? '');
-    _heightController = TextEditingController(text: user?.height?.toString() ?? '');
+    _weightController =
+        TextEditingController(text: user?.weight?.toString() ?? '');
+    _heightController =
+        TextEditingController(text: user?.height?.toString() ?? '');
     _selectedGender = user?.gender ?? 'male';
     // The form is prefilled, so "non-empty" says nothing. Compare against what
     // was loaded instead, or the back guard would fire on an untouched screen.
@@ -91,242 +95,248 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
-      appBar: AppBar(
-        title: Text(lang.t('edit_profile_title')),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Profile photo section
-              Center(
-                child: Stack(
-                  children: [
-                    CircleAvatar(
-                      radius: 60,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.1),
-                      child: Text(
-                        _nameController.text.isNotEmpty
-                            ? _nameController.text[0].toUpperCase()
-                            : 'U',
-                        style: const TextStyle(
-                          fontSize: 48,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.primary,
+      child: AashScaffold(
+        appBar: AppBar(
+          title: Text(lang.t('edit_profile_title')),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile photo section
+                Center(
+                  child: Stack(
+                    children: [
+                      CircleAvatar(
+                        radius: 60,
+                        backgroundColor:
+                            context.palette.primary.withValues(alpha: 0.1),
+                        child: Text(
+                          _nameController.text.isNotEmpty
+                              ? _nameController.text[0].toUpperCase()
+                              : 'U',
+                          style: TextStyle(
+                            fontSize: 48,
+                            fontWeight: FontWeight.bold,
+                            color: context.palette.primary,
+                          ),
                         ),
                       ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: AppColors.textWhite, width: 2),
-                        ),
-                        child: IconButton(
-                          tooltip: lang.t('edit_profile_photo'),
-                          icon: const Icon(Icons.camera_alt, color: AppColors.textWhite, size: 20),
-                          onPressed: _isUpdatingPhoto ? null : _showPhotoOptions,
+                      PositionedDirectional(
+                        bottom: 0,
+                        end: 0,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: context.palette.primary,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                                color: context.palette.textOnBrand, width: 2),
+                          ),
+                          child: IconButton(
+                            tooltip: lang.t('edit_profile_photo'),
+                            icon: Icon(Icons.camera_alt,
+                                color: context.palette.textOnBrand, size: 20),
+                            onPressed:
+                                _isUpdatingPhoto ? null : _showPhotoOptions,
+                          ),
                         ),
                       ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 32),
+
+                // Basic information
+                Text(
+                  lang.t('edit_profile_basic_info'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Full name
+                TextFormField(
+                  controller: _nameController,
+                  decoration: InputDecoration(
+                    labelText: lang.t('edit_profile_full_name'),
+                    prefixIcon: const Icon(Icons.person),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                  ],
-                ),
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Basic information
-              Text(
-                lang.t('edit_profile_basic_info'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              
-              // Full name
-              TextFormField(
-                controller: _nameController,
-                decoration: InputDecoration(
-                  labelText: lang.t('edit_profile_full_name'),
-                  prefixIcon: const Icon(Icons.person),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return lang.t('edit_profile_required');
-                  }
-                  return null;
-                },
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Email
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: lang.t('auth_email'),
-                  prefixIcon: const Icon(Icons.email),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value != null && value.isNotEmpty) {
-                    if (!value.contains('@')) {
-                      return lang.t('edit_profile_invalid_email');
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return lang.t('edit_profile_required');
                     }
-                  }
-                  return null;
-                },
-              ),
-              
-              const SizedBox(height: 24),
-              
-              // Physical information
-              Text(
-                lang.t('edit_profile_physical_info'),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
+                    return null;
+                  },
                 ),
-              ),
-              const SizedBox(height: 16),
-              
-              // Gender
-              CustomCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+
+                const SizedBox(height: 16),
+
+                // Email
+                TextFormField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: lang.t('auth_email'),
+                    prefixIcon: const Icon(Icons.email),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  keyboardType: TextInputType.emailAddress,
+                  validator: (value) {
+                    if (value != null && value.isNotEmpty) {
+                      if (!value.contains('@')) {
+                        return lang.t('edit_profile_invalid_email');
+                      }
+                    }
+                    return null;
+                  },
+                ),
+
+                const SizedBox(height: 24),
+
+                // Physical information
+                Text(
+                  lang.t('edit_profile_physical_info'),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Gender
+                CustomCard(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        lang.t('gender'),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: context.palette.textSecondary,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildGenderOption(
+                                'male', lang.t('male'), Icons.male),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildGenderOption(
+                                'female', lang.t('female'), Icons.female),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(height: 16),
+
+                // Age, Weight, Height in a row
+                Row(
                   children: [
-                    Text(
-                      lang.t('gender'),
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: context.palette.textSecondary,
+                    Expanded(
+                      child: TextFormField(
+                        controller: _ageController,
+                        decoration: InputDecoration(
+                          labelText: lang.t('age'),
+                          suffixText: lang.t('years'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return lang.t('edit_profile_required');
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildGenderOption('male', lang.t('male'), Icons.male),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _weightController,
+                        decoration: InputDecoration(
+                          labelText: lang.t('weight'),
+                          suffixText: lang.t('kg'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _buildGenderOption('female', lang.t('female'), Icons.female),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return lang.t('edit_profile_required');
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        controller: _heightController,
+                        decoration: InputDecoration(
+                          labelText: lang.t('height'),
+                          suffixText: lang.t('cm'),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                         ),
-                      ],
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return lang.t('edit_profile_required');
+                          }
+                          return null;
+                        },
+                      ),
                     ),
                   ],
                 ),
-              ),
-              
-              const SizedBox(height: 16),
-              
-              // Age, Weight, Height in a row
-              Row(
-                children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _ageController,
-                      decoration: InputDecoration(
-                        labelText: lang.t('age'),
-                        suffixText: lang.t('years'),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return lang.t('edit_profile_required');
-                        }
-                        return null;
-                      },
-                    ),
+
+                const SizedBox(height: 32),
+
+                // Save button
+                SizedBox(
+                  width: double.infinity,
+                  child: CustomButton(
+                    text: _isSaving
+                        ? lang.t('edit_profile_saving')
+                        : lang.t('edit_profile_save'),
+                    onPressed: _isSaving ? null : _saveProfile,
+                    variant: ButtonVariant.primary,
+                    size: ButtonSize.large,
+                    fullWidth: true,
+                    icon: Icons.check,
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _weightController,
-                      decoration: InputDecoration(
-                        labelText: lang.t('weight'),
-                        suffixText: lang.t('kg'),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return lang.t('edit_profile_required');
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextFormField(
-                      controller: _heightController,
-                      decoration: InputDecoration(
-                        labelText: lang.t('height'),
-                        suffixText: lang.t('cm'),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                      ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return lang.t('edit_profile_required');
-                        }
-                        return null;
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              
-              const SizedBox(height: 32),
-              
-              // Save button
-              SizedBox(
-                width: double.infinity,
-                child: CustomButton(
-                  text: _isSaving
-                      ? lang.t('edit_profile_saving')
-                      : lang.t('edit_profile_save'),
-                  onPressed: _isSaving ? null : _saveProfile,
-                  variant: ButtonVariant.primary,
-                  size: ButtonSize.large,
-                  fullWidth: true,
-                  icon: Icons.check,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
-      ),
     );
   }
-  
+
   Widget _buildGenderOption(String value, String label, IconData icon) {
     final isSelected = _selectedGender == value;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -336,9 +346,12 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary.withValues(alpha: 0.1) : Colors.transparent,
+          color: isSelected
+              ? context.palette.primary.withValues(alpha: 0.1)
+              : Colors.transparent,
           border: Border.all(
-            color: isSelected ? AppColors.primary : context.palette.border,
+            color:
+                isSelected ? context.palette.primary : context.palette.border,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(8),
@@ -348,7 +361,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           children: [
             Icon(
               icon,
-              color: isSelected ? AppColors.primary : context.palette.textSecondary,
+              color: isSelected
+                  ? context.palette.primary
+                  : context.palette.textSecondary,
               size: 20,
             ),
             const SizedBox(width: 8),
@@ -357,7 +372,9 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.primary : context.palette.textPrimary,
+                color: isSelected
+                    ? context.palette.primary
+                    : context.palette.textPrimary,
               ),
             ),
           ],
@@ -365,7 +382,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ),
     );
   }
-  
+
   void _showPhotoOptions() {
     final lang = context.read<LanguageProvider>();
     showModalBottomSheet(
@@ -394,7 +411,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
               leading: const Icon(Icons.delete, color: AppColors.error),
               title: Text(
                 lang.t('edit_profile_remove_photo'),
-                style: const TextStyle(color: AppColors.error),
+                style: TextStyle(color: context.palette.error),
               ),
               onTap: () {
                 Navigator.pop(context);
@@ -406,7 +423,7 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
       ),
     );
   }
-  
+
   Future<void> _pickAndUploadPhoto(ImageSource source) async {
     if (_isUpdatingPhoto) return;
     final lang = context.read<LanguageProvider>();
@@ -500,28 +517,29 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
     if (!_formKey.currentState!.validate()) {
       return;
     }
-    
+
     setState(() {
       _isSaving = true;
     });
-    
+
     try {
       final authProvider = context.read<AuthProvider>();
-      
+
       final updatedData = {
         'fullName': _nameController.text,
-        'email': _emailController.text.isNotEmpty ? _emailController.text : null,
+        'email':
+            _emailController.text.isNotEmpty ? _emailController.text : null,
         'age': int.tryParse(_ageController.text),
         'weight': double.tryParse(_weightController.text),
         'height': double.tryParse(_heightController.text),
         'gender': _selectedGender,
       };
-      
+
       await _userRepository.updateProfile(authProvider.user!.id, updatedData);
-      
+
       // Refresh user data
       await authProvider.refreshUser();
-      
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -533,17 +551,16 @@ class _ProfileEditScreenState extends State<ProfileEditScreen> {
           ),
         );
       }
-      
     } catch (e) {
       if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            lang.t('edit_profile_save_error'),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              lang.t('edit_profile_save_error'),
+            ),
+            backgroundColor: AppColors.error,
           ),
-          backgroundColor: AppColors.error,
-        ),
-      );
+        );
       }
     } finally {
       if (mounted) {

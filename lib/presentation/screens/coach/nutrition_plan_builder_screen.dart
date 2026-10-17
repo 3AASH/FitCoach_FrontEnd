@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -49,9 +50,8 @@ class _NutritionPlanBuilderScreenState
     });
   }
 
-  List<RecipeVariantOption> get _variantOptions =>
-      RecipeVariantOption.fromRows(
-          context.read<CoachProvider>().recipeVariantLibrary);
+  List<RecipeVariantOption> get _variantOptions => RecipeVariantOption.fromRows(
+      context.read<CoachProvider>().recipeVariantLibrary);
 
   List<RecipeMealOption> get _mealOptions =>
       RecipeMealOption.fromVariants(_variantOptions);
@@ -84,8 +84,7 @@ class _NutritionPlanBuilderScreenState
         _fatController.text = '70';
       } else {
         _selectedGoal = 'maintenance';
-        _planNameController.text =
-            lang.t('coach_nutrition_template_balanced');
+        _planNameController.text = lang.t('coach_nutrition_template_balanced');
         _caloriesController.text = '2200';
         _proteinController.text = '150';
         _carbsController.text = '240';
@@ -167,202 +166,199 @@ class _NutritionPlanBuilderScreenState
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
-      // One save, not two -- see the workout builder for the same change.
-      appBar: AppBar(
-        title: Text(lang.t('coach_nutrition_builder_title')),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Client info
-            CustomCard(
-              color: AppColors.success.withValues(alpha: 0.1),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.success,
-                    child: Icon(Icons.restaurant, color: AppColors.textWhite),
+      child: AashScaffold(
+        // One save, not two -- see the workout builder for the same change.
+        appBar: AppBar(
+          title: Text(lang.t('coach_nutrition_builder_title')),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Client info
+              CustomCard(
+                color: AppColors.success.withValues(alpha: 0.1),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppColors.success,
+                      child: Icon(Icons.restaurant,
+                          color: context.palette.textOnBrand),
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          lang.t('coach_nutrition_builder_client_label'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.palette.textSecondary,
+                          ),
+                        ),
+                        Text(
+                          widget.clientName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Plan name
+              Text(
+                lang.t('coach_nutrition_builder_plan_name_label'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _planNameController,
+                decoration: InputDecoration(
+                  hintText: lang.t('coach_nutrition_builder_plan_name_hint'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        lang.t('coach_nutrition_builder_client_label'),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.palette.textSecondary,
-                        ),
-                      ),
-                      Text(
-                        widget.clientName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Daily targets
+              Text(
+                lang.t('coach_nutrition_builder_daily_targets'),
+                style: AppTextStyles.h3,
+              ),
+              const SizedBox(height: 12),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMacroInput(
+                      controller: _caloriesController,
+                      label: lang.t('calories'),
+                      hint: '2000',
+                      icon: Icons.local_fire_department,
+                      color: AppColors.error,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildMacroInput(
+                      controller: _proteinController,
+                      label: lang.t('protein'),
+                      hint: '150',
+                      icon: Icons.egg,
+                      color: context.palette.primary,
+                    ),
                   ),
                 ],
               ),
-            ),
 
-            const SizedBox(height: 24),
+              const SizedBox(height: 12),
 
-            // Plan name
-            Text(
-              lang.t('coach_nutrition_builder_plan_name_label'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildMacroInput(
+                      controller: _carbsController,
+                      label: lang.t('carbs'),
+                      hint: '200',
+                      icon: Icons.grain,
+                      color: AppColors.warning,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _buildMacroInput(
+                      controller: _fatController,
+                      label: lang.t('fat'),
+                      hint: '60',
+                      icon: Icons.water_drop,
+                      color: AppColors.success,
+                    ),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _planNameController,
-              decoration: InputDecoration(
-                hintText: lang.t('coach_nutrition_builder_plan_name_hint'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+
+              const SizedBox(height: 24),
+
+              // Goal
+              Text(
+                lang.t('coach_nutrition_builder_goal_label'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Daily targets
-            Text(
-              lang.t('coach_nutrition_builder_daily_targets'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children:
+                    ['fat_loss', 'muscle_gain', 'maintenance'].map((goal) {
+                  final isSelected = _selectedGoal == goal;
+                  return FilterChip(
+                    label: Text(_getGoalLabel(goal, lang)),
+                    selected: isSelected,
+                    onSelected: (selected) {
+                      setState(() {
+                        _selectedGoal = goal;
+                      });
+                    },
+                    selectedColor: AppColors.success.withValues(alpha: 0.2),
+                    checkmarkColor: AppColors.success,
+                  );
+                }).toList(),
               ),
-            ),
-            const SizedBox(height: 12),
 
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMacroInput(
-                    controller: _caloriesController,
-                    label: lang.t('calories'),
-                    hint: '2000',
-                    icon: Icons.local_fire_department,
-                    color: AppColors.error,
+              const SizedBox(height: 24),
+
+              // Meals
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    lang.t('coach_nutrition_builder_meals_label'),
+                    style: AppTextStyles.h3,
                   ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildMacroInput(
-                    controller: _proteinController,
-                    label: lang.t('protein'),
-                    hint: '150',
-                    icon: Icons.egg,
-                    color: AppColors.primary,
+                  TextButton.icon(
+                    onPressed: () => _addFromTemplate(lang),
+                    icon: const Icon(Icons.file_copy, size: 18),
+                    label:
+                        Text(lang.t('coach_nutrition_builder_from_template')),
                   ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMacroInput(
-                    controller: _carbsController,
-                    label: lang.t('carbs'),
-                    hint: '200',
-                    icon: Icons.grain,
-                    color: AppColors.warning,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildMacroInput(
-                    controller: _fatController,
-                    label: lang.t('fat'),
-                    hint: '60',
-                    icon: Icons.water_drop,
-                    color: AppColors.success,
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Goal
-            Text(
-              lang.t('coach_nutrition_builder_goal_label'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+                ],
               ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children: ['fat_loss', 'muscle_gain', 'maintenance'].map((goal) {
-                final isSelected = _selectedGoal == goal;
-                return FilterChip(
-                  label: Text(_getGoalLabel(goal, lang)),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      _selectedGoal = goal;
-                    });
-                  },
-                  selectedColor: AppColors.success.withValues(alpha: 0.2),
-                  checkmarkColor: AppColors.success,
-                );
-              }).toList(),
-            ),
+              const SizedBox(height: 12),
 
-            const SizedBox(height: 24),
+              ..._meals.map((meal) => _buildMealCard(meal, lang)),
 
-            // Meals
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  lang.t('coach_nutrition_builder_meals_label'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => _addFromTemplate(lang),
-                  icon: const Icon(Icons.file_copy, size: 18),
-                  label: Text(lang.t('coach_nutrition_builder_from_template')),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            ..._meals.map((meal) => _buildMealCard(meal, lang)),
-
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: CustomButton(
-            text: lang.t('coach_nutrition_builder_save_plan'),
-            onPressed: () => _savePlan(lang),
-            variant: ButtonVariant.primary,
-            size: ButtonSize.large,
-            fullWidth: true,
+              const SizedBox(height: 16),
+            ],
           ),
         ),
-      ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: CustomButton(
+              text: lang.t('coach_nutrition_builder_save_plan'),
+              onPressed: () => _savePlan(lang),
+              variant: ButtonVariant.primary,
+              size: ButtonSize.large,
+              fullWidth: true,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -373,9 +369,12 @@ class _NutritionPlanBuilderScreenState
     if (_isSaving) return false;
     if (_planNameController.text.trim().isNotEmpty) return true;
     if (_meals.isNotEmpty) return true;
-    return [_caloriesController, _proteinController, _carbsController,
-            _fatController]
-        .any((c) => c.text.trim().isNotEmpty);
+    return [
+      _caloriesController,
+      _proteinController,
+      _carbsController,
+      _fatController
+    ].any((c) => c.text.trim().isNotEmpty);
   }
 
   Widget _buildMacroInput({
@@ -393,7 +392,7 @@ class _NutritionPlanBuilderScreenState
         hintText: hint,
         prefixIcon: Icon(icon, color: color, size: 20),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
       ),
     );
@@ -421,10 +420,7 @@ class _NutritionPlanBuilderScreenState
                   const SizedBox(width: 12),
                   Text(
                     _getMealLabel(mealType, lang),
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: AppTextStyles.h3,
                   ),
                 ],
               ),
@@ -456,12 +452,12 @@ class _NutritionPlanBuilderScreenState
                 title: Text(food['name'] ?? ''),
                 subtitle: Text(
                   '${food['calories']} cal | P: ${food['protein']}g | C: ${food['carbs']}g | F: ${food['fat']}g',
-                  style: const TextStyle(fontSize: 11),
+                  style: const TextStyle(fontSize: 12),
                 ),
                 trailing: IconButton(
                   tooltip: 'Delete food',
-                  icon:
-                      const Icon(Icons.delete, size: 20, color: AppColors.error),
+                  icon: const Icon(Icons.delete,
+                      size: 20, color: AppColors.error),
                   onPressed: () {
                     setState(() {
                       foods.removeAt(index);
@@ -602,8 +598,8 @@ class _NutritionPlanBuilderScreenState
                       onChanged: !fromLibrary
                           ? null
                           : (variantId) {
-                              final variant = selectedMeal!.variants.where(
-                                  (item) => item.variantId == variantId);
+                              final variant = selectedMeal!.variants
+                                  .where((item) => item.variantId == variantId);
                               if (variant.isEmpty) return;
                               setDialogState(() => applyVariant(variant.first));
                             },
@@ -813,8 +809,8 @@ class _NutritionPlanBuilderScreenState
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content:
-                Text(coachProvider.error ?? lang.t('coach_nutrition_plan_save_failed')),
+            content: Text(coachProvider.error ??
+                lang.t('coach_nutrition_plan_save_failed')),
             backgroundColor: AppColors.error,
           ),
         );

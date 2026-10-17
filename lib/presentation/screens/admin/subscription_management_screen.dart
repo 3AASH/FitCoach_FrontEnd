@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -39,7 +40,7 @@ class _SubscriptionManagementScreenState
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
 
-    return Scaffold(
+    return AashScaffold(
       body: Column(
         children: [
           _buildHeader(context, languageProvider, planProvider),
@@ -118,13 +119,7 @@ class _SubscriptionManagementScreenState
   ) {
     return Container(
       padding: const EdgeInsets.fromLTRB(16, 12, 16, 20),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [AppColors.primary, AppColors.secondaryForeground],
-          begin: AlignmentDirectional.topStart,
-          end: AlignmentDirectional.bottomEnd,
-        ),
-      ),
+      decoration: BoxDecoration(color: context.palette.primary),
       child: SafeArea(
         bottom: false,
         child: Column(
@@ -135,9 +130,9 @@ class _SubscriptionManagementScreenState
                 IconButton(
                   onPressed: () => Navigator.of(context).maybePop(),
                   tooltip: languageProvider.t('back'),
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.arrow_back,
-                    color: AppColors.textWhite,
+                    color: context.palette.textOnBrand,
                   ),
                 ),
                 Expanded(
@@ -146,8 +141,8 @@ class _SubscriptionManagementScreenState
                     children: [
                       Text(
                         languageProvider.t('admin_subscription_management'),
-                        style: const TextStyle(
-                          color: AppColors.textWhite,
+                        style: TextStyle(
+                          color: context.palette.textOnBrand,
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -155,8 +150,8 @@ class _SubscriptionManagementScreenState
                       const SizedBox(height: 4),
                       Text(
                         languageProvider.t('admin_manage_plans'),
-                        style: const TextStyle(
-                          color: AppColors.textWhite,
+                        style: TextStyle(
+                          color: context.palette.textOnBrand,
                           fontSize: 12,
                         ),
                       ),
@@ -165,10 +160,10 @@ class _SubscriptionManagementScreenState
                 ),
                 TextButton.icon(
                   onPressed: () => planProvider.loadPlans(forceRefresh: true),
-                  icon: const Icon(Icons.refresh, color: AppColors.textWhite),
+                  icon: Icon(Icons.refresh, color: context.palette.textOnBrand),
                   label: Text(
                     languageProvider.t('refresh'),
-                    style: const TextStyle(color: AppColors.textWhite),
+                    style: TextStyle(color: context.palette.textOnBrand),
                   ),
                 ),
               ],
@@ -176,8 +171,8 @@ class _SubscriptionManagementScreenState
             const SizedBox(height: 16),
             Text(
               languageProvider.t('subscription_admin_header_description'),
-              style: const TextStyle(
-                color: AppColors.textWhite,
+              style: TextStyle(
+                color: context.palette.textOnBrand,
                 fontSize: 13,
               ),
             ),
@@ -223,13 +218,13 @@ class _SubscriptionManagementScreenState
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: AppColors.warning.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
                 ),
                 child: Text(
                   tr('subscription_request_status_pending'),
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.warning,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: context.palette.warning,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -385,13 +380,14 @@ class _SubscriptionManagementScreenState
                                 horizontal: 10, vertical: 4),
                             decoration: BoxDecoration(
                               color: AppColors.success.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.medium),
                             ),
                             child: Text(
                               tr('subscription_recommended_label'),
-                              style: const TextStyle(
-                                fontSize: 11,
-                                color: AppColors.success,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: context.palette.success,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),
@@ -416,11 +412,8 @@ class _SubscriptionManagementScreenState
                     plan.isFree
                         ? tr('subscription_free_label')
                         : '${plan.monthlyPrice.toStringAsFixed(0)} ${plan.currency}/${tr('subscription_unit_month_short')}',
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
-                    ),
+                    style: AppTextStyles.h2
+                        .copyWith(color: context.palette.primary),
                   ),
                   if (plan.yearlyPrice != null && plan.yearlyPrice! > 0)
                     Text(
@@ -660,7 +653,7 @@ class _MetricChip extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: context.palette.surfaceVariant,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
         border: Border.all(color: context.palette.border),
       ),
       child: Column(
@@ -670,7 +663,7 @@ class _MetricChip extends StatelessWidget {
           Text(
             label,
             style:
-                TextStyle(fontSize: 11, color: context.palette.textSecondary),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 4),
           Text(
@@ -696,7 +689,7 @@ class _ErrorBanner extends StatelessWidget {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.error.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppRadius.medium),
       ),
       child: Row(
         children: [
@@ -705,7 +698,7 @@ class _ErrorBanner extends StatelessWidget {
           Expanded(
             child: Text(
               message,
-              style: const TextStyle(color: AppColors.error, fontSize: 13),
+              style: TextStyle(color: context.palette.error, fontSize: 13),
             ),
           ),
           TextButton(
@@ -730,7 +723,8 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         children: [
           Icon(Icons.auto_graph,
-              size: 72, color: context.palette.textDisabled.withValues(alpha: 0.7)),
+              size: 72,
+              color: context.palette.textDisabled.withValues(alpha: 0.7)),
           const SizedBox(height: 16),
           Text(
             languageProvider.t('subscription_admin_empty_title'),
@@ -794,7 +788,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
     _currencyController = TextEditingController(text: plan?.currency ?? 'SAR');
     _badgeController = TextEditingController(text: plan?.badge ?? '');
     _accentColorController =
-        TextEditingController(text: plan?.accentColor ?? '#7C3AED');
+        TextEditingController(text: plan?.accentColor ?? '#0B6254');
     _messagesLimitController = TextEditingController(
       text: plan?.metadata['messagesLimit']?.toString() ?? '',
     );
@@ -855,7 +849,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: context.palette.border,
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
               ),
@@ -870,7 +864,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_plan_name'),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.medium)),
                 ),
                 validator: (value) => value == null || value.trim().isEmpty
                     ? tr('subscription_admin_form_name_required')
@@ -883,7 +877,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_plan_description'),
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.medium)),
                 ),
                 validator: (value) => value == null || value.trim().isEmpty
                     ? tr('subscription_admin_form_description_required')
@@ -899,7 +893,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_monthly_price'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
@@ -922,7 +917,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                         labelText:
                             tr('subscription_admin_form_yearly_price_optional'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                       validator: (value) => _optionalMoneyValidator(value, tr),
                     ),
@@ -938,7 +934,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_currency'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                       validator: (value) {
                         final currency = value?.trim() ?? '';
@@ -960,7 +957,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_badge_optional'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                     ),
                   ),
@@ -971,9 +969,9 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                 controller: _accentColorController,
                 decoration: InputDecoration(
                   labelText: tr('subscription_admin_form_accent_color'),
-                  hintText: '#7C3AED',
+                  hintText: '#0B6254',
                   border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12)),
+                      borderRadius: BorderRadius.circular(AppRadius.medium)),
                 ),
                 validator: (value) {
                   final color = value?.trim() ?? '';
@@ -1003,7 +1001,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_messages_limit'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                       validator: (value) => _requiredIntValidator(value, tr),
                     ),
@@ -1016,7 +1015,8 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                       decoration: InputDecoration(
                         labelText: tr('subscription_admin_form_video_limit'),
                         border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12)),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium)),
                       ),
                       validator: (value) => _requiredIntValidator(value, tr),
                     ),
@@ -1049,7 +1049,7 @@ class _PlanEditorSheetState extends State<_PlanEditorSheet> {
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
                       color: context.palette.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                       border: Border.all(color: context.palette.border),
                     ),
                     child: Column(

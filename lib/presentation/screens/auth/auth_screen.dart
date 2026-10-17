@@ -1,5 +1,7 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../widgets/aash_brand_mark.dart';
 import '../../../core/constants/colors.dart';
 import '../../../core/utils/phone_number_utils.dart';
 import '../../providers/auth_provider.dart';
@@ -605,11 +607,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: AppColors.error),
+      SnackBar(content: Text(message), backgroundColor: context.palette.error),
     );
   }
-
-  void _handleBackgroundImageError(Object exception, StackTrace? stackTrace) {}
 
   Future<void> _openForgotPassword() async {
     final result = await Navigator.push<bool>(
@@ -630,652 +630,395 @@ class _AuthScreenState extends State<AuthScreen> {
         _isSendingSignupCode ||
         _isCreatingSignupAccount;
 
-    return Scaffold(
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                image: const NetworkImage(
-                  'https://images.unsplash.com/photo-1689007669034-9ef988d89742?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080',
-                ),
-                fit: BoxFit.cover,
-                onError: _handleBackgroundImageError,
-              ),
-            ),
-          ),
-          Container(color: Colors.black.withValues(alpha: 0.45)),
-          SafeArea(
-            child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(24),
-                child: Column(
-                  children: [
-                    Column(
-                      children: [
-                        Container(
-                          width: 64,
-                          height: 64,
-                          decoration: BoxDecoration(
-                            color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(18),
+    return AashScaffold(
+      backgroundColor: context.palette.background,
+      body: AashBackdrop(
+        child: SafeArea(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                children: [
+                  Column(
+                    children: [
+                      const AashBrandMark(
+                        size: 72,
+                        showWordmark: false,
+                      ),
+                      const SizedBox(height: 12),
+                      AnimatedReveal(
+                        offset: Offset(isRTL ? -0.25 : 0.25, 0),
+                        duration: const Duration(milliseconds: 650),
+                        child: Text(
+                          languageProvider.t('auth_app_name'),
+                          style: AppTextStyles.h1.copyWith(
+                            fontSize: 26,
+                            color: context.palette.textPrimary,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Image.asset(
-                              'assets/images/logo_primary.png',
-                              fit: BoxFit.contain,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      AnimatedReveal(
+                        delay: const Duration(milliseconds: 120),
+                        offset: Offset(isRTL ? -0.2 : 0.2, 0),
+                        duration: const Duration(milliseconds: 650),
+                        child: Text(
+                          languageProvider.t('auth_tagline'),
+                          style: AppTextStyles.body.copyWith(
+                            fontSize: 14,
+                            color: context.palette.textSecondary,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 460),
+                    child: Card(
+                      color: context.palette.surface,
+                      elevation:
+                          Theme.of(context).brightness == Brightness.light
+                              ? 2
+                              : 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.xlarge),
+                        side: BorderSide(color: context.palette.border),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Text(
+                              _step == AuthStep.otp ||
+                                      (_step == AuthStep.emailSignup &&
+                                          _isSignupOtpSent)
+                                  ? languageProvider.t('auth_enter_otp')
+                                  : _step == AuthStep.emailSignup
+                                      ? languageProvider
+                                          .t('auth_create_account')
+                                      : languageProvider.t('auth_welcome'),
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.h2.copyWith(
+                                fontSize: 22,
+                                color: context.palette.textPrimary,
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        AnimatedReveal(
-                          offset: Offset(isRTL ? -0.25 : 0.25, 0),
-                          duration: const Duration(milliseconds: 650),
-                          child: Text(
-                            languageProvider.t('auth_app_name'),
-                            style: TextStyle(
-                              fontSize: 26,
-                              fontWeight: FontWeight.bold,
-                              color: context.palette.textOnBrand,
+                            const SizedBox(height: 8),
+                            Text(
+                              _step == AuthStep.otp
+                                  ? '${languageProvider.t('auth_otp_sent')} ${_otpPhoneController.text.trim()}'
+                                  : _step == AuthStep.choose
+                                      ? languageProvider
+                                          .t('auth_welcome_subtitle')
+                                      : _step == AuthStep.phone
+                                          ? languageProvider.t(
+                                              'auth_phone_will_receive_otp',
+                                            )
+                                          : _step == AuthStep.emailSignup &&
+                                                  _isSignupOtpSent
+                                              ? '${languageProvider.t('auth_otp_sent')} ${_signupPhoneController.text.trim()}'
+                                              : _step == AuthStep.emailSignup
+                                                  ? languageProvider.t(
+                                                      'auth_create_account_subtitle',
+                                                    )
+                                                  : languageProvider.t(
+                                                      'auth_welcome_subtitle',
+                                                    ),
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: context.palette.textSecondary,
+                              ),
                             ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        AnimatedReveal(
-                          delay: const Duration(milliseconds: 120),
-                          offset: Offset(isRTL ? -0.2 : 0.2, 0),
-                          duration: const Duration(milliseconds: 650),
-                          child: Text(
-                            languageProvider.t('auth_tagline'),
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: context.palette.textOnBrand.withValues(alpha: 0.85),
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 460),
-                      child: Card(
-                        elevation: 2,
-                        color: Theme.of(context).cardColor,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(AppRadius.large),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Text(
-                                _step == AuthStep.otp ||
-                                        (_step == AuthStep.emailSignup &&
-                                            _isSignupOtpSent)
-                                    ? languageProvider.t('auth_enter_otp')
-                                    : _step == AuthStep.emailSignup
-                                        ? languageProvider
-                                            .t('auth_create_account')
-                                        : languageProvider.t('auth_welcome'),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 22,
-                                  fontWeight: FontWeight.w700,
+                            const SizedBox(height: 20),
+                            if (_step == AuthStep.choose) ...[
+                              OutlinedButton.icon(
+                                onPressed: isBusy
+                                    ? null
+                                    : () =>
+                                        setState(() => _step = AuthStep.email),
+                                style: OutlinedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  alignment: isRTL
+                                      ? AlignmentDirectional.centerEnd
+                                      : AlignmentDirectional.centerStart,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.medium),
+                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.email_outlined,
                                   color: context.palette.textPrimary,
                                 ),
+                                label: Text(
+                                  languageProvider
+                                      .t('auth_continue_with_email'),
+                                  style: TextStyle(
+                                    color: context.palette.textPrimary,
+                                  ),
+                                ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _step == AuthStep.otp
-                                    ? '${languageProvider.t('auth_otp_sent')} ${_otpPhoneController.text.trim()}'
-                                    : _step == AuthStep.choose
-                                        ? languageProvider
-                                            .t('auth_welcome_subtitle')
-                                        : _step == AuthStep.phone
-                                            ? languageProvider.t(
-                                                'auth_phone_will_receive_otp',
-                                              )
-                                            : _step == AuthStep.emailSignup &&
-                                                    _isSignupOtpSent
-                                                ? '${languageProvider.t('auth_otp_sent')} ${_signupPhoneController.text.trim()}'
-                                                : _step == AuthStep.emailSignup
-                                                    ? languageProvider.t(
-                                                        'auth_create_account_subtitle',
-                                                      )
-                                                    : languageProvider.t(
-                                                        'auth_welcome_subtitle',
-                                                      ),
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  color: context.palette.textSecondary,
+                              const SizedBox(height: 12),
+                              OutlinedButton.icon(
+                                onPressed: isBusy
+                                    ? null
+                                    : () =>
+                                        setState(() => _step = AuthStep.phone),
+                                style: OutlinedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                  alignment: isRTL
+                                      ? AlignmentDirectional.centerEnd
+                                      : AlignmentDirectional.centerStart,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.medium),
+                                  ),
+                                ),
+                                icon: Icon(
+                                  Icons.phone_outlined,
+                                  color: context.palette.textPrimary,
+                                ),
+                                label: Text(
+                                  languageProvider
+                                      .t('auth_continue_with_phone'),
+                                  style: TextStyle(
+                                    color: context.palette.textPrimary,
+                                  ),
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              if (_step == AuthStep.choose) ...[
-                                OutlinedButton.icon(
-                                  onPressed: isBusy
-                                      ? null
-                                      : () => setState(
-                                          () => _step = AuthStep.email),
-                                  style: OutlinedButton.styleFrom(
+                              Row(
+                                children: [
+                                  const Expanded(child: Divider()),
+                                  Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                    alignment: isRTL
-                                        ? AlignmentDirectional.centerEnd
-                                        : AlignmentDirectional.centerStart,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          AppRadius.medium),
+                                      horizontal: 12,
                                     ),
-                                  ),
-                                  icon: Icon(
-                                    Icons.email_outlined,
-                                    color: context.palette.textPrimary,
-                                  ),
-                                  label: Text(
-                                    languageProvider
-                                        .t('auth_continue_with_email'),
-                                    style: TextStyle(
-                                      color: context.palette.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                OutlinedButton.icon(
-                                  onPressed: isBusy
-                                      ? null
-                                      : () => setState(
-                                          () => _step = AuthStep.phone),
-                                  style: OutlinedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                    alignment: isRTL
-                                        ? AlignmentDirectional.centerEnd
-                                        : AlignmentDirectional.centerStart,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                          AppRadius.medium),
-                                    ),
-                                  ),
-                                  icon: Icon(
-                                    Icons.phone_outlined,
-                                    color: context.palette.textPrimary,
-                                  ),
-                                  label: Text(
-                                    languageProvider
-                                        .t('auth_continue_with_phone'),
-                                    style: TextStyle(
-                                      color: context.palette.textPrimary,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 20),
-                                Row(
-                                  children: [
-                                    const Expanded(child: Divider()),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      child: Text(
-                                        languageProvider.t('auth_or_divider'),
-                                        style: TextStyle(
-                                          color: context.palette.textSecondary,
-                                          fontSize: 12,
-                                        ),
+                                    child: Text(
+                                      languageProvider.t('auth_or_divider'),
+                                      style: TextStyle(
+                                        color: context.palette.textSecondary,
+                                        fontSize: 12,
                                       ),
                                     ),
-                                    const Expanded(child: Divider()),
-                                  ],
-                                ),
-                                const SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _socialIconButton(
-                                      icon: Icons.g_mobiledata,
-                                      color: const Color(0xFF4285F4),
-                                      onPressed: isBusy
-                                          ? null
-                                          : () => _handleSocialLogin('google'),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    _socialIconButton(
-                                      icon: Icons.facebook,
-                                      color: const Color(0xFF1877F2),
-                                      onPressed: isBusy
-                                          ? null
-                                          : () =>
-                                              _handleSocialLogin('facebook'),
-                                    ),
-                                    const SizedBox(width: 16),
-                                    _socialIconButton(
-                                      icon: Icons.apple,
-                                      // Apple's mark is monochrome, so it has
-                                      // to follow the surface. Hardcoded black
-                                      // made it invisible in dark mode -- the
-                                      // button sits on `palette.surface`, not
-                                      // on a fixed light fill.
-                                      color: context.palette.textPrimary,
-                                      onPressed: isBusy
-                                          ? null
-                                          : () => _handleSocialLogin('apple'),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                              if (_step == AuthStep.email) ...[
-                                _buildLoginModeSelector(languageProvider),
-                                const SizedBox(height: 12),
-                                if (_passwordLoginMode ==
-                                    PasswordLoginMode.email)
-                                  _buildLabeledInput(
-                                    label: languageProvider.t('auth_email'),
-                                    hint: languageProvider
-                                        .t('auth_email_placeholder'),
-                                    controller: _loginEmailController,
-                                    keyboardType: TextInputType.emailAddress,
-                                    onChanged: (_) => _clearAuthErrors(),
-                                  )
-                                else
-                                  InternationalPhoneInput(
-                                    label: languageProvider.t('auth_phone'),
-                                    hint: languageProvider
-                                        .t('auth_phone_placeholder'),
-                                    controller: _loginPhoneController,
-                                    selectedCountry: _passwordLoginPhoneCountry,
-                                    onCountryChanged: (country) {
-                                      setState(() {
-                                        _passwordLoginPhoneCountry = country;
-                                        _passwordLoginPhoneErrorText = null;
-                                      });
-                                      _clearAuthErrors();
-                                    },
-                                    onChanged: (_) =>
-                                        _clearPhoneErrors(clearPassword: true),
-                                    enabled: !isBusy,
-                                    errorText: _passwordLoginPhoneErrorText,
                                   ),
-                                const SizedBox(height: 12),
-                                _buildLabeledInput(
-                                  label: languageProvider.t('auth_password'),
-                                  hint: languageProvider.t(
-                                    'auth_password_placeholder',
-                                  ),
-                                  controller: _loginPasswordController,
-                                  obscureText: true,
-                                  onChanged: (_) => _clearAuthErrors(),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  languageProvider
-                                      .t('auth_coach_default_password_help'),
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: context.palette.textSecondary,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                Align(
-                                  alignment: AlignmentDirectional.centerEnd,
-                                  child: TextButton(
+                                  const Expanded(child: Divider()),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _socialIconButton(
+                                    icon: Icons.g_mobiledata,
+                                    color: const Color(0xFF4285F4),
                                     onPressed: isBusy
                                         ? null
-                                        : _openForgotPassword,
-                                    child: Text(
-                                      languageProvider
-                                          .t('auth_forgot_password'),
-                                    ),
+                                        : () => _handleSocialLogin('google'),
                                   ),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: isBusy ? null : _handleEmailLogin,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                  ),
-                                  child: authProvider.isLoading
-                                      ? SizedBox(
-                                          height: 18,
-                                          width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              context.palette.textOnBrand,
-                                            ),
-                                          ),
-                                        )
-                                      : Text(
-                                          languageProvider.t('auth_sign_in')),
-                                ),
-                                const SizedBox(height: 12),
-                                OutlinedButton(
-                                  onPressed: isBusy
-                                      ? null
-                                      : () => setState(
-                                          () => _step = AuthStep.choose),
-                                  child: Text(languageProvider.t('auth_back')),
-                                ),
-                                const SizedBox(height: 8),
-                                Center(
-                                  child: TextButton(
+                                  const SizedBox(width: 16),
+                                  _socialIconButton(
+                                    icon: Icons.facebook,
+                                    color: const Color(0xFF1877F2),
                                     onPressed: isBusy
                                         ? null
-                                        : () => setState(
-                                              () =>
-                                                  _step = AuthStep.emailSignup,
-                                            ),
-                                    child: Text(
-                                      '${languageProvider.t('auth_no_account')} ${languageProvider.t('auth_sign_up')}',
-                                    ),
+                                        : () => _handleSocialLogin('facebook'),
                                   ),
-                                ),
-                              ],
-                              if (_step == AuthStep.emailSignup) ...[
-                                _buildLabeledInput(
-                                  label: languageProvider.t('auth_full_name'),
-                                  hint: languageProvider.t('auth_full_name'),
-                                  controller: _signupNameController,
-                                  onChanged: (_) => _clearAuthErrors(),
-                                ),
-                                const SizedBox(height: 12),
+                                  const SizedBox(width: 16),
+                                  _socialIconButton(
+                                    icon: Icons.apple,
+                                    // Apple's mark is monochrome, so it has
+                                    // to follow the surface. Hardcoded black
+                                    // made it invisible in dark mode -- the
+                                    // button sits on `palette.surface`, not
+                                    // on a fixed light fill.
+                                    color: context.palette.textPrimary,
+                                    onPressed: isBusy
+                                        ? null
+                                        : () => _handleSocialLogin('apple'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                            if (_step == AuthStep.email) ...[
+                              _buildLoginModeSelector(languageProvider),
+                              const SizedBox(height: 12),
+                              if (_passwordLoginMode == PasswordLoginMode.email)
                                 _buildLabeledInput(
                                   label: languageProvider.t('auth_email'),
                                   hint: languageProvider
                                       .t('auth_email_placeholder'),
-                                  controller: _signupEmailController,
+                                  controller: _loginEmailController,
                                   keyboardType: TextInputType.emailAddress,
                                   onChanged: (_) => _clearAuthErrors(),
-                                ),
-                                const SizedBox(height: 12),
+                                )
+                              else
                                 InternationalPhoneInput(
                                   label: languageProvider.t('auth_phone'),
                                   hint: languageProvider
                                       .t('auth_phone_placeholder'),
-                                  controller: _signupPhoneController,
-                                  selectedCountry: _signupPhoneCountry,
+                                  controller: _loginPhoneController,
+                                  selectedCountry: _passwordLoginPhoneCountry,
                                   onCountryChanged: (country) {
                                     setState(() {
-                                      _signupPhoneCountry = country;
-                                      _onSignupPhoneChanged();
-                                    });
-                                  },
-                                  onChanged: (_) {
-                                    setState(_onSignupPhoneChanged);
-                                  },
-                                  enabled: !_isSendingSignupCode &&
-                                      !_isCreatingSignupAccount,
-                                  errorText: _signupPhoneErrorText,
-                                ),
-                                const SizedBox(height: 12),
-                                _buildLabeledInput(
-                                  label: languageProvider.t('auth_password'),
-                                  hint: languageProvider.t(
-                                    'auth_password_placeholder',
-                                  ),
-                                  controller: _signupPasswordController,
-                                  obscureText: true,
-                                  onChanged: (_) => _clearAuthErrors(),
-                                ),
-                                const SizedBox(height: 12),
-                                _buildLabeledInput(
-                                  label: languageProvider.t(
-                                    'auth_confirm_password',
-                                  ),
-                                  hint: languageProvider.t(
-                                    'auth_confirm_password_placeholder',
-                                  ),
-                                  controller: _signupConfirmPasswordController,
-                                  obscureText: true,
-                                  onChanged: (_) => _clearAuthErrors(),
-                                ),
-                                const SizedBox(height: 16),
-                                if (!_isSignupOtpSent) ...[
-                                  ElevatedButton(
-                                    onPressed: isBusy ? null : _sendSignupCode,
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                    ),
-                                    child: _isSendingSignupCode
-                                        ? SizedBox(
-                                            height: 18,
-                                            width: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                context.palette.textOnBrand,
-                                              ),
-                                            ),
-                                          )
-                                        : Text(
-                                            languageProvider
-                                                .t('auth_send_code'),
-                                          ),
-                                  ),
-                                ] else ...[
-                                  Container(
-                                    padding: const EdgeInsets.all(12),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.success.withValues(
-                                        alpha: 0.08,
-                                      ),
-                                      borderRadius: BorderRadius.circular(
-                                          AppRadius.medium),
-                                      border: Border.all(
-                                        color: AppColors.success.withValues(
-                                          alpha: 0.25,
-                                        ),
-                                      ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle_outline,
-                                          color: AppColors.success,
-                                          size: 18,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            languageProvider.t(
-                                              'auth_signup_code_sent_help',
-                                            ),
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: context.palette.textPrimary,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-                                  OtpInput(
-                                    controller: _signupOtpController,
-                                    focusNode: _signupOtpFocusNode,
-                                    enabled: !isBusy,
-                                    onCompleted: _handleEmailSignup,
-                                  ),
-                                  if (_signupVerificationErrorText != null) ...[
-                                    const SizedBox(height: 8),
-                                    Text(
-                                      _signupVerificationErrorText!,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.error,
-                                      ),
-                                      textAlign: TextAlign.center,
-                                    ),
-                                  ],
-                                  const SizedBox(height: 12),
-                                  ElevatedButton(
-                                    onPressed: isBusy || !_isSignupOtpComplete
-                                        ? null
-                                        : _handleEmailSignup,
-                                    style: ElevatedButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 14,
-                                      ),
-                                    ),
-                                    child: _isCreatingSignupAccount
-                                        ? SizedBox(
-                                            height: 18,
-                                            width: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                context.palette.textOnBrand,
-                                              ),
-                                            ),
-                                          )
-                                        : Text(
-                                            languageProvider
-                                                .t('auth_create_account'),
-                                          ),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  TextButton(
-                                    onPressed: _signupResendEnabled && !isBusy
-                                        ? _sendSignupCode
-                                        : null,
-                                    child: Text(
-                                      _signupResendEnabled
-                                          ? languageProvider.t('auth_resend')
-                                          : '${languageProvider.t('auth_resend_in')} $_signupResendCountdown',
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: isBusy
-                                        ? null
-                                        : () {
-                                            setState(() {
-                                              _resetSignupVerificationState();
-                                            });
-                                          },
-                                    child: Text(
-                                      languageProvider.t('auth_change_phone'),
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: 12),
-                                OutlinedButton(
-                                  onPressed: isBusy
-                                      ? null
-                                      : () => setState(() {
-                                            _resetSignupVerificationState();
-                                            _step = AuthStep.email;
-                                          }),
-                                  child: Text(languageProvider.t('auth_back')),
-                                ),
-                                const SizedBox(height: 8),
-                                Center(
-                                  child: TextButton(
-                                    onPressed: isBusy
-                                        ? null
-                                        : () => setState(() {
-                                              _resetSignupVerificationState();
-                                              _step = AuthStep.email;
-                                            }),
-                                    child: Text(
-                                      '${languageProvider.t('auth_have_account')} ${languageProvider.t('auth_sign_in')}',
-                                    ),
-                                  ),
-                                ),
-                              ],
-                              if (_step == AuthStep.phone) ...[
-                                InternationalPhoneInput(
-                                  label: languageProvider.t('auth_phone'),
-                                  hint: languageProvider
-                                      .t('auth_phone_placeholder'),
-                                  controller: _otpPhoneController,
-                                  selectedCountry: _otpPhoneCountry,
-                                  onCountryChanged: (country) {
-                                    setState(() {
-                                      _otpPhoneCountry = country;
-                                      _otpPhoneErrorText = null;
+                                      _passwordLoginPhoneCountry = country;
+                                      _passwordLoginPhoneErrorText = null;
                                     });
                                     _clearAuthErrors();
                                   },
-                                  onChanged: (_) => _clearPhoneErrors(),
+                                  onChanged: (_) =>
+                                      _clearPhoneErrors(clearPassword: true),
                                   enabled: !isBusy,
-                                  errorText: _otpPhoneErrorText,
+                                  errorText: _passwordLoginPhoneErrorText,
                                 ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed: isBusy ? null : _continueWithPhone,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
+                              const SizedBox(height: 12),
+                              _buildLabeledInput(
+                                label: languageProvider.t('auth_password'),
+                                hint: languageProvider.t(
+                                  'auth_password_placeholder',
+                                ),
+                                controller: _loginPasswordController,
+                                obscureText: true,
+                                onChanged: (_) => _clearAuthErrors(),
+                              ),
+                              const SizedBox(height: 6),
+                              Text(
+                                languageProvider
+                                    .t('auth_coach_default_password_help'),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: context.palette.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: TextButton(
+                                  onPressed:
+                                      isBusy ? null : _openForgotPassword,
+                                  child: Text(
+                                    languageProvider.t('auth_forgot_password'),
                                   ),
-                                  child: authProvider.isLoading
-                                      ? SizedBox(
-                                          height: 18,
-                                          width: 18,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            valueColor:
-                                                AlwaysStoppedAnimation<Color>(
-                                              context.palette.textOnBrand,
-                                            ),
-                                          ),
-                                        )
-                                      // Neutral, because this either sends a
-                                      // code or moves to a password prompt.
-                                      : Text(
-                                          languageProvider.t('auth_continue')),
                                 ),
-                                const SizedBox(height: 12),
-                                OutlinedButton(
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: isBusy ? null : _handleEmailLogin,
+                                style: ElevatedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                child: authProvider.isLoading
+                                    ? SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            context.palette.textOnBrand,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(languageProvider.t('auth_sign_in')),
+                              ),
+                              const SizedBox(height: 12),
+                              OutlinedButton(
+                                onPressed: isBusy
+                                    ? null
+                                    : () =>
+                                        setState(() => _step = AuthStep.choose),
+                                child: Text(languageProvider.t('auth_back')),
+                              ),
+                              const SizedBox(height: 8),
+                              Center(
+                                child: TextButton(
                                   onPressed: isBusy
                                       ? null
                                       : () => setState(
-                                          () => _step = AuthStep.choose),
-                                  child: Text(languageProvider.t('auth_back')),
+                                            () => _step = AuthStep.emailSignup,
+                                          ),
+                                  child: Text(
+                                    '${languageProvider.t('auth_no_account')} ${languageProvider.t('auth_sign_up')}',
+                                  ),
                                 ),
-                              ],
-                              if (_step == AuthStep.otp) ...[
-                                InternationalPhoneInput(
-                                  label: languageProvider.t('auth_phone'),
-                                  hint: languageProvider
-                                      .t('auth_phone_placeholder'),
-                                  controller: _otpPhoneController,
-                                  selectedCountry: _otpPhoneCountry,
-                                  onCountryChanged: (country) {
-                                    setState(() {
-                                      _otpPhoneCountry = country;
-                                      _otpPhoneErrorText = null;
-                                    });
-                                    _clearAuthErrors();
-                                  },
-                                  onChanged: (_) => _clearPhoneErrors(),
-                                  enabled: !isBusy,
-                                  errorText: _otpPhoneErrorText,
+                              ),
+                            ],
+                            if (_step == AuthStep.emailSignup) ...[
+                              _buildLabeledInput(
+                                label: languageProvider.t('auth_full_name'),
+                                hint: languageProvider.t('auth_full_name'),
+                                controller: _signupNameController,
+                                onChanged: (_) => _clearAuthErrors(),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildLabeledInput(
+                                label: languageProvider.t('auth_email'),
+                                hint: languageProvider
+                                    .t('auth_email_placeholder'),
+                                controller: _signupEmailController,
+                                keyboardType: TextInputType.emailAddress,
+                                onChanged: (_) => _clearAuthErrors(),
+                              ),
+                              const SizedBox(height: 12),
+                              InternationalPhoneInput(
+                                label: languageProvider.t('auth_phone'),
+                                hint: languageProvider
+                                    .t('auth_phone_placeholder'),
+                                controller: _signupPhoneController,
+                                selectedCountry: _signupPhoneCountry,
+                                onCountryChanged: (country) {
+                                  setState(() {
+                                    _signupPhoneCountry = country;
+                                    _onSignupPhoneChanged();
+                                  });
+                                },
+                                onChanged: (_) {
+                                  setState(_onSignupPhoneChanged);
+                                },
+                                enabled: !_isSendingSignupCode &&
+                                    !_isCreatingSignupAccount,
+                                errorText: _signupPhoneErrorText,
+                              ),
+                              const SizedBox(height: 12),
+                              _buildLabeledInput(
+                                label: languageProvider.t('auth_password'),
+                                hint: languageProvider.t(
+                                  'auth_password_placeholder',
                                 ),
-                                const SizedBox(height: 16),
-                                OtpInput(
-                                  controller: _otpController,
-                                  focusNode: _otpFocusNode,
-                                  enabled: !isBusy,
-                                  onCompleted: _verifyOTP,
+                                controller: _signupPasswordController,
+                                obscureText: true,
+                                onChanged: (_) => _clearAuthErrors(),
+                              ),
+                              const SizedBox(height: 12),
+                              _buildLabeledInput(
+                                label: languageProvider.t(
+                                  'auth_confirm_password',
                                 ),
-                                const SizedBox(height: 16),
+                                hint: languageProvider.t(
+                                  'auth_confirm_password_placeholder',
+                                ),
+                                controller: _signupConfirmPasswordController,
+                                obscureText: true,
+                                onChanged: (_) => _clearAuthErrors(),
+                              ),
+                              const SizedBox(height: 16),
+                              if (!_isSignupOtpSent) ...[
                                 ElevatedButton(
-                                  onPressed: isBusy || !_isOtpComplete
-                                      ? null
-                                      : _verifyOTP,
-                                  child: authProvider.isLoading
+                                  onPressed: isBusy ? null : _sendSignupCode,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                  ),
+                                  child: _isSendingSignupCode
                                       ? SizedBox(
                                           height: 18,
                                           width: 18,
@@ -1287,29 +1030,101 @@ class _AuthScreenState extends State<AuthScreen> {
                                             ),
                                           ),
                                         )
-                                      : Text(languageProvider.t('auth_verify')),
+                                      : Text(
+                                          languageProvider.t('auth_send_code'),
+                                        ),
                                 ),
-                                if (_otpAttempts < 3) ...[
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    '$_otpAttempts ${languageProvider.t('auth_attempts_remaining')}',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      color: context.palette.textSecondary,
+                              ] else ...[
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.success.withValues(
+                                      alpha: 0.08,
+                                    ),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.medium),
+                                    border: Border.all(
+                                      color: AppColors.success.withValues(
+                                        alpha: 0.25,
+                                      ),
                                     ),
                                   ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.check_circle_outline,
+                                        color: context.palette.success,
+                                        size: 18,
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          languageProvider.t(
+                                            'auth_signup_code_sent_help',
+                                          ),
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            color: context.palette.textPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 12),
+                                OtpInput(
+                                  controller: _signupOtpController,
+                                  focusNode: _signupOtpFocusNode,
+                                  enabled: !isBusy,
+                                  onCompleted: _handleEmailSignup,
+                                ),
+                                if (_signupVerificationErrorText != null) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _signupVerificationErrorText!,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: context.palette.error,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
                                 ],
+                                const SizedBox(height: 12),
+                                ElevatedButton(
+                                  onPressed: isBusy || !_isSignupOtpComplete
+                                      ? null
+                                      : _handleEmailSignup,
+                                  style: ElevatedButton.styleFrom(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 14,
+                                    ),
+                                  ),
+                                  child: _isCreatingSignupAccount
+                                      ? SizedBox(
+                                          height: 18,
+                                          width: 18,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            valueColor:
+                                                AlwaysStoppedAnimation<Color>(
+                                              context.palette.textOnBrand,
+                                            ),
+                                          ),
+                                        )
+                                      : Text(
+                                          languageProvider
+                                              .t('auth_create_account'),
+                                        ),
+                                ),
                                 const SizedBox(height: 8),
                                 TextButton(
-                                  onPressed: _resendEnabled && !isBusy
-                                      ? () => _requestOTP()
+                                  onPressed: _signupResendEnabled && !isBusy
+                                      ? _sendSignupCode
                                       : null,
                                   child: Text(
-                                    _resendEnabled
+                                    _signupResendEnabled
                                         ? languageProvider.t('auth_resend')
-                                        : '${languageProvider.t('auth_resend_in')} $_resendCountdown',
-                                    textAlign: TextAlign.center,
+                                        : '${languageProvider.t('auth_resend_in')} $_signupResendCountdown',
                                   ),
                                 ),
                                 TextButton(
@@ -1317,9 +1132,7 @@ class _AuthScreenState extends State<AuthScreen> {
                                       ? null
                                       : () {
                                           setState(() {
-                                            _step = AuthStep.phone;
-                                            _otpPhoneErrorText = null;
-                                            _resetOtpFields();
+                                            _resetSignupVerificationState();
                                           });
                                         },
                                   child: Text(
@@ -1327,86 +1140,245 @@ class _AuthScreenState extends State<AuthScreen> {
                                   ),
                                 ),
                               ],
-                              // The remaining sign-up questions, asked after a
-                              // new number is verified by OTP.
-                              if (_step == AuthStep.completeRegistration) ...[
+                              const SizedBox(height: 12),
+                              OutlinedButton(
+                                onPressed: isBusy
+                                    ? null
+                                    : () => setState(() {
+                                          _resetSignupVerificationState();
+                                          _step = AuthStep.email;
+                                        }),
+                                child: Text(languageProvider.t('auth_back')),
+                              ),
+                              const SizedBox(height: 8),
+                              Center(
+                                child: TextButton(
+                                  onPressed: isBusy
+                                      ? null
+                                      : () => setState(() {
+                                            _resetSignupVerificationState();
+                                            _step = AuthStep.email;
+                                          }),
+                                  child: Text(
+                                    '${languageProvider.t('auth_have_account')} ${languageProvider.t('auth_sign_in')}',
+                                  ),
+                                ),
+                              ),
+                            ],
+                            if (_step == AuthStep.phone) ...[
+                              InternationalPhoneInput(
+                                label: languageProvider.t('auth_phone'),
+                                hint: languageProvider
+                                    .t('auth_phone_placeholder'),
+                                controller: _otpPhoneController,
+                                selectedCountry: _otpPhoneCountry,
+                                onCountryChanged: (country) {
+                                  setState(() {
+                                    _otpPhoneCountry = country;
+                                    _otpPhoneErrorText = null;
+                                  });
+                                  _clearAuthErrors();
+                                },
+                                onChanged: (_) => _clearPhoneErrors(),
+                                enabled: !isBusy,
+                                errorText: _otpPhoneErrorText,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: isBusy ? null : _continueWithPhone,
+                                style: ElevatedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                child: authProvider.isLoading
+                                    ? SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            context.palette.textOnBrand,
+                                          ),
+                                        ),
+                                      )
+                                    // Neutral, because this either sends a
+                                    // code or moves to a password prompt.
+                                    : Text(languageProvider.t('auth_continue')),
+                              ),
+                              const SizedBox(height: 12),
+                              OutlinedButton(
+                                onPressed: isBusy
+                                    ? null
+                                    : () =>
+                                        setState(() => _step = AuthStep.choose),
+                                child: Text(languageProvider.t('auth_back')),
+                              ),
+                            ],
+                            if (_step == AuthStep.otp) ...[
+                              InternationalPhoneInput(
+                                label: languageProvider.t('auth_phone'),
+                                hint: languageProvider
+                                    .t('auth_phone_placeholder'),
+                                controller: _otpPhoneController,
+                                selectedCountry: _otpPhoneCountry,
+                                onCountryChanged: (country) {
+                                  setState(() {
+                                    _otpPhoneCountry = country;
+                                    _otpPhoneErrorText = null;
+                                  });
+                                  _clearAuthErrors();
+                                },
+                                onChanged: (_) => _clearPhoneErrors(),
+                                enabled: !isBusy,
+                                errorText: _otpPhoneErrorText,
+                              ),
+                              const SizedBox(height: 16),
+                              OtpInput(
+                                controller: _otpController,
+                                focusNode: _otpFocusNode,
+                                enabled: !isBusy,
+                                onCompleted: _verifyOTP,
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed: isBusy || !_isOtpComplete
+                                    ? null
+                                    : _verifyOTP,
+                                child: authProvider.isLoading
+                                    ? SizedBox(
+                                        height: 18,
+                                        width: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                            context.palette.textOnBrand,
+                                          ),
+                                        ),
+                                      )
+                                    : Text(languageProvider.t('auth_verify')),
+                              ),
+                              if (_otpAttempts < 3) ...[
+                                const SizedBox(height: 8),
                                 Text(
-                                  languageProvider.t('auth_complete_profile_desc'),
+                                  '$_otpAttempts ${languageProvider.t('auth_attempts_remaining')}',
+                                  textAlign: TextAlign.center,
                                   style: TextStyle(
-                                    fontSize: 13,
+                                    fontSize: 12,
                                     color: context.palette.textSecondary,
                                   ),
                                 ),
-                                const SizedBox(height: 16),
-                                TextField(
-                                  controller: _completeNameController,
-                                  enabled: !isBusy,
-                                  textInputAction: TextInputAction.next,
-                                  decoration: InputDecoration(
-                                    labelText: languageProvider.t('auth_full_name'),
-                                    errorText: _completeNameErrorText,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                TextField(
-                                  controller: _completeEmailController,
-                                  enabled: !isBusy,
-                                  keyboardType: TextInputType.emailAddress,
-                                  textInputAction: TextInputAction.next,
-                                  decoration: InputDecoration(
-                                    labelText:
-                                        languageProvider.t('auth_email_optional'),
-                                    errorText: _completeEmailErrorText,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                TextField(
-                                  controller: _completePasswordController,
-                                  enabled: !isBusy,
-                                  obscureText: true,
-                                  decoration: InputDecoration(
-                                    labelText: languageProvider.t('auth_password'),
-                                    helperText: languageProvider
-                                        .t('auth_password_min_length'),
-                                    errorText: _completePasswordErrorText,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  onPressed:
-                                      isBusy ? null : _submitCompleteRegistration,
-                                  style: ElevatedButton.styleFrom(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 14),
-                                  ),
-                                  child: isBusy
-                                      ? const SizedBox(
-                                          height: 20,
-                                          width: 20,
-                                          child: CircularProgressIndicator(
-                                              strokeWidth: 2),
-                                        )
-                                      : Text(languageProvider.t('auth_finish')),
-                                ),
                               ],
+                              const SizedBox(height: 8),
+                              TextButton(
+                                onPressed: _resendEnabled && !isBusy
+                                    ? () => _requestOTP()
+                                    : null,
+                                child: Text(
+                                  _resendEnabled
+                                      ? languageProvider.t('auth_resend')
+                                      : '${languageProvider.t('auth_resend_in')} $_resendCountdown',
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: isBusy
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _step = AuthStep.phone;
+                                          _otpPhoneErrorText = null;
+                                          _resetOtpFields();
+                                        });
+                                      },
+                                child: Text(
+                                  languageProvider.t('auth_change_phone'),
+                                ),
+                              ),
                             ],
-                          ),
+                            // The remaining sign-up questions, asked after a
+                            // new number is verified by OTP.
+                            if (_step == AuthStep.completeRegistration) ...[
+                              Text(
+                                languageProvider
+                                    .t('auth_complete_profile_desc'),
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  color: context.palette.textSecondary,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              TextField(
+                                controller: _completeNameController,
+                                enabled: !isBusy,
+                                textInputAction: TextInputAction.next,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      languageProvider.t('auth_full_name'),
+                                  errorText: _completeNameErrorText,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _completeEmailController,
+                                enabled: !isBusy,
+                                keyboardType: TextInputType.emailAddress,
+                                textInputAction: TextInputAction.next,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      languageProvider.t('auth_email_optional'),
+                                  errorText: _completeEmailErrorText,
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              TextField(
+                                controller: _completePasswordController,
+                                enabled: !isBusy,
+                                obscureText: true,
+                                decoration: InputDecoration(
+                                  labelText:
+                                      languageProvider.t('auth_password'),
+                                  helperText: languageProvider
+                                      .t('auth_password_min_length'),
+                                  errorText: _completePasswordErrorText,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                onPressed:
+                                    isBusy ? null : _submitCompleteRegistration,
+                                style: ElevatedButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
+                                ),
+                                child: isBusy
+                                    ? const SizedBox(
+                                        height: 20,
+                                        width: 20,
+                                        child: CircularProgressIndicator(
+                                            strokeWidth: 2),
+                                      )
+                                    : Text(languageProvider.t('auth_finish')),
+                              ),
+                            ],
+                          ],
                         ),
                       ),
                     ),
-                    if (isRTL) const SizedBox(height: 8),
-                  ],
-                ),
+                  ),
+                  if (isRTL) const SizedBox(height: 8),
+                ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildLoginModeSelector(LanguageProvider languageProvider) {
-    final selectedColor = AppColors.primary.withValues(alpha: 0.12);
+    final selectedColor = context.palette.primary.withValues(alpha: 0.12);
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
@@ -1457,10 +1429,13 @@ class _AuthScreenState extends State<AuthScreen> {
       onTap: onTap,
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 180),
-        padding: const EdgeInsets.symmetric(vertical: 10),
+        // A fixed height with the label centred: vertical padding left the text
+        // sitting low in the pill, depending on the font's line metrics.
+        height: 40,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: isSelected ? selectedColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(AppRadius.small),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
         child: Text(
           label,
@@ -1468,7 +1443,9 @@ class _AuthScreenState extends State<AuthScreen> {
           style: TextStyle(
             fontSize: 13,
             fontWeight: FontWeight.w600,
-            color: isSelected ? AppColors.primary : context.palette.textSecondary,
+            color: isSelected
+                ? context.palette.primary
+                : context.palette.textSecondary,
           ),
         ),
       ),
@@ -1518,8 +1495,20 @@ class _AuthScreenState extends State<AuthScreen> {
           onChanged: onChanged,
           decoration: InputDecoration(
             hintText: hint,
+            filled: true,
+            fillColor: context.palette.surface,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium),
+              borderSide: BorderSide(color: context.palette.border),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.medium),
+              borderSide: BorderSide(color: context.palette.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(AppRadius.medium),
+              borderSide:
+                  BorderSide(color: context.palette.primary, width: 1.5),
             ),
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 12, vertical: 12),

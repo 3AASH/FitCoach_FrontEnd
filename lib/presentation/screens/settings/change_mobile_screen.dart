@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
@@ -81,7 +82,8 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
     final otpCode = _otpController.text.trim();
 
     if (otpCode.isEmpty) {
-      setState(() => _error = languageProvider.t('change_mobile_code_required'));
+      setState(
+          () => _error = languageProvider.t('change_mobile_code_required'));
       return;
     }
 
@@ -115,95 +117,108 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(title: Text(t('change_mobile_title'))),
         body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          CustomCard(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t('change_mobile_current'),
-                    style: TextStyle(color: context.palette.textSecondary)),
-                const SizedBox(height: 4),
-                Text(currentNumber,
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-              ],
-            ),
-          ),
-          const SizedBox(height: 16),
-          CustomCard(
-            child: Column(
-              children: [
-                TextField(
-                  controller: _phoneController,
-                  enabled: !_codeSent,
-                  keyboardType: TextInputType.phone,
-                  textDirection: TextDirection.ltr,
-                  decoration: InputDecoration(
-                    labelText: t('change_mobile_new'),
-                    hintText: '+966500000000',
-                  ),
-                ),
-                if (_codeSent) ...[
-                  const SizedBox(height: 16),
+          padding: const EdgeInsets.all(20),
+          children: [
+            CustomCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t('change_mobile_current'),
+                      style: AppTextStyles.small.copyWith(
+                        color: context.palette.textSecondary,
+                      )),
+                  const SizedBox(height: 4),
                   Text(
-                    t('change_mobile_code_sent',
-                        args: {'phone': _newPhoneNumber}),
-                    style: TextStyle(color: context.palette.textSecondary),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _otpController,
-                    keyboardType: TextInputType.number,
-                    textDirection: TextDirection.ltr,
-                    decoration: InputDecoration(
-                      labelText: t('change_mobile_code'),
+                    currentNumber,
+                    style: AppTextStyles.h3.copyWith(
+                      color: context.palette.textPrimary,
                     ),
                   ),
                 ],
-              ],
-            ),
-          ),
-          if (_error != null) ...[
-            const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: AppColors.error)),
-          ],
-          const SizedBox(height: 24),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _isBusy ? null : (_codeSent ? _confirm : _sendCode),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: _isBusy
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : Text(_codeSent
-                      ? t('change_mobile_confirm')
-                      : t('change_mobile_send_code')),
             ),
-          ),
-          if (_codeSent) ...[
-            const SizedBox(height: 8),
-            TextButton(
-              onPressed: _isBusy
-                  ? null
-                  : () => setState(() {
-                        _codeSent = false;
-                        _otpController.clear();
-                        _error = null;
-                      }),
-              child: Text(t('change_mobile_use_another_number')),
+            const SizedBox(height: 16),
+            CustomCard(
+              child: Column(
+                children: [
+                  TextField(
+                    controller: _phoneController,
+                    enabled: !_codeSent,
+                    keyboardType: TextInputType.phone,
+                    textDirection: TextDirection.ltr,
+                    decoration: InputDecoration(
+                      labelText: t('change_mobile_new'),
+                      hintText: '+966500000000',
+                    ),
+                  ),
+                  if (_codeSent) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      t('change_mobile_code_sent',
+                          args: {'phone': _newPhoneNumber}),
+                      style: AppTextStyles.small.copyWith(
+                        color: context.palette.textSecondary,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _otpController,
+                      keyboardType: TextInputType.number,
+                      textDirection: TextDirection.ltr,
+                      decoration: InputDecoration(
+                        labelText: t('change_mobile_code'),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
             ),
+            if (_error != null) ...[
+              const SizedBox(height: 16),
+              Text(
+                _error!,
+                style: AppTextStyles.small.copyWith(
+                  color: context.palette.error,
+                ),
+              ),
+            ],
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _isBusy ? null : (_codeSent ? _confirm : _sendCode),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: _isBusy
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : Text(_codeSent
+                        ? t('change_mobile_confirm')
+                        : t('change_mobile_send_code')),
+              ),
+            ),
+            if (_codeSent) ...[
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: _isBusy
+                    ? null
+                    : () => setState(() {
+                          _codeSent = false;
+                          _otpController.clear();
+                          _error = null;
+                        }),
+                child: Text(t('change_mobile_use_another_number')),
+              ),
+            ],
           ],
-        ],
-      ),
+        ),
       ),
     );
   }
@@ -214,4 +229,3 @@ class _ChangeMobileScreenState extends State<ChangeMobileScreen> {
       _otpController.text.isNotEmpty ||
       _codeSent == true;
 }
-

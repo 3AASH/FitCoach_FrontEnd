@@ -50,6 +50,44 @@ class WorkoutProvider extends ChangeNotifier {
   String? get error => _error;
   int? get currentDayIndex => _currentDayIndex;
 
+  /// Only the plan's current day may be started; other days are view-only.
+  bool isDayStartable(WorkoutDay? day) {
+    if (day == null) return false;
+    final today = _calendar?.today;
+    if (today != null) {
+      if (today.workoutDayId != null && today.workoutDayId == day.id) {
+        return true;
+      }
+      return today.dayNumber == day.dayNumber;
+    }
+    final plan = _activePlan;
+    if (plan?.currentDayId != null && plan!.currentDayId!.isNotEmpty) {
+      return plan.currentDayId == day.id;
+    }
+    if (plan?.currentDayNumber != null) {
+      return plan!.currentDayNumber == day.dayNumber;
+    }
+    return true;
+  }
+
+  List<WorkoutCalendarDayEntry> get _calendarEntries {
+    final c = _calendar;
+    if (c == null) return const [];
+    if (c.allDays.isNotEmpty) return c.allDays;
+    return [...c.previous, if (c.today != null) c.today!, ...c.upcoming];
+  }
+
+  int get weeklyCompletedExercises =>
+      _calendarEntries.fold(0, (s, e) => s + e.completedExercises);
+
+  int get weeklyTotalExercises =>
+      _calendarEntries.fold(0, (s, e) => s + e.totalExercises);
+
+  int get weeklyCompletedDays =>
+      _calendarEntries.where((e) => e.completed).length;
+
+  int get weeklyTotalDays => _calendarEntries.length;
+
   WorkoutDay? get currentDay {
     if (_activePlan == null || _currentDayIndex == null) {
       return null;
@@ -86,6 +124,7 @@ class WorkoutProvider extends ChangeNotifier {
       await _ensureCatalogLoaded();
       if (loadToken != _activePlanLoadToken) return;
       _activePlan = plan == null ? null : _applyCatalogToPlan(plan);
+      _syncCompletionFromPlan(_activePlan);
       if (_activePlan?.days != null && _activePlan!.days!.isNotEmpty) {
         final currentDayNumber = _activePlan!.currentDayNumber;
         if (currentDayNumber != null) {
@@ -204,6 +243,17 @@ class WorkoutProvider extends ChangeNotifier {
       _currentDayIndex = 0;
     }
     notifyListeners();
+  }
+
+  /// The server records which exercises are done (`isCompleted` on each plan
+  /// exercise). Without reading it back, a relaunch forgets them and the
+  /// workout starts again from the first exercise.
+  void _syncCompletionFromPlan(WorkoutPlan? plan) {
+    for (final day in plan?.days ?? const <WorkoutDay>[]) {
+      for (final exercise in day.exercises) {
+        _completedExercises[exercise.id] = exercise.isCompleted;
+      }
+    }
   }
 
   Future<bool> completeExercise(String exerciseId) async {

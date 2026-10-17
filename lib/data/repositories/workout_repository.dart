@@ -453,6 +453,8 @@ class WorkoutRepository {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return 'Connection timed out. Check the API server and URL.';
+      case DioExceptionType.transformTimeout:
+        return 'Request processing timed out. Please try again.';
       case DioExceptionType.connectionError:
         return 'Cannot reach ${ApiConfig.baseUrl}. Check that the backend is running and reachable from this device.';
       case DioExceptionType.badCertificate:

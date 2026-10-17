@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -53,7 +54,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
     final coachProvider = context.watch<CoachProvider>();
-        return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_clients_title')),
         actions: [
@@ -88,7 +89,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                           )
                         : null,
                     border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                   ),
                   onChanged: (value) {
@@ -110,27 +111,25 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                       child: DropdownButtonFormField<String?>(
                         initialValue: _statusFilter,
                         decoration: InputDecoration(
-                          labelText:
-                              lang.t('coach_clients_status_label'),
+                          labelText: lang.t('coach_clients_status_label'),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium),
                           ),
                         ),
                         items: [
                           DropdownMenuItem(
                             value: null,
-                            child: Text(
-                                lang.t('coach_clients_status_all')),
+                            child: Text(lang.t('coach_clients_status_all')),
                           ),
                           DropdownMenuItem(
                             value: 'active',
-                            child: Text(lang
-                                .t('coach_clients_status_active')),
+                            child: Text(lang.t('coach_clients_status_active')),
                           ),
                           DropdownMenuItem(
                             value: 'inactive',
-                            child: Text(lang
-                                .t('coach_clients_status_inactive')),
+                            child:
+                                Text(lang.t('coach_clients_status_inactive')),
                           ),
                         ],
                         onChanged: (value) {
@@ -165,7 +164,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                             Text(
                               coachProvider.error!,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error),
+                              style: TextStyle(color: context.palette.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -243,15 +242,16 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                 children: [
                   CircleAvatar(
                     radius: 28,
-                    backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+                    backgroundColor:
+                        context.palette.primary.withValues(alpha: 0.1),
                     backgroundImage: client.profilePhotoUrl != null
                         ? NetworkImage(client.profilePhotoUrl!)
                         : null,
                     child: client.profilePhotoUrl == null
                         ? Text(
                             client.initials,
-                            style: const TextStyle(
-                              color: AppColors.primary,
+                            style: TextStyle(
+                              color: context.palette.primary,
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
                             ),
@@ -290,14 +290,16 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: _getTierColor(client.subscriptionTier),
-                                borderRadius: BorderRadius.circular(4),
+                                color: _getTierColor(client.subscriptionTier)
+                                    .withValues(alpha: 0.16),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.pill),
                               ),
                               child: Text(
                                 client.subscriptionTier,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.textWhite,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _getTierColor(client.subscriptionTier),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -308,14 +310,20 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(client.statusText),
-                                borderRadius: BorderRadius.circular(4),
+                                color: _getStatusColor(client.statusText)
+                                    .withValues(alpha: 0.12),
+                                border: Border.all(
+                                  color: _getStatusColor(client.statusText)
+                                      .withValues(alpha: 0.3),
+                                ),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.pill),
                               ),
                               child: Text(
                                 client.statusText,
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.textWhite,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: _getStatusColor(client.statusText),
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
@@ -335,15 +343,16 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                           height: 50,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: _getScoreColor(client.fitnessScore!),
+                            color: _getScoreColor(client.fitnessScore!)
+                                .withValues(alpha: 0.15),
                           ),
                           child: Center(
                             child: Text(
                               '${client.fitnessScore}',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.textWhite,
+                                color: _getScoreColor(client.fitnessScore!),
                               ),
                             ),
                           ),
@@ -352,7 +361,7 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
                         Text(
                           lang.t('coach_clients_score_label'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: context.palette.textSecondary,
                           ),
                         ),
@@ -417,15 +426,15 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: AppColors.info.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: AppColors.info.withValues(alpha: 0.25)),
+        color: AppColors.cyan.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.pill),
+        border: Border.all(color: AppColors.cyan.withValues(alpha: 0.3)),
       ),
       child: Text(
         label,
-        style: const TextStyle(
-          fontSize: 10,
-          color: AppColors.info,
+        style: TextStyle(
+          fontSize: 12,
+          color: context.palette.info,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -443,15 +452,15 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
       if (daysAgo <= 0) {
         return lang.t('coach_clients_checked_in_today');
       }
-      return lang.t('coach_clients_last_inbody_daysago',
-          args: {'days': '$daysAgo'});
+      return lang
+          .t('coach_clients_last_inbody_daysago', args: {'days': '$daysAgo'});
     }
 
     if (daysAgo <= 0) {
       return lang.t('coach_clients_active_today');
     }
-    return lang.t('coach_clients_last_activity_daysago',
-        args: {'days': '$daysAgo'});
+    return lang
+        .t('coach_clients_last_activity_daysago', args: {'days': '$daysAgo'});
   }
 
   Color _getTierColor(String tier) {
@@ -459,11 +468,11 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
       case 'smart premium':
         return AppColors.accent;
       case 'premium':
-        return AppColors.primary;
+        return AppColors.gold;
       case 'freemium':
       default:
-        return AppColors.textSecondary; // fill under a pinned-white label: the
-        // theme token lightens in dark mode and left white on light grey
+        return AppColors
+            .textSecondary; // Neutral tier tint with matching foreground stays legible in both themes.
     }
   }
 
@@ -476,10 +485,10 @@ class _CoachClientsScreenState extends State<CoachClientsScreen> {
       case 'inactive':
         return AppColors.error;
       case 'new':
-        return AppColors.info;
+        return AppColors.cyan;
       default:
-        return AppColors.textSecondary; // fill under a pinned-white label: the
-        // theme token lightens in dark mode and left white on light grey
+        return AppColors
+            .textSecondary; // Neutral tier tint with matching foreground stays legible in both themes.
     }
   }
 

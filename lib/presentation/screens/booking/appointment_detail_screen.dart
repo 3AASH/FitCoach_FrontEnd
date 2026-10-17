@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
@@ -238,20 +239,21 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     }
   }
 
+  // Badge text is painted with these colours, so they come from the palette:
+  // the static brand tokens fail contrast on one theme or the other.
   Color _getStatusColor(String status) {
+    final p = context.palette;
     switch (status) {
       case 'pending':
-        return Colors.orange;
+        return p.warning;
       case 'confirmed':
-        return Colors.green;
+        return p.success;
       case 'in_progress':
-        return Colors.blue;
-      case 'completed':
-        return Colors.grey;
+        return p.info;
       case 'cancelled':
-        return Colors.red;
+        return p.error;
       default:
-        return Colors.grey;
+        return p.textSecondary;
     }
   }
 
@@ -265,7 +267,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
         padding: const EdgeInsets.all(16),
         child: Row(
           children: [
-            Icon(icon, color: AppColors.primary),
+            Icon(icon, color: context.palette.primary),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -307,7 +309,7 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
     final canJoinSoon = now.isAfter(tenMinutesBefore) &&
         widget.appointment.status == 'confirmed';
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(languageProvider.t('appointment_details')),
       ),
@@ -320,8 +322,9 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
+                // 0.15, not 0.2: the status text must still pass 4.5:1 on it.
                 color: _getStatusColor(widget.appointment.status)
-                    .withValues(alpha: 0.2),
+                    .withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
                   color: _getStatusColor(widget.appointment.status),
@@ -347,11 +350,12 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                   children: [
                     CircleAvatar(
                       radius: 30,
-                      backgroundColor: AppColors.primary.withValues(alpha: 0.2),
-                      child: const Icon(
+                      backgroundColor:
+                          context.palette.primary.withValues(alpha: 0.12),
+                      child: Icon(
                         Icons.person,
                         size: 30,
-                        color: AppColors.primary,
+                        color: context.palette.primary,
                       ),
                     ),
                     const SizedBox(width: 16),
@@ -438,20 +442,21 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                         Container(
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: Colors.green.withValues(alpha: 0.1),
+                            color: AppColors.success.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: Colors.green, width: 2),
+                            border:
+                                Border.all(color: AppColors.success, width: 2),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.check_circle,
-                                  color: Colors.green),
+                                  color: AppColors.success),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
                                   languageProvider.t('can_join_now'),
-                                  style: const TextStyle(
-                                    color: Colors.green,
+                                  style: TextStyle(
+                                    color: context.palette.success,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -472,13 +477,13 @@ class _AppointmentDetailScreenState extends State<AppointmentDetailScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: Colors.orange.withValues(alpha: 0.1),
+                        color: AppColors.warning.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.orange),
+                        border: Border.all(color: AppColors.warning),
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.schedule, color: Colors.orange),
+                          const Icon(Icons.schedule, color: AppColors.warning),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(

@@ -1,14 +1,17 @@
+import '../widgets/aash_backdrop.dart';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../core/constants/colors.dart';
+import '../widgets/aash_brand_mark.dart';
 import '../providers/language_provider.dart';
 import '../../core/theme/app_palette.dart';
 
 class OnboardingScreen extends StatefulWidget {
   final VoidCallback onComplete;
-  
+
   const OnboardingScreen({
     super.key,
     required this.onComplete,
@@ -21,7 +24,7 @@ class OnboardingScreen extends StatefulWidget {
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _pageController = PageController();
   int _currentPage = 0;
-  
+
   @override
   void dispose() {
     _pageController.dispose();
@@ -37,214 +40,220 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       languageProvider = LanguageProvider();
     }
     final isArabic = languageProvider.isArabic;
-    
+
     final slides = _getSlides(languageProvider);
     final currentSlide = slides[_currentPage];
-    
-    return Scaffold(
-      body: AnimatedContainer(
-        duration: const Duration(milliseconds: 700),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: AlignmentDirectional.topStart,
-            end: AlignmentDirectional.bottomEnd,
-            colors: currentSlide.gradientColors,
-          ),
-        ),
-        child: SafeArea(
-          child: Stack(
-            children: [
-              // Page view
-              Positioned.fill(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 140),
-                  child: PageView.builder(
-                    controller: _pageController,
-                    onPageChanged: (index) {
-                      setState(() {
-                        _currentPage = index;
-                      });
-                    },
-                    itemCount: slides.length,
-                    itemBuilder: (context, index) {
-                      return _OnboardingSlide(
-                        slide: slides[index],
-                        isArabic: isArabic,
-                      );
-                    },
-                  ),
-                ),
-              ),
 
-              // Skip button
-              Positioned(
-                top: 8,
-                right: isArabic ? null : 16,
-                left: isArabic ? 16 : null,
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: context.palette.textSecondary,
-                    backgroundColor: AppColors.textWhite.withValues(alpha: 0.2),
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.small),
+    return AashScaffold(
+      body: AnnotatedRegion<SystemUiOverlayStyle>(
+        value: Theme.of(context).brightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark,
+        child: ColoredBox(
+          color: context.palette.background,
+          child: SafeArea(
+            child: Stack(
+              children: [
+                const Positioned(
+                  top: 4,
+                  left: 0,
+                  right: 0,
+                  child: const Center(child: AashBrandMark(size: 52)),
+                ),
+                // Page view
+                Positioned.fill(
+                  child: Padding(
+                    padding:
+                        const EdgeInsetsDirectional.only(top: 76, bottom: 140),
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) {
+                        setState(() {
+                          _currentPage = index;
+                        });
+                      },
+                      itemCount: slides.length,
+                      itemBuilder: (context, index) {
+                        return _OnboardingSlide(
+                          slide: slides[index],
+                          isArabic: isArabic,
+                        );
+                      },
                     ),
                   ),
-                  onPressed: widget.onComplete,
-                  child: Text(languageProvider.t('skip')),
                 ),
-              ),
-              
-              
-              // Bottom navigation
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: ClipRect(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                      decoration: BoxDecoration(
-                        color: AppColors.textWhite.withValues(alpha: 0.8),
-                        border: Border(
-                          top: BorderSide(color: context.palette.border.withValues(alpha: 0.8)),
-                        ),
+
+                // Skip button
+                Positioned(
+                  top: 8,
+                  right: isArabic ? null : 16,
+                  left: isArabic ? 16 : null,
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: context.palette.textPrimary,
+                      backgroundColor: context.palette.surfaceVariant,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(AppRadius.small),
                       ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Page indicator
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                              slides.length,
-                              (index) => _PageIndicator(
-                                isActive: index == _currentPage,
-                                accentColor: currentSlide.accentColor,
-                                label: languageProvider.t('onboarding_go_to_slide', args: {
-                                  'index': '${index + 1}',
-                                }),
-                                onTap: () {
-                                  _pageController.animateToPage(
-                                    index,
-                                    duration: const Duration(milliseconds: 500),
-                                    curve: Curves.easeInOut,
-                                  );
-                                },
+                    ),
+                    onPressed: widget.onComplete,
+                    child: Text(languageProvider.t('skip')),
+                  ),
+                ),
+
+                // Bottom navigation
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: ClipRect(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 20),
+                        decoration: BoxDecoration(
+                          color: context.palette.surface,
+                          border: Border(
+                            top: BorderSide(
+                                color: context.palette.border
+                                    .withValues(alpha: 0.8)),
+                          ),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // Page indicator
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: List.generate(
+                                slides.length,
+                                (index) => _PageIndicator(
+                                  isActive: index == _currentPage,
+                                  accentColor: currentSlide.accentColor,
+                                  label: languageProvider
+                                      .t('onboarding_go_to_slide', args: {
+                                    'index': '${index + 1}',
+                                  }),
+                                  onTap: () {
+                                    _pageController.animateToPage(
+                                      index,
+                                      duration:
+                                          const Duration(milliseconds: 350),
+                                      curve: Curves.easeInOut,
+                                    );
+                                  },
+                                ),
                               ),
                             ),
-                          ),
-                          
-                          const SizedBox(height: 20),
-                          
-                          // Navigation buttons
-                          Row(
-                            children: [
-                              OutlinedButton(
-                                onPressed: _currentPage == 0
-                                    ? null
-                                    : () {
-                                        _pageController.previousPage(
-                                          duration: const Duration(milliseconds: 500),
+
+                            const SizedBox(height: 20),
+
+                            // Navigation buttons
+                            Row(
+                              children: [
+                                OutlinedButton(
+                                  onPressed: _currentPage == 0
+                                      ? null
+                                      : () {
+                                          _pageController.previousPage(
+                                            duration: const Duration(
+                                                milliseconds: 350),
+                                            curve: Curves.easeInOut,
+                                          );
+                                        },
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor:
+                                        context.palette.textPrimary,
+                                    side: BorderSide(
+                                      color: context.palette.border,
+                                    ),
+                                    padding: const EdgeInsets.all(12),
+                                    minimumSize: const Size(48, 48),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                          AppRadius.small),
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.chevron_left,
+                                    color: context.palette.textPrimary,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: context.palette.primary,
+                                      foregroundColor:
+                                          context.palette.textOnBrand,
+                                      minimumSize: const Size(0, 48),
+                                    ),
+                                    onPressed: () {
+                                      if (_currentPage < slides.length - 1) {
+                                        _pageController.nextPage(
+                                          duration:
+                                              const Duration(milliseconds: 350),
                                           curve: Curves.easeInOut,
                                         );
-                                      },
-                                style: OutlinedButton.styleFrom(
-                                  padding: const EdgeInsets.all(12),
-                                  minimumSize: const Size(48, 48),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(AppRadius.small),
-                                  ),
-                                ),
-                                child: Icon(
-                                  Icons.chevron_left,
-                                  color: context.palette.textPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: currentSlide.accentColor,
-                                    minimumSize: const Size(0, 48),
-                                  ),
-                                  onPressed: () {
-                                    if (_currentPage < slides.length - 1) {
-                                      _pageController.nextPage(
-                                        duration: const Duration(milliseconds: 500),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    } else {
-                                      widget.onComplete();
-                                    }
-                                  },
-                                  child: Text(
-                                    _currentPage < slides.length - 1
-                                        ? languageProvider.t('next')
-                                        : languageProvider.t('get_started'),
-                                    style: AppTextStyles.bodyMedium.copyWith(
-                                      color: AppColors.textWhite,
+                                      } else {
+                                        widget.onComplete();
+                                      }
+                                    },
+                                    child: Text(
+                                      _currentPage < slides.length - 1
+                                          ? languageProvider.t('next')
+                                          : languageProvider.t('get_started'),
+                                      style: AppTextStyles.bodyMedium.copyWith(
+                                        color: context.palette.textOnBrand,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
   }
-  
+
   List<OnboardingSlideData> _getSlides(LanguageProvider lang) {
     return [
       OnboardingSlideData(
         title: lang.t('onboarding_coaching_title'),
         description: lang.t('onboarding_coaching_desc'),
-        imagePath: 'assets/placeholders/splash_onboarding/coach_onboarding.png',
-        gradientColors: [
-          AppColors.secondaryForeground.withValues(alpha: 0.2),
-          AppColors.primary.withValues(alpha: 0.2),
-        ],
-        accentColor: AppColors.secondaryForeground,
+        imagePath: 'assets/images/home/coach.jpg',
+        accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_nutrition_title'),
         description: lang.t('onboarding_nutrition_desc'),
-        imagePath: 'assets/placeholders/splash_onboarding/nuitration_onboarding.png',
-        gradientColors: [
-          AppColors.accent.withValues(alpha: 0.2),
-          AppColors.primary.withValues(alpha: 0.2),
-        ],
+        imagePath:
+            'assets/images/home/nutrition.jpg',
         accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_workouts_title'),
         description: lang.t('onboarding_workouts_desc'),
-        imagePath: 'assets/placeholders/splash_onboarding/workout_onboarding.png',
-        gradientColors: [
-          AppColors.primary.withValues(alpha: 0.2),
-          AppColors.secondaryForeground.withValues(alpha: 0.2),
-        ],
-        accentColor: AppColors.primary,
+        imagePath:
+            'assets/images/home/workout.jpg',
+        accentColor: AppColors.accent,
       ),
       OnboardingSlideData(
         title: lang.t('onboarding_store_title'),
         description: lang.t('onboarding_store_desc'),
-        imagePath: 'assets/placeholders/splash_onboarding/store_onboarding.png',
-        gradientColors: [
-          AppColors.accent.withValues(alpha: 0.2),
-          AppColors.secondaryForeground.withValues(alpha: 0.2),
-        ],
+        imagePath: 'assets/images/home/store.jpg',
         accentColor: AppColors.accent,
       ),
     ];
@@ -255,14 +264,12 @@ class OnboardingSlideData {
   final String title;
   final String description;
   final String imagePath;
-  final List<Color> gradientColors;
   final Color accentColor;
-  
+
   OnboardingSlideData({
     required this.title,
     required this.description,
     required this.imagePath,
-    required this.gradientColors,
     required this.accentColor,
   });
 }
@@ -295,7 +302,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 560),
     );
 
     _imageFade = CurvedAnimation(
@@ -374,13 +381,14 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                             AspectRatio(
                               aspectRatio: 1,
                               child: ClipRRect(
-                                borderRadius: BorderRadius.circular(24),
+                                borderRadius:
+                                    BorderRadius.circular(AppRadius.xlarge),
                                 child: Image.asset(
                                   widget.slide.imagePath,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) {
                                     return Container(
-                                      color: context.palette.surfaceVariant,
+                                      color: context.palette.surface,
                                       alignment: Alignment.center,
                                       child: Icon(
                                         Icons.image_not_supported_outlined,
@@ -412,9 +420,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 24),
-
                   FadeTransition(
                     opacity: _titleFade,
                     child: SlideTransition(
@@ -431,9 +437,7 @@ class _OnboardingSlideState extends State<_OnboardingSlide>
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 12),
-
                   FadeTransition(
                     opacity: _descFade,
                     child: SlideTransition(
@@ -465,7 +469,7 @@ class _PageIndicator extends StatelessWidget {
   final Color accentColor;
   final String label;
   final VoidCallback onTap;
-  
+
   const _PageIndicator({
     required this.isActive,
     required this.accentColor,

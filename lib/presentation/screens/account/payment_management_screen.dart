@@ -1,8 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../core/config/demo_config.dart';
-import '../../../core/constants/colors.dart';
 import '../../../data/repositories/payment_repository.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -33,7 +33,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
     const _PaymentMethod(
       id: 'apple_pay',
       brand: 'Apple Pay',
-      last4: 'â€”',
+      last4: '—',
       expiry: '',
       holder: 'Layla iPhone',
       type: 'wallet',
@@ -58,7 +58,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('payment_management_title')),
       ),
@@ -109,10 +109,10 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         ? Icons.radio_button_checked
                         : Icons.radio_button_unchecked,
                     color: method.id == _defaultMethodId
-                        ? AppColors.primary
+                        ? context.palette.primary
                         : context.palette.textSecondary,
                   ),
-                  title: Text('${method.brand} â€¢â€¢â€¢â€¢ ${method.last4}'),
+                  title: Text('${method.brand} •••• ${method.last4}'),
                   subtitle: Text(method.type == 'card'
                       ? 'Exp ${method.expiry}'
                       : method.holder),
@@ -145,7 +145,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           const SizedBox(height: 8),
           Text(
             lang.t('payment_methods_managed_externally'),
-            style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
+            style:
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
         ],
       ),
@@ -178,7 +179,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
           else if (_historyError != null)
             Text(
               _historyError!,
-              style: const TextStyle(color: AppColors.error),
+              style: TextStyle(color: context.palette.error),
             )
           else if (_paymentHistory.isEmpty)
             Text(
@@ -197,7 +198,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
               return ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading:
-                    const Icon(Icons.receipt_long, color: AppColors.primary),
+                    Icon(Icons.receipt_long, color: context.palette.primary),
                 title: Text(
                   '$tier ${amount ?? '-'} $currency',
                   maxLines: 1,
@@ -220,8 +221,8 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
   /// nothing in the app called it, so a subscriber could not cancel in-app at
   /// all.
   Widget _buildRenewalCard(LanguageProvider lang) {
-    final tier = context.watch<AuthProvider>().user?.subscriptionTier ??
-        'Freemium';
+    final tier =
+        context.watch<AuthProvider>().user?.subscriptionTier ?? 'Freemium';
     final hasPaidPlan = tier != 'Freemium';
 
     return CustomCard(
@@ -249,8 +250,7 @@ class _PaymentManagementScreenState extends State<PaymentManagementScreen> {
                         height: 16,
                         child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                    : Icon(Icons.cancel_outlined,
-                        color: context.palette.error),
+                    : Icon(Icons.cancel_outlined, color: context.palette.error),
                 label: Text(
                   lang.t('subscription_cancel_action'),
                   style: TextStyle(color: context.palette.error),
@@ -438,4 +438,3 @@ class _PaymentMethod {
     required this.type,
   });
 }
-

@@ -1,6 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../core/constants/colors.dart';
 import '../../../data/repositories/user_repository.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/language_provider.dart';
@@ -90,11 +90,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: hasPassword && _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(title: Text(t('change_password_title'))),
-        body: hasPassword
-            ? _buildForm(t)
-            : _buildNoPasswordNotice(t),
+        body: hasPassword ? _buildForm(t) : _buildNoPasswordNotice(t),
       ),
     );
   }
@@ -105,7 +103,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
       _newController.text.isNotEmpty ||
       _confirmController.text.isNotEmpty;
 
-  Widget _buildNoPasswordNotice(String Function(String, {Map<String, String>? args}) t) {
+  Widget _buildNoPasswordNotice(
+      String Function(String, {Map<String, String>? args}) t) {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -113,7 +112,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.info_outline, color: AppColors.primary),
+              Icon(Icons.info_outline, color: context.palette.primary),
               const SizedBox(height: 12),
               Text(t('change_password_none_title'),
                   style: const TextStyle(fontWeight: FontWeight.w600)),
@@ -131,8 +130,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           child: ElevatedButton(
             onPressed: () {
               Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (_) => const ForgotPasswordScreen()),
+                MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
               );
             },
             style: ElevatedButton.styleFrom(
@@ -180,8 +178,9 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                     labelText: t('change_password_new'),
                     suffixIcon: IconButton(
                       tooltip: _obscureNew ? t('show') : t('hide'),
-                      icon: Icon(
-                          _obscureNew ? Icons.visibility_off : Icons.visibility),
+                      icon: Icon(_obscureNew
+                          ? Icons.visibility_off
+                          : Icons.visibility),
                       onPressed: () =>
                           setState(() => _obscureNew = !_obscureNew),
                     ),
@@ -212,7 +211,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           ),
           if (_error != null) ...[
             const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: AppColors.error)),
+            Text(_error!, style: TextStyle(color: context.palette.error)),
           ],
           const SizedBox(height: 24),
           SizedBox(
@@ -236,4 +235,3 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     );
   }
 }
-

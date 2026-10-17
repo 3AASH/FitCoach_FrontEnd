@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/config/demo_config.dart';
@@ -67,7 +68,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       });
     }
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(tr('subscription_upgrade_title')),
       ),
@@ -237,7 +238,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? AppColors.primary : Colors.transparent,
+          color: isSelected ? context.palette.primary : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Column(
@@ -247,7 +248,9 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? context.palette.textOnBrand : context.palette.textPrimary,
+                color: isSelected
+                    ? context.palette.textOnBrand
+                    : context.palette.textPrimary,
               ),
             ),
             if (badge != null) ...[
@@ -255,15 +258,19 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: isSelected ? context.palette.textOnBrand : AppColors.success,
+                  color: isSelected
+                      ? context.palette.textOnBrand
+                      : AppColors.success,
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
                   badge,
                   style: TextStyle(
-                    fontSize: 10,
+                    fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: isSelected ? AppColors.primary : context.palette.textOnBrand,
+                    color: isSelected
+                        ? context.palette.primary
+                        : context.palette.textOnBrand,
                   ),
                 ),
               ),
@@ -292,7 +299,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     final planName = _localizedPlanName(plan, languageProvider.isArabic);
     final planDescription =
         _localizedPlanDescription(plan, languageProvider.isArabic);
-    final accentColor = _planAccentColor(plan);
+    final accentColor = _planAccentColor(plan, context.palette.primary);
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
     final cycleUnitShort = _selectedCycle == 'monthly'
@@ -305,7 +312,8 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
-            color: isSelected ? AppColors.primary : context.palette.border,
+            color:
+                isSelected ? context.palette.primary : context.palette.border,
             width: isSelected ? 2 : 1,
           ),
           borderRadius: BorderRadius.circular(16),
@@ -341,7 +349,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                         child: Text(
                           plan.badge ?? tr('subscription_best_value_badge'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: accentColor,
                             fontWeight: FontWeight.bold,
                           ),
@@ -360,7 +368,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                         child: Text(
                           tr('subscription_status_current'),
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             color: context.palette.textOnBrand,
                             fontWeight: FontWeight.bold,
                           ),
@@ -378,7 +386,7 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
                           ? Icons.radio_button_checked
                           : Icons.radio_button_unchecked,
                       color: _selectedPlanId == plan.id
-                          ? AppColors.primary
+                          ? context.palette.primary
                           : context.palette.textSecondary,
                     ),
                   ),
@@ -400,10 +408,10 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
               children: [
                 Text(
                   '${price.toStringAsFixed(0)} ${plan.currency}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: context.palette.primary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -515,11 +523,11 @@ class _SubscriptionUpgradeScreenState extends State<SubscriptionUpgradeScreen> {
     return plan.description.isEmpty ? null : plan.description;
   }
 
-  Color _planAccentColor(SubscriptionPlan plan) {
+  Color _planAccentColor(SubscriptionPlan plan, Color fallback) {
     final hex = plan.accentColor.replaceAll('#', '');
     final parsed = int.tryParse(hex, radix: 16);
     if (parsed == null) {
-      return AppColors.primary;
+      return fallback;
     }
     return Color(0xFF000000 | parsed);
   }

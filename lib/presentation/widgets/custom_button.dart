@@ -111,9 +111,9 @@ class _CustomButtonState extends State<CustomButton> {
               foregroundColor: context.palette.textOnBrand,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
-              elevation: isDisabled ? 0 : 2,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
             child: buttonChild,
@@ -126,14 +126,14 @@ class _CustomButtonState extends State<CustomButton> {
           child: OutlinedButton(
             onPressed: isDisabled ? null : widget.onPressed,
             style: OutlinedButton.styleFrom(
-              backgroundColor: AppColors.secondary,
-              foregroundColor: AppColors.secondaryForeground,
+              backgroundColor: context.palette.surfaceVariant,
+              foregroundColor: context.palette.textPrimary,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               side: BorderSide(
                 color: isDisabled
                     ? context.palette.border
-                    : AppColors.secondaryForeground,
+                    : context.palette.border,
                 width: 1,
               ),
               shape: RoundedRectangleBorder(
@@ -150,15 +150,17 @@ class _CustomButtonState extends State<CustomButton> {
           child: OutlinedButton(
             onPressed: isDisabled ? null : widget.onPressed,
             style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
+              foregroundColor: context.palette.primary,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               side: BorderSide(
-                color: isDisabled ? context.palette.border : AppColors.primary,
+                color: isDisabled
+                    ? context.palette.border
+                    : context.palette.primary,
                 width: 1.5,
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
             child: buttonChild,
@@ -171,11 +173,11 @@ class _CustomButtonState extends State<CustomButton> {
           child: TextButton(
             onPressed: isDisabled ? null : widget.onPressed,
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.primary,
+              foregroundColor: context.palette.primary,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
             child: buttonChild,
@@ -192,9 +194,9 @@ class _CustomButtonState extends State<CustomButton> {
               foregroundColor: context.palette.textOnBrand,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
-              elevation: isDisabled ? 0 : 2,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
             child: buttonChild,
@@ -207,11 +209,11 @@ class _CustomButtonState extends State<CustomButton> {
           child: TextButton(
             onPressed: isDisabled ? null : widget.onPressed,
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.primary,
+              foregroundColor: context.palette.primary,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
             child: buttonChild,
@@ -224,11 +226,11 @@ class _CustomButtonState extends State<CustomButton> {
           child: TextButton(
             onPressed: isDisabled ? null : widget.onPressed,
             style: TextButton.styleFrom(
-              foregroundColor: AppColors.primary,
+              foregroundColor: context.palette.primary,
               padding: _getPadding(),
               textStyle: _getTextStyle(),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
             ),
             child: buttonChild,
@@ -284,13 +286,12 @@ class _CustomButtonState extends State<CustomButton> {
       // spinner on it is ~1.3:1 and effectively invisible. Match the variant's
       // own foreground, which is what its label already uses.
       case ButtonVariant.secondary:
-        return AppColors.secondaryForeground;
+        return context.palette.textPrimary;
       case ButtonVariant.outline:
       case ButtonVariant.text:
       case ButtonVariant.ghost:
-        return AppColors.primary;
       case ButtonVariant.link:
-        return AppColors.primary;
+        return context.palette.primary;
     }
   }
 }

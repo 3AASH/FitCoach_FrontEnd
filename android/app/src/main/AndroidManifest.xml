@@ -1,4 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+﻿<manifest xmlns:android="http://schemas.android.com/apk/res/android">
     
     <!-- Permissions for video calls -->
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -21,9 +21,12 @@
     <uses-feature android:name="android.hardware.microphone" android:required="true"/>
 
     <application
-        android:label="عاش - FitCoach+"
+        android:label="Aash"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:usesCleartextTraffic="true">
         
         <activity

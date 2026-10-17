@@ -14,8 +14,7 @@ class AnimatedReveal extends StatefulWidget {
     super.key,
     required this.child,
     this.delay = Duration.zero,
-    // Use a 1 second animation so reveals are clearly visible
-    this.duration = const Duration(milliseconds: 1000),
+    this.duration = const Duration(milliseconds: 420),
     this.offset = const Offset(0, 0.12),
     this.curve = Curves.easeOutCubic,
     this.initialScale = 0.94,

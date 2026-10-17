@@ -1,3 +1,6 @@
+import '../../widgets/aash_backdrop.dart';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -44,7 +47,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
-    return Scaffold(
+    return AashScaffold(
       body: IndexedStack(
         index: _selectedIndex,
         children: [
@@ -54,30 +57,100 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           _buildBusinessHub(lang),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: AppColors.primary,
-        unselectedItemColor: context.palette.textDisabled,
-        items: [
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.dashboard),
-            label: lang.t('admin_tab_dashboard'),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        minimum: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.pill),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+            child: Container(
+              decoration: BoxDecoration(
+                color: context.palette.surface.withValues(alpha: 0.88),
+                borderRadius: BorderRadius.circular(AppRadius.pill),
+                border: Border.all(
+                  color: context.palette.border.withValues(alpha: 0.8),
+                ),
+                boxShadow: Theme.of(context).brightness == Brightness.dark
+                    ? null
+                    : [
+                        BoxShadow(
+                          color:
+                              context.palette.primary.withValues(alpha: 0.08),
+                          blurRadius: 20,
+                          offset: const Offset(0, 6),
+                        ),
+                      ],
+              ),
+              child: Row(
+                children: [
+                  _buildNavItem(
+                      Icons.dashboard, lang.t('admin_tab_dashboard'), 0),
+                  _buildNavItem(
+                      Icons.people, lang.t('admin_dashboard_users'), 1),
+                  _buildNavItem(Icons.fitness_center,
+                      lang.t('admin_dashboard_fitness'), 2),
+                  _buildNavItem(Icons.business_center,
+                      lang.t('admin_dashboard_business'), 3),
+                ],
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.people),
-            label: lang.t('admin_dashboard_users'),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label, int index) {
+    final isSelected = _selectedIndex == index;
+    final color =
+        isSelected ? context.palette.primary : context.palette.textSecondary;
+
+    return Expanded(
+      child: Semantics(
+        button: true,
+        selected: isSelected,
+        label: label,
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(AppRadius.pill),
+            onTap: () => setState(() => _selectedIndex = index),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 4,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isSelected
+                          ? context.palette.primary.withValues(alpha: 0.12)
+                          : Colors.transparent,
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
+                    ),
+                    child: Icon(icon, size: 20, color: color),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.captionMedium.copyWith(
+                      color: color,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.fitness_center),
-            label: lang.t('admin_dashboard_fitness'),
-          ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.business_center),
-            label: lang.t('admin_dashboard_business'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -110,10 +183,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       children: [
                         Text(
                           lang.t('admin_dashboard_title'),
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.h1
+                              .copyWith(color: context.palette.textPrimary),
                         ),
                         const SizedBox(height: 4),
                         Text(
@@ -166,7 +237,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         title: lang.t('admin_metric_total_users'),
                         value: '${analytics.users.total}',
                         icon: Icons.people,
-                        color: AppColors.primary,
+                        color: context.palette.primary,
                         onTap: () {
                           _pushAdminScreen(
                             const AdminUsersScreen(initialRole: 'customers'),
@@ -200,7 +271,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         title: lang.t('admin_metric_total_coaches'),
                         value: '${analytics.coaches.total}',
                         icon: Icons.sports,
-                        color: AppColors.secondary,
+                        color: AppColors.cyan,
                         onTap: () {
                           _pushAdminScreen(
                             const AdminUsersScreen(initialRole: 'coaches'),
@@ -211,8 +282,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: CustomStatCard(
-                        title:
-                            lang.t('admin_metric_active_coaches'),
+                        title: lang.t('admin_metric_active_coaches'),
                         value: '${analytics.coaches.active}',
                         icon: Icons.fitness_center,
                         color: AppColors.accent,
@@ -259,10 +329,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 // Subscription Distribution
                 Text(
                   lang.t('admin_subscription_distribution'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3
+                      .copyWith(color: context.palette.textPrimary),
                 ),
                 const SizedBox(height: 12),
                 CustomCard(
@@ -300,7 +368,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       ),
                                       const SizedBox(height: 4),
                                       ClipRRect(
-                                        borderRadius: BorderRadius.circular(4),
+                                        borderRadius: BorderRadius.circular(
+                                            AppRadius.pill),
                                         child: LinearProgressIndicator(
                                           value: percentage / 100,
                                           backgroundColor: AppColors
@@ -321,10 +390,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                   children: [
                                     Text(
                                       '${sub.count}',
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
+                                      style: AppTextStyles.h3.copyWith(
+                                          color: context.palette.textPrimary),
                                     ),
                                     Text(
                                       '${percentage.toStringAsFixed(1)}%',
@@ -357,12 +424,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
+                            color:
+                                context.palette.primary.withValues(alpha: 0.1),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium),
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.calendar_today,
-                            color: AppColors.primary,
+                            color: context.palette.primary,
                             size: 24,
                           ),
                         ),
@@ -381,10 +450,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 '${analytics.sessions.today}',
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: AppTextStyles.h2.copyWith(
+                                    color: context.palette.textPrimary),
                               ),
                             ],
                           ),
@@ -405,9 +472,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     switch (tier.toLowerCase()) {
       case 'basic':
       case 'freemium':
-        return AppColors.primary;
+        return context.palette.primary;
       case 'premium':
-        return AppColors.secondary;
+        return context.palette.info;
       case 'pro':
       case 'smart_premium':
         return AppColors.accent;
@@ -443,7 +510,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           icon: Icons.person_outline,
           title: lang.t('admin_hub_customers'),
           subtitle: lang.t('admin_hub_customers_desc'),
-          color: AppColors.primary,
+          color: context.palette.primary,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'customers'),
           ),
@@ -452,7 +519,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           icon: Icons.sports,
           title: lang.t('admin_hub_coaches'),
           subtitle: lang.t('admin_hub_coaches_desc'),
-          color: AppColors.secondary,
+          color: AppColors.cyan,
           onTap: () => _pushAdminScreen(
             const AdminUsersScreen(initialRole: 'coaches'),
           ),
@@ -479,14 +546,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           icon: Icons.fitness_center,
           title: lang.t('admin_hub_exercise_library'),
           subtitle: lang.t('admin_hub_exercise_library_desc'),
-          color: AppColors.primary,
+          color: context.palette.primary,
           onTap: () => _pushAdminScreen(const AdminExercisesScreen()),
         ),
         _buildAdminActionTile(
           icon: Icons.view_week,
           title: lang.t('admin_hub_workout_templates'),
           subtitle: lang.t('admin_hub_workout_templates_desc'),
-          color: AppColors.secondary,
+          color: AppColors.cyan,
           onTap: () => _pushAdminScreen(const AdminWorkoutTemplatesScreen()),
         ),
         _buildAdminActionTile(
@@ -509,7 +576,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           icon: Icons.credit_card,
           title: lang.t('admin_hub_subscription_plans'),
           subtitle: lang.t('admin_hub_subscription_plans_desc'),
-          color: AppColors.primary,
+          color: context.palette.primary,
           onTap: () => _pushAdminScreen(const SubscriptionManagementScreen()),
         ),
         _buildAdminActionTile(
@@ -523,7 +590,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           icon: Icons.store,
           title: lang.t('admin_hub_store'),
           subtitle: lang.t('admin_hub_store_desc'),
-          color: AppColors.secondary,
+          color: AppColors.cyan,
           onTap: () => _pushAdminScreen(const StoreManagementScreen()),
         ),
         _buildAdminActionTile(
@@ -554,10 +621,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   children: [
                     Text(
                       title,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: AppTextStyles.h1
+                          .copyWith(color: context.palette.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text(
@@ -601,7 +666,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
             height: 48,
             decoration: BoxDecoration(
               color: color.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
             ),
             child: Icon(icon, color: color),
           ),
@@ -612,10 +677,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                  ),
+                  style: AppTextStyles.h4
+                      .copyWith(color: context.palette.textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(

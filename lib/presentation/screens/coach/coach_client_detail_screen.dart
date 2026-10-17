@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
 import '../../providers/language_provider.dart';
@@ -102,7 +103,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     final checkIns = coachProvider.clientCheckIns;
     final latestCheckIn = coachProvider.latestClientCheckIn;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(
           client?.fullName ?? lang.t('coach_client_detail_title'),
@@ -130,10 +131,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                       const SizedBox(height: 16),
                       Text(
                         coachProvider.error ??
-                            lang
-                                .t('coach_client_detail_load_failed'),
+                            lang.t('coach_client_detail_load_failed'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -168,8 +168,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                         const SizedBox(height: 16),
 
                         // Plans section
-                        _buildPlansSection(
-                            client, lang, authProvider),
+                        _buildPlansSection(client, lang, authProvider),
 
                         const SizedBox(height: 16),
 
@@ -214,15 +213,15 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
             // Avatar
             CircleAvatar(
               radius: 50,
-              backgroundColor: AppColors.primary.withValues(alpha: 0.1),
+              backgroundColor: context.palette.primary.withValues(alpha: 0.1),
               backgroundImage: client.profilePhotoUrl != null
                   ? NetworkImage(client.profilePhotoUrl!)
                   : null,
               child: client.profilePhotoUrl == null
                   ? Text(
                       client.initials,
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: context.palette.primary,
                         fontWeight: FontWeight.bold,
                         fontSize: 32,
                       ),
@@ -234,10 +233,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
 
             Text(
               client.fullName,
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h1,
               textAlign: TextAlign.center,
             ),
 
@@ -254,14 +250,15 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getTierColor(client.subscriptionTier),
-                    borderRadius: BorderRadius.circular(16),
+                    color: _getTierColor(client.subscriptionTier)
+                        .withValues(alpha: 0.16),
+                    borderRadius: BorderRadius.circular(AppRadius.large),
                   ),
                   child: Text(
                     client.subscriptionTier,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textWhite,
+                      color: _getTierColor(client.subscriptionTier),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -272,14 +269,19 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getStatusColor(client.statusText),
-                    borderRadius: BorderRadius.circular(16),
+                    color: _getStatusColor(client.statusText)
+                        .withValues(alpha: 0.12),
+                    border: Border.all(
+                      color: _getStatusColor(client.statusText)
+                          .withValues(alpha: 0.3),
+                    ),
+                    borderRadius: BorderRadius.circular(AppRadius.large),
                   ),
                   child: Text(
                     client.statusText,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.textWhite,
+                      color: _getStatusColor(client.statusText),
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -368,10 +370,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               children: [
                 Text(
                   lang.t('coach_fitness_score'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
                 TextButton.icon(
                   onPressed: () => _showAssignScoreDialog(authProvider, lang),
@@ -389,7 +388,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                   shape: BoxShape.circle,
                   color: client.fitnessScore != null
                       ? _getScoreColor(client.fitnessScore!)
-                      : context.palette.textDisabled,
+                          .withValues(alpha: 0.15)
+                      : context.palette.surfaceVariant,
                 ),
                 child: Center(
                   child: Column(
@@ -397,17 +397,19 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                     children: [
                       Text(
                         client.fitnessScore?.toString() ?? '--',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 48,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.textWhite,
+                          color: client.fitnessScore != null
+                              ? _getScoreColor(client.fitnessScore!)
+                              : context.palette.textSecondary,
                         ),
                       ),
                       Text(
                         lang.t('coach_out_of_100'),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.textWhite,
+                          color: context.palette.textSecondary,
                         ),
                       ),
                     ],
@@ -435,10 +437,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           children: [
             Text(
               lang.t('coach_assigned_plans_title'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h3,
             ),
             const SizedBox(height: 12),
             if (_isPlansLoading)
@@ -452,7 +451,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               _buildPlanEntry(
                 lang: lang,
                 icon: Icons.fitness_center,
-                color: AppColors.primary,
+                color: context.palette.primary,
                 title: lang.t('coach_workout_plan_title'),
                 assignedName: client.workoutPlanName,
                 progress: workoutProgress,
@@ -507,7 +506,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
               child: Icon(icon, color: color),
             ),
@@ -595,10 +594,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               children: [
                 Text(
                   lang.t('coach_client_detail_check_in_timeline'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
                 if (checkIns.isNotEmpty)
                   Container(
@@ -607,13 +603,13 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(999),
+                      color: context.palette.primary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(AppRadius.pill),
                     ),
                     child: Text(
                       '${checkIns.length}',
-                      style: const TextStyle(
-                        color: AppColors.primary,
+                      style: TextStyle(
+                        color: context.palette.primary,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -622,7 +618,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
             ),
             const SizedBox(height: 8),
             Text(
-              lang.t('coach_client_detail_every_client_check_in_including_inbody'),
+              lang.t(
+                  'coach_client_detail_every_client_check_in_including_inbody'),
               style: TextStyle(
                 fontSize: 13,
                 color: context.palette.textSecondary,
@@ -648,7 +645,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: context.palette.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.large),
         border: Border.all(color: context.palette.border),
       ),
       child: Column(
@@ -668,7 +665,8 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           ),
           const SizedBox(height: 4),
           Text(
-            lang.t('coach_client_detail_inbody_progress_and_intake_events_will'),
+            lang.t(
+                'coach_client_detail_inbody_progress_and_intake_events_will'),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
@@ -693,7 +691,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppRadius.large),
         border: Border.all(color: context.palette.border),
       ),
       child: Column(
@@ -707,7 +705,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                 decoration: BoxDecoration(
                   color:
                       _checkInTypeColor(checkIn.type).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
                 ),
                 child: Icon(
                   _checkInTypeIcon(checkIn.type),
@@ -743,12 +741,12 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
                 decoration: BoxDecoration(
                   color:
                       _checkInTypeColor(checkIn.type).withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(999),
+                  borderRadius: BorderRadius.circular(AppRadius.pill),
                 ),
                 child: Text(
                   _checkInTypeLabel(checkIn, lang),
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: _checkInTypeColor(checkIn.type),
                   ),
@@ -771,7 +769,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: context.palette.surface,
-                borderRadius: BorderRadius.circular(12),
+                borderRadius: BorderRadius.circular(AppRadius.medium),
               ),
               child: Text(
                 checkIn.notes!,
@@ -797,10 +795,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           children: [
             Text(
               lang.t('coach_activity_title'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h3,
             ),
 
             const SizedBox(height: 16),
@@ -927,10 +922,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           children: [
             Text(
               lang.t('coach_client_detail_latest_check_in_snapshot'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h3,
             ),
             const SizedBox(height: 16),
             ...rows,
@@ -949,10 +941,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           children: [
             Text(
               lang.t('coach_contact_information'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h3,
             ),
 
             const SizedBox(height: 16),
@@ -1110,7 +1099,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
             color: context.palette.surface,
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(AppRadius.medium),
           ),
           child: Text(
             '$label: $value',
@@ -1121,8 +1110,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     }
 
     if (metrics.weight != null) {
-      add(lang.t('weight'),
-          '${metrics.weight!.toStringAsFixed(1)} kg');
+      add(lang.t('weight'), '${metrics.weight!.toStringAsFixed(1)} kg');
     }
     if (metrics.bodyFatPercentage != null) {
       add(lang.t('progress_body_fat'),
@@ -1136,16 +1124,13 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       add('BMI', metrics.bmi!.toStringAsFixed(1));
     }
     if (metrics.waist != null) {
-      add(lang.t('progress_waist'),
-          '${metrics.waist!.toStringAsFixed(1)} cm');
+      add(lang.t('progress_waist'), '${metrics.waist!.toStringAsFixed(1)} cm');
     }
     if (metrics.chest != null) {
-      add(lang.t('progress_chest'),
-          '${metrics.chest!.toStringAsFixed(1)} cm');
+      add(lang.t('progress_chest'), '${metrics.chest!.toStringAsFixed(1)} cm');
     }
     if (metrics.hips != null) {
-      add(lang.t('progress_hips'),
-          '${metrics.hips!.toStringAsFixed(1)} cm');
+      add(lang.t('progress_hips'), '${metrics.hips!.toStringAsFixed(1)} cm');
     }
     return items;
   }
@@ -1167,12 +1152,12 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
           decoration: BoxDecoration(
             color: color.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(999),
+            borderRadius: BorderRadius.circular(AppRadius.pill),
           ),
           child: Text(
             '$label: $sign${value.toStringAsFixed(1)}$suffix',
             style: TextStyle(
-              fontSize: 11,
+              fontSize: 12,
               fontWeight: FontWeight.w700,
               color: color,
             ),
@@ -1185,8 +1170,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       add(lang.t('weight'), changes.weight!, ' kg');
     }
     if (changes.bodyFatPercentage != null) {
-      add(lang.t('progress_body_fat'), changes.bodyFatPercentage!,
-          '%');
+      add(lang.t('progress_body_fat'), changes.bodyFatPercentage!, '%');
     }
     if (changes.skeletalMuscleMass != null) {
       add(lang.t('coach_client_detail_muscle'), changes.skeletalMuscleMass!,
@@ -1257,11 +1241,11 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
   Color _checkInTypeColor(String type) {
     switch (type.toLowerCase()) {
       case 'inbody':
-        return AppColors.primary;
+        return context.palette.primary;
       case 'progress':
-        return AppColors.success;
+        return AppColors.cyan;
       case 'intake':
-        return AppColors.accent;
+        return AppColors.gold;
       default:
         return context.palette.textSecondary;
     }
@@ -1287,7 +1271,7 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     final hour = date.hour % 12 == 0 ? 12 : date.hour % 12;
     final minute = date.minute.toString().padLeft(2, '0');
     final period = date.hour >= 12 ? 'PM' : 'AM';
-    return '${date.day}/${date.month}/${date.year} â€¢ $hour:$minute $period';
+    return '${date.day}/${date.month}/${date.year} • $hour:$minute $period';
   }
 
   void _showAssignScoreDialog(
@@ -1391,13 +1375,12 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
   Color _getTierColor(String tier) {
     switch (tier.toLowerCase()) {
       case 'smart premium':
-        return AppColors.accent;
+        return AppColors.gold;
       case 'premium':
-        return AppColors.primary;
+        return context.palette.primary;
       case 'freemium':
       default:
-        return AppColors.textSecondary; // fill under a pinned-white label: the
-        // theme token lightens in dark mode and left white on light grey
+        return context.palette.textSecondary;
     }
   }
 
@@ -1410,10 +1393,9 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
       case 'inactive':
         return AppColors.error;
       case 'new':
-        return AppColors.info;
+        return AppColors.cyan;
       default:
-        return AppColors.textSecondary; // fill under a pinned-white label: the
-        // theme token lightens in dark mode and left white on light grey
+        return context.palette.textSecondary;
     }
   }
 
@@ -1423,4 +1405,3 @@ class _CoachClientDetailScreenState extends State<CoachClientDetailScreen>
     return AppColors.error;
   }
 }
-

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/constants/colors.dart';
+import '../../core/theme/app_palette.dart';
 import '../providers/language_provider.dart';
 
 /// The title row of a modal bottom sheet, with the button that closes it.
@@ -36,7 +37,8 @@ class SheetHeader extends StatelessWidget {
         Expanded(
           child: Text(
             title,
-            style: AppTextStyles.h2,
+            style:
+                AppTextStyles.h2.copyWith(color: context.palette.textPrimary),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),

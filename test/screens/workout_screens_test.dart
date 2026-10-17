@@ -9,8 +9,34 @@ import 'package:fitapp/presentation/providers/workout_provider.dart';
 import 'package:fitapp/presentation/screens/workout/workout_exercise_detail_screen.dart';
 import 'package:fitapp/presentation/screens/workout/workout_exercise_session_screen.dart';
 import 'package:fitapp/presentation/screens/workout/workout_intro_screen.dart';
+import 'package:fitapp/presentation/screens/workout/workout_screen.dart';
 
 class FakeWorkoutRepository extends WorkoutRepository {}
+
+class FakeScreenWorkoutProvider extends WorkoutProvider {
+  final WorkoutPlan plan;
+
+  FakeScreenWorkoutProvider(this.plan) : super(FakeWorkoutRepository());
+
+  @override
+  WorkoutPlan? get activePlan => plan;
+
+  @override
+  WorkoutDay? get currentDay =>
+      plan.days == null || plan.days!.isEmpty ? null : plan.days!.first;
+
+  @override
+  bool get isLoading => false;
+
+  @override
+  Future<void> loadActivePlan() async {}
+
+  @override
+  Future<void> loadWorkoutCalendar({bool silent = false}) async {}
+
+  @override
+  bool isExerciseCompleted(String exerciseId) => false;
+}
 
 Exercise _buildExercise() {
   return Exercise(
@@ -76,6 +102,88 @@ void main() {
     expect(find.byType(WorkoutIntroScreen), findsOneWidget);
   });
 
+  testWidgets('workout exercises are swipeable image-and-name cards',
+      (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'workout_intro_seen': true,
+      'fitcoach_language': 'en',
+    });
+    final exercises = List.generate(
+      5,
+      (index) => Exercise(
+        id: 'carousel-ex-$index',
+        name: 'Exercise $index',
+        nameAr: 'تمرين $index',
+        nameEn: 'Exercise $index',
+        sets: 3,
+        reps: '12',
+        restTime: '60s',
+        thumbnailUrl:
+            'assets/placeholders/splash_onboarding/workout_onboarding.png',
+      ),
+    );
+    final workoutProvider = FakeScreenWorkoutProvider(
+      WorkoutPlan(
+        id: 'plan-carousel',
+        userId: 'user-carousel',
+        createdAt: DateTime(2024),
+        days: [
+          WorkoutDay(
+            id: 'day-carousel',
+            dayName: 'Day 1',
+            dayNumber: 1,
+            exercises: exercises,
+          ),
+        ],
+      ),
+    );
+
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(create: (_) => LanguageProvider()),
+          ChangeNotifierProvider<WorkoutProvider>.value(
+            value: workoutProvider,
+          ),
+        ],
+        child: const MaterialApp(
+          home: WorkoutScreen(isActive: false),
+        ),
+      ),
+    );
+    for (var i = 0; i < 10; i++) {
+      await tester.pump(const Duration(milliseconds: 100));
+    }
+
+    final carousel = find.byKey(const ValueKey('workout-exercise-carousel'));
+    expect(carousel, findsOneWidget);
+    expect(tester.widget<ListView>(carousel).scrollDirection, Axis.horizontal);
+
+    final firstCard =
+        find.byKey(const ValueKey('workout-exercise-card-carousel-ex-0'));
+    expect(
+      find.descendant(of: firstCard, matching: find.byType(Image)),
+      findsOneWidget,
+    );
+    expect(
+      find.descendant(of: firstCard, matching: find.byType(Text)),
+      findsOneWidget,
+    );
+    expect(find.text('3'), findsNothing);
+    expect(find.text('12'), findsNothing);
+
+    await tester.dragUntilVisible(
+      find.byKey(const ValueKey('workout-exercise-card-carousel-ex-4')),
+      carousel,
+      const Offset(-240, 0),
+    );
+  });
+
   testWidgets('WorkoutExerciseSessionScreen renders correctly',
       (WidgetTester tester) async {
     SharedPreferences.setMockInitialValues({});
@@ -123,8 +231,11 @@ void main() {
     );
 
     expect(find.byType(WorkoutExerciseDetailScreen), findsOneWidget);
-    // The preview is the only exercise image, never a full-screen background.
-    final imageFinder = find.byType(Image);
+    // The preview is the only exercise image; the Aash backdrop is excluded.
+    final imageFinder = find.byWidgetPredicate((w) =>
+        w is Image &&
+        !((w.image is AssetImage) &&
+            (w.image as AssetImage).assetName.contains('/backgrounds/')));
     expect(imageFinder, findsOneWidget);
     expect(tester.widget<Image>(imageFinder).fit, BoxFit.contain);
     expect(tester.getSize(imageFinder).height, 220);

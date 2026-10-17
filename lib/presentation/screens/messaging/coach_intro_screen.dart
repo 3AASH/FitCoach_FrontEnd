@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../../core/constants/colors.dart';
 import '../../../core/theme/app_palette.dart';
 import '../../providers/language_provider.dart';
 import '../../widgets/animated_reveal.dart';
@@ -33,14 +34,14 @@ class CoachIntroScreen extends StatelessWidget {
           ),
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0x99000000),
-                    Color(0x80000000),
-                    Color(0xB3000000),
+                    AppColors.backgroundDark.withValues(alpha: 0.84),
+                    AppColors.primaryDark.withValues(alpha: 0.72),
+                    AppColors.backgroundDark.withValues(alpha: 0.92),
                   ],
                 ),
               ),
@@ -76,7 +77,8 @@ class CoachIntroScreen extends StatelessWidget {
                           child: Text(
                             languageProvider.t('coach_intro_subtitle'),
                             style: TextStyle(
-                              color: context.palette.textOnBrand.withValues(alpha: 0.9),
+                              color: context.palette.textOnBrand
+                                  .withValues(alpha: 0.9),
                               fontSize: 18,
                             ),
                             textAlign: TextAlign.start,
@@ -88,7 +90,7 @@ class CoachIntroScreen extends StatelessWidget {
                           offset: Offset(isArabic ? -0.14 : 0.14, 0),
                           child: _IntroFeatureCard(
                             icon: Icons.message_outlined,
-                            iconColor: const Color(0xFF8B5CF6),
+                            iconColor: AppColors.chart2,
                             title: languageProvider
                                 .t('coach_intro_feature1_title'),
                             description:
@@ -102,7 +104,7 @@ class CoachIntroScreen extends StatelessWidget {
                           offset: Offset(isArabic ? -0.14 : 0.14, 0),
                           child: _IntroFeatureCard(
                             icon: Icons.videocam_outlined,
-                            iconColor: const Color(0xFF3B82F6),
+                            iconColor: AppColors.primaryLight,
                             title: languageProvider
                                 .t('coach_intro_feature2_title'),
                             description:
@@ -116,7 +118,7 @@ class CoachIntroScreen extends StatelessWidget {
                           offset: Offset(isArabic ? -0.14 : 0.14, 0),
                           child: _IntroFeatureCard(
                             icon: Icons.calendar_today_outlined,
-                            iconColor: const Color(0xFF22C55E),
+                            iconColor: AppColors.chart4,
                             title: languageProvider
                                 .t('coach_intro_feature3_title'),
                             description:
@@ -130,7 +132,7 @@ class CoachIntroScreen extends StatelessWidget {
                           offset: Offset(isArabic ? -0.14 : 0.14, 0),
                           child: _IntroFeatureCard(
                             icon: Icons.star_outline,
-                            iconColor: const Color(0xFFF59E0B),
+                            iconColor: AppColors.accent,
                             title: languageProvider
                                 .t('coach_intro_feature4_title'),
                             description:
@@ -147,7 +149,7 @@ class CoachIntroScreen extends StatelessWidget {
                             child: ElevatedButton(
                               onPressed: onGetStarted,
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: const Color(0xFF7C3AED),
+                                backgroundColor: context.palette.primary,
                                 foregroundColor: context.palette.textOnBrand,
                                 textStyle: const TextStyle(
                                     fontSize: 18, fontWeight: FontWeight.w600),
@@ -188,15 +190,23 @@ class _IntroFeatureCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(22),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(18),
           decoration: BoxDecoration(
-            color: context.palette.textOnBrand.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: context.palette.textOnBrand.withValues(alpha: 0.2)),
+            color: context.palette.surface.withValues(alpha: 0.76),
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+                color: context.palette.textOnBrand.withValues(alpha: 0.24)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.14),
+                blurRadius: 24,
+                offset: const Offset(0, 10),
+              ),
+            ],
           ),
           child: Row(
             children: [
@@ -209,13 +219,14 @@ class _IntroFeatureCard extends StatelessWidget {
                     Text(
                       title,
                       style: TextStyle(
-                          color: context.palette.textOnBrand, fontWeight: FontWeight.w600),
+                          color: context.palette.textPrimary,
+                          fontWeight: FontWeight.w700),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       description,
                       style: TextStyle(
-                        color: context.palette.textOnBrand.withValues(alpha: 0.8),
+                        color: context.palette.textSecondary,
                         fontSize: 12,
                       ),
                     ),
@@ -245,8 +256,8 @@ class _IntroIcon extends StatelessWidget {
       width: 48,
       height: 48,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.2),
-        borderRadius: BorderRadius.circular(24),
+        color: color.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(18),
       ),
       child: Icon(icon, color: color, size: 26),
     );

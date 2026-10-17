@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'app.dart';
 import 'core/config/demo_mode.dart';
 import 'core/config/theme_config.dart';
+import 'core/constants/colors.dart';
 import 'presentation/providers/auth_provider.dart';
 import 'presentation/providers/demo_mode_provider.dart';
 import 'presentation/providers/user_provider.dart';
@@ -154,6 +155,9 @@ class FitCoachApp extends StatelessWidget {
           create: (_) => ThemeProvider(),
         ),
         ChangeNotifierProxyProvider<AuthRepository, AuthProvider>(
+          // Eager: the stored session must start restoring at launch, not
+          // when the splash button is first tapped.
+          lazy: false,
           create: (context) => AuthProvider(
             context.read<AuthRepository>(),
             pushNotifications:
@@ -270,7 +274,7 @@ class FitCoachApp extends StatelessWidget {
       child: Consumer2<LanguageProvider, ThemeProvider>(
         builder: (context, languageProvider, themeProvider, _) {
           return MaterialApp(
-            title: 'FitCoach+',
+            title: 'Aash - عاش',
             debugShowCheckedModeBanner: false,
 
             // Localization
@@ -286,8 +290,14 @@ class FitCoachApp extends StatelessWidget {
             ],
 
             // Theme
-            theme: AppThemeConfig.getLightTheme(),
-            darkTheme: AppThemeConfig.getDarkTheme(),
+            theme: _withLocaleFont(
+              AppThemeConfig.getLightTheme(),
+              languageProvider.isArabic,
+            ),
+            darkTheme: _withLocaleFont(
+              AppThemeConfig.getDarkTheme(),
+              languageProvider.isArabic,
+            ),
             themeMode: themeProvider.themeMode,
             builder: (context, child) {
               final mediaQuery = MediaQuery.of(context);
@@ -316,6 +326,29 @@ class FitCoachApp extends StatelessWidget {
             home: const App(),
           );
         },
+      ),
+    );
+  }
+
+  ThemeData _withLocaleFont(ThemeData theme, bool isArabic) {
+    // Body copy follows the locale font; headline/title/label roles keep
+    // Space Grotesk, with Cairo supplying Arabic glyphs it lacks.
+    final bodyFont = isArabic ? 'Cairo' : AppTextStyles.bodyFont;
+    final t = theme.textTheme.apply(fontFamily: bodyFont);
+    TextStyle? heading(TextStyle? s) => s?.copyWith(
+          fontFamily: AppTextStyles.headingFont,
+          fontFamilyFallback: AppTextStyles.arabicFallback,
+        );
+    return theme.copyWith(
+      textTheme: t.copyWith(
+        displayLarge: heading(t.displayLarge),
+        displayMedium: heading(t.displayMedium),
+        displaySmall: heading(t.displaySmall),
+        headlineMedium: heading(t.headlineMedium),
+        headlineSmall: heading(t.headlineSmall),
+        titleLarge: heading(t.titleLarge),
+        titleMedium: heading(t.titleMedium),
+        labelLarge: heading(t.labelLarge),
       ),
     );
   }

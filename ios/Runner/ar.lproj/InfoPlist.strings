@@ -1,0 +1,7 @@
+"CFBundleDisplayName" = "عاش";
+"NSCameraUsageDescription" = "يستخدم عاش الكاميرا لإجراء مكالمات الفيديو مع مدربك.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "يستخدم عاش موقعك للعثور على صالات رياضية ومدربين بالقرب منك.";
+"NSLocationWhenInUseUsageDescription" = "يستخدم عاش موقعك للعثور على صالات رياضية ومدربين بالقرب منك.";
+"NSMicrophoneUsageDescription" = "يستخدم عاش الميكروفون لإجراء مكالمات الفيديو مع مدربك.";
+"NSPhotoLibraryAddUsageDescription" = "يحتاج عاش إلى إذنك لحفظ صور تقدمك.";
+"NSPhotoLibraryUsageDescription" = "يحتاج عاش إلى إذنك لاختيار صور تقدمك ومشاركتها مع مدربك.";

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -79,7 +80,7 @@ class _CoachNutritionPlanViewerScreenState
   Widget build(BuildContext context) {
     final lang = context.watch<LanguageProvider>();
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_nutrition_plan_title')),
         actions: [
@@ -206,8 +207,9 @@ class _CoachNutritionPlanViewerScreenState
             return ListTile(
               leading: Icon(
                 meal.completed ? Icons.check_circle : Icons.schedule,
-                color:
-                    meal.completed ? AppColors.success : context.palette.textDisabled,
+                color: meal.completed
+                    ? AppColors.success
+                    : context.palette.textDisabled,
               ),
               title: Text(meal.name),
               subtitle: Text('${meal.calories} kcal - ${meal.time}'),
@@ -226,7 +228,7 @@ class _CoachNutritionPlanViewerScreenState
           Text(
             label,
             style:
-                TextStyle(fontSize: 11, color: context.palette.textSecondary),
+                TextStyle(fontSize: 12, color: context.palette.textSecondary),
           ),
           Text(
             value,

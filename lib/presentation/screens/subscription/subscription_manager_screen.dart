@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:provider/provider.dart';
@@ -17,7 +18,8 @@ class SubscriptionManagerScreen extends StatefulWidget {
   const SubscriptionManagerScreen({super.key});
 
   @override
-  State<SubscriptionManagerScreen> createState() => _SubscriptionManagerScreenState();
+  State<SubscriptionManagerScreen> createState() =>
+      _SubscriptionManagerScreenState();
 }
 
 class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
@@ -39,9 +41,10 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     final currentTier = authProvider.user?.subscriptionTier ?? 'Freemium';
     final plans = _sortedPlans(planProvider.plans);
     SubscriptionPlan? currentPlan = planProvider.matchTier(currentTier);
-    currentPlan ??= planProvider.freemiumPlan ?? (plans.isNotEmpty ? plans.first : null);
-    
-    return Scaffold(
+    currentPlan ??=
+        planProvider.freemiumPlan ?? (plans.isNotEmpty ? plans.first : null);
+
+    return AashScaffold(
       appBar: AppBar(
         title: Text(tr('subscription_manage_title')),
       ),
@@ -52,7 +55,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  _buildCurrentPlanCard(currentPlan, currentTier, languageProvider),
+                  _buildCurrentPlanCard(
+                      currentPlan, currentTier, languageProvider),
                   const SizedBox(height: 24),
                   if (planProvider.error != null)
                     Container(
@@ -64,7 +68,7 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                       ),
                       child: Text(
                         tr('error_generic'),
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                     ),
                   if (plans.isNotEmpty) ...[
@@ -114,13 +118,14 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
     return CustomCard(
-      color: AppColors.primary.withValues(alpha: 0.08),
+      color: context.palette.primary.withValues(alpha: 0.08),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             tr('subscription_current_plan_label'),
-            style: TextStyle(fontSize: 13, color: context.palette.textSecondary),
+            style:
+                TextStyle(fontSize: 13, color: context.palette.textSecondary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -128,24 +133,25 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
             children: [
               Text(
                 plan?.name ?? fallbackTier,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                 ),
               ),
               if (plan != null && !plan.isFree)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
                     color: AppColors.success.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     tr('subscription_status_active'),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
-                      color: AppColors.success,
+                      color: context.palette.success,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -161,19 +167,22 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                 _MetricChip(
                   icon: Icons.chat_bubble_outline,
                   label: tr('subscription_coach_messages'),
-                  value: _formatLimit(metadata['messagesLimit'], languageProvider),
+                  value:
+                      _formatLimit(metadata['messagesLimit'], languageProvider),
                 ),
                 _MetricChip(
                   icon: Icons.videocam_outlined,
                   label: tr('subscription_video_calls'),
-                  value: _formatLimit(metadata['videoCallsLimit'], languageProvider),
+                  value: _formatLimit(
+                      metadata['videoCallsLimit'], languageProvider),
                 ),
               ],
             )
           else
             Text(
               tr('subscription_plan_loading_message'),
-              style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
+              style:
+                  TextStyle(fontSize: 12, color: context.palette.textSecondary),
             ),
         ],
       ),
@@ -187,7 +196,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     LanguageProvider languageProvider,
   ) {
     final isCurrent = currentPlan != null && plan.id == currentPlan.id;
-    final isUpgrade = currentPlan == null || _isUpgrade(plan, currentPlan, allPlans);
+    final isUpgrade =
+        currentPlan == null || _isUpgrade(plan, currentPlan, allPlans);
     final metadata = plan.metadata;
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
@@ -196,7 +206,9 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
 
     return CustomCard(
       margin: const EdgeInsets.only(bottom: 16),
-      border: isCurrent ? Border.all(color: AppColors.primary, width: 2) : null,
+      border: isCurrent
+          ? Border.all(color: context.palette.primary, width: 2)
+          : null,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -208,26 +220,30 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                   children: [
                     Text(
                       plan.name,
-                      style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 20, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       plan.description,
-                      style: TextStyle(fontSize: 13, color: context.palette.textSecondary),
+                      style: TextStyle(
+                          fontSize: 13, color: context.palette.textSecondary),
                     ),
                   ],
                 ),
               ),
               if (plan.badge != null)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.12),
+                    color: context.palette.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
                     plan.badge!,
-                    style: const TextStyle(fontSize: 11, color: AppColors.primary),
+                    style:
+                        TextStyle(fontSize: 12, color: context.palette.primary),
                   ),
                 ),
             ],
@@ -240,15 +256,16 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                 plan.isFree
                     ? tr('subscription_free_label')
                     : '${plan.monthlyPrice.toStringAsFixed(0)} ${plan.currency}/$monthUnitShort',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 28,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primary,
+                  color: context.palette.primary,
                 ),
               ),
               if (plan.yearlyPrice != null && plan.yearlyPrice! > 0)
                 Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 8, bottom: 2),
+                  padding:
+                      const EdgeInsetsDirectional.only(start: 8, bottom: 2),
                   child: Text(
                     tr(
                       'subscription_yearly_price_label',
@@ -258,7 +275,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                         'unit': yearUnitShort,
                       },
                     ),
-                    style: TextStyle(fontSize: 12, color: context.palette.textSecondary),
+                    style: TextStyle(
+                        fontSize: 12, color: context.palette.textSecondary),
                   ),
                 ),
             ],
@@ -271,12 +289,14 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
               _MetricChip(
                 icon: Icons.chat_bubble_outline,
                 label: tr('subscription_coach_messages'),
-                value: _formatLimit(metadata['messagesLimit'], languageProvider),
+                value:
+                    _formatLimit(metadata['messagesLimit'], languageProvider),
               ),
               _MetricChip(
                 icon: Icons.videocam_outlined,
                 label: tr('subscription_video_calls'),
-                value: _formatLimit(metadata['videoCallsLimit'], languageProvider),
+                value:
+                    _formatLimit(metadata['videoCallsLimit'], languageProvider),
               ),
             ],
           ),
@@ -285,7 +305,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Row(
                   children: [
-                    const Icon(Icons.check_circle, color: AppColors.success, size: 18),
+                    const Icon(Icons.check_circle,
+                        color: AppColors.success, size: 18),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
@@ -305,8 +326,10 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
                 : _getButtonLabel(isUpgrade, languageProvider),
             onPressed: isCurrent
                 ? null
-                : () => _handlePlanAction(plan, currentPlan, languageProvider, allPlans),
-            variant: isUpgrade ? ButtonVariant.primary : ButtonVariant.secondary,
+                : () => _handlePlanAction(
+                    plan, currentPlan, languageProvider, allPlans),
+            variant:
+                isUpgrade ? ButtonVariant.primary : ButtonVariant.secondary,
             size: ButtonSize.large,
             fullWidth: true,
           ),
@@ -322,7 +345,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     if (value is num && value.toInt() < 0) {
       return tr('subscription_limit_unlimited');
     }
-    final parsed = value is num ? value.toInt() : int.tryParse(value.toString());
+    final parsed =
+        value is num ? value.toInt() : int.tryParse(value.toString());
     if (parsed == null) return value.toString();
     return tr('subscription_limit_value', args: {'value': parsed.toString()});
   }
@@ -333,7 +357,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     LanguageProvider languageProvider,
     List<SubscriptionPlan> plans,
   ) {
-    final isUpgrade = currentPlan == null || _isUpgrade(targetPlan, currentPlan, plans);
+    final isUpgrade =
+        currentPlan == null || _isUpgrade(targetPlan, currentPlan, plans);
     String tr(String key, {Map<String, String>? args}) =>
         languageProvider.t(key, args: args);
     showDialog(
@@ -346,8 +371,10 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
         ),
         content: Text(
           isUpgrade
-              ? tr('subscription_upgrade_confirm_body', args: {'plan': targetPlan.name})
-              : tr('subscription_switch_confirm_body', args: {'plan': targetPlan.name}),
+              ? tr('subscription_upgrade_confirm_body',
+                  args: {'plan': targetPlan.name})
+              : tr('subscription_switch_confirm_body',
+                  args: {'plan': targetPlan.name}),
         ),
         actions: [
           TextButton(
@@ -395,8 +422,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
       return;
     }
 
-    final wasFreemium =
-        currentPlan?.isFree ?? (authProvider.user?.subscriptionTier == 'Freemium');
+    final wasFreemium = currentPlan?.isFree ??
+        (authProvider.user?.subscriptionTier == 'Freemium');
 
     final updated = await userProvider.updateSubscription(targetPlan.name);
     if (!mounted) return;
@@ -424,7 +451,8 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
 
     if (wasFreemium && !targetPlan.isFree) {
       final authUserId = authProvider.user?.id;
-      final userId = authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
+      final userId =
+          authUserId ?? (DemoConfig.isDemo ? DemoConfig.demoUserId : null);
       if (userId != null) {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('pending_nutrition_intake_$userId', true);
@@ -468,7 +496,6 @@ class _SubscriptionManagerScreenState extends State<SubscriptionManagerScreen> {
     sorted.sort((a, b) => a.monthlyPrice.compareTo(b.monthlyPrice));
     return sorted;
   }
-
 }
 
 class _MetricChip extends StatelessWidget {
@@ -501,11 +528,13 @@ class _MetricChip extends StatelessWidget {
             children: [
               Text(
                 label,
-                style: TextStyle(fontSize: 11, color: context.palette.textSecondary),
+                style: TextStyle(
+                    fontSize: 12, color: context.palette.textSecondary),
               ),
               Text(
                 value,
-                style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                style:
+                    const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
               ),
             ],
           ),

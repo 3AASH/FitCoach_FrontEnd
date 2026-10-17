@@ -1,4 +1,5 @@
-﻿import 'dart:convert';
+import '../../widgets/aash_backdrop.dart';
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -44,12 +45,14 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   List<Map<String, dynamic>> _days = <Map<String, dynamic>>[];
 
   // Snapshots for change detection (captured after load)
-  late String _initialCalories;
-  late String _initialProtein;
-  late String _initialCarbs;
-  late String _initialFats;
-  late String _initialNotes;
-  late String _initialDaysJson;
+  // Empty until the plan loads: the dirty check reads these while the screen
+  // is still loading (and when there is no plan), so they cannot be `late`.
+  String _initialCalories = '';
+  String _initialProtein = '';
+  String _initialCarbs = '';
+  String _initialFats = '';
+  String _initialNotes = '';
+  String _initialDaysJson = '';
 
   @override
   void initState() {
@@ -66,9 +69,8 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
   /// Watched, so the screen redraws once the libraries finish loading. Only
   /// safe to call while building - an event handler has to use
   /// [_variantOptionsNow], which reads without subscribing.
-  List<RecipeVariantOption> get _variantOptions =>
-      RecipeVariantOption.fromRows(
-          context.watch<CoachProvider>().recipeVariantLibrary);
+  List<RecipeVariantOption> get _variantOptions => RecipeVariantOption.fromRows(
+      context.watch<CoachProvider>().recipeVariantLibrary);
 
   List<RecipeVariantOption> get _variantOptionsNow =>
       RecipeVariantOption.fromRows(
@@ -394,7 +396,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
+      child: AashScaffold(
         appBar: AppBar(
           title: Text(lang.t('coach_nutrition_editor_title')),
           actions: [
@@ -412,163 +414,163 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  if (!_isEditable)
-                    Card(
-                      color: AppColors.warning.withValues(alpha: 0.12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Text(lang.t('coach_plan_editor_locked')),
+                    if (!_isEditable)
+                      Card(
+                        color: AppColors.warning.withValues(alpha: 0.12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Text(lang.t('coach_plan_editor_locked')),
+                        ),
+                      ),
+                    Text(
+                      lang.t('coach_nutrition_editor_daily_calories'),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _caloriesController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(
+                        labelText: lang.t('plan_editor_calories'),
                       ),
                     ),
-                  Text(
-                    lang.t('coach_nutrition_editor_daily_calories'),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _caloriesController,
-                    keyboardType: TextInputType.number,
-                    decoration: InputDecoration(
-                      labelText: lang.t('plan_editor_calories'),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _proteinController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: lang.t('plan_editor_protein'),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _carbsController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: lang.t('plan_editor_carbs'),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: _fatsController,
+                            keyboardType: TextInputType.number,
+                            decoration: InputDecoration(
+                              labelText: lang.t('plan_editor_fat'),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _proteinController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: lang.t('plan_editor_protein'),
-                          ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          lang.t('coach_nutrition_editor_meal_plan'),
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.w700),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _carbsController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: lang.t('plan_editor_carbs'),
-                          ),
+                        TextButton.icon(
+                          onPressed: _isEditable ? _addDay : null,
+                          icon: const Icon(Icons.add),
+                          label: Text(lang.t('coach_plan_editor_add_day')),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: _fatsController,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: lang.t('plan_editor_fat'),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        lang.t('coach_nutrition_editor_meal_plan'),
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.w700),
-                      ),
-                      TextButton.icon(
-                        onPressed: _isEditable ? _addDay : null,
-                        icon: const Icon(Icons.add),
-                        label: Text(lang.t('coach_plan_editor_add_day')),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  ..._days.asMap().entries.map((entry) {
-                    final dayIndex = entry.key;
-                    final day = entry.value;
-                    final meals = (_asList(day['meals']) ?? const <dynamic>[])
-                        .map((m) => _asMap(m) ?? <String, dynamic>{})
-                        .toList();
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: Padding(
-                        padding: const EdgeInsets.all(12),
-                        child: Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    initialValue: _asString(day['dayName']) ??
-                                        'Day ${dayIndex + 1}',
-                                    enabled: _isEditable,
-                                    decoration: InputDecoration(
-                                      labelText: lang.t(
-                                        'plan_editor_day_name',
-                                        args: {'day': '${dayIndex + 1}'},
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ..._days.asMap().entries.map((entry) {
+                      final dayIndex = entry.key;
+                      final day = entry.value;
+                      final meals = (_asList(day['meals']) ?? const <dynamic>[])
+                          .map((m) => _asMap(m) ?? <String, dynamic>{})
+                          .toList();
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      initialValue: _asString(day['dayName']) ??
+                                          'Day ${dayIndex + 1}',
+                                      enabled: _isEditable,
+                                      decoration: InputDecoration(
+                                        labelText: lang.t(
+                                          'plan_editor_day_name',
+                                          args: {'day': '${dayIndex + 1}'},
+                                        ),
                                       ),
+                                      onChanged: (value) =>
+                                          _days[dayIndex]['dayName'] = value,
                                     ),
-                                    onChanged: (value) =>
-                                        _days[dayIndex]['dayName'] = value,
                                   ),
-                                ),
-                                IconButton(
-                                  onPressed: _isEditable
-                                      ? () => _removeDay(dayIndex)
-                                      : null,
-                                  tooltip: lang.t('delete'),
-                                  icon: const Icon(Icons.delete,
-                                      color: AppColors.error),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            ...meals.asMap().entries.map((mealEntry) {
-                              return _buildMealCard(
-                                lang,
-                                dayIndex,
-                                mealEntry.key,
-                                mealEntry.value,
-                              );
-                            }),
-                            _buildDayTotals(lang, meals),
-                            Align(
-                              alignment: AlignmentDirectional.centerStart,
-                              child: TextButton.icon(
-                                onPressed: _isEditable
-                                    ? () => _addMeal(dayIndex)
-                                    : null,
-                                icon: const Icon(Icons.add),
-                                label:
-                                    Text(lang.t('coach_plan_editor_add_meal')),
+                                  IconButton(
+                                    onPressed: _isEditable
+                                        ? () => _removeDay(dayIndex)
+                                        : null,
+                                    tooltip: lang.t('delete'),
+                                    icon: const Icon(Icons.delete,
+                                        color: AppColors.error),
+                                  ),
+                                ],
                               ),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              ...meals.asMap().entries.map((mealEntry) {
+                                return _buildMealCard(
+                                  lang,
+                                  dayIndex,
+                                  mealEntry.key,
+                                  mealEntry.value,
+                                );
+                              }),
+                              _buildDayTotals(lang, meals),
+                              Align(
+                                alignment: AlignmentDirectional.centerStart,
+                                child: TextButton.icon(
+                                  onPressed: _isEditable
+                                      ? () => _addMeal(dayIndex)
+                                      : null,
+                                  icon: const Icon(Icons.add),
+                                  label: Text(
+                                      lang.t('coach_plan_editor_add_meal')),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      );
+                    }),
+                    const SizedBox(height: 12),
+                    TextField(
+                      controller: _notesController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        labelText: lang.t('coach_nutrition_editor_notes'),
+                        hintText: lang.t('coach_nutrition_editor_notes_hint'),
                       ),
-                    );
-                  }),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: _notesController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      labelText: lang.t('coach_nutrition_editor_notes'),
-                      hintText: lang.t('coach_nutrition_editor_notes_hint'),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  CustomButton(
-                    text: _isSaving
-                        ? '${lang.t('save')}...'
-                        : lang.t('coach_nutrition_editor_save_changes'),
-                    onPressed: _isSaving ? null : _savePlan,
-                    icon: Icons.save,
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    CustomButton(
+                      text: _isSaving
+                          ? '${lang.t('save')}...'
+                          : lang.t('coach_nutrition_editor_save_changes'),
+                      onPressed: _isSaving ? null : _savePlan,
+                      icon: Icons.save,
+                    ),
+                  ],
+                ),
               ),
-            ),
       ),
     );
   }
@@ -627,8 +629,9 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                   ),
                 ),
                 IconButton(
-                  onPressed:
-                      _isEditable ? () => _removeMeal(dayIndex, mealIndex) : null,
+                  onPressed: _isEditable
+                      ? () => _removeMeal(dayIndex, mealIndex)
+                      : null,
                   tooltip: lang.t('remove'),
                   icon: const Icon(Icons.remove_circle_outline,
                       color: AppColors.error),
@@ -657,7 +660,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
                   .map((variant) => DropdownMenuItem<String>(
                         value: variant.variantId,
                         child: Text(
-                          '${_portionLabel(lang, variant.portionCode)} Â· '
+                          '${_portionLabel(lang, variant.portionCode)} · '
                           '${variant.calories.round()} ${lang.t('coach_nutrition_kcal')}',
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -760,7 +763,8 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       readOnly: derived,
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       decoration: InputDecoration(labelText: label),
-      onChanged: derived ? null : (input) => onChanged(num.tryParse(input) ?? 0),
+      onChanged:
+          derived ? null : (input) => onChanged(num.tryParse(input) ?? 0),
     );
   }
 
@@ -786,8 +790,8 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
         padding: const EdgeInsets.only(top: 4, bottom: 4),
         child: Text(
           '${lang.t('coach_nutrition_editor_day_total')}: '
-          '${calories.round()} ${lang.t('coach_nutrition_kcal')} Â· '
-          'P ${g(protein)} Â· C ${g(carbs)} Â· F ${g(fat)}',
+          '${calories.round()} ${lang.t('coach_nutrition_kcal')} · '
+          'P ${g(protein)} · C ${g(carbs)} · F ${g(fat)}',
           style: TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -806,7 +810,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       'XL': 'plan_editor_portion_xlarge',
     };
     final key = names[portionCode];
-    return key == null ? portionCode : '$portionCode Â· ${lang.t(key)}';
+    return key == null ? portionCode : '$portionCode · ${lang.t(key)}';
   }
 
   /// Matches a meal on its name in either language, its id, its slot or its
@@ -857,8 +861,7 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
     }
   }
 
-  void _applyVariant(
-      int dayIndex, int mealIndex, RecipeVariantOption variant) {
+  void _applyVariant(int dayIndex, int mealIndex, RecipeVariantOption variant) {
     _updateMeal(dayIndex, mealIndex, 'variantId', variant.variantId);
     _updateMeal(dayIndex, mealIndex, 'portionCode', variant.portionCode);
     _updateMeal(dayIndex, mealIndex, 'calories', variant.calories.round());
@@ -992,4 +995,3 @@ class _NutritionPlanEditorScreenState extends State<NutritionPlanEditorScreen> {
       _notesController.text != _initialNotes ||
       jsonEncode(_days) != _initialDaysJson;
 }
-

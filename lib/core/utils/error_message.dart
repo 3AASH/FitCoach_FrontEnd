@@ -60,21 +60,27 @@ String friendlyError(LanguageProvider lang, Object? rawError) {
     return lang.t('error_server');
   }
 
-  // Framework noise that would mean nothing to a user.
-  if (lower.startsWith('exception:') ||
-      lower.startsWith('dioexception') ||
-      lower.startsWith('dioerror') ||
-      lower.contains('stack trace') ||
-      lower.contains('type \'') ||
-      lower.contains('null check operator')) {
+  // Framework noise, or an `Exception:` wrapper around it, means nothing to a
+  // user. Only a real message behind an `Exception:` prefix is kept.
+  if (lower.startsWith('exception:') || _isFrameworkNoise(lower)) {
     final stripped = _stripExceptionPrefix(raw);
-    // `Exception: Card declined` is a real message wearing a prefix -- keep the
-    // message. `Exception: DioError [...]` is not; fall back to generic.
-    return _looksUserFacing(stripped) ? stripped : lang.t('error_generic');
+    final keepsMessage = lower.startsWith('exception:') &&
+        !_isFrameworkNoise(stripped.toLowerCase()) &&
+        _looksUserFacing(stripped);
+    // `Exception: Card declined` keeps its message. `Exception: DioError [...]`
+    // and a bare `type 'Null' ...` fall back to generic.
+    return keepsMessage ? stripped : lang.t('error_generic');
   }
 
   return _looksUserFacing(raw) ? raw : lang.t('error_generic');
 }
+
+bool _isFrameworkNoise(String lower) =>
+    lower.startsWith('dioexception') ||
+    lower.startsWith('dioerror') ||
+    lower.contains('stack trace') ||
+    lower.contains('type \'') ||
+    lower.contains('null check operator');
 
 String _stripExceptionPrefix(String raw) {
   final idx = raw.indexOf(':');

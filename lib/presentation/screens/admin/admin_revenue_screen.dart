@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -37,7 +38,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
     final lang = languageProvider;
     final revenue = adminProvider.revenueAnalytics;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_revenue_title')),
         actions: [
@@ -55,12 +56,13 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                      const Icon(Icons.error_outline,
+                          size: 64, color: AppColors.error),
                       const SizedBox(height: 16),
                       Text(
                         adminProvider.error ?? lang.t('admin_load_failed'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -88,8 +90,10 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                     Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: AppColors.success.withValues(alpha: 0.1),
-                                        borderRadius: BorderRadius.circular(12),
+                                        color: AppColors.success
+                                            .withValues(alpha: 0.1),
+                                        borderRadius: BorderRadius.circular(
+                                            AppRadius.medium),
                                       ),
                                       child: const Icon(
                                         Icons.attach_money,
@@ -100,23 +104,22 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                     const SizedBox(width: 16),
                                     Expanded(
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             lang.t('admin_total_revenue'),
                                             style: TextStyle(
                                               fontSize: 14,
-                                              color: context.palette.textSecondary,
+                                              color:
+                                                  context.palette.textSecondary,
                                             ),
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
                                             '\$${revenue.total.toStringAsFixed(2)}',
-                                            style: const TextStyle(
-                                              fontSize: 32,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.success,
-                                            ),
+                                            style: AppTextStyles.h1.copyWith(
+                                                color: context.palette.success),
                                           ),
                                         ],
                                       ),
@@ -125,13 +128,14 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                 ),
                                 const SizedBox(height: 16),
                                 Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceAround,
                                   children: [
                                     _buildStatItem(
                                       lang.t('admin_transactions'),
                                       '${revenue.transactionCount}',
                                       Icons.receipt_long,
-                                      AppColors.primary,
+                                      context.palette.primary,
                                     ),
                                     Container(
                                       width: 1,
@@ -158,10 +162,8 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                         // Period Selector
                         Text(
                           lang.t('admin_time_period'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.h3
+                              .copyWith(color: context.palette.textPrimary),
                         ),
                         const SizedBox(height: 12),
                         CustomCard(
@@ -177,12 +179,14 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                 ButtonSegment(
                                   value: 'week',
                                   label: Text(lang.t('admin_period_week')),
-                                  icon: const Icon(Icons.calendar_view_week, size: 18),
+                                  icon: const Icon(Icons.calendar_view_week,
+                                      size: 18),
                                 ),
                                 ButtonSegment(
                                   value: 'month',
                                   label: Text(lang.t('admin_period_month')),
-                                  icon: const Icon(Icons.calendar_month, size: 18),
+                                  icon: const Icon(Icons.calendar_month,
+                                      size: 18),
                                 ),
                               ],
                               selected: {_selectedPeriod},
@@ -202,10 +206,8 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                         if (revenue.byPeriod.isNotEmpty) ...[
                           Text(
                             lang.t('admin_revenue_by_period'),
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: AppTextStyles.h3
+                                .copyWith(color: context.palette.textPrimary),
                           ),
                           const SizedBox(height: 12),
                           CustomCard(
@@ -222,10 +224,12 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                     titlesData: FlTitlesData(
                                       show: true,
                                       rightTitles: const AxisTitles(
-                                        sideTitles: SideTitles(showTitles: false),
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
                                       ),
                                       topTitles: const AxisTitles(
-                                        sideTitles: SideTitles(showTitles: false),
+                                        sideTitles:
+                                            SideTitles(showTitles: false),
                                       ),
                                       bottomTitles: AxisTitles(
                                         sideTitles: SideTitles(
@@ -233,17 +237,21 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                           reservedSize: 30,
                                           interval: 1,
                                           getTitlesWidget: (value, meta) {
-                                            if (value.toInt() >= revenue.byPeriod.length) {
+                                            if (value.toInt() >=
+                                                revenue.byPeriod.length) {
                                               return const SizedBox();
                                             }
-                                            final period = revenue.byPeriod[value.toInt()].period;
+                                            final period = revenue
+                                                .byPeriod[value.toInt()].period;
                                             return Padding(
-                                              padding: const EdgeInsets.only(top: 8),
+                                              padding:
+                                                  const EdgeInsets.only(top: 8),
                                               child: Text(
                                                 '${period.month}/${period.day}',
                                                 style: TextStyle(
-                                                  fontSize: 10,
-                                                  color: context.palette.textSecondary,
+                                                  fontSize: 12,
+                                                  color: context
+                                                      .palette.textSecondary,
                                                 ),
                                               ),
                                             );
@@ -258,8 +266,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                             return Text(
                                               '\$${value.toInt()}',
                                               style: TextStyle(
-                                                fontSize: 10,
-                                                color: context.palette.textSecondary,
+                                                fontSize: 12,
+                                                color: context
+                                                    .palette.textSecondary,
                                               ),
                                             );
                                           },
@@ -269,17 +278,24 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                     borderData: FlBorderData(
                                       show: true,
                                       border: Border.all(
-                                        color: context.palette.textDisabled.withValues(alpha: 0.2),
+                                        color: context.palette.textDisabled
+                                            .withValues(alpha: 0.2),
                                       ),
                                     ),
                                     minX: 0,
-                                    maxX: (revenue.byPeriod.length - 1).toDouble(),
+                                    maxX: (revenue.byPeriod.length - 1)
+                                        .toDouble(),
                                     minY: 0,
-                                    maxY: _getMaxRevenue(revenue.byPeriod) * 1.2,
+                                    maxY:
+                                        _getMaxRevenue(revenue.byPeriod) * 1.2,
                                     lineBarsData: [
                                       LineChartBarData(
-                                        spots: revenue.byPeriod.asMap().entries.map((e) {
-                                          return FlSpot(e.key.toDouble(), e.value.revenue);
+                                        spots: revenue.byPeriod
+                                            .asMap()
+                                            .entries
+                                            .map((e) {
+                                          return FlSpot(e.key.toDouble(),
+                                              e.value.revenue);
                                         }).toList(),
                                         isCurved: true,
                                         color: AppColors.success,
@@ -288,7 +304,8 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                         dotData: const FlDotData(show: true),
                                         belowBarData: BarAreaData(
                                           show: true,
-                                          color: AppColors.success.withValues(alpha: 0.1),
+                                          color: AppColors.success
+                                              .withValues(alpha: 0.1),
                                         ),
                                       ),
                                     ],
@@ -303,10 +320,8 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                         // Revenue by Tier
                         Text(
                           lang.t('admin_revenue_by_tier'),
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: AppTextStyles.h3
+                              .copyWith(color: context.palette.textPrimary),
                         ),
                         const SizedBox(height: 12),
                         CustomCard(
@@ -325,18 +340,23 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                           width: 48,
                                           height: 48,
                                           decoration: BoxDecoration(
-                                            color: _getTierColor(tier.subscriptionTier).withValues(alpha: 0.1),
-                                            borderRadius: BorderRadius.circular(12),
+                                            color: _getTierColor(
+                                                    tier.subscriptionTier)
+                                                .withValues(alpha: 0.1),
+                                            borderRadius: BorderRadius.circular(
+                                                AppRadius.medium),
                                           ),
                                           child: Icon(
                                             _getTierIcon(tier.subscriptionTier),
-                                            color: _getTierColor(tier.subscriptionTier),
+                                            color: _getTierColor(
+                                                tier.subscriptionTier),
                                           ),
                                         ),
                                         const SizedBox(width: 16),
                                         Expanded(
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
                                               Text(
                                                 tier.subscriptionTier,
@@ -350,17 +370,24 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                                 '${tier.count} ${lang.t('admin_subscriptions_label')}',
                                                 style: TextStyle(
                                                   fontSize: 12,
-                                                  color: context.palette.textSecondary,
+                                                  color: context
+                                                      .palette.textSecondary,
                                                 ),
                                               ),
                                               const SizedBox(height: 8),
                                               ClipRRect(
-                                                borderRadius: BorderRadius.circular(4),
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        AppRadius.pill),
                                                 child: LinearProgressIndicator(
                                                   value: percentage / 100,
-                                                  backgroundColor: context.palette.textDisabled.withValues(alpha: 0.2),
-                                                  valueColor: AlwaysStoppedAnimation(
-                                                    _getTierColor(tier.subscriptionTier),
+                                                  backgroundColor: context
+                                                      .palette.textDisabled
+                                                      .withValues(alpha: 0.2),
+                                                  valueColor:
+                                                      AlwaysStoppedAnimation(
+                                                    _getTierColor(
+                                                        tier.subscriptionTier),
                                                   ),
                                                   minHeight: 6,
                                                 ),
@@ -370,21 +397,23 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
                                         ),
                                         const SizedBox(width: 16),
                                         Column(
-                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           children: [
                                             Text(
                                               '\$${tier.revenue.toStringAsFixed(2)}',
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 18,
                                                 fontWeight: FontWeight.bold,
-                                                color: AppColors.success,
+                                                color: context.palette.success,
                                               ),
                                             ),
                                             Text(
                                               '${percentage.toStringAsFixed(1)}%',
                                               style: TextStyle(
                                                 fontSize: 12,
-                                                color: context.palette.textSecondary,
+                                                color: context
+                                                    .palette.textSecondary,
                                               ),
                                             ),
                                           ],
@@ -406,7 +435,8 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -433,7 +463,9 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
 
   double _getMaxRevenue(List<dynamic> periods) {
     if (periods.isEmpty) return 100;
-    return periods.map((p) => p.revenue as double).reduce((a, b) => a > b ? a : b);
+    return periods
+        .map((p) => p.revenue as double)
+        .reduce((a, b) => a > b ? a : b);
   }
 
   Color _getTierColor(String tier) {
@@ -442,7 +474,7 @@ class _AdminRevenueScreenState extends State<AdminRevenueScreen> {
       case 'smart_premium':
         return AppColors.accent;
       case 'premium':
-        return AppColors.primary;
+        return context.palette.primary;
       case 'freemium':
       default:
         return context.palette.textSecondary;

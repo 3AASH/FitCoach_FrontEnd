@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -41,7 +42,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
     final adminProvider = context.watch<AdminProvider>();
     final lang = languageProvider;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('admin_audit_logs_title')),
         actions: [
@@ -63,7 +64,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
           if (_actionFilter != null || _dateRange != null)
             Container(
               padding: const EdgeInsets.all(16),
-              color: AppColors.primary.withValues(alpha: 0.1),
+              color: context.palette.primary.withValues(alpha: 0.1),
               child: Row(
                 children: [
                   Expanded(
@@ -121,12 +122,13 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Icon(Icons.error_outline, size: 64, color: AppColors.error),
+                            const Icon(Icons.error_outline,
+                                size: 64, color: AppColors.error),
                             const SizedBox(height: 16),
                             Text(
                               adminProvider.error!,
                               textAlign: TextAlign.center,
-                              style: const TextStyle(color: AppColors.error),
+                              style: TextStyle(color: context.palette.error),
                             ),
                             const SizedBox(height: 16),
                             ElevatedButton(
@@ -189,7 +191,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                 height: 48,
                 decoration: BoxDecoration(
                   color: _getActionColor(log.action).withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
                 ),
                 child: Icon(
                   _getActionIcon(log.action),
@@ -406,7 +408,7 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                 initialValue: _actionFilter,
                 decoration: InputDecoration(
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
                   ),
                 ),
                 items: [
@@ -457,7 +459,8 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
                 onPressed: () async {
                   final range = await showDateRangePicker(
                     context: context,
-                    firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                    firstDate:
+                        DateTime.now().subtract(const Duration(days: 365)),
                     lastDate: DateTime.now(),
                     initialDateRange: _dateRange,
                   );
@@ -514,10 +517,14 @@ class _AdminAuditLogsScreenState extends State<AdminAuditLogsScreen> {
   }
 
   Color _getActionColor(String action) {
-    if (action.contains('created') || action.contains('approved')) return AppColors.success;
-    if (action.contains('deleted') || action.contains('suspended')) return AppColors.error;
-    if (action.contains('updated')) return AppColors.warning;
-    return AppColors.primary;
+    if (action.contains('created') || action.contains('approved')) {
+      return context.palette.success;
+    }
+    if (action.contains('deleted') || action.contains('suspended')) {
+      return context.palette.error;
+    }
+    if (action.contains('updated')) return context.palette.warning;
+    return context.palette.primary;
   }
 
   String _getActionDisplayName(String action, LanguageProvider lang) {

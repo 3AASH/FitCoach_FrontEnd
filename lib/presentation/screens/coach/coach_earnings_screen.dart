@@ -1,4 +1,5 @@
-﻿import 'package:flutter/material.dart';
+import '../../widgets/aash_backdrop.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../../../core/constants/colors.dart';
@@ -44,7 +45,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
     final coachProvider = context.watch<CoachProvider>();
     final earnings = coachProvider.earnings;
 
-    return Scaffold(
+    return AashScaffold(
       appBar: AppBar(
         title: Text(lang.t('coach_earnings_title')),
         actions: [
@@ -69,10 +70,9 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        coachProvider.error ??
-                            lang.t('coach_earnings_failed'),
+                        coachProvider.error ?? lang.t('coach_earnings_failed'),
                         textAlign: TextAlign.center,
-                        style: const TextStyle(color: AppColors.error),
+                        style: TextStyle(color: context.palette.error),
                       ),
                       const SizedBox(height: 16),
                       ElevatedButton(
@@ -128,12 +128,12 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.success.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: AppColors.gold.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
                         ),
                         child: const Icon(
                           Icons.account_balance_wallet,
-                          color: AppColors.success,
+                          color: AppColors.gold,
                           size: 20,
                         ),
                       ),
@@ -152,10 +152,10 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                   const SizedBox(height: 12),
                   Text(
                     '\$${earnings.summary.totalCommission.toStringAsFixed(2)}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.success,
+                      color: context.palette.accent,
                     ),
                   ),
                 ],
@@ -163,9 +163,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
             ),
           ),
         ),
-
         const SizedBox(width: 12),
-
         Expanded(
           child: CustomCard(
             child: Padding(
@@ -178,12 +176,12 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(8),
+                          color: context.palette.primary.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.receipt_long,
-                          color: AppColors.primary,
+                          color: context.palette.primary,
                           size: 20,
                         ),
                       ),
@@ -202,10 +200,10 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                   const SizedBox(height: 12),
                   Text(
                     '${earnings.summary.totalTransactions}',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primary,
+                      color: context.palette.primary,
                     ),
                   ),
                 ],
@@ -299,10 +297,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
           children: [
             Text(
               lang.t('coach_earnings_by_period'),
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.h3,
             ),
             const SizedBox(height: 24),
             SizedBox(
@@ -328,7 +323,8 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                         reservedSize: 30,
                         interval: 1,
                         getTitlesWidget: (value, meta) {
-                          if (value.toInt() >= earnings.periodBreakdown.length) {
+                          if (value.toInt() >=
+                              earnings.periodBreakdown.length) {
                             return const SizedBox();
                           }
                           final period =
@@ -338,7 +334,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                             child: Text(
                               '${period.month}/${period.day}',
                               style: TextStyle(
-                                fontSize: 10,
+                                fontSize: 12,
                                 color: context.palette.textSecondary,
                               ),
                             ),
@@ -354,7 +350,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                           return Text(
                             '\$${value.toInt()}',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 12,
                               color: context.palette.textSecondary,
                             ),
                           );
@@ -365,7 +361,8 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                   borderData: FlBorderData(
                     show: true,
                     border: Border.all(
-                      color: context.palette.textDisabled.withValues(alpha: 0.2),
+                      color:
+                          context.palette.textDisabled.withValues(alpha: 0.2),
                     ),
                   ),
                   minX: 0,
@@ -376,13 +373,13 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                     LineChartBarData(
                       spots: spots,
                       isCurved: true,
-                      color: AppColors.success,
+                      color: AppColors.gold,
                       barWidth: 3,
                       isStrokeCapRound: true,
                       dotData: const FlDotData(show: true),
                       belowBarData: BarAreaData(
                         show: true,
-                        color: AppColors.success.withValues(alpha: 0.1),
+                        color: AppColors.gold.withValues(alpha: 0.12),
                       ),
                     ),
                   ],
@@ -407,10 +404,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
               children: [
                 Text(
                   lang.t('coach_earnings_recent_transactions'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: AppTextStyles.h3,
                 ),
                 Text(
                   '${earnings.recentTransactions.length}',
@@ -421,9 +415,7 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
                 ),
               ],
             ),
-
             const SizedBox(height: 16),
-
             if (earnings.recentTransactions.isEmpty)
               Center(
                 child: Padding(
@@ -463,18 +455,16 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppColors.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
+              color: AppColors.gold.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
             ),
             child: const Icon(
               Icons.arrow_downward,
-              color: AppColors.success,
+              color: AppColors.gold,
               size: 20,
             ),
           ),
-
           const SizedBox(width: 12),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,23 +487,22 @@ class _CoachEarningsScreenState extends State<CoachEarningsScreen> {
               ],
             ),
           ),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
                 '+\$${transaction.coachCommission.toStringAsFixed(2)}',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.success,
+                  color: context.palette.accent,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 transaction.type,
                 style: TextStyle(
-                  fontSize: 10,
+                  fontSize: 12,
                   color: context.palette.textSecondary,
                 ),
               ),

@@ -1,3 +1,4 @@
+import '../../widgets/aash_backdrop.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../core/constants/colors.dart';
@@ -138,223 +139,229 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
 
     return UnsavedChangesGuard(
       hasUnsavedChanges: _hasUnsavedWork,
-      child: Scaffold(
-      // One save, not two. This screen had a TextButton save in the AppBar and
-      // a full-width save at the foot of the form -- the same action twice.
-      // The foot button moved to a persistent bottom bar, so it stays both
-      // prominent and always reachable without scrolling.
-      appBar: AppBar(
-        title: Text(languageProvider.t('coach_workout_builder_title')),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Client info
-            CustomCard(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              child: Row(
-                children: [
-                  const CircleAvatar(
-                    radius: 24,
-                    backgroundColor: AppColors.primary,
-                    child: Icon(Icons.person, color: AppColors.textWhite),
-                  ),
-                  const SizedBox(width: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        languageProvider.t('coach_workout_builder_client_label'),
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: context.palette.textSecondary,
+      child: AashScaffold(
+        // One save, not two. This screen had a TextButton save in the AppBar and
+        // a full-width save at the foot of the form -- the same action twice.
+        // The foot button moved to a persistent bottom bar, so it stays both
+        // prominent and always reachable without scrolling.
+        appBar: AppBar(
+          title: Text(languageProvider.t('coach_workout_builder_title')),
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Client info
+              CustomCard(
+                color: context.palette.primary.withValues(alpha: 0.1),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: context.palette.primary,
+                      child: Icon(Icons.person,
+                          color: context.palette.textOnBrand),
+                    ),
+                    const SizedBox(width: 16),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          languageProvider
+                              .t('coach_workout_builder_client_label'),
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.palette.textSecondary,
+                          ),
                         ),
-                      ),
-                      Text(
-                        widget.clientName,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          widget.clientName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Plan name
-            Text(
-              languageProvider.t('coach_workout_builder_plan_name_label'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _planNameController,
-              decoration: InputDecoration(
-                hintText: languageProvider.t('coach_workout_builder_plan_name_hint'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+                      ],
+                    ),
+                  ],
                 ),
               ),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 24),
 
-            // Description
-            Text(
-              languageProvider.t('coach_workout_builder_description_label'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _planDescriptionController,
-              maxLines: 3,
-              decoration: InputDecoration(
-                hintText: languageProvider.t('coach_workout_builder_description_hint'),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
+              // Plan name
+              Text(
+                languageProvider.t('coach_workout_builder_plan_name_label'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-            ),
-
-            const SizedBox(height: 16),
-
-            // Goal selection
-            Text(
-              languageProvider.t('coach_workout_builder_goal_label'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              const SizedBox(height: 8),
+              TextField(
+                controller: _planNameController,
+                decoration: InputDecoration(
+                  hintText: languageProvider
+                      .t('coach_workout_builder_plan_name_hint'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8,
-              children:
-                  ['fat_loss', 'muscle_gain', 'general_fitness'].map((goal) {
-                final isSelected = _selectedGoal == goal;
-                return FilterChip(
-                  label: Text(_getGoalLabel(goal, languageProvider)),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      _selectedGoal = goal;
-                    });
-                  },
-                  selectedColor: AppColors.primary.withValues(alpha: 0.2),
-                  checkmarkColor: AppColors.primary,
-                );
-              }).toList(),
-            ),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // Days per week
-            Text(
-              languageProvider.t('coach_workout_builder_days_per_week_label'),
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+              // Description
+              Text(
+                languageProvider.t('coach_workout_builder_description_label'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: List.generate(7, (index) {
-                final day = index + 1;
-                final isSelected = _daysPerWeek == day;
-                return Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: GestureDetector(
-                    onTap: () {
+              const SizedBox(height: 8),
+              TextField(
+                controller: _planDescriptionController,
+                maxLines: 3,
+                decoration: InputDecoration(
+                  hintText: languageProvider
+                      .t('coach_workout_builder_description_hint'),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppRadius.medium),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Goal selection
+              Text(
+                languageProvider.t('coach_workout_builder_goal_label'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                children:
+                    ['fat_loss', 'muscle_gain', 'general_fitness'].map((goal) {
+                  final isSelected = _selectedGoal == goal;
+                  return FilterChip(
+                    label: Text(_getGoalLabel(goal, languageProvider)),
+                    selected: isSelected,
+                    onSelected: (selected) {
                       setState(() {
-                        _daysPerWeek = day;
-                        _initializeWorkoutDays();
+                        _selectedGoal = goal;
                       });
                     },
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color:
-                            isSelected ? AppColors.primary : context.palette.surface,
-                        border: Border.all(
-                          color:
-                              isSelected ? AppColors.primary : context.palette.border,
-                        ),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '$day',
-                          style: TextStyle(
+                    selectedColor:
+                        context.palette.primary.withValues(alpha: 0.2),
+                    checkmarkColor: context.palette.primary,
+                  );
+                }).toList(),
+              ),
+
+              const SizedBox(height: 16),
+
+              // Days per week
+              Text(
+                languageProvider.t('coach_workout_builder_days_per_week_label'),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: List.generate(7, (index) {
+                  final day = index + 1;
+                  final isSelected = _daysPerWeek == day;
+                  return Padding(
+                    padding: const EdgeInsetsDirectional.only(end: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _daysPerWeek = day;
+                          _initializeWorkoutDays();
+                        });
+                      },
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: isSelected
+                              ? context.palette.primary
+                              : context.palette.surface,
+                          border: Border.all(
                             color: isSelected
-                                ? AppColors.textWhite
-                                : context.palette.textPrimary,
-                            fontWeight: FontWeight.w600,
+                                ? context.palette.primary
+                                : context.palette.border,
+                          ),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '$day',
+                            style: TextStyle(
+                              color: isSelected
+                                  ? context.palette.textOnBrand
+                                  : context.palette.textPrimary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ),
                     ),
+                  );
+                }),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Workout days
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    languageProvider
+                        .t('coach_workout_builder_workout_days_label'),
+                    style: AppTextStyles.h3,
                   ),
-                );
+                  TextButton.icon(
+                    onPressed: () => _addFromTemplate(languageProvider),
+                    icon: const Icon(Icons.file_copy, size: 18),
+                    label: Text(languageProvider
+                        .t('coach_workout_builder_from_template')),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+
+              ..._workoutDays.asMap().entries.map((entry) {
+                final index = entry.key;
+                final day = entry.value;
+                return _buildWorkoutDayCard(day, index, languageProvider);
               }),
-            ),
 
-            const SizedBox(height: 24),
-
-            // Workout days
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  languageProvider.t('coach_workout_builder_workout_days_label'),
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                TextButton.icon(
-                  onPressed: () => _addFromTemplate(languageProvider),
-                  icon: const Icon(Icons.file_copy, size: 18),
-                  label: Text(languageProvider.t('coach_workout_builder_from_template')),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-
-            ..._workoutDays.asMap().entries.map((entry) {
-              final index = entry.key;
-              final day = entry.value;
-              return _buildWorkoutDayCard(day, index, languageProvider);
-            }),
-
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          child: CustomButton(
-            text: languageProvider.t('coach_workout_builder_save_plan'),
-            onPressed: () => _savePlan(languageProvider),
-            variant: ButtonVariant.primary,
-            size: ButtonSize.large,
-            fullWidth: true,
+              const SizedBox(height: 16),
+            ],
           ),
         ),
-      ),
+        bottomNavigationBar: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: CustomButton(
+              text: languageProvider.t('coach_workout_builder_save_plan'),
+              onPressed: () => _savePlan(languageProvider),
+              variant: ButtonVariant.primary,
+              size: ButtonSize.large,
+              fullWidth: true,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -387,10 +394,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                   'coach_workout_builder_day_label',
                   args: {'day': day['day'].toString()},
                 ),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: AppTextStyles.h3,
               ),
               Row(
                 children: [
@@ -524,8 +528,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                 children: [
                   LibraryPickerField<ExerciseLibraryOption>(
                     initialValue: exerciseName,
-                    labelText:
-                        lang.t('coach_workout_builder_exercise_name'),
+                    labelText: lang.t('coach_workout_builder_exercise_name'),
                     options: _exerciseOptions,
                     optionLabel: (option) => option.name,
                     optionDetail: (option) => option.detail,
@@ -560,7 +563,8 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
                             labelText: lang.t('reps'),
                           ),
                           keyboardType: TextInputType.number,
-                          onChanged: (value) => reps = int.tryParse(value) ?? 12,
+                          onChanged: (value) =>
+                              reps = int.tryParse(value) ?? 12,
                         ),
                       ),
                     ],
@@ -694,8 +698,7 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              coachProvider.error ??
-                  lang.t('coach_workout_plan_save_failed'),
+              coachProvider.error ?? lang.t('coach_workout_plan_save_failed'),
             ),
             backgroundColor: AppColors.error,
           ),
@@ -705,5 +708,4 @@ class _WorkoutPlanBuilderScreenState extends State<WorkoutPlanBuilderScreen> {
       if (mounted) setState(() => _isSaving = false);
     }
   }
-
 }

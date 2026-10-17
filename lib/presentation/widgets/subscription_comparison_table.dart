@@ -30,7 +30,10 @@ class SubscriptionComparisonTable extends StatelessWidget {
     }
 
     final labels = featureLabels ?? _collectFeatureLabels();
-    final tableWidth = 180 + plans.length * 180;
+    // Container width includes its padding and border, so the rows (which only
+    // get the inside) overflow unless these are added: 24 for the padding, 2
+    // for the 1px border on each side.
+    final tableWidth = 180 + plans.length * 180 + 26;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -41,15 +44,15 @@ class SubscriptionComparisonTable extends StatelessWidget {
           color: theme.cardColor,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(color: theme.dividerColor.withValues(alpha: 0.8)),
-          boxShadow: [
-            BoxShadow(
-              offset: const Offset(0, 10),
-              blurRadius: 25,
-              color: Colors.black.withValues(
-                alpha: theme.brightness == Brightness.dark ? 0.16 : 0.08,
-              ),
-            ),
-          ],
+          boxShadow: theme.brightness == Brightness.dark
+              ? const []
+              : [
+                  BoxShadow(
+                    offset: const Offset(0, 10),
+                    blurRadius: 25,
+                    color: Colors.black.withValues(alpha: 0.08),
+                  ),
+                ],
         ),
         child: Column(
           children: [
@@ -102,7 +105,7 @@ class SubscriptionComparisonTable extends StatelessWidget {
                           fontWeight:
                               isActive ? FontWeight.w800 : FontWeight.w600,
                           color: isActive
-                              ? AppColors.primary
+                              ? context.palette.primary
                               : theme.colorScheme.onSurface,
                         ),
                         maxLines: 2,
@@ -117,14 +120,15 @@ class SubscriptionComparisonTable extends StatelessWidget {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withValues(alpha: 0.12),
+                          color:
+                              context.palette.primary.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: Text(
                           plan.badge!,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: AppColors.primary,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: context.palette.primary,
                           ),
                         ),
                       ),
@@ -135,10 +139,10 @@ class SubscriptionComparisonTable extends StatelessWidget {
                   plan.isFree
                       ? tr('subscription_free_label')
                       : '${plan.monthlyPrice.toStringAsFixed(0)} ${plan.currency}/$monthUnit',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
+                    color: context.palette.primary,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -212,8 +216,9 @@ class SubscriptionComparisonTable extends StatelessWidget {
                   Icon(
                     included ? Icons.check_circle : Icons.cancel,
                     size: 18,
-                    color:
-                        included ? AppColors.success : context.palette.textDisabled,
+                    color: included
+                        ? AppColors.success
+                        : context.palette.textDisabled,
                   ),
                   const SizedBox(width: 8),
                   Expanded(

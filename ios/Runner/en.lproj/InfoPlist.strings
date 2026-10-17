@@ -1,0 +1,7 @@
+"CFBundleDisplayName" = "Aash";
+"NSCameraUsageDescription" = "Aash uses your camera for video calls with your coach.";
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Aash uses your location to find nearby gyms and coaches.";
+"NSLocationWhenInUseUsageDescription" = "Aash uses your location to find nearby gyms and coaches.";
+"NSMicrophoneUsageDescription" = "Aash uses your microphone for video calls with your coach.";
+"NSPhotoLibraryAddUsageDescription" = "Aash needs access to save your progress photos.";
+"NSPhotoLibraryUsageDescription" = "Aash needs access to select progress photos to share with your coach.";

@@ -49,8 +49,8 @@ class QuotaIndicator extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               translator('unlimited_messages'),
-              style: const TextStyle(
-                color: AppColors.success,
+              style: TextStyle(
+                color: context.palette.success,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
               ),
